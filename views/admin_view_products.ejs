@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View & Edit Products - Avira Ultra Admin</title>
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
+
+    <!-- 🌐 ડાયનેમિક લાઇટ ૩D એકોર્ડિયન સાઇડબાર મેનુબાર -->
+    <%- include('partials/admin_navbar') %>
+
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા -->
+    <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
+        
+        <!-- Top Navbar Header -->
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-basket-shopping text-emerald-500"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Product Manager / View & Edit Products</span>
+            </div>
+            <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-xl">Total: <%= products.length %> Items</span>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-grow w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
+            
+            <div class="space-y-1 text-center max-w-xl mx-auto mb-8">
+                <h1 class="text-2xl font-black tracking-tight text-slate-950 uppercase">Inventory Grid display</h1>
+                <p class="text-slate-400 text-xs">Manage active assets bounds. Click Edit button to modify title tags, pricing, or metadata specs on the fly.</p>
+            </div>
+
+            <!-- 🛒 PRODUCTS DISPATCH DISPLAY GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <% if(products.length === 0) { %>
+                    <div class="col-span-full bg-white p-12 text-center text-slate-400 rounded-2xl border border-slate-100 shadow-sm">
+                        <i class="fa-solid fa-box-open text-4xl block mb-3 text-slate-200"></i>
+                        No inventory assets published yet inside database registry.
+                    </div>
+                <% } else { %>
+                    <% products.forEach((product) => { %>
+                        <div id="product-card-<%= product.id %>" class="bg-white/80 backdrop-blur-md border border-slate-200/60 p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-4 relative overflow-hidden transition-all hover:shadow-md">
+                            
+                            <!-- Product First Showcase Image -->
+                            <div class="w-full sm:w-28 h-28 bg-slate-50 border border-slate-100 rounded-xl overflow-hidden flex items-center justify-center p-2 flex-shrink-0">
+                                <img src="<%= product.image_url %>" alt="Product Image" class="h-full w-full object-contain">
+                            </div>
+
+                            <!-- Content Operational Metadata Details -->
+                            <div class="flex-grow flex flex-col justify-between space-y-2">
+                                <div>
+                                    <div class="flex justify-between items-start gap-2">
+                                        <h3 class="text-sm font-black text-slate-900 uppercase tracking-wide leading-tight"><%= product.name %></h3>
+                                        <span class="text-[9px] font-black bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-md whitespace-nowrap"><%= product.pv %> PV</span>
+                                    </div>
+                                    <p class="text-[11px] font-bold text-slate-900 mt-1">Amount: <span class="text-emerald-600 font-black">₹<%= product.amount %></span></p>
+                                    <p class="text-slate-400 text-[10px] line-clamp-2 mt-1.5 font-medium"><%= product.info %></p>
+                                </div>
+
+                                <!-- Operational Node Form Triggers -->
+                                <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
+                                    <button type="button" 
+                                            class="edit-product-btn text-blue-500 hover:text-blue-700 text-[11px] font-black uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+                                            data-id="<%= product.id %>"
+                                            data-name="<%= product.name %>"
+                                            data-amount="<%= product.amount %>"
+                                            data-pv="<%= product.pv %>"
+                                            data-info="<%= product.info %>"
+                                            data-benefits="<%= product.benefits %>"
+                                            data-how-to-use="<%= product.how_to_use %>"
+                                            data-all-images='<%= product.all_images || JSON.stringify([product.image_url]) %>'>
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit Specs & Pics
+                                    </button>
+                                    <button type="button" 
+                                            class="delete-product-btn text-rose-500 hover:text-rose-700 text-[11px] font-black uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+                                            data-id="<%= product.id %>">
+                                        <i class="fa-solid fa-trash-can"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+        </main>
+
+        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
+            &copy; 2026 Avira Control Center. Secure Asset Workspace.
+        </footer>
+    </div>
+
+    <!-- ⚡ DYNAMIC LIVE MODAL BOX SYSTEM FOR EDITING SPECIFICATIONS -->
+    <div id="editModal" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 border border-slate-200 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b pb-3 border-slate-100">
+                <h3 class="text-base font-black uppercase text-slate-900"><i class="fa-solid fa-sliders text-emerald-500 mr-1"></i> Edit Product Specs</h3>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="editProductForm" enctype="multipart/form-data" class="space-y-4 text-xs font-bold">
+                <input type="hidden" id="editProductId">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-500 mb-1">Product Title Name</label>
+                        <input type="text" id="editName" name="name" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-800 font-bold">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-slate-500 mb-1">Price (₹)</label>
+                            <input type="number" step="0.01" id="editAmount" name="amount" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-800 font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-slate-500 mb-1">PV Matrix</label>
+                            <input type="number" id="editPv" name="pv" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-800 font-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🖼️ NEW: LIVE IMAGE MANAGER WORKSPACE (DELETE CURRENT PICS) -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 space-y-2">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Current Gallery Images (Click ❌ to Delete)</label>
+                    <div id="currentImagesContainer" class="flex flex-wrap gap-3"></div>
+                </div>
+
+                <!-- 📸 NEW: ADD NEW SHOWCASE IMAGES BUTTON -->
+                <div>
+                    <label class="block text-[10px] font-black uppercase mb-1 text-slate-500 tracking-wider">Add More Showcase Images</label>
+                    <input type="file" id="editImageInput" accept="image/*" multiple 
+                           class="w-full p-2 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition-all">
+                </div>
+
+                <!-- 🔄 NEW IMAGE PREVIEW CONTAINER -->
+                <div id="newImagesPreviewWrapper" class="hidden flex-col gap-2 bg-purple-50/50 p-3 rounded-2xl border border-purple-100 shadow-inner">
+                    <span class="text-[9px] font-black uppercase text-purple-700 tracking-wider"><i class="fa-solid fa-images mr-1"></i> New Pics to Add Preview:</span>
+                    <div id="newImagesPreviewContainer" class="flex flex-wrap gap-3"></div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-500 mb-1">Product Description</label>
+                    <textarea id="editInfo" name="info" rows="2" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-700 font-medium"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-slate-500 mb-1">Product Benefits Matrix</label>
+                    <textarea id="editBenefits" name="benefits" rows="2" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-700 font-medium"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-slate-500 mb-1">Usage Instructions</label>
+                    <textarea id="editHowToUse" name="how_to_use" rows="2" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-700 font-medium"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 border-t pt-4 border-slate-100">
+                    <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition-all uppercase tracking-wider cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-all shadow-md uppercase tracking-wider cursor-pointer">Save Changes &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Operations Layer Code Logic Node -->
+    <script>
+        let newSelectedFiles = [];
+
+        // 🔮 ૧. ઓપન એડિટ મોડલ બોક્સ પોપઅપ સેટિંગ વિથ લાઈવ ઈમેજ લોડર
+        document.querySelectorAll('.edit-product-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('editProductId').value = this.getAttribute('data-id');
+                document.getElementById('editName').value = this.getAttribute('data-name');
+                document.getElementById('editAmount').value = this.getAttribute('data-amount');
+                document.getElementById('editPv').value = this.getAttribute('data-pv');
+                document.getElementById('editInfo').value = this.getAttribute('data-info');
+                document.getElementById('editBenefits').value = this.getAttribute('data-benefits');
+                document.getElementById('editHowToUse').value = this.getAttribute('data-how-to-use');
+                
+                // ડાયનેમિકલી જૂના ફોટા લોડ કરો
+                const currentImgContainer = document.getElementById('currentImagesContainer');
+                currentImgContainer.innerHTML = '';
+                
+                let allImages = [];
+                try {
+                    allImages = JSON.parse(this.getAttribute('data-all-images') || "[]");
+                } catch(e) {
+                    allImages = [this.getAttribute('data-all-images')];
+                }
+
+                allImages.forEach(imgUrl => {
+                    if(imgUrl) {
+                        const div = document.createElement('div');
+                        div.className = "h-14 w-14 rounded-xl bg-white p-1 border border-slate-200 flex-shrink-0 overflow-hidden shadow-xs flex items-center justify-center relative";
+                        div.innerHTML = `
+                            <img src="${imgUrl}" class="h-full w-full object-contain">
+                            <input type="hidden" name="existingImages" value="${imgUrl}">
+                            <button type="button" onclick="this.closest('div').remove()" class="absolute -top-1 -right-1 bg-rose-500 hover:bg-rose-600 text-white text-[8px] h-4 w-4 rounded-full flex items-center justify-center transition-all shadow focus:outline-none">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        `;
+                        currentImgContainer.appendChild(div);
+                    }
+                });
+
+                document.getElementById('editModal').classList.remove('hidden');
+            });
+        });
+
+        // 📸 ૨. નવા એડ થનારા ફોટા માટેનું સ્માર્ટ લાઈવ પ્રીવ્યૂ
+        document.getElementById('editImageInput').addEventListener('change', function() {
+            const wrapper = document.getElementById('newImagesPreviewWrapper');
+            const container = document.getElementById('newImagesPreviewContainer');
+            
+            Array.from(this.files).forEach(file => {
+                newSelectedFiles.push(file);
+            });
+            this.value = '';
+            renderNewPreviews();
+        });
+
+        function renderNewPreviews() {
+            const wrapper = document.getElementById('newImagesPreviewWrapper');
+            const container = document.getElementById('newImagesPreviewContainer');
+            container.innerHTML = '';
+
+            if (newSelectedFiles.length > 0) {
+                wrapper.classList.remove('hidden');
+                wrapper.classList.add('flex');
+
+                newSelectedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = "h-14 w-14 rounded-xl bg-white p-1 border border-purple-200 flex-shrink-0 overflow-hidden shadow-xs flex items-center justify-center relative";
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="h-full w-full object-contain">
+                            <button type="button" onclick="removeNewImage(${index})" class="absolute -top-1 -right-1 bg-rose-500 hover:bg-rose-600 text-white text-[8px] h-4 w-4 rounded-full flex items-center justify-center transition-all shadow focus:outline-none">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        `;
+                        container.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                wrapper.classList.add('hidden');
+            }
+        }
+
+        window.removeNewImage = function(index) {
+            newSelectedFiles.splice(index, 1);
+            renderNewPreviews();
+        }
+
+        // ❌ ૩. ક્લોઝ મોડલ પોપઅપ બોક્સ
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editProductForm').reset();
+            newSelectedFiles = [];
+            document.getElementById('newImagesPreviewWrapper').classList.add('hidden');
+        }
+
+        // 💾 ૪. સેવ એડિટેડ પ્રોડક્ટ પ્લસ ન્યૂ ફોટોસ હેન્ડલર
+        document.getElementById('editProductForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editProductId').value;
+            
+            const formData = new FormData(this);
+            
+            // એરેમાં એડ કરેલા નવા ફોટા જોડો
+            newSelectedFiles.forEach(file => {
+                formData.append('productImages', file);
+            });
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerText = "Updating...";
+            submitBtn.disabled = true;
+
+            try {
+                const res = await fetch(`/admin/api/update-product/${id}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if(data.success) {
+                    alert(data.msg);
+                    location.reload();
+                } else {
+                    alert("Error: " + data.msg);
+                    submitBtn.innerText = "Save Changes";
+                    submitBtn.disabled = false;
+                }
+            } catch (err) {
+                alert("સર્વર કમ્યુનિકેશન ક્રેસ ડાઉન એરર!");
+                submitBtn.innerText = "Save Changes";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // 🗑️ ૫. કાયમી પ્રોડક્ટ ડીલીટ કરવા માટેનું એન્જિન
+        document.querySelectorAll('.delete-product-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const id = this.getAttribute('data-id');
+                if(confirm("સાવધાન! શું તમે આ પ્રોડક્ટને ડેટાબેઝમાંથી કાયમ માટે ડીલીટ કરવા માંગો છો?")) {
+                    try {
+                        const res = await fetch(`/admin/api/delete-product/${id}`, { method: 'DELETE' });
+                        const data = await res.json();
+                        if(data.success) {
+                            alert(data.msg);
+                            document.getElementById(`product-card-${id}`).remove();
+                        } else {
+                            alert("Error: " + data.msg);
+                        }
+                    } catch (err) {
+                        alert("Delete Operation Failure!");
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

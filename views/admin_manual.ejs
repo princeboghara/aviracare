@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Entry Workspace - Avira Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
+
+    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
+    <%- include('partials/admin_navbar') %>
+
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FIXED: lg:ml-64 લેપટોપમાં સાઇડબારની બાજુમાં પ્રોપર જગ્યા આપશે) -->
+    <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
+        
+        <!-- Top Navbar -->
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-keyboard text-emerald-500"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tracking Manager / Manual Entry</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <p class="text-xs font-bold text-slate-800">Avira Admin</p>
+                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
+                </div>
+                <div class="h-8 w-8 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 border border-emerald-100 font-bold text-xs">A</div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-grow w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
+            
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-md">
+                <div class="border-b pb-3 mb-4">
+                    <h3 class="text-base font-bold text-slate-900"><i class="fa-solid fa-plus text-emerald-500 mr-1"></i> Add New Dispatch</h3>
+                </div>
+
+                <form id="manualEntryForm" class="space-y-4 text-xs">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block font-semibold text-slate-500 mb-1">Tracking Number</label>
+                            <input type="text" id="mTracking" required class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 uppercase font-mono font-bold focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-500 mb-1">Receiver Name / Order Link</label>
+                            <input type="text" id="mReceiverName" required class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 uppercase font-semibold focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-500 mb-1">Receiver Mobile Number</label>
+                            <input type="text" id="mMobile" required maxlength="10" placeholder="10 Digits Only"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);" 
+                                   class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-500 mb-1">Receiver Pincode</label>
+                            <input type="text" id="mPincode" maxlength="6" required oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                   class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono font-bold focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div>
+                            <label class="block font-semibold text-slate-400 mb-0.5">Weight (kg)</label>
+                            <input type="number" step="0.001" id="mWeight" required class="w-full px-2 py-1.5 bg-white rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-400 mb-0.5">Length (cm)</label>
+                            <input type="number" id="mLength" required class="w-full px-2 py-1.5 bg-white rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-400 mb-0.5">Breadth (cm)</label>
+                            <input type="number" id="mBreadth" required class="w-full px-2 py-1.5 bg-white rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-400 mb-0.5">Height (cm)</label>
+                            <input type="number" id="mHeight" required class="w-full px-2 py-1.5 bg-white rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-50/40 p-4 rounded-xl border border-emerald-100 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-emerald-800 mb-0.5">City</label>
+                            <input type="text" id="txtCity" placeholder="MANUAL / AUTO" class="w-full px-2 py-1.5 bg-white border border-emerald-200 rounded text-[11px] font-semibold uppercase focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-emerald-800 mb-0.5">State</label>
+                            <input type="text" id="txtState" placeholder="MANUAL / AUTO" class="w-full px-2 py-1.5 bg-white border border-emerald-200 rounded text-[11px] font-semibold uppercase focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-emerald-800 mb-0.5">Area / Address Line</label>
+                            <input type="text" id="txtAddress" placeholder="MANUAL / AUTO" class="w-full px-2 py-1.5 bg-white border border-emerald-200 rounded text-[11px] font-semibold uppercase focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black px-8 py-3 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider">
+                            <i class="fa-solid fa-circle-check mr-1"></i> SAVE ENTRY (ENTER)
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden">
+                <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-list-check text-slate-400 mr-1"></i> Current Session Entries</h3>
+                    
+                    <button id="exportExcelBtn" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i> EXPORT EXCEL
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase">
+                                <th class="py-3 px-4">Tracking No</th>
+                                <th class="py-3 px-4">Receiver Name</th>
+                                <th class="py-3 px-4">Mobile</th>
+                                <th class="py-3 px-4">Pincode</th>
+                                <th class="py-3 px-4">Place / Location</th>
+                                <th class="py-3 px-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
+                            <tr>
+                                <td colspan="6" class="py-8 text-center text-slate-400 font-normal">No entries added in this session yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
+            &copy; 2026 Avira LifeCare. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        let localEntries = JSON.parse('<%- JSON.stringify(entries || []) %>');
+
+        window.onload = () => { 
+            document.getElementById('mTracking').focus(); 
+            renderTable(); 
+        };
+
+        // 🔎 Neon DB કમ્પેટિબલ પિનકોડ ઓટો-ફેચ જાવાસ્ક્રિપ્ટ ફિક્સ ⚡
+        document.getElementById('mPincode').addEventListener('input', async function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            const pincode = this.value.trim();
+            const name = document.getElementById('mReceiverName').value.trim();
+            
+            if (pincode.length === 6) {
+                try {
+                    const res = await fetch(`/admin/api/fetch-details?pincode=${pincode}&name=${encodeURIComponent(name)}`);
+                    const data = await res.json();
+                    
+                    if (data.success && (data.city || data.state || data.address)) {
+                        document.getElementById('txtCity').value = data.city || '';
+                        document.getElementById('txtState').value = data.state || '';
+                        document.getElementById('txtAddress').value = data.address || '';
+                    } else {
+                        console.log("Neon DB: Pincode found but fields are null or pincode missing.");
+                    }
+                } catch(err) { 
+                    console.error("Fetch API Crash:", err); 
+                }
+            } else {
+                document.getElementById('txtCity').value = '';
+                document.getElementById('txtState').value = '';
+                document.getElementById('txtAddress').value = '';
+            }
+        });
+
+        document.getElementById('manualEntryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const payload = {
+                tracking: document.getElementById('mTracking').value.toUpperCase().trim(),
+                name: document.getElementById('mReceiverName').value.toUpperCase().trim(),
+                mobile: document.getElementById('mMobile').value.trim(),
+                pincode: document.getElementById('mPincode').value.trim(),
+                weight: document.getElementById('mWeight').value,
+                length: document.getElementById('mLength').value,
+                breadth: document.getElementById('mBreadth').value,
+                height: document.getElementById('mHeight').value,
+                city: document.getElementById('txtCity').value.toUpperCase().trim() || 'N/A',
+                state: document.getElementById('txtState').value.toUpperCase().trim() || 'N/A',
+                address: document.getElementById('txtAddress').value.toUpperCase().trim() || 'N/A'
+            };
+
+            try {
+                const res = await fetch('/admin/api/save-manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                
+                if(result.success) {
+                    localEntries = result.entries;
+                    renderTable();
+                    
+                    document.getElementById('manualEntryForm').reset();
+                    document.getElementById('txtCity').value = '';
+                    document.getElementById('txtState').value = '';
+                    document.getElementById('txtAddress').value = '';
+                    
+                    document.getElementById('mTracking').focus();
+                }
+            } catch(err) { console.error(err); }
+        });
+
+        function renderTable() {
+            const tbody = document.getElementById('sessionTableBody');
+            if(localEntries.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400 font-normal">No entries added in this session yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = '';
+            localEntries.forEach((item, index) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/50">
+                        <td class="py-3 px-4 font-mono font-bold text-slate-900">${item.tracking}</td>
+                        <td class="py-3 px-4 uppercase">${item.name}</td>
+                        <td class="py-3 px-4 font-mono">${item.mobile}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-emerald-600">${item.pincode}</td>
+                        <td class="py-3 px-4 text-[10px] uppercase text-slate-400">${item.city}, ${item.state}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button type="button" onclick="deleteItem(${item.id || index})" class="text-rose-500 hover:text-rose-600 font-bold cursor-pointer"><i class="fa-solid fa-trash"></i> Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function deleteItem(idOrIndex) {
+            if(confirm("Are you sure you want to delete this entry?")) {
+                try {
+                    const res = await fetch(`/admin/api/delete-entry/${idOrIndex}`, { method: 'DELETE' });
+                    const result = await res.json();
+                    if(result.success) {
+                        localEntries = result.entries;
+                        renderTable();
+                    }
+                } catch(err) { console.error(err); }
+            }
+        }
+
+        document.getElementById('exportExcelBtn').addEventListener('click', function() {
+            if(localEntries.length === 0) {
+                alert("Please add at least one entry before exporting.");
+                return;
+            }
+            let customName = prompt("Enter file name for Excel export:", "avira_india_post_dispatch");
+            if (customName === null) return;
+            if (customName.trim() === "") customName = "avira_india_post_dispatch";
+
+            window.location.href = `/admin/api/export-excel?filename=${encodeURIComponent(customName)}`;
+        });
+    </script>
+</body>
+</html>

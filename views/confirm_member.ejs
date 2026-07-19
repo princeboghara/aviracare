@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Member Workspace - Avira Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .confirm-input {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            width: 100%;
+        }
+        .confirm-input:focus {
+            outline: none;
+            border-color: #10b981;
+            background: #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-amber-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
+
+    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
+    <%- include('partials/admin_navbar') %>
+
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FIXED: lg:ml-64 લેપટોપમાં સાઇડબારની બાજુમાં પ્રોપર જગ્યા આપશે) -->
+    <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
+        
+        <!-- Top Navbar -->
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-user-check text-emerald-500"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tracking Manager / Confirm Members</span>
+            </div>
+            
+            <form id="excelMatchForm" class="flex items-center gap-2 bg-amber-50 p-1.5 rounded-xl border border-amber-200">
+                <span class="text-[10px] font-black text-amber-800 uppercase px-2"><i class="fa-solid fa-robot"></i> Auto Fill:</span>
+                <input type="file" id="matchExcelFile" accept=".xlsx, .xls" required class="text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-600 cursor-pointer">
+                <button type="submit" class="bg-slate-900 hover:bg-slate-950 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm uppercase">Run Match</button>
+            </form>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-grow w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase">
+                                <th class="py-3 px-4 w-44">Tracking / Name</th>
+                                <th class="py-3 px-4 w-40">Pincode & Place</th>
+                                <th class="py-3 px-4 w-32">Member ID</th>
+                                <th class="py-3 px-4 w-40">Order Date</th>
+                                <th class="py-3 px-4 w-24">PV</th>
+                                <th class="py-3 px-4 w-28">Amount</th>
+                                <th class="py-3 px-4 text-center w-24">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="confirmTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
+                            <% if(entries.length === 0) { %>
+                                <tr id="empty-row">
+                                    <td colspan="7" class="py-12 text-center text-slate-400 font-normal">All entries verified!</td>
+                                </tr>
+                            <% } else { %>
+                                <% entries.forEach((item, index) => { %>
+                                    <tr class="hover:bg-slate-50/40 transition-colors" id="row-<%= index %>">
+                                        <td class="py-3 px-4">
+                                            <div class="font-mono font-bold text-slate-900 tracking-number-text"><%= item.tracking %></div>
+                                            <div class="text-[10px] text-slate-400 uppercase font-semibold name-text"><%= item.name %></div>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <div class="font-mono font-bold text-emerald-600"><%= item.pincode %></div>
+                                            <div class="text-[10px] text-slate-400 uppercase"><%= item.city %>, <%= item.state %></div>
+                                        </td>
+                                        <td class="py-3 px-2">
+                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="MEMBER ID" class="confirm-input font-mono uppercase text-slate-700 dynamic-change">
+                                        </td>
+                                        <td class="py-3 px-2">
+                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-700 font-semibold dynamic-change">
+                                            <input type="hidden" id="formatted-date-<%= index %>" value="<%= item.order_date %>">
+                                        </td>
+                                        <td class="py-3 px-2">
+                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" class="confirm-input font-mono text-emerald-600 dynamic-change">
+                                        </td>
+                                        <td class="py-3 px-2">
+                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-bold text-slate-900 dynamic-change">
+                                        </td>
+                                        <td class="py-3 px-4 text-center">
+                                            <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-500 hover:bg-emerald-600 text-white font-black px-4 py-1.5 rounded-lg transition-all text-[10px] tracking-wider uppercase">OK</button>
+                                        </td>
+                                    </tr>
+                                </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
+            &copy; 2026 Avira Control Center. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        window.onload = () => {
+            document.querySelectorAll('.date-picker-field').forEach(picker => { convertAndSetInputDate(picker); });
+        };
+
+        function convertAndSetInputDate(picker) {
+            const savedDateStr = picker.getAttribute('data-saved-date'); 
+            if (savedDateStr) {
+                const cleanStr = savedDateStr.replace(/(\d+)(st|nd|rd|th)/, "$1");
+                const dateObj = new Date(cleanStr);
+                if (!isNaN(dateObj.getTime())) {
+                    const yyyy = dateObj.getFullYear();
+                    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const dd = String(dateObj.getDate()).padStart(2, '0');
+                    picker.value = `${yyyy}-${mm}-${dd}`; 
+                }
+            }
+        }
+
+        function formatCustomDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            const day = date.getDate();
+            let suffix = 'th';
+            if (day === 1 || day === 21 || day === 31) suffix = 'st';
+            else if (day === 2 || day === 22) suffix = 'nd';
+            else if (day === 3 || day === 23) suffix = 'rd';
+            const realMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            return `${day}${suffix} ${realMonths[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        document.querySelectorAll('.dynamic-change').forEach(input => {
+            input.addEventListener('change', function() {
+                triggerRowSave(this.getAttribute('data-idx'));
+            });
+        });
+
+        async function triggerRowSave(index) {
+            const memberId = document.getElementById(`member-${index}`).value;
+            const rawDate = document.getElementById(`date-${index}`).value;
+            const pv = document.getElementById(`pv-${index}`).value;
+            const amount = document.getElementById(`amount-${index}`).value;
+            
+            let orderDate = document.getElementById(`formatted-date-${index}`).value;
+            if(rawDate) {
+                orderDate = formatCustomDate(rawDate);
+                document.getElementById(`formatted-date-${index}`).value = orderDate;
+            }
+
+            try {
+                await fetch(`/admin/api/update-pending-entry/${index}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ memberId, orderDate, pv, amount })
+                });
+            } catch(err) { console.error(err); }
+        }
+
+        document.querySelectorAll('.approve-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const index = this.getAttribute('data-idx');
+                const row = document.getElementById(`row-${index}`);
+                
+                const memberId = document.getElementById(`member-${index}`).value.trim();
+                const rawDate = document.getElementById(`date-${index}`).value;
+                const pv = document.getElementById(`pv-${index}`).value.trim();
+                const amount = document.getElementById(`amount-${index}`).value.trim();
+
+                if(!memberId || !rawDate || !pv || !amount) {
+                    alert("કૃપા કરીને પહેલા ચારેય વિગતો ભરો!");
+                    return;
+                }
+
+                await triggerRowSave(index);
+
+                this.innerText = "MOVING...";
+                this.disabled = true;
+
+                try {
+                    const tracking = row.querySelector('.tracking-number-text').innerText.trim();
+                    const res = await fetch('/admin/api/approve-entry-by-tracking', { 
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tracking }) 
+                    });
+                    const data = await res.json();
+                    if(data.success) { 
+                        row.remove(); 
+                    } else {
+                        alert(data.msg);
+                        this.innerText = "OK";
+                        this.disabled = false;
+                    }
+                } catch(err) { 
+                    console.error(err); 
+                    this.innerText = "OK";
+                    this.disabled = false;
+                }
+            });
+        });
+
+        document.getElementById('excelMatchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('matchExcelFile');
+            if(fileInput.files.length === 0) return;
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerText = "MATCHING...";
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('excelFile', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/admin/api/match-confirm-excel', { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (result.success && result.excelData) {
+                    const excelMap = result.excelData;
+                    const rows = document.querySelectorAll('#confirmTableBody tr:not(#empty-row)');
+                    let matchCount = 0;
+
+                    for (let row of rows) {
+                        const index = row.id.replace('row-', '');
+                        const nameInTable = row.querySelector('.name-text').innerText.toUpperCase().trim();
+
+                        if (excelMap[nameInTable]) {
+                            const matchInfo = excelMap[nameInTable];
+                            
+                            document.getElementById(`member-${index}`).value = matchInfo.memberId || '';
+                            document.getElementById(`pv-${index}`).value = matchInfo.pv || '0';
+                            document.getElementById(`amount-${index}`).value = matchInfo.amount || '0';
+                            document.getElementById(`formatted-date-${index}`).value = matchInfo.dateStr || '';
+
+                            if(matchInfo.dateStr) {
+                                const picker = document.getElementById(`date-${index}`);
+                                picker.setAttribute('data-saved-date', matchInfo.dateStr);
+                                convertAndSetInputDate(picker);
+                            }
+
+                            await triggerRowSave(index);
+                            matchCount++;
+                        }
+                    }
+                    alert(`સફળતા! ${matchCount} એન્ટ્રીઝ ઓટો-ફિલ અને ડેટાબેઝ સિંક થઈ ગઈ છે! 🚀`);
+                }
+            } catch (err) { alert("Excel matching process failed."); }
+            finally { submitBtn.innerText = "Run Match"; submitBtn.disabled = false; }
+        });
+    </script>
+</body>
+</html>

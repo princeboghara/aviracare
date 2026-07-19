@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Shipment - Avira Lifecare</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .premium-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+        /* 🌌 બેકગ્રાઉન્ડને ભવ્ય બનાવવા માટે એનિમેશન ઓપ્શન્સ */
+        .glass-blob {
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: blobFloat 12s infinite alternate ease-in-out;
+        }
+        @keyframes blobFloat {
+            0% { transform: translateY(0px) scale(1); }
+            100% { transform: translateY(30px) scale(1.1); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative overflow-x-hidden">
+
+    <!-- 🔮 BACKGROUND DESIGN SHAPES (પેજને પ્રીમિયમ લુક આપવા માટે) -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40vw] h-[40 w-v-h] bg-emerald-300/30 rounded-full glass-blob z-0"></div>
+    <div class="absolute bottom-[20%] right-[-10%] w-[35vw] h-[35 w-v-h] bg-blue-300/20 rounded-full glass-blob z-0" style="animation-delay: -4s;"></div>
+
+    <!-- 🌐 NAVIGATION HEADER -->
+    <header class="bg-white/70 backdrop-blur-md border-b border-slate-100 px-4 sm:px-6 py-4 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-md border border-slate-100 flex-shrink-0">
+                    <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover">
+                </div>
+                <div>
+                    <span class="text-sm sm:text-base font-black tracking-tight text-slate-900 block">AVIRA LIFECARE</span>
+                    <span class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest block -mt-0.5">Member Workspace</span>
+                </div>
+            </div>
+            
+            <!-- 🎯 NEW: હોમ પેજ પર જવા માટેનું નવું પ્રીમિયમ બટન -->
+            <a href="/" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-950 text-white font-black text-[11px] tracking-wider uppercase shadow-md transition-all duration-300 cursor-pointer">
+                <i class="fa-solid fa-house text-[10px]"></i> Home
+            </a>
+        </div>
+    </header>
+
+    <!-- 📦 MAIN CONTAINER -->
+    <main class="flex-grow w-full max-w-2xl mx-auto px-4 py-8 sm:py-16 flex flex-col justify-center gap-6 sm:gap-10 relative z-10">
+        
+        <!-- TRACKING SEARCH BOX -->
+        <div class="w-full text-center space-y-4 sm:space-y-6">
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase tracking-wider mb-2 shadow-sm">
+                    <i class="fa-solid fa-shield-halved"></i> Secure Tracking Link
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-950 leading-tight">Track Your Parcel Instantly</h1>
+                <p class="text-slate-500 text-[11px] sm:text-xs max-w-md mx-auto leading-relaxed">Enter your unique Avira Member ID below to view real-time status details of your product dispatch.</p>
+            </div>
+
+            <form id="memberTrackForm" class="premium-card p-2 sm:p-3 rounded-2xl shadow-xl shadow-emerald-950/5 flex flex-col sm:flex-row gap-2 w-full">
+                <div class="relative flex-grow">
+                    <i class="fa-solid fa-user-tag absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs sm:text-sm"></i>
+                    <input type="text" id="memberIdInput" placeholder="ENTER YOUR MEMBER ID (e.g., AV12345)" required
+                           class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white/60 rounded-xl text-[11px] sm:text-xs font-bold tracking-wider focus:outline-none focus:border-emerald-500 uppercase text-slate-800 border border-slate-200/60">
+                </div>
+                <button type="submit" class="w-full sm:w-40 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-[11px] sm:text-xs py-2.5 sm:py-3 px-4 rounded-xl transition-all shadow-md uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 transform active:scale-95">
+                    <i class="fa-solid fa-magnifying-glass"></i> Track Order
+                </button>
+            </form>
+
+            <!-- RECORD FILTERS -->
+            <div id="filterSection" class="hidden flex flex-wrap items-center justify-center gap-2 pt-1">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider mr-1">Show Records:</span>
+                <button type="button" onclick="setLimit(5)" id="limit-5" class="limit-btn bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer border border-transparent">LAST 5</button>
+                <button type="button" onclick="setLimit(10)" id="limit-10" class="limit-btn bg-white text-slate-600 hover:bg-slate-100 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer border border-slate-100">LAST 10</button>
+                <button type="button" onclick="setLimit(50)" id="limit-50" class="limit-btn bg-white text-slate-600 hover:bg-slate-100 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer border border-slate-100">LAST 50</button>
+                <button type="button" onclick="setLimit('all')" id="limit-all" class="limit-btn bg-white text-slate-600 hover:bg-slate-100 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer border border-slate-100">ALL</button>
+            </div>
+        </div>
+
+        <!-- 📊 RESULTS CONTAINER -->
+        <div id="resultsWrapper" class="w-full hidden space-y-4">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1"><i class="fa-solid fa-clock-history text-emerald-500 mr-1"></i> Shipment History</h3>
+            <div id="resultsList" class="space-y-4"></div>
+        </div>
+
+    </main>
+
+    <!-- 🌐 FOOTER -->
+    <footer class="bg-white/60 backdrop-blur-md border-t border-slate-100 py-4 sm:py-6 text-center text-[10px] sm:text-xs font-medium text-slate-400 px-4 relative z-10">
+        &copy; 2026 Avira Lifecare Global Private Limited. All dispatches secured via India Post.
+    </footer>
+
+    <script>
+        let fullTrackData = [];
+        let currentLimit = 5;
+
+        document.getElementById('memberTrackForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const memberId = document.getElementById('memberIdInput').value.trim();
+            if(!memberId) return;
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i>`;
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/track?memberId=${encodeURIComponent(memberId)}`);
+                fullTrackData = await response.json();
+
+                if (fullTrackData && fullTrackData.length > 0) {
+                    document.getElementById('filterSection').classList.remove('hidden');
+                } else {
+                    document.getElementById('filterSection').classList.add('hidden');
+                }
+
+                renderTrackRecords();
+            } catch(err) {
+                console.error(err);
+                alert("Something went wrong. Please try again.");
+            } finally {
+                submitBtn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Track Order`;
+                submitBtn.disabled = false;
+            }
+        });
+
+        function setLimit(limit) {
+            currentLimit = limit;
+            document.querySelectorAll('.limit-btn').forEach(btn => {
+                btn.className = "limit-btn bg-white text-slate-600 hover:bg-slate-100 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer border border-slate-100";
+            });
+            const activeBtn = document.getElementById(`limit-${limit}`);
+            if(activeBtn) {
+                activeBtn.className = "limit-btn bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer border border-transparent";
+            }
+            renderTrackRecords();
+        }
+
+        function copyToClipboard(text, btnId) {
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = document.getElementById(btnId);
+                copyBtn.innerHTML = `<i class="fa-solid fa-check text-emerald-500"></i> Copied!`;
+                setTimeout(() => {
+                    copyBtn.innerHTML = `<i class="fa-solid fa-copy"></i> Copy`;
+                }, 2000);
+            }).catch(err => console.error("Could not copy text: ", err));
+        }
+
+        function renderTrackRecords() {
+            const wrapper = document.getElementById('resultsWrapper');
+            const list = document.getElementById('resultsList');
+            list.innerHTML = '';
+
+            if(fullTrackData && fullTrackData.length > 0) {
+                let displayData = [...fullTrackData];
+                if (currentLimit !== 'all') {
+                    displayData = displayData.slice(0, parseInt(currentLimit));
+                }
+
+                displayData.forEach((item, index) => {
+                    const uniqueBtnId = `copy-btn-${index}`;
+                    list.innerHTML += `
+                        <div class="premium-card rounded-2xl shadow-xl overflow-hidden bg-white/95 border border-slate-200/50">
+                            <!-- HEADER PART -->
+                            <div class="px-4 sm:px-6 py-4 bg-slate-50/70 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide">Customer Name</p>
+                                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 uppercase mt-0.5">${item.name}</h4>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide">Member ID</p>
+                                    <h4 class="text-xs sm:text-sm font-mono font-bold text-emerald-600 mt-0.5">${item.memberId}</h4>
+                                </div>
+                                <div class="col-span-2 sm:col-span-1 sm:text-right">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide">Order Date</p>
+                                    <p class="text-xs font-bold text-slate-700 mt-0.5">${item.orderDate || 'Processing'}</p>
+                                </div>
+                            </div>
+
+                            <!-- PV AND AMOUNT SIDE BY SIDE -->
+                            <div class="px-4 sm:px-6 py-4 bg-white grid grid-cols-2 gap-4 border-b border-slate-100">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Business Status</span>
+                                    <div>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mt-1 font-mono">${item.pv} PV</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Invoice Amount</span>
+                                    <span class="text-base font-black text-slate-900 mt-0.5 font-mono">₹${item.amount}</span>
+                                </div>
+                            </div>
+
+                            <!-- TRACKING STATUS STEP PART -->
+                            <div class="p-4 sm:p-6 space-y-4 bg-white">
+                                <!-- Step 1 -->
+                                <div class="flex items-center gap-3">
+                                    <div class="h-7 w-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs flex-shrink-0 shadow-sm"><i class="fa-solid fa-box"></i></div>
+                                    <div>
+                                        <h5 class="text-xs font-bold text-slate-900">Parcel Dispatched from Hub</h5>
+                                        <p class="text-[10px] text-slate-400 font-semibold">Your package is safely handed over to India Post.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="flex flex-col gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100/70">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div class="flex items-start gap-3">
+                                            <div class="h-7 w-7 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs flex-shrink-0 shadow-sm mt-0.5"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                                            <div>
+                                                <h5 class="text-xs font-bold text-slate-900">India Post Barcode / Tracking Number</h5>
+                                                <p class="text-base sm:text-lg font-mono font-black text-slate-900 tracking-widest mt-0.5 select-all">${item.tracking || 'ALLOCATING'}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        ${item.tracking ? `
+                                            <button type="button" id="${uniqueBtnId}" onclick="copyToClipboard('${item.tracking}', '${uniqueBtnId}')" class="inline-flex items-center justify-center gap-1 bg-white hover:bg-slate-100 text-slate-700 text-[10px] font-black px-3 py-1.5 rounded-lg border border-slate-200 transition-all cursor-pointer shadow-sm self-start sm:self-center">
+                                                <i class="fa-solid fa-copy"></i> Copy
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                    
+                                    ${item.tracking ? `
+                                        <div class="pt-2 border-t border-slate-200/50 flex justify-end">
+                                            <a href="https://www.indiapost.gov.in/" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-950 text-white text-[10px] font-black px-4 py-2 rounded-lg transition-all shadow-sm uppercase tracking-wide cursor-pointer text-center">
+                                                Track via India Post <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                                            </a>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                wrapper.classList.remove('hidden');
+            } else {
+                list.innerHTML = `
+                    <div class="premium-card p-10 text-center rounded-2xl bg-white shadow-md">
+                        <i class="fa-solid fa-box-open text-4xl block mb-3 text-slate-200"></i>
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">No Shipments Found</h4>
+                        <p class="text-[11px] text-slate-400 mt-1 max-w-sm mx-auto">We couldn't find any dispatch records matching your ID. Please make sure you entered it correctly.</p>
+                    </div>`;
+                wrapper.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

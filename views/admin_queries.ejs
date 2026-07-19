@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Manager - Avira Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-amber-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
+
+    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
+    <%- include('partials/admin_navbar') %>
+
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FIXED: lg:ml-64 લેપટોપમાં સાઇડબારની બાજુમાં પ્રોપર જગ્યા આપશે) -->
+    <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
+        
+        <!-- Top Navbar -->
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-headset text-amber-500"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Control Panel / Query Support Workspace</span>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-grow w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase">
+                                <th class="py-3 px-4 w-20">Ticket ID</th>
+                                <th class="py-3 px-4 w-32">Member ID</th>
+                                <th class="py-3 px-4 w-44">Subject / Mobile</th>
+                                <th class="py-3 px-4">Description</th>
+                                <th class="py-3 px-4 w-32">Current Status</th>
+                                <th class="py-3 px-4 text-center w-40">Change Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 font-medium text-slate-700">
+                            <% if(tickets.length === 0) { %>
+                                <tr>
+                                    <td colspan="6" class="py-12 text-center text-slate-400">ALL QUERIES ARE SOLVED</td>
+                                </tr>
+                            <% } else { %>
+                                <% tickets.forEach((ticket) => { %>
+                                    <tr class="hover:bg-slate-50/40 transition-colors">
+                                        <td class="py-3 px-4 font-mono font-bold text-slate-900">#<%= ticket.id %></td>
+                                        <td class="py-3 px-4 font-mono font-bold text-emerald-600 uppercase"><%= ticket.member_id %></td>
+                                        <td class="py-3 px-4">
+                                            <div class="font-bold text-slate-900 uppercase"><%= ticket.subject %></div>
+                                            <div class="text-[10px] text-slate-400 mt-0.5"><i class="fa-solid fa-phone"></i> <%= ticket.contact_no %></div>
+                                        </td>
+                                        <td class="py-3 px-4 text-slate-500 font-normal pr-6"><%= ticket.description %></td>
+                                        <td class="py-3 px-4">
+                                            <% if(ticket.status === 'PENDING') { %>
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">PENDING</span>
+                                            <% } else if(ticket.status === 'ACCEPTED') { %>
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-700 border border-blue-200">ACCEPTED</span>
+                                            <% } else { %>
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">SOLVED</span>
+                                            <% } %>
+                                        </td>
+                                        <td class="py-3 px-4 text-center flex items-center justify-center gap-1.5 pt-4">
+                                            <button onclick="updateStatus('<%= ticket.id %>', 'ACCEPTED')" class="bg-blue-500 hover:bg-blue-600 text-white text-[9px] font-black px-2 py-1 rounded transition-all uppercase cursor-pointer">Accept</button>
+                                            <button onclick="updateStatus('<%= ticket.id %>', 'SOLVED')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[9px] font-black px-2 py-1 rounded transition-all uppercase cursor-pointer">Solve</button>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
+            &copy; 2026 Avira Control Center. Secure Support Workspace.
+        </footer>
+    </div>
+
+    <script>
+        async function updateStatus(ticketId, status) {
+            try {
+                const res = await fetch('/admin/api/queries/update-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticketId, status })
+                });
+                const data = await res.json();
+                if(data.success) { location.reload(); }
+            } catch(err) { console.error(err); }
+        }
+    </script>
+</body>
+</html>

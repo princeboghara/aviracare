@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Database - Avira Care</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
+
+    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
+    <%- include('partials/admin_navbar') %>
+
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FIXED: lg:ml-64 લેપટોપમાં સાઇડબારની બાજુમાં પ્રોપર જગ્યા આપશે) -->
+    <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
+        
+        <!-- Top Navbar -->
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-database text-emerald-500"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tracking Manager / Live Database Records</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <p class="text-xs font-bold text-slate-800">Avira Admin</p>
+                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
+                </div>
+                <div class="h-8 w-8 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 border border-emerald-100 font-bold text-xs">A</div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-grow w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
+            
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-md flex items-center gap-3">
+                <div class="relative flex-grow">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="dbSearchInput" placeholder="Search by Name, Member ID, or Tracking Number..." 
+                           class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500 text-slate-700">
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-lg overflow-hidden">
+                <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-table text-emerald-500 mr-1"></i> Permanent Master Database History</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Click "Order Date" column header to sort ascending/descending.</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse" id="masterDbTable">
+                        <thead>
+                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase select-none">
+                                <th class="p-4 w-12">SR</th>
+                                <th class="p-4">Member ID</th>
+                                <th class="p-4">Full Name</th>
+                                <th class="p-4 cursor-pointer hover:text-emerald-600 transition-colors" id="colOrderDate">
+                                    Order Date <i class="fa-solid fa-sort ml-1 text-slate-300" id="sortIcon"></i>
+                                </th>
+                                <th class="p-4">PV Status</th>
+                                <th class="p-4">Amount</th>
+                                <th class="p-4">Tracking Number</th>
+                                <th class="p-4 text-center w-24">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 font-medium text-slate-700" id="masterTableBody">
+                            <% if(entries.length === 0) { %>
+                                <tr id="no-records-row">
+                                    <td colspan="8" class="py-12 text-center text-slate-400 font-normal">
+                                        <i class="fa-solid fa-database text-2xl block mb-2 text-slate-200"></i>
+                                        Database is empty! No records found in main_database.
+                                    </td>
+                                </tr>
+                            <% } else { %>
+                                <% entries.forEach((item) => { %>
+                                <tr class="hover:bg-slate-50 transition-colors table-row-item">
+                                    <td class="p-4 font-mono text-slate-400 sr-number-cell"><%= item.srNo %></td>
+                                    <td class="p-4 font-bold font-mono text-emerald-700 member-id-cell"><%= item.memberId %></td>
+                                    <td class="p-4 uppercase text-slate-800 font-semibold name-cell"><%= item.name %></td>
+                                    <td class="p-4 text-slate-500 date-cell" data-raw-date="<%= item.orderDate %>"><%= item.orderDate %></td>
+                                    <td class="p-4 font-mono text-slate-600"><%= item.pv %> PV</td>
+                                    <td class="p-4 font-bold font-mono text-slate-900">₹<%= item.amount %></td>
+                                    <td class="p-4 font-mono font-bold tracking-wide text-slate-800 tracking-cell"><%= item.tracking %></td>
+                                    <td class="p-4 text-center">
+                                        <button type="button" data-srno="<%= item.srNo %>" class="delete-btn text-rose-500 hover:text-rose-700 transition-colors cursor-pointer font-bold">
+                                            <i class="fa-solid fa-trash mr-0.5"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <header class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
+            &copy; 2026 Avira Control Center. Secure Master Workspace.
+        </header>
+    </div>
+
+    <script>
+        // ❌ DELETE RECORD PERMANENTLY
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const realSrNo = this.getAttribute('data-srno');
+                
+                if(confirm("Warning! Do you want to delete this permanent record from Neon Database?")) {
+                    fetch(`/admin/api/delete-master/${realSrNo}`, { method: 'DELETE' })
+                    .then(res => res.json())
+                    .then(data => { 
+                        if(data.success) {
+                            location.reload(); 
+                        } else {
+                            alert("Error: " + data.msg);
+                        }
+                    })
+                    .catch(err => console.error(err));
+                }
+            });
+        });
+
+        // 🔍 REAL-TIME CLIENT-SIDE SEARCH FILTER
+        document.getElementById('dbSearchInput').addEventListener('input', function() {
+            const query = this.value.toUpperCase().trim();
+            const rows = document.querySelectorAll('.table-row-item');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const name = row.querySelector('.name-cell').innerText.toUpperCase();
+                const memberId = row.querySelector('.member-id-cell').innerText.toUpperCase();
+                const tracking = row.querySelector('.tracking-cell').innerText.toUpperCase();
+
+                if (name.includes(query) || memberId.includes(query) || tracking.includes(query)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            const existingNoMatchRow = document.getElementById('no-match-row');
+            if (visibleCount === 0) {
+                if (!existingNoMatchRow) {
+                    const tbody = document.getElementById('masterTableBody');
+                    const noMatch = document.createElement('tr');
+                    noMatch.id = 'no-match-row';
+                    noMatch.innerHTML = `
+                        <td colspan="8" class="py-12 text-center text-slate-400 font-normal">
+                            <i class="fa-solid fa-magnifying-glass-minus text-2xl block mb-2 text-slate-200"></i>
+                            No matching records found for "${query}"
+                        </td>
+                    `;
+                    tbody.appendChild(noMatch);
+                }
+            } else {
+                if (existingNoMatchRow) {
+                    existingNoMatchRow.remove();
+                }
+            }
+        });
+
+        // 📅 DATE CONVERTOR LOGIC FOR SORTING
+        function parseCustomDate(dateStr) {
+            if (!dateStr) return new Date(0);
+            const cleanStr = dateStr.replace(/(\d+)(st|nd|rd|th)/, "$1");
+            const d = new Date(cleanStr);
+            return isNaN(d.getTime()) ? new Date(0) : d;
+        }
+
+        // 📊 ORDER DATE SORT LOGIC
+        let isAscending = true;
+        document.getElementById('colOrderDate').addEventListener('click', function() {
+            const tbody = document.getElementById('masterTableBody');
+            const rows = Array.from(document.querySelectorAll('.table-row-item'));
+            const sortIcon = document.getElementById('sortIcon');
+
+            rows.sort((a, b) => {
+                const dateAStr = a.querySelector('.date-cell').getAttribute('data-raw-date');
+                const dateBStr = b.querySelector('.date-cell').getAttribute('data-raw-date');
+
+                const dateA = parseCustomDate(dateAStr);
+                const dateB = parseCustomDate(dateBStr);
+
+                return isAscending ? dateA - dateB : dateB - dateA;
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+
+            if (isAscending) {
+                sortIcon.className = "fa-solid fa-sort-up ml-1 text-emerald-500";
+            } else {
+                sortIcon.className = "fa-solid fa-sort-down ml-1 text-emerald-500";
+            }
+
+            isAscending = !isAscending;
+        });
+    </script>
+</body>
+</html>

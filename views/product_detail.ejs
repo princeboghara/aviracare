@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= product.name %> - Avira Ultra 3D Details</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 🌌 Google Translate ક્લીનઅપ સેટિંગ્સ */
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0px !important; }
+        .goog-te-gadget { font-size: 0px !important; display: none !important; }
+        
+        /* ✨ ઓર્ગેનિક લાઈવ 3D એનિમેશન શેપ્સ */
+        .animated-orb {
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: floatOrb 14s infinite alternate ease-in-out;
+        }
+        @keyframes floatOrb {
+            0% { transform: translate(0px, 0px) scale(1); }
+            100% { transform: translate(40px, -20px) scale(1.15); }
+        }
+
+        /* 💎 ફ્યુચરિસ્ટિક 3D ગ્લાસ બોક્સ */
+        .glass-box {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 50px -15px rgba(15, 23, 42, 0.05);
+        }
+
+        /* 🛸 Premium 3D Interactive Hover */
+        .interactive-3d {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .interactive-3d:hover {
+            transform: translateY(-5px) rotateX(2deg) rotateY(-1deg);
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+            background: white;
+        }
+        
+        .inner-3d { transform: translateZ(30px); }
+
+        /* ⚡ સ્મૂધ એકકોર્ડિયન ટ્રાન્ઝિશન */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease-out;
+        }
+        .accordion-open .accordion-content {
+            max-height: 1000px;
+            padding: 20px;
+        }
+        .accordion-open .chevron-icon {
+            transform: rotate(180deg);
+            color: #10b981;
+        }
+        .accordion-open {
+            border-color: rgba(16, 185, 129, 0.3) !important;
+            background: white !important;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen font-sans antialiased flex flex-col justify-between relative overflow-x-hidden">
+
+    <!-- 🔮 BACKGROUND ANIMATED ORBS -->
+    <div class="absolute top-[-5%] left-[-5%] w-[45vw] h-[45vw] bg-emerald-300 rounded-full animated-orb z-0"></div>
+    <div class="absolute bottom-[5%] right-[-5%] w-[40vw] h-[40vw] bg-blue-300 rounded-full animated-orb z-0" style="animation-delay: -5s;"></div>
+
+    <div class="w-full">
+        <!-- Top Action Navigation Bar -->
+        <div class="max-w-xl mx-auto p-4 flex justify-between items-center mt-3 relative z-10">
+            <a href="/products" class="text-xs bg-white/80 backdrop-blur-md border border-slate-200 hover:bg-slate-100 font-bold py-2.5 px-4 rounded-xl transition-all shadow-sm uppercase tracking-wider flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left text-[10px]"></i> Back
+            </a>
+            
+            <!-- Smart Custom Language Dropdown Selector -->
+            <div class="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-slate-200 px-3 py-2 rounded-xl shadow-sm">
+                <span class="text-[10px] font-black uppercase text-slate-400"><i class="fa-solid fa-language text-xs text-slate-400 mr-0.5"></i> Lang:</span>
+                <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent text-xs font-bold focus:outline-none cursor-pointer">
+                    <option value="en">English</option>
+                    <option value="gu">ગુજરાતી</option>
+                    <option value="hi">हिन्दी</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Main Workspace Frame -->
+        <main class="max-w-xl mx-auto px-4 mt-2 mb-12 space-y-5 relative z-10">
+            
+            <!-- 📸 3D IMAGE PREVIEW MODULE -->
+            <div class="glass-box interactive-3d rounded-3xl p-4 border border-white">
+                <div class="w-full aspect-square bg-slate-50/60 rounded-2xl overflow-hidden flex items-center justify-center p-4 relative border border-slate-100/40 shadow-inner inner-3d">
+                    <img id="mainDisplayImage" src="<%= product.image_url %>" alt="<%= product.name %>" class="object-contain w-full h-full transition-all duration-500">
+                    
+                    <!-- Floating Neon PV Badge -->
+                    <span class="absolute top-4 right-4 bg-emerald-500 text-slate-950 font-black px-3 py-1 rounded-xl text-[10px] shadow-lg tracking-widest uppercase">
+                        <%= product.pv %> PV
+                    </span>
+                </div>
+
+                <!-- 🖼 -- MULTIPLE PICS ACCUMULATOR INTERFACE -->
+                <div class="flex gap-2.5 mt-4 overflow-x-auto pb-2 inner-3d">
+                    <% 
+                        let imagesArray = [];
+                        try {
+                            imagesArray = product.all_images ? JSON.parse(product.all_images) : [product.image_url];
+                        } catch(e) {
+                            imagesArray = [product.image_url];
+                        }
+                        imagesArray = imagesArray.filter(url => url);
+                    %>
+                    <% imagesArray.forEach((imgUrl, idx) => { %>
+                        <button onclick="updatePreview('<%= imgUrl %>', this)" class="thumb-preview-btn h-14 w-14 rounded-xl border bg-white overflow-hidden flex-shrink-0 p-1 focus:outline-none transition-all shadow-sm <%= idx === 0 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200' %>">
+                            <img src="<%= imgUrl %>" class="h-full w-full object-contain">
+                        </button>
+                    <% }) %>
+                </div>
+            </div>
+
+            <!-- 📝 PRODUCT DETAILS META CARD -->
+            <div class="glass-box interactive-3d rounded-3xl p-5 border border-white space-y-4">
+                <h1 class="text-lg md:text-xl font-black text-slate-900 leading-snug inner-3d"><%= product.name %></h1>
+                
+                <div class="flex items-center gap-2 inner-3d">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Price Point</span>
+                    <span class="text-xl font-black text-slate-950 bg-slate-100/50 px-4 py-1.5 rounded-2xl border border-slate-200/40">
+                        ₹<%= parseFloat(product.amount).toLocaleString('en-IN') %>
+                    </span>
+                </div>
+            </div>
+
+            <!-- ⚡ ULTRA 3D GLIDE ACCORDION ACCORD -->
+            <div class="space-y-3">
+                
+                <!-- ACCORDION 1: PRODUCT DESCRIPTION -->
+                <div class="glass-box rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden transition-all duration-300 accordion-item">
+                    <button onclick="toggleAccordion(this)" class="w-full px-5 py-4 flex justify-between items-center font-black text-xs uppercase tracking-wider text-slate-700 hover:bg-white/50 transition-colors text-left focus:outline-none">
+                        <span class="flex items-center gap-2.5"><i class="fa-solid fa-align-left text-slate-400 text-sm"></i> Product Description</span>
+                        <i class="fa-solid fa-circle-chevron-down text-xs text-slate-400 transition-transform duration-300 chevron-icon"></i>
+                    </button>
+                    <div class="accordion-content bg-white/40 text-xs md:text-sm leading-relaxed text-slate-600 border-t border-slate-100/70">
+                        <p class="whitespace-pre-line font-medium tracking-wide"><%= product.info %></p>
+                    </div>
+                </div>
+
+                <!-- ACCORDION 2: CORE BENEFITS -->
+                <div class="glass-box rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden transition-all duration-300 accordion-item">
+                    <button onclick="toggleAccordion(this)" class="w-full px-5 py-4 flex justify-between items-center font-black text-xs uppercase tracking-wider text-emerald-800 hover:bg-white/50 transition-colors text-left focus:outline-none">
+                        <span class="flex items-center gap-2.5"><i class="fa-solid fa-shield-heart text-emerald-500 text-sm"></i> Core Benefits</span>
+                        <i class="fa-solid fa-circle-chevron-down text-xs text-slate-400 transition-transform duration-300 chevron-icon"></i>
+                    </button>
+                    <div class="accordion-content bg-emerald-50/10 text-xs md:text-sm leading-relaxed text-slate-700 border-t border-slate-100/70">
+                        <p class="whitespace-pre-line font-medium tracking-wide"><%= product.benefits %></p>
+                    </div>
+                </div>
+
+                <!-- ACCORDION 3: HOW TO USE -->
+                <div class="glass-box rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden transition-all duration-300 accordion-item">
+                    <button onclick="toggleAccordion(this)" class="w-full px-5 py-4 flex justify-between items-center font-black text-xs uppercase tracking-wider text-slate-700 hover:bg-white/50 transition-colors text-left focus:outline-none">
+                        <span class="flex items-center gap-2.5"><i class="fa-solid fa-circle-play text-slate-400 text-sm"></i> How To Use</span>
+                        <i class="fa-solid fa-circle-chevron-down text-xs text-slate-400 transition-transform duration-300 chevron-icon"></i>
+                    </button>
+                    <div class="accordion-content bg-white/40 text-xs md:text-sm leading-relaxed text-slate-600 border-t border-slate-100/70">
+                        <p class="whitespace-pre-line font-medium tracking-wide"><%= product.how_to_use %></p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- 🌐 NEW: PREMIUM LIGHT GLASS-MORPHISM FOOTER -->
+    <footer class="w-full bg-white/60 backdrop-blur-md border-t border-slate-200 py-5 text-center text-xs font-bold text-slate-400 mt-auto relative z-10">
+        &copy; 2026 Avira Life Care. All rights reserved. Secure Member Network.
+    </footer>
+
+    <!-- Hidden Native Google Translate Frame Integration Node -->
+    <div id="google_translate_element" style="display:none !important;"></div>
+    
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'gu,hi,en',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <!-- UI Core Automation Engine Logic Script -->
+    <script>
+        // 📸 ૧. મલ્ટિપલ પિક્સ સ્વેપ પ્રિવ્યુઅર
+        function updatePreview(url, btnElement) {
+            const img = document.getElementById('mainDisplayImage');
+            img.style.opacity = '0';
+            
+            document.querySelectorAll('.thumb-preview-btn').forEach(btn => {
+                btn.classList.remove('border-emerald-500', 'ring-2', 'ring-emerald-500/20');
+                btn.classList.add('border-slate-200');
+            });
+
+            if(btnElement) {
+                btnElement.classList.remove('border-slate-200');
+                btnElement.classList.add('border-emerald-500', 'ring-2', 'ring-emerald-500/20');
+            }
+
+            setTimeout(() => {
+                img.src = url;
+                img.style.opacity = '1';
+            }, 200);
+        }
+
+        // ⚡ ૨. સ્મૂધ એકોર્ડિયન ફંક્શન
+        function toggleAccordion(element) {
+            const currentItem = element.closest('.accordion-item');
+            const isOpen = currentItem.classList.contains('accordion-open');
+            
+            document.querySelectorAll('.accordion-item').forEach(item => {
+                item.classList.remove('accordion-open');
+            });
+            
+            if (!isOpen) {
+                currentItem.classList.add('accordion-open');
+            }
+        }
+
+        // 🌐 ૩. ગુગલ ટ્રાન્સલેટર ચેન્જર
+        function changeLanguage(langCode) {
+            const googleSelect = document.querySelector('.goog-te-combo');
+            if (googleSelect) {
+                googleSelect.value = langCode;
+                googleSelect.dispatchEvent(new Event('change'));
+            }
+        }
+    </script>
+</body>
+</html>

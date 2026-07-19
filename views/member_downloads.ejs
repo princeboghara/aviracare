@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloads & Downloads - Avira Care</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .download-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .download-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(16, 185, 129, 0.08); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/20 min-h-screen flex flex-col font-sans antialiased text-slate-800">
+
+    <!-- Top Navigation Bar for Members -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center text-slate-950 font-bold shadow-md">
+                <i class="fa-solid fa-leaf text-base"></i>
+            </div>
+            <span class="text-base font-black tracking-tight text-slate-900">Avira <span class="text-emerald-500 font-bold">LifeCare</span></span>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">Member Portal</span>
+            <a href="/" class="text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors">
+                <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Exit
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-6 py-10 space-y-8">
+        
+        <!-- Header Text -->
+        <div class="space-y-2 text-center max-w-xl mx-auto">
+            <h1 class="text-2xl font-black tracking-tight text-slate-900">Downloads & Resources</h1>
+            <p class="text-slate-500 text-xs leading-relaxed">તમારી સુવિધા માટે અહીં અવિરા લાઇફકેરના લેટેસ્ટ Business Plans, Product Catalogs અને ફ્લાયર્સ મૂકેલા છે. તમે સહેલાઈથી નીચેના બટન પર ક્લિક કરીને ઓફિશિયલ PDF ડાઉનલોડ કરી શકો છો.</p>
+        </div>
+
+        <!-- Dynamic List of PDFs -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-md p-6">
+            <div class="border-b pb-4 mb-6 flex justify-between items-center">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest"><i class="fa-solid fa-folder-open text-emerald-500 mr-1.5"></i> Available Documents (<%= pdfs.length %>)</h3>
+                <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md">Real-Time List</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <% if(pdfs.length === 0) { %>
+                    <div class="col-span-1 md:col-span-2 py-16 text-center text-slate-400 font-normal">
+                        <div class="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-slate-100">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <p class="text-sm font-semibold text-slate-500">હાલમાં કોઈ દસ્તાવેજો ઉપલબ્ધ નથી.</p>
+                        <p class="text-[11px] text-slate-400 mt-1">કૃપા કરીને એડમિન અપલોડ કરે ત્યાં સુધી રાહ જુઓ.</p>
+                    </div>
+                <% } else { %>
+                    <% pdfs.forEach((item) => { %>
+                        <div class="download-card bg-slate-50/50 hover:bg-white p-5 rounded-2xl border border-slate-100 flex items-center justify-between gap-4 shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center text-xl border border-rose-100/50 flex-shrink-0">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="space-y-0.5">
+                                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide leading-tight"><%= item.title %></h4>
+                                    <p class="text-[9px] text-slate-400 font-semibold uppercase">Uploaded: <%= item.uploadDate %></p>
+                                </div>
+                            </div>
+                            
+                            <a href="/uploads/<%= item.filename %>" download="<%= item.title %>.pdf" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] tracking-wider uppercase px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0">
+                                <i class="fa-solid fa-circle-down text-xs"></i> Download
+                            </a>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs font-medium text-slate-400">
+        &copy; 2026 Avira LifeCare. All rights reserved.
+    </footer>
+
+</body>
+</html>

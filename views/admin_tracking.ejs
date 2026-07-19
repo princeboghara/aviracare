@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking Manager - Avira Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-menu-card { background: white; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .admin-menu-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(16, 185, 129, 0.12); }
+        .preview-input {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            width: 100%;
+        }
+        .preview-input:focus {
+            outline: none;
+            border-color: #10b981;
+            background: #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
+
+    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
+    <%- include('partials/admin_navbar') %>
+
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FIXED: lg:ml-64 લેપટોપમાં સાઇડબારની બાજુમાં પ્રોપર જગ્યા આપશે) -->
+    <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
+        
+        <!-- Top Navbar -->
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-truck-fast text-emerald-500"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Dashboard / Tracking Manager</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <p class="text-xs font-bold text-slate-800">Avira Admin</p>
+                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
+                </div>
+                <div class="h-8 w-8 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 border border-emerald-100 font-bold text-xs">A</div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-grow w-full mx-auto px-4 sm:px-8 py-10 space-y-10">
+            <div class="space-y-2 text-center max-w-xl mx-auto mb-6">
+                <h1 class="text-3xl font-black tracking-tight text-slate-950">Tracking Operations</h1>
+                <p class="text-slate-500 text-xs md:text-sm">Select a module below to upload bulk parcel shipment files, manage manual workflows or run permanent queries.</p>
+            </div>
+
+            <!-- 📊 THREE DASHBOARD CARDS WORKSPACE -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 w-full">
+                
+                <!-- 1. UPLOAD MASTER DATA CARD -->
+                <div class="admin-menu-card p-6 sm:p-8 rounded-2xl border border-slate-100 flex flex-col justify-between shadow-md shadow-slate-100/50">
+                    <div class="text-center mb-6">
+                        <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-xl mx-auto mb-4 border border-emerald-100/50">
+                            <i class="fa-solid fa-file-excel"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-900 mb-2">Upload Master Data</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">Upload India Post bulk Excel sheet formats directly into the database.</p>
+                    </div>
+                    <form id="dashUploadForm" class="space-y-4">
+                        <input type="file" id="dashExcel" accept=".xlsx, .xls" required class="w-full text-[11px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer">
+                        <button type="submit" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm uppercase tracking-wider">
+                            Upload File <i class="fa-solid fa-cloud-arrow-up ml-1"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. MANUAL ENTRY PORTAL CARD -->
+                <div class="admin-menu-card p-6 sm:p-8 rounded-2xl border border-slate-100 flex flex-col justify-between shadow-md shadow-slate-100/50">
+                    <div class="text-center mb-6">
+                        <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-xl mx-auto mb-4 border border-emerald-100/50">
+                            <i class="fa-solid fa-keyboard"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-900 mb-2">Manual Entry Portal</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">Add single parcel details, fetch addresses dynamically, and download customized Excel templates.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <a href="/admin/manual-entry" class="block w-full bg-slate-900 hover:bg-slate-950 text-white text-center font-bold text-xs py-3 rounded-xl transition-all shadow-sm uppercase tracking-wide">
+                            Open Workspace &rarr;
+                        </a>
+                        <a href="/admin/confirm-member" class="block w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs py-3 rounded-xl transition-all text-center shadow-md uppercase tracking-wider">
+                            <i class="fa-solid fa-user-check mr-1"></i> Confirm Members
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. LIVE MASTER RECORDS CARD -->
+                <div class="admin-menu-card p-6 sm:p-8 rounded-2xl border border-slate-100 flex flex-col justify-between shadow-md shadow-slate-100/50">
+                    <div class="text-center mb-6">
+                        <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-xl mx-auto mb-4 border border-emerald-100/50">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-900 mb-2">Live Master Records</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">View ultimate history table, track member activities, and check status details instantly.</p>
+                    </div>
+                    <a href="/admin/master-database" class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold text-xs py-3 rounded-xl transition-all shadow-sm uppercase tracking-wide">
+                        <i class="fa-solid fa-database mr-1"></i> View Master Database
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- 📊 PREVIEW LIVE EDITOR ROW TABLE -->
+            <div id="previewSection" class="hidden w-full bg-white p-6 rounded-2xl border border-slate-100 shadow-lg mt-12 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900"><i class="fa-solid fa-eye text-emerald-500 mr-1"></i> Excel Upload Preview & Live Editor</h3>
+                        <p class="text-slate-400 text-xs mt-0.5">ટેબલની અંદર જ વિગતો સુધારી શકો છો. ત્યારપછી "Confirm Bulk Save" બટન દબાવો.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="btnCancelUpload" type="button" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl transition-all cursor-pointer">Cancel</button>
+                        <button id="btnConfirmBulkSave" type="button" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black px-6 py-2 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider">
+                            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Confirm Bulk Save (<span id="uploadCount">0</span>)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto max-h-96">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 border-b text-slate-400 font-bold uppercase">
+                                <th class="py-3 px-4 w-32">Date</th>
+                                <th class="py-3 px-4 w-32">Member ID</th>
+                                <th class="py-3 px-4">Name</th>
+                                <th class="py-3 px-4 w-24">PV</th>
+                                <th class="py-3 px-4 w-28">Amount</th>
+                                <th class="py-3 px-4 w-40">Tracking</th>
+                                <th class="py-3 px-4 text-center w-24">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
+            &copy; 2026 Avira Control Center. Secure Admin Workspace.
+        </footer>
+    </div>
+
+    <script>
+        let tempUploadedData = [];
+
+        document.getElementById('dashUploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('dashExcel');
+            if (fileInput.files.length === 0) {
+                alert("Please select an Excel file first!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('excelFile', fileInput.files[0]);
+
+            const uploadBtn = this.querySelector('button[type="submit"]');
+            uploadBtn.innerText = "Reading Excel...";
+            uploadBtn.disabled = true;
+
+            try {
+                const response = await fetch('/admin/api/upload-master-excel', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    tempUploadedData = result.data;
+                    renderPreviewTable();
+                    document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert(result.msg || "No valid data found in Excel sheets.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error uploading file. Please try again.");
+            } finally {
+                uploadBtn.innerHTML = `Upload File <i class="fa-solid fa-cloud-arrow-up ml-1"></i>`;
+                uploadBtn.disabled = false;
+            }
+        });
+
+        function renderPreviewTable() {
+            document.getElementById('uploadCount').innerText = tempUploadedData.length;
+            const tbody = document.getElementById('previewTableBody');
+            tbody.innerHTML = '';
+            
+            if (tempUploadedData.length === 0) {
+                document.getElementById('previewSection').classList.add('hidden');
+                return;
+            }
+
+            tempUploadedData.forEach((row, index) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/50" id="prev-row-${index}">
+                        <td class="py-2 px-2">
+                            <input type="text" class="preview-input" value="${row.date}" onchange="updateTempData(${index}, 'date', this.value)">
+                        </td>
+                        <td class="py-2 px-2">
+                            <input type="text" class="preview-input font-mono uppercase text-emerald-600 font-bold" value="${row.memberId}" onchange="updateTempData(${index}, 'memberId', this.value)">
+                        </td>
+                        <td class="py-2 px-2">
+                            <input type="text" class="preview-input uppercase" value="${row.name}" onchange="updateTempData(${index}, 'name', this.value)">
+                        </td>
+                        <td class="py-2 px-2">
+                            <input type="number" class="preview-input font-mono" value="${row.pv}" onchange="updateTempData(${index}, 'pv', this.value)">
+                        </td>
+                        <td class="py-2 px-2">
+                            <input type="number" class="preview-input font-mono font-bold" value="${row.amount}" onchange="updateTempData(${index}, 'amount', this.value)">
+                        </td>
+                        <td class="py-2 px-2">
+                            <input type="text" class="preview-input font-mono uppercase" value="${row.tracking || ''}" placeholder="N/A" onchange="updateTempData(${index}, 'tracking', this.value)">
+                        </td>
+                        <td class="py-2 px-2 text-center">
+                            <button type="button" onclick="deletePreviewRow(${index})" class="text-rose-500 hover:text-rose-700 font-bold text-[11px] cursor-pointer">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('previewSection').classList.remove('hidden');
+        }
+
+        function updateTempData(index, field, value) {
+            if (tempUploadedData[index]) {
+                if (field === 'memberId' || field === 'name' || field === 'tracking') {
+                    tempUploadedData[index][field] = value.toUpperCase().trim();
+                } else {
+                    tempUploadedData[index][field] = value.trim();
+                }
+            }
+        }
+
+        function deletePreviewRow(index) {
+            if (confirm("આ રો (Row) ને પ્રીવ્યૂ લિસ્ટમાંથી હટાવવી છે?")) {
+                tempUploadedData.splice(index, 1);
+                renderPreviewTable();
+            }
+        }
+
+        document.getElementById('btnCancelUpload').addEventListener('click', () => {
+            if (confirm("અપલોડ કેન્સલ કરવું છે? બધો પ્રીવ્યૂ ડેટા સાફ થઈ જશે.")) {
+                tempUploadedData = [];
+                document.getElementById('previewSection').classList.add('hidden');
+                document.getElementById('dashUploadForm').reset();
+            }
+        });
+
+        document.getElementById('btnConfirmBulkSave').addEventListener('click', async function() {
+            if (tempUploadedData.length === 0) return;
+
+            this.innerText = "Saving to Database...";
+            this.disabled = true;
+
+            try {
+                const response = await fetch('/admin/api/save-bulk-master', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ entries: tempUploadedData })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.msg);
+                    tempUploadedData = [];
+                    document.getElementById('previewSection').classList.add('hidden');
+                    document.getElementById('dashUploadForm').reset();
+                } else {
+                    alert("Error: " + result.msg);
+                }
+            } catch (err) {
+        console.error(err);
+        alert("Failed to save records. Try again.");
+    } finally { // <--- અહી બસ પ્યોર "finally" કરી દો ટકાટક!
+        this.innerHTML = `<i class="fa-solid fa-cloud-arrow-up mr-1"></i> Confirm Bulk Save (<span id="uploadCount">0</span>)`;
+        this.disabled = false;
+    }
+        });
+    </script>
+</body>
+</html>

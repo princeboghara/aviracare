@@ -1,0 +1,233 @@
+<!-- views/partials/admin_navbar.ejs -->
+<style>
+    /* 🌌 Ultra Premium Light 3D Glass Engine */
+    .cyber-sidebar {
+        background: rgba(255, 255, 255, 0.85) !important;
+        backdrop-filter: blur(25px) saturate(180%);
+        -webkit-backdrop-filter: blur(25px) saturate(180%);
+        border-right: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 10px 0 40px -15px rgba(15, 23, 42, 0.08);
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+
+    /* ✨ Smooth Hydraulic Accordion Transition */
+    .nav-sub-content {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+        transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                    opacity 0.3s ease-out, 
+                    transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .nav-item-open .nav-sub-content {
+        max-height: 250px;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    /* 🚀 3D Animated Interactive Anchors */
+    .cyber-link {
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid transparent;
+        color: #475569;
+    }
+    .cyber-link:hover {
+        transform: translateZ(15px) translateX(5px);
+        background: rgba(16, 185, 129, 0.08) !important;
+        border-color: rgba(16, 185, 129, 0.2);
+        color: #059669 !important;
+    }
+    .cyber-link:hover i {
+        color: #10b981 !important;
+        transform: scale(1.1);
+    }
+
+    /* 🟢 Active 3D State Badge */
+    .nav-item-open > .cyber-link {
+        background: rgba(16, 185, 129, 0.06) !important;
+        border-color: rgba(16, 185, 129, 0.15);
+        color: #059669 !important;
+    }
+    .nav-item-open .nav-chevron {
+        transform: rotate(180deg);
+        color: #10b981;
+    }
+
+    /* ❌ Exit/Logout Premium Button */
+    .cyber-exit {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        transition: all 0.3s ease;
+    }
+    .cyber-exit:hover {
+        background: linear-gradient(135deg, #f43f5e, #e11d48);
+        border-color: #f43f5e;
+        color: white !important;
+        box-shadow: 0 10px 20px -5px rgba(244, 63, 94, 0.3);
+        transform: translateY(-2px);
+    }
+
+    /* Custom Scrollbar */
+    .cyber-scroll::-webkit-scrollbar { width: 4px; }
+    .cyber-scroll::-webkit-scrollbar-track { background: transparent; }
+    .cyber-scroll::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
+</style>
+
+<!-- 📱 Mobile Top Bar Header (Ultra White Glossy) -->
+<div class="lg:hidden bg-white/90 backdrop-blur-md border-b border-slate-200 px-5 py-3.5 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+    <div class="flex items-center gap-3">
+        <div class="h-8 w-8 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-md border border-slate-200">
+            <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover">
+        </div>
+        <span class="text-sm font-black tracking-wider text-slate-900 uppercase">Avira <span class="text-emerald-500">Hub</span></span>
+    </div>
+    <button onclick="toggleMobileSidebar()" class="text-slate-700 bg-slate-100 border border-slate-200 hover:bg-slate-200 p-2.5 rounded-xl focus:outline-none transition-all shadow-sm">
+        <i class="fa-solid fa-bars-staggered text-sm"></i>
+    </button>
+</div>
+
+<!-- 🌐 Main Administrative Sidebar Workspace (Premium Light 3D Layer) -->
+<aside id="adminSidebar" class="cyber-sidebar fixed top-0 bottom-0 left-0 w-64 text-slate-700 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between">
+    
+    <div class="overflow-y-auto flex-grow p-5 space-y-6 cyber-scroll">
+        <!-- Brand Shell Info Logo -->
+        <div class="hidden lg:flex items-center gap-3 border-b border-slate-200/60 pb-5">
+            <div class="h-10 w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-md border border-slate-200 flex-shrink-0">
+                <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover">
+            </div>
+            <div class="leading-none">
+                <span class="text-sm font-black tracking-widest text-slate-900 uppercase block">Avira Global</span>
+                <span class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest mt-1 px-1.5 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20 inline-block">Control Hub</span>
+            </div>
+        </div>
+
+        <!-- Navigation Link Matrix -->
+        <nav class="space-y-1 text-[11px] font-black uppercase tracking-wider text-slate-500">
+            
+            <!-- 🏠 Dashboard Anchor Link -->
+            <a href="/admin/home" class="cyber-link flex items-center gap-3.5 px-4 py-3 rounded-xl hover:bg-slate-100 transition-all">
+                <i class="fa-solid fa-gauge-high text-base w-5 text-slate-400 transition-colors"></i> Admin Home
+            </a>
+
+            <!-- 📁 MODULE 1: CONTENT MANAGER -->
+            <a href="/admin/content-manager" class="cyber-link flex items-center gap-3.5 px-4 py-3 rounded-xl hover:bg-slate-100 transition-all">
+                <i class="fa-solid fa-file-pdf text-base w-5 text-slate-400 transition-colors"></i> 1. Content Manager
+            </a>
+
+            <!-- 🚚 MODULE 2: TRACKING MANAGER (HYDRAULIC ACCORDION) -->
+            <div class="nav-accordion-item">
+                <button onclick="toggleSidebarAccordion(this)" class="cyber-link w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-100 transition-all text-left focus:outline-none cursor-pointer font-black">
+                    <span class="flex items-center gap-3.5">
+                        <i class="fa-solid fa-truck-fast text-base w-5 text-slate-400 transition-colors"></i> 2. Tracking Manager
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-300 nav-chevron"></i>
+                </button>
+                <!-- Sub Menu Slots -->
+                <div class="nav-sub-content bg-slate-100/50 rounded-xl mt-1 ml-4 pl-3 border-l-2 border-emerald-500/30 space-y-0.5 py-1">
+                    <a href="/admin/tracking" class="block px-3 py-2 text-[10px] font-bold text-slate-500 hover:text-emerald-600 transition-colors">↳ Upload Excel</a>
+                    <a href="/admin/manual-entry" class="block px-3 py-2 text-[10px] font-bold text-slate-500 hover:text-emerald-600 transition-colors">↳ Manual Entry</a>
+                    <a href="/admin/confirm-member" class="block px-3 py-2 text-[10px] font-bold text-slate-500 hover:text-emerald-600 transition-colors">↳ Confirm Members</a>
+                    <a href="/admin/master-database" class="block px-3 py-2 text-[10px] font-bold text-slate-500 hover:text-emerald-600 transition-colors">↳ Main Database</a>
+                </div>
+            </div>
+
+            <!-- 🎧 MODULE 3: QUERY MANAGER -->
+            <a href="/admin/queries" class="cyber-link flex items-center gap-3.5 px-4 py-3 rounded-xl hover:bg-slate-100 transition-all">
+                <i class="fa-solid fa-headset text-base w-5 text-slate-400 transition-colors"></i> 3. Query Manager
+            </a>
+
+            <!-- 🛒 MODULE 4: PRODUCT MANAGER (HYDRAULIC ACCORDION) -->
+            <div class="nav-accordion-item">
+                <button onclick="toggleSidebarAccordion(this)" class="cyber-link w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-100 transition-all text-left focus:outline-none cursor-pointer font-black">
+                    <span class="flex items-center gap-3.5">
+                        <i class="fa-solid fa-basket-shopping text-base w-5 text-slate-400 transition-colors"></i> 4. Product Manager
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-300 nav-chevron"></i>
+                </button>
+                <!-- Sub Menu Slots -->
+                <div class="nav-sub-content bg-slate-100/50 rounded-xl mt-1 ml-4 pl-3 border-l-2 border-emerald-500/30 space-y-0.5 py-1">
+                    <a href="/admin/add-product" class="block px-3 py-2 text-[10px] font-bold text-slate-500 hover:text-emerald-600 transition-colors">↳ Add Products</a>
+                    <a href="/admin/view-products" class="block px-3 py-2 text-[10px] font-bold text-slate-500 hover:text-emerald-600 transition-colors">↳ View/Edit Products</a>
+                </div>
+            </div>
+
+        </nav>
+    </div>
+
+    <!-- Master Root Admin Profile Logout Footer -->
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-col gap-3">
+        <div class="flex items-center justify-between px-1.5">
+            <div class="leading-tight">
+                <p class="text-xs font-black text-slate-800 tracking-wide uppercase">Root Admin</p>
+                <span class="text-[8px] font-bold text-emerald-600 tracking-widest uppercase flex items-center gap-1 mt-0.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span> Network Secure
+                </span>
+            </div>
+        </div>
+        <a href="/admin/logout" class="cyber-exit w-full text-center font-black text-[10px] py-3 rounded-xl transition-all shadow-sm uppercase tracking-widest cursor-pointer">
+            <i class="fa-solid fa-power-off text-[9px] mr-1.5"></i> Exit Panel
+        </a>
+    </div>
+</aside>
+
+<!-- Overlay Back Drop Mask for Mobile Sidebar Controls View toggle -->
+<div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-slate-950/20 backdrop-blur-sm z-40 lg:hidden"></div>
+
+<!-- Core Sidebar Engine Controller Script Grid Node -->
+<script>
+    function toggleSidebarAccordion(element) {
+        const currentItem = element.closest('.nav-accordion-item');
+        const isOpen = currentItem.classList.contains('nav-item-open');
+        
+        document.querySelectorAll('.nav-accordion-item').forEach(item => {
+            if(item !== currentItem) {
+                item.classList.remove('nav-item-open');
+            }
+        });
+        
+        currentItem.classList.toggle('nav-item-open');
+    }
+
+    function toggleMobileSidebar() {
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        if(sidebar.classList.contains('-translate-x-full')) {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+    }
+
+    // 🎯 એક્ટિવ યુઆરએલ પ્રમાણે સબ-મેનુ ઓટોમેટીક ઓપન રાખવાનો જુગાડ
+    document.addEventListener("DOMContentLoaded", function() {
+        const currentPath = window.location.pathname;
+        const subLinks = document.querySelectorAll(".nav-sub-content a");
+        
+        subLinks.forEach(link => {
+            if(link.getAttribute("href") === currentPath) {
+                link.classList.remove("text-slate-500");
+                link.classList.add("text-emerald-600", "font-black");
+                link.innerHTML = link.innerHTML.replace("↳", "⚡");
+                
+                const parentAccordion = link.closest(".nav-accordion-item");
+                if(parentAccordion) {
+                    parentAccordion.classList.add("nav-item-open");
+                }
+            }
+        });
+
+        const mainLinks = document.querySelectorAll("nav > a");
+        mainLinks.forEach(link => {
+            if(link.getAttribute("href") === currentPath) {
+                link.classList.add("text-emerald-600", "bg-emerald-500/10", "border-emerald-500/20");
+            }
+        });
+    });
+</script>
