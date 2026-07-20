@@ -7,31 +7,35 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link class="fallback" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 🌌 મોર્ડન 3D અને ગ્લાસ ઇફેક્ટ્સ */
+        /* 🌌 Premium Glassmorphism & Minimal Visual Engine */
         .glass-card {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.04);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .glass-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.15);
-            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 30px 60px -12px rgba(16, 185, 129, 0.12);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(16, 185, 129, 0.3);
         }
-        /* ✨ ઓર્ગેનિક લાઈવ 3D એનિમેશન શેપ્સ */
+
+        /* ✨ Subtle Ambient Background Motion Shapes */
         .animated-blob {
-            filter: blur(90px);
-            opacity: 0.45;
-            animation: floatBlob 16s infinite alternate ease-in-out;
+            filter: blur(100px);
+            opacity: 0.35;
+            animation: floatBlob 18s infinite alternate ease-in-out;
         }
         @keyframes floatBlob {
             0% { transform: translate(0px, 0px) scale(1); }
-            50% { transform: translate(40px, -5px) scale(1.15); }
-            100% { transform: translate(-20px, 50px) scale(0.9); }
+            50% { transform: translate(30px, -20px) scale(1.1); }
+            100% { transform: translate(-20px, 40px) scale(0.95); }
         }
-        /* 🚀 સ્મૂધ બટન પલ્સ ઇફેક્ટ */
+
+        /* 🚀 Pulse Ring Animation */
         .pulse-effect {
             position: relative;
         }
@@ -41,30 +45,30 @@
             inset: 0;
             border-radius: inherit;
             box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
-            animation: pulseAnim 2s infinite;
+            animation: pulseAnim 2.2s infinite;
         }
         @keyframes pulseAnim {
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-            70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+            70% { box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative overflow-x-hidden">
+<body class="bg-gradient-to-br from-slate-50 via-slate-100/60 to-emerald-50/20 min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative overflow-x-hidden">
 
-    <!-- 🔮 BACKGROUND ANIMATED SHAPES -->
-    <div class="absolute top-[-15%] left-[-15%] w-[50vw] h-[50vw] bg-emerald-400/20 rounded-full animated-blob z-0"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[45vw] h-[45vw] bg-blue-400/20 rounded-full animated-blob z-0" style="animation-delay: -6s;"></div>
+    <!-- 🔮 AMBIENT BACKGROUND ANIMATED SHAPES -->
+    <div class="absolute top-[-15%] left-[-15%] w-[50vw] h-[50vw] bg-emerald-400/15 rounded-full animated-blob z-0"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[45vw] h-[45vw] bg-teal-400/15 rounded-full animated-blob z-0" style="animation-delay: -6s;"></div>
 
     <!-- 🌐 MAIN NAVIGATION HEADER -->
-    <header class="bg-white/60 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-4 sticky top-0 z-50 shadow-sm">
+    <header class="bg-white/70 backdrop-blur-md border-b border-slate-200/60 px-4 sm:px-8 py-4 sticky top-0 z-50 shadow-2xs">
         <div class="max-w-4xl mx-auto flex justify-center sm:justify-start items-center">
             <div class="flex items-center gap-3">
-                <div class="h-10 w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-md border border-slate-100 flex-shrink-0">
+                <div class="h-10 w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-sm border border-slate-200 flex-shrink-0">
                     <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover">
                 </div>
                 <div>
-                    <span class="text-sm sm:text-base font-black tracking-tight text-slate-900 uppercase block">AVIRA LIFECARE GLOBAL PRIVATE LIMITED</span>
+                    <span class="text-sm sm:text-base font-black tracking-tight text-slate-950 uppercase block">AVIRA LIFECARE GLOBAL PRIVATE LIMITED</span>
                     <span class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest block -mt-0.5">Official Member Portal</span>
                 </div>
             </div>
@@ -72,71 +76,71 @@
     </header>
 
     <!-- 📦 MAIN HERO & BUTTONS WORKSPACE -->
-    <main class="flex-grow w-full max-w-4xl mx-auto px-4 py-8 sm:py-16 flex flex-col justify-center gap-6 sm:gap-12 relative z-10">
+    <main class="flex-grow w-full max-w-4xl mx-auto px-4 py-8 sm:py-14 flex flex-col justify-center gap-6 sm:gap-12 relative z-10">
         
         <!-- Welcome Hero Info -->
-        <div class="w-full text-center space-y-4 max-w-2xl mx-auto">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase tracking-wider shadow-sm mb-1">
-                <i class="fa-solid fa-circle-check"></i> Connected Workspace
+        <div class="w-full text-center space-y-3.5 max-w-2xl mx-auto">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 uppercase tracking-wider shadow-2xs mb-1">
+                <i class="fa-solid fa-circle-check text-emerald-500"></i> Connected Digital Workspace
             </div>
             <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-slate-950 leading-tight">
                 Empowering Health,<br class="hidden sm:inline"> Enriching Life.
             </h1>
-            <p class="text-slate-500 text-xs sm:text-sm leading-relaxed">
+            <p class="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
                 Welcome to your Avira Dashboard. Access official marketing documents, download digital catalogs, manage your queries, and monitor your package deliveries in real-time.
             </p>
         </div>
 
-        <!-- 🚀 3D ANIMATED ACTION CARDS (FIXED: Grid layout mapped perfectly for responsive alignment) -->
+        <!-- 🚀 3D ANIMATED ACTION CARDS -->
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 max-w-4xl mx-auto w-full">
             
-            <!-- ✅ CARD 1: BUSINESS PLAN (PDF DOWNLOAD) - MOBILE SIDE-BY-SIDE -->
+            <!-- ✅ CARD 1: BUSINESS PLAN -->
             <div class="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col justify-between text-center sm:text-left relative overflow-hidden group">
                 <div class="absolute -right-6 -top-6 w-16 h-16 sm:w-24 sm:h-24 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
                 
                 <div class="mb-4 sm:mb-6">
-                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-emerald-50 text-emerald-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-base sm:text-xl mx-auto sm:mx-0 mb-2 sm:mb-4 border border-emerald-100/50">
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-emerald-50 text-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-base sm:text-xl mx-auto sm:mx-0 mb-2 sm:mb-4 border border-emerald-100">
                         <i class="fa-solid fa-chart-pie"></i>
                     </div>
                     <h3 class="text-xs sm:text-base font-black text-slate-900 mb-1">Business Plan</h3>
-                    <p class="text-slate-400 text-[9px] sm:text-xs leading-tight sm:leading-relaxed line-clamp-2 sm:line-clamp-none">Download compensation plan flyers.</p>
+                    <p class="text-slate-400 text-[9px] sm:text-xs leading-tight sm:leading-relaxed line-clamp-2 sm:line-clamp-none font-medium">Download compensation plan flyers.</p>
                 </div>
 
-                <a href="<%= businessPlan %>" download class="w-full text-center bg-slate-900 hover:bg-slate-950 text-white font-bold text-[10px] sm:text-xs py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all shadow-md uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-2 cursor-pointer">
+                <a href="<%= businessPlan %>" download class="w-full text-center bg-slate-900 hover:bg-slate-950 text-white font-bold text-[10px] sm:text-xs py-2.5 sm:py-3 rounded-xl transition-all shadow-sm uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer">
                     Plan <i class="fa-solid fa-file-arrow-download text-[10px]"></i>
                 </a>
             </div>
 
-            <!-- ✅ CARD 2: PRODUCT CATALOG (PDF DOWNLOAD) - MOBILE SIDE-BY-SIDE -->
+            <!-- ✅ CARD 2: PRODUCT CATALOG -->
             <div class="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col justify-between text-center sm:text-left relative overflow-hidden group">
                 <div class="absolute -right-6 -top-6 w-16 h-16 sm:w-24 sm:h-24 bg-blue-500/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
                 
                 <div class="mb-4 sm:mb-6">
-                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-blue-50 text-blue-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-base sm:text-xl mx-auto sm:mx-0 mb-2 sm:mb-4 border border-blue-100/50">
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-base sm:text-xl mx-auto sm:mx-0 mb-2 sm:mb-4 border border-blue-100">
                         <i class="fa-solid fa-book-open"></i>
                     </div>
                     <h3 class="text-xs sm:text-base font-black text-slate-900 mb-1">Catalog PDF</h3>
-                    <p class="text-slate-400 text-[9px] sm:text-xs leading-tight sm:leading-relaxed line-clamp-2 sm:line-clamp-none">Download active wellness catalog files.</p>
+                    <p class="text-slate-400 text-[9px] sm:text-xs leading-tight sm:leading-relaxed line-clamp-2 sm:line-clamp-none font-medium">Download active wellness catalog files.</p>
                 </div>
 
-                <a href="<%= catalog %>" download class="w-full text-center bg-slate-900 hover:bg-slate-950 text-white font-bold text-[10px] sm:text-xs py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all shadow-md uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-2 cursor-pointer">
+                <a href="<%= catalog %>" download class="w-full text-center bg-slate-900 hover:bg-slate-950 text-white font-bold text-[10px] sm:text-xs py-2.5 sm:py-3 rounded-xl transition-all shadow-sm uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer">
                     Catalog <i class="fa-solid fa-file-arrow-download text-[10px]"></i>
                 </a>
             </div>
 
-            <!-- 🔥 CARD 3: ABOUT OUR PRODUCTS (AMAZON SHOWCASE LINK 🛒) - FULL WIDTH ON MOBILE BELOW -->
-            <div class="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col justify-between text-center sm:text-left relative overflow-hidden group border-emerald-200 col-span-2 md:col-span-1">
+            <!-- 🔥 CARD 3: ABOUT OUR PRODUCTS -->
+            <div class="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col justify-between text-center sm:text-left relative overflow-hidden group border-emerald-200/80 col-span-2 md:col-span-1">
                 <div class="absolute -right-6 -top-6 w-16 h-16 sm:w-24 sm:h-24 bg-teal-500/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
                 
                 <div class="mb-3 sm:mb-6">
-                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-teal-50 text-teal-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-base sm:text-xl mx-auto sm:mx-0 mb-2 sm:mb-4 border border-teal-100/50">
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-teal-50 text-teal-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-base sm:text-xl mx-auto sm:mx-0 mb-2 sm:mb-4 border border-teal-100">
                         <i class="fa-solid fa-basket-shopping"></i>
                     </div>
                     <h3 class="text-xs sm:text-base font-black text-slate-900 mb-1">About Our Products</h3>
-                    <p class="text-slate-400 text-[9px] sm:text-xs leading-tight sm:leading-relaxed">Explore full digital store display pricing details and metrics.</p>
+                    <p class="text-slate-400 text-[9px] sm:text-xs leading-tight sm:leading-relaxed font-medium">Explore full digital store display pricing details and metrics.</p>
                 </div>
 
-                <a href="/products" class="w-full text-center bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-[10px] sm:text-xs py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all shadow-md uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-2 cursor-pointer">
+                <a href="/products" class="w-full text-center bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-[10px] sm:text-xs py-2.5 sm:py-3 rounded-xl transition-all shadow-md shadow-emerald-500/10 uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer">
                     View Showcase <i class="fa-solid fa-magnifying-glass text-[9px]"></i>
                 </a>
             </div>
@@ -145,7 +149,7 @@
 
         <!-- 🔥 SHORTCUT BANNER ROW 1: LIVE TRACKING PORTAL -->
         <div class="w-full max-w-3xl mx-auto">
-            <div class="glass-card p-5 sm:p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left border-emerald-200/40 relative overflow-hidden">
+            <div class="glass-card p-5 sm:p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left border-emerald-200/60 relative overflow-hidden">
                 <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center text-base sm:text-lg shadow-md shadow-emerald-500/20 flex-shrink-0">
                         <i class="fa-solid fa-truck-fast"></i>
@@ -163,7 +167,7 @@
 
         <!-- 3D QUERY MANAGER MODULE CARD -->
         <div class="w-full max-w-3xl mx-auto">
-            <div class="glass-card p-5 sm:p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left border-amber-200/40 relative overflow-hidden">
+            <div class="glass-card p-5 sm:p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left border-amber-200/60 relative overflow-hidden">
                 <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-500 text-slate-950 rounded-2xl flex items-center justify-center text-base sm:text-lg shadow-md shadow-amber-500/20 flex-shrink-0">
                         <i class="fa-solid fa-headset"></i>

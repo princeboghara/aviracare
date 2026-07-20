@@ -28,7 +28,7 @@
     <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FIXED: lg:ml-64 લેપટોપમાં સાઇડબારની બાજુમાં પ્રોપર જગ્યા આપશે) -->
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા -->
     <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
         
         <!-- Top Navbar -->
@@ -78,23 +78,22 @@
                                             <div class="text-[10px] text-slate-400 uppercase"><%= item.city %>, <%= item.state %></div>
                                         </td>
                                         <td class="py-3 px-2">
-                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="MEMBER ID" class="confirm-input font-mono uppercase text-slate-700 dynamic-change">
+                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="MEMBER ID" class="confirm-input font-mono uppercase text-slate-700">
                                         </td>
                                         <td class="py-3 px-2">
-                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-700 font-semibold dynamic-change">
+                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-700 font-semibold">
                                             <input type="hidden" id="formatted-date-<%= index %>" value="<%= item.order_date %>">
                                         </td>
                                         <td class="py-3 px-2">
-                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" class="confirm-input font-mono text-emerald-600 dynamic-change">
+                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" class="confirm-input font-mono text-emerald-600">
                                         </td>
                                         <td class="py-3 px-2">
-                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-bold text-slate-900 dynamic-change">
+                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-bold text-slate-900">
                                         </td>
                                         <td class="py-3 px-4 text-center">
-                                            <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-500 hover:bg-emerald-600 text-white font-black px-4 py-1.5 rounded-lg transition-all text-[10px] tracking-wider uppercase">OK</button>
+                                            <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-500 hover:bg-emerald-600 text-white font-black px-4 py-1.5 rounded-lg transition-all text-[10px] tracking-wider uppercase cursor-pointer">OK</button>
                                         </td>
                                     </tr>
-                                </tr>
                                 <% }) %>
                             <% } %>
                         </tbody>
@@ -137,15 +136,10 @@
             else if (day === 2 || day === 22) suffix = 'nd';
             else if (day === 3 || day === 23) suffix = 'rd';
             const realMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            return `${day}${suffix} ${realMonths[date.getMonth()]} ${date.getFullYear()}`;
+            return `${day}${suffix} ${realMonths[date.getMonth()]} ${realMonths[date.getMonth()]} ${date.getFullYear()}`;
         }
 
-        document.querySelectorAll('.dynamic-change').forEach(input => {
-            input.addEventListener('change', function() {
-                triggerRowSave(this.getAttribute('data-idx'));
-            });
-        });
-
+        // 🎯 ૧. ડેટાબેઝ સેવ ફંક્શન (હવે આ માત્ર OK બટન દબાવવા પર જ કોલ થશે)
         async function triggerRowSave(index) {
             const memberId = document.getElementById(`member-${index}`).value;
             const rawDate = document.getElementById(`date-${index}`).value;
@@ -164,9 +158,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ memberId, orderDate, pv, amount })
                 });
-            } catch(err) { console.error(err); }
+            } catch(err) { console.error("Update Row Save Error:", err); }
         }
 
+        // 🎯 ૨. OK બટન હેન્ડલર (જે ઓન-ડિમાન્ડ ડેટાબેઝમાં એન્ટ્રી પુશ કરશે)
         document.querySelectorAll('.approve-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const index = this.getAttribute('data-idx');
@@ -178,15 +173,17 @@
                 const amount = document.getElementById(`amount-${index}`).value.trim();
 
                 if(!memberId || !rawDate || !pv || !amount) {
-                    alert("કૃપા કરીને પહેલા ચારેય વિગતો ભરો!");
+                    alert("કૃપા કરીને પહેલા ચારેય વિગતો (Member ID, Date, PV, Amount) ભરો!");
                     return;
                 }
 
-                await triggerRowSave(index);
-
-                this.innerText = "MOVING...";
+                this.innerText = "SAVING...";
                 this.disabled = true;
 
+                // Step A: પહેલા ઓટો-ફિલ થયેલો / મોડિફાય થયેલો ડબ્બો પેન્ડિંગ ટેબલમાં સેવ થશે
+                await triggerRowSave(index);
+
+                // Step B: ત્યારપછી Neon DB ના મેઈન ડેટાબેઝમાં ડેટા શિફ્ટ થઈ જશે
                 try {
                     const tracking = row.querySelector('.tracking-number-text').innerText.trim();
                     const res = await fetch('/admin/api/approve-entry-by-tracking', { 
@@ -198,18 +195,20 @@
                     if(data.success) { 
                         row.remove(); 
                     } else {
-                        alert(data.msg);
+                        alert("Error: " + data.msg);
                         this.innerText = "OK";
                         this.disabled = false;
                     }
                 } catch(err) { 
                     console.error(err); 
+                    alert("સર્વર સિંક એરર!");
                     this.innerText = "OK";
                     this.disabled = false;
                 }
             });
         });
 
+        // 🎯 ૩. એક્સેલ ઓટો રન મેચ ફોર્મ (માત્ર સ્ક્રીન પર ઈનપુટ ફિલ કરશે, ડેટાબેઝમાં નહીં જાય)
         document.getElementById('excelMatchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const fileInput = document.getElementById('matchExcelFile');
@@ -238,6 +237,7 @@
                         if (excelMap[nameInTable]) {
                             const matchInfo = excelMap[nameInTable];
                             
+                            // બસ ઈનપુટ ફીલ્ડમાં જ વિગતો સેટ કરો
                             document.getElementById(`member-${index}`).value = matchInfo.memberId || '';
                             document.getElementById(`pv-${index}`).value = matchInfo.pv || '0';
                             document.getElementById(`amount-${index}`).value = matchInfo.amount || '0';
@@ -249,11 +249,10 @@
                                 convertAndSetInputDate(picker);
                             }
 
-                            await triggerRowSave(index);
                             matchCount++;
                         }
                     }
-                    alert(`સફળતા! ${matchCount} એન્ટ્રીઝ ઓટો-ફિલ અને ડેટાબેઝ સિંક થઈ ગઈ છે! 🚀`);
+                    alert(`સફળતા! ${matchCount} એન્ટ્રીઝ સ્ક્રીન પર ઓટો-ફિલ થઈ ગઈ છે! હવે ચકાસીને 'OK' દબાવતાં જ ડેટાબેઝમાં સેવ થશે. 🚀`);
                 }
             } catch (err) { alert("Excel matching process failed."); }
             finally { submitBtn.innerText = "Run Match"; submitBtn.disabled = false; }

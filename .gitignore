@@ -1,2 +1,18 @@
+# Dependencies
 node_modules/
+
+# Environment Secrets
 .env
+.env.local
+
+# Uploaded Files & Temporary Junk (સિક્યોરિટી લોક 🔒)
+public/uploads/*
+!public/uploads/.gitkeep
+uploads/
+*.xlsx
+*.xls
+*.csv
+
+# System Files
+.DS_Store
+Thumbs.db
