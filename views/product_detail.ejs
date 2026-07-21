@@ -123,7 +123,8 @@
             <!-- 📸 3D IMAGE PREVIEW MODULE -->
             <div class="glass-box interactive-3d rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 border border-white">
                 <div class="w-full aspect-square bg-slate-50/60 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-3 sm:p-4 relative border border-slate-100/40 shadow-inner inner-3d">
-                    <img id="mainDisplayImage" src="<%= product.image_url %>" alt="<%= product.name %>" class="object-contain w-full h-full transition-all duration-500">
+                    <!-- 🛠️ SAFE IMAGE DISPLAY LOGIC -->
+                    <img id="mainDisplayImage" src="<%= product.image_url || '/images/logo.jpg' %>" alt="<%= product.name %>" class="object-contain w-full h-full transition-all duration-500">
                     
                     <!-- Floating Neon PV Badge -->
                     <span class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-emerald-500 text-slate-950 font-black px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] shadow-lg tracking-widest uppercase">
@@ -131,23 +132,42 @@
                     </span>
                 </div>
 
-                <!-- 🖼️ MULTIPLE PICS ACCUMULATOR INTERFACE -->
-                <div class="flex gap-2 sm:gap-2.5 mt-3 sm:mt-4 overflow-x-auto pb-1.5 inner-3d">
-                    <% 
-                        let imagesArray = [];
-                        try {
-                            imagesArray = product.all_images ? JSON.parse(product.all_images) : [product.image_url];
-                        } catch(e) {
+                <!-- 🖼️ MULTIPLE PICS ACCUMULATOR INTERFACE WITH SAFE PARSING -->
+                <% 
+                    let imagesArray = [];
+                    try {
+                        if (product.all_images) {
+                            if (typeof product.all_images === 'string') {
+                                if (product.all_images.startsWith('[')) {
+                                    imagesArray = JSON.parse(product.all_images);
+                                } else {
+                                    imagesArray = [product.all_images];
+                                }
+                            } else if (Array.isArray(product.all_images)) {
+                                imagesArray = product.all_images;
+                            }
+                        }
+                    } catch(e) {
+                        imagesArray = [];
+                    }
+
+                    if (!imagesArray || imagesArray.length === 0) {
+                        if (product.image_url) {
                             imagesArray = [product.image_url];
                         }
-                        imagesArray = imagesArray.filter(url => url);
-                    %>
-                    <% imagesArray.forEach((imgUrl, idx) => { %>
-                        <button onclick="updatePreview('<%= imgUrl %>', this)" class="thumb-preview-btn h-12 w-12 sm:h-14 sm:w-14 rounded-xl border bg-white overflow-hidden flex-shrink-0 p-1 focus:outline-none transition-all shadow-sm <%= idx === 0 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200' %>">
-                            <img src="<%= imgUrl %>" class="h-full w-full object-contain">
-                        </button>
-                    <% }) %>
-                </div>
+                    }
+                    imagesArray = imagesArray.filter(Boolean);
+                %>
+
+                <% if (imagesArray.length > 1) { %>
+                    <div class="flex gap-2 sm:gap-2.5 mt-3 sm:mt-4 overflow-x-auto pb-1.5 inner-3d">
+                        <% imagesArray.forEach((imgUrl, idx) => { %>
+                            <button onclick="updatePreview('<%= imgUrl %>', this)" class="thumb-preview-btn h-12 w-12 sm:h-14 sm:w-14 rounded-xl border bg-white overflow-hidden flex-shrink-0 p-1 focus:outline-none transition-all shadow-sm <%= idx === 0 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200' %>">
+                                <img src="<%= imgUrl %>" class="h-full w-full object-contain">
+                            </button>
+                        <% }) %>
+                    </div>
+                <% } %>
             </div>
 
             <!-- 📝 PRODUCT DETAILS META CARD -->
@@ -157,7 +177,7 @@
                 <div class="flex items-center gap-2 inner-3d">
                     <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Price Point</span>
                     <span class="text-lg sm:text-xl font-black text-slate-950 bg-slate-100/50 px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-xl sm:rounded-2xl border border-slate-200/40">
-                        ₹<%= parseFloat(product.amount).toLocaleString('en-IN') %>
+                        ₹<%= parseFloat(product.amount || 0).toLocaleString('en-IN') %>
                     </span>
                 </div>
             </div>
@@ -173,7 +193,7 @@
                     </button>
                     <div class="accordion-wrapper">
                         <div class="accordion-content bg-white/40 text-xs sm:text-sm leading-relaxed text-slate-600 border-t border-slate-100/70 p-4 sm:p-5">
-                            <p class="whitespace-pre-line font-medium tracking-wide break-words"><%= product.info %></p>
+                            <p class="whitespace-pre-line font-medium tracking-wide break-words"><%= product.info || 'No description available.' %></p>
                         </div>
                     </div>
                 </div>
@@ -186,7 +206,7 @@
                     </button>
                     <div class="accordion-wrapper">
                         <div class="accordion-content bg-emerald-50/10 text-xs sm:text-sm leading-relaxed text-slate-700 border-t border-slate-100/70 p-4 sm:p-5">
-                            <p class="whitespace-pre-line font-medium tracking-wide break-words"><%= product.benefits %></p>
+                            <p class="whitespace-pre-line font-medium tracking-wide break-words"><%= product.benefits || 'No benefits details available.' %></p>
                         </div>
                     </div>
                 </div>
@@ -199,7 +219,7 @@
                     </button>
                     <div class="accordion-wrapper">
                         <div class="accordion-content bg-white/40 text-xs sm:text-sm leading-relaxed text-slate-600 border-t border-slate-100/70 p-4 sm:p-5">
-                            <p class="whitespace-pre-line font-medium tracking-wide break-words"><%= product.how_to_use %></p>
+                            <p class="whitespace-pre-line font-medium tracking-wide break-words"><%= product.how_to_use || 'No usage instructions available.' %></p>
                         </div>
                     </div>
                 </div>
@@ -255,12 +275,10 @@
             const currentItem = element.closest('.accordion-item');
             const isOpen = currentItem.classList.contains('accordion-open');
             
-            // જો બીજું કોઈ ઓપન હોય તો એને સ્મૂધલી ક્લોઝ કરશે
             document.querySelectorAll('.accordion-item').forEach(item => {
                 item.classList.remove('accordion-open');
             });
             
-            // જો ક્લોઝ હતું તો સ્મૂધલી સ્લાઇડ ડાઉન ઓપન કરશે
             if (!isOpen) {
                 currentItem.classList.add('accordion-open');
             }
