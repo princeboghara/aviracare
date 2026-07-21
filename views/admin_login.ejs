@@ -1,18 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Admin Login - Avira Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 🌌 OVERFLOW SAFE GLASS EFFECTS */
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            position: relative;
+        }
+
+        .glass-box {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ✨ STRICT OVERFLOW BOUNDED ANIMATED BLOBS */
+        .animated-blob {
+            filter: blur(90px);
+            opacity: 0.25;
+            animation: floatBlob 12s infinite alternate ease-in-out;
+            will-change: transform;
+        }
+        @keyframes floatBlob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            100% { transform: translate(20px, 20px) scale(1.05); }
+        }
+    </style>
 </head>
-<body class="bg-slate-900 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
-        <h2 class="text-xl font-black uppercase mb-6 text-slate-900">Admin Login</h2>
-        <form action="/admin/login" method="POST" class="space-y-4">
-            <input type="text" name="username" placeholder="Username" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold">
-            <input type="password" name="password" placeholder="Password" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold">
-            <button type="submit" class="w-full bg-emerald-500 text-white font-black py-3 rounded-xl uppercase hover:bg-emerald-600 transition-all">Sign In</button>
-        </form>
+<body class="bg-slate-950 flex flex-col justify-between min-h-screen font-sans antialiased text-white relative w-full overflow-x-hidden">
+
+    <!-- 🔮 STRICT BOUNDED BACKGROUND ANIMATED SHAPES -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute -top-10 -left-10 w-72 h-72 sm:w-96 sm:h-96 bg-emerald-500 rounded-full animated-blob"></div>
+        <div class="absolute -bottom-10 -right-10 w-72 h-72 sm:w-96 sm:h-96 bg-teal-500 rounded-full animated-blob" style="animation-delay: -4s;"></div>
     </div>
+
+    <!-- MAIN LOGIN CARD WORKSPACE -->
+    <main class="flex-grow flex items-center justify-center p-4 relative z-10 w-full box-border">
+        <div class="glass-box p-6 sm:p-8 rounded-3xl w-full max-w-sm text-center relative overflow-hidden">
+            
+            <!-- BRAND LOGO -->
+            <div class="h-12 w-12 rounded-2xl overflow-hidden bg-white mx-auto mb-4 flex items-center justify-center shadow-lg border border-slate-700/50">
+                <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover">
+            </div>
+
+            <h2 class="text-lg sm:text-xl font-black uppercase mb-1 tracking-wider text-white">Admin Gateway</h2>
+            <p class="text-[10px] sm:text-[11px] font-semibold text-slate-400 mb-6 uppercase tracking-widest">Avira Control Hub</p>
+
+            <form action="/admin/login" method="POST" class="space-y-4">
+                <div class="relative">
+                    <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" name="username" placeholder="Username" required 
+                           class="w-full pl-9 pr-4 py-3 bg-slate-900/80 border border-slate-700/80 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-500 transition-all">
+                </div>
+
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="password" name="password" placeholder="Password" required 
+                           class="w-full pl-9 pr-4 py-3 bg-slate-900/80 border border-slate-700/80 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-500 transition-all">
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl uppercase tracking-wider text-xs transition-all shadow-lg shadow-emerald-500/20 cursor-pointer mt-2">
+                    Sign In &rarr;
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-4 text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest relative z-10 w-full overflow-hidden">
+        &copy; 2026 Avira Lifecare. Secure Systems.
+    </footer>
+
 </body>
 </html>
