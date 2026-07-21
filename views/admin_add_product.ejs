@@ -1,15 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Add New Product - Avira Ultra 3D Admin</title>
     <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* 🌌 મોર્ડન 3D અને ગ્લાસ ઇફેક્ટ્સ */
+        /* 🌌 OVERFLOW SAFE GLASS EFFECTS */
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            position: relative;
+        }
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(20px);
@@ -28,109 +34,111 @@
             box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.12);
         }
 
-        /* ✨ ઓર્ગેનિક લાઈવ 3D એનિમેશન શેપ્સ */
+        /* ✨ STRICT OVERFLOW BOUNDED ANIMATED BLOBS */
         .animated-blob {
             filter: blur(90px);
             opacity: 0.35;
             animation: floatBlob 16s infinite alternate ease-in-out;
+            will-change: transform;
         }
         @keyframes floatBlob {
             0% { transform: translate(0px, 0px) scale(1); }
-            100% { transform: translate(30px, -20px) scale(1.1); }
+            100% { transform: translate(20px, -10px) scale(1.05); }
         }
         
         .inner-3d { transform: translateZ(20px); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between font-sans antialiased relative overflow-x-hidden pb-12">
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between font-sans antialiased relative w-full overflow-x-hidden pb-12">
 
-    <!-- 🔮 BACKGROUND ANIMATED SHAPES -->
-    <div class="absolute top-[-10%] left-[-10%] w-[45vw] h-[45vw] bg-emerald-400/10 rounded-full animated-blob z-0"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-purple-400/10 rounded-full animated-blob z-0" style="animation-delay: -6s;"></div>
+    <!-- 🔮 STRICT BOUNDED BACKGROUND ANIMATED SHAPES -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute -top-10 -left-10 w-72 h-72 sm:w-96 sm:h-96 bg-emerald-400/10 rounded-full animated-blob"></div>
+        <div class="absolute -bottom-10 -right-10 w-72 h-72 sm:w-96 sm:h-96 bg-purple-400/10 rounded-full animated-blob" style="animation-delay: -6s;"></div>
+    </div>
 
-    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
+    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FIXED: lg:ml-64 લેપટોપમાં સાઇડબારની બાજુમાં પ્રોપર જગ્યા આપશે) -->
-    <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા -->
+    <div class="lg:ml-64 flex-grow flex flex-col justify-between min-h-screen overflow-y-auto box-border w-full">
 
         <!-- Top Navbar Subheader Header -->
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-box-open text-emerald-500"></i>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Product Manager / Add Products</span>
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
+            <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-box-open text-emerald-500 flex-shrink-0"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Product Manager / Add Products</span>
             </div>
         </header>
 
         <!-- 📦 MAIN OPERATIONAL WORKSPACE -->
-        <main class="flex-grow max-w-2xl w-full mx-auto px-4 mt-8 relative z-10">
-            <div class="glass-panel interactive-3d-box p-6 sm:p-8 rounded-3xl border border-white">
+        <main class="flex-grow max-w-2xl w-full mx-auto px-4 mt-6 sm:mt-8 relative z-10 box-border">
+            <div class="glass-panel interactive-3d-box p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-white">
                 
-                <div class="flex items-center gap-3 mb-6 border-b border-slate-200/60 pb-4 inner-3d">
-                    <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-lg shadow-sm border border-purple-100">
+                <div class="flex items-center gap-3 mb-5 sm:mb-6 border-b border-slate-200/60 pb-4 inner-3d">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-base sm:text-lg shadow-sm border border-purple-100 flex-shrink-0">
                         <i class="fa-solid fa-box-open"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-black uppercase text-slate-900 leading-none">Add New Product</h2>
+                        <h2 class="text-base sm:text-lg font-black uppercase text-slate-900 leading-none">Add New Product</h2>
                         <p class="text-slate-400 text-[10px] mt-1 font-semibold">Publish new inventory item assets to member store bounds.</p>
                     </div>
                 </div>
 
                 <!-- FORM START -->
-                <form id="productForm" enctype="multipart/form-data" class="space-y-5 inner-3d">
+                <form id="productForm" enctype="multipart/form-data" class="space-y-4 sm:space-y-5 inner-3d">
                     
                     <!-- ROW 1: Name & Multi-Image Select -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Product Title / Name</label>
-                            <input type="text" name="name" required class="w-full p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
+                            <input type="text" name="name" required class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
                         </div>
                         <div>
                             <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Product Showcase Images</label>
-                            <!-- 🛠️ FIX: HTML 'required' હટાવી લીધું જેથી કસ્ટમ JS એરે લોજિક બાઈન્ડ થઈ શકે -->
                             <input type="file" id="imageInput" accept="image/*" multiple 
-                                class="w-full p-2 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition-all">
+                                class="w-full p-1.5 sm:p-2 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer file:mr-2 sm:file:mr-3 file:py-1 sm:file:py-1.5 file:px-2.5 sm:file:px-3 file:rounded-lg file:border-0 file:text-[9px] sm:file:text-[10px] file:font-black file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition-all">
                         </div>
                     </div>
 
                     <!-- 🔄 ULTRA STYLISH LIVE PREVIEW CONTAINER -->
                     <div id="previewWrapper" class="hidden flex-col gap-2 bg-white/50 backdrop-blur-md p-3 rounded-2xl border border-slate-200/60 shadow-inner">
                         <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider"><i class="fa-solid fa-images mr-1"></i> Selected Pics Preview:</span>
-                        <div id="previewContainer" class="flex flex-wrap gap-3"></div>
+                        <div id="previewContainer" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
                     </div>
 
                     <!-- ROW 2: Price & PV Settings -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Amount (Price ₹)</label>
-                            <input type="number" step="0.01" name="amount" required class="w-full p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
+                            <input type="number" step="0.01" name="amount" required class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
                         </div>
                         <div>
                             <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">PV Bound (Point Value)</label>
-                            <input type="number" name="pv" required class="w-full p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
+                            <input type="number" name="pv" required class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
                         </div>
                     </div>
 
                     <!-- ROW 3: Description Content -->
                     <div>
                         <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Product Information (Description)</label>
-                        <textarea name="info" rows="3" required placeholder="Write granular operational specs in English..." class="w-full p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
+                        <textarea name="info" rows="3" required placeholder="Write granular operational specs in English..." class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
                     </div>
 
                     <!-- ROW 4: Benefits Grid Info -->
                     <div>
                         <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Product Benefits Matrix</label>
-                        <textarea name="benefits" rows="3" required placeholder="List distinct wellness capabilities..." class="w-full p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
+                        <textarea name="benefits" rows="3" required placeholder="List distinct wellness capabilities..." class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
                     </div>
 
                     <!-- ROW 5: Applied Usage Rules -->
                     <div>
                         <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">How To Consume / Apply</label>
-                        <textarea name="how_to_use" rows="2" required placeholder="Dosage instructions metrics..." class="w-full p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
+                        <textarea name="how_to_use" rows="2" required placeholder="Dosage instructions metrics..." class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition-all shadow-md shadow-emerald-500/10 cursor-pointer">
+                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 sm:py-3.5 rounded-xl text-xs uppercase tracking-widest transition-all shadow-md shadow-emerald-500/10 cursor-pointer">
                         Publish Inventory Base &rarr;
                     </button>
                 </form>
@@ -138,21 +146,16 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400 mt-12">
+        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400 mt-12 w-full overflow-hidden">
             &copy; 2026 Avira Control Center. Secure Admin Workspace.
         </footer>
     </div>
 
     <!-- JS Engine Setup -->
     <script>
-        // 💾 ગ્લોબલ ફાઈલ સ્ટોરેજ એરે
         let selectedFiles = [];
 
-        // 📸 ૧. મલ્ટિપલ ઈમેજીસનો સ્માર્ટ પ્રિવ્યૂ લોજિક વિથ રીમૂવ ઓપ્શન
         document.getElementById('imageInput').addEventListener('change', function(e) {
-            const wrapper = document.getElementById('previewWrapper');
-            const container = document.getElementById('previewContainer');
-            
             Array.from(this.files).forEach(file => {
                 selectedFiles.push(file);
             });
@@ -161,7 +164,6 @@
             renderPreviews();
         });
 
-        // 🔄 ફંક્શન: નાના પ્રિવ્યૂ બોક્સ રેન્ડર કરવા માટે
         function renderPreviews() {
             const wrapper = document.getElementById('previewWrapper');
             const container = document.getElementById('previewContainer');
@@ -175,7 +177,7 @@
                     const reader = new FileReader();
                     reader.onload = function(event) {
                         const div = document.createElement('div');
-                        div.className = "h-16 w-16 rounded-xl bg-white p-1 border border-slate-200 flex-shrink-0 overflow-hidden shadow-sm flex items-center justify-center relative group";
+                        div.className = "h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-white p-1 border border-slate-200 flex-shrink-0 overflow-hidden shadow-sm flex items-center justify-center relative group";
                         
                         div.innerHTML = `
                             <img src="${event.target.result}" class="h-full w-full object-contain">
@@ -193,17 +195,14 @@
             }
         }
 
-        // ❌ ફંક્શન: કોઈ સ્પેસિફિક ફોટો લિસ્ટમાંથી હટાવવા માટે
         window.removeImage = function(index) {
             selectedFiles.splice(index, 1);
             renderPreviews();
         }
 
-        // ⚡ ૨. ડેટા સબમિશન હેન્ડલર
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // 🛠️ FIX: જાવાસ્ક્રિપ્ટ વેરિફિકેશન ચેક (૧ ફોટો હશે તો પણ રન થઈ જશે)
             if(selectedFiles.length === 0) {
                 alert("કૃપા કરીને ઓછામાં ઓછો ૧ ફોટો અપલોડ કરો!");
                 return;
