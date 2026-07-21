@@ -1,32 +1,46 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Content Manager - Avira Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .admin-menu-card { background: white; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .admin-menu-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(16, 185, 129, 0.12); }
+        /* 🌌 OVERFLOW SAFE GLASS EFFECTS */
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            position: relative;
+        }
+
+        .admin-menu-card { 
+            background: white; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .admin-menu-card:hover { 
+            transform: translateY(-6px); 
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.12); 
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
     <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FIXED: lg:ml-64 લેપટોપમાં સાઇડબારની બાજુમાં પ્રોપર જગ્યા આપશે) -->
-    <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા -->
+    <div class="lg:ml-64 flex-grow flex flex-col justify-between min-h-screen overflow-y-auto box-border w-full">
         
         <!-- Top Navbar -->
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-file-pdf text-emerald-500"></i>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Dashboard / Content Manager</span>
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
+            <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-file-pdf text-emerald-500 flex-shrink-0"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Dashboard / Content Manager</span>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="text-right">
+            <div class="flex items-center gap-3 flex-shrink-0 ml-2">
+                <div class="text-right hidden sm:block">
                     <p class="text-xs font-bold text-slate-800">Avira Admin</p>
                     <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
                 </div>
@@ -35,26 +49,26 @@
         </header>
 
         <!-- Main Workspace -->
-        <main class="flex-grow w-full mx-auto px-4 sm:px-8 py-10 space-y-10">
+        <main class="flex-grow w-full max-w-4xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-6 sm:space-y-10 box-border">
             
-            <div class="space-y-2 text-center max-w-xl mx-auto mb-6">
-                <h1 class="text-3xl font-black tracking-tight text-slate-950">Content Management</h1>
-                <p class="text-slate-500 text-xs md:text-sm">Upload business models, products flyers, or catalog resources. All PDF links dynamically sync onto the Member Portal portal.</p>
+            <div class="space-y-2 text-center max-w-xl mx-auto mb-4 sm:mb-6">
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-950">Content Management</h1>
+                <p class="text-slate-500 text-xs md:text-sm">Upload business models, products flyers, or catalog resources. All PDF links dynamically sync onto the Member Portal.</p>
             </div>
 
-            <!-- 3 Modules Layout જેવું જ મસ્ત Upload Card -->
-            <div class="max-w-xl mx-auto">
-                <div class="admin-menu-card p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-md shadow-slate-100/50">
+            <!-- Upload Card -->
+            <div class="max-w-2xl mx-auto w-full">
+                <div class="admin-menu-card p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-md shadow-slate-100/50">
                     <div class="text-center mb-6">
-                        <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-xl mx-auto mb-4 border border-emerald-100/50">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg sm:text-xl mx-auto mb-3 sm:mb-4 border border-emerald-100/50">
                             <i class="fa-solid fa-cloud-arrow-up"></i>
                         </div>
-                        <h3 class="text-base font-bold text-slate-900 mb-2">Upload New Resource / PDF</h3>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-1.5">Upload New Resource / PDF</h3>
                         <p class="text-slate-400 text-xs leading-relaxed">Enter a unique name tag title and link file sheet formats into content portal database.</p>
                     </div>
 
                     <form id="pdfUploadForm" class="space-y-4 text-xs">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
                             <!-- Document Title -->
                             <div>
                                 <label class="block font-bold text-slate-500 mb-1">Document File Name Title</label>
@@ -79,7 +93,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm uppercase tracking-wider">
+                        <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm uppercase tracking-wider">
                             Upload Document Link <i class="fa-solid fa-circle-check ml-1"></i>
                         </button>
                     </form>
@@ -87,24 +101,24 @@
             </div>
 
             <!-- 📊 LIVE UPLOADED PREVIEW LIST SECTION -->
-            <div class="w-full bg-white p-6 rounded-2xl border border-slate-100 shadow-lg mt-12 space-y-4">
-                <div class="flex justify-between items-center border-b pb-3">
+            <div class="w-full bg-white p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-lg mt-8 sm:mt-12 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-base font-bold text-slate-900"><i class="fa-solid fa-list-check text-emerald-500 mr-1"></i> Active PDF Database Resources</h3>
-                        <p class="text-slate-400 text-xs mt-0.5">Below records represents the current active dynamic system items inside `content_database.xlsx` file logic layout.</p>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900"><i class="fa-solid fa-list-check text-emerald-500 mr-1"></i> Active PDF Database Resources</h3>
+                        <p class="text-slate-400 text-[11px] sm:text-xs mt-0.5">Below records represent active dynamic documents synced with Cloud Database.</p>
                     </div>
                     <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-xl">Total Items: <%= pdfs.length %></span>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap sm:whitespace-normal">
                         <thead>
                             <tr class="bg-slate-50 border-b text-slate-400 font-bold uppercase">
-                                <th class="py-3 px-4 w-12">SR</th>
-                                <th class="py-3 px-4">Document Title Tag Name</th>
-                                <th class="py-3 px-4">Generated File Storage Path</th>
-                                <th class="py-3 px-4">Upload Stamp Date</th>
-                                <th class="py-3 px-4 text-center w-36">Actions Workspace</th>
+                                <th class="py-3 px-3 w-12">SR</th>
+                                <th class="py-3 px-3">Document Title Tag Name</th>
+                                <th class="py-3 px-3">Generated File Storage Path</th>
+                                <th class="py-3 px-3">Upload Stamp Date</th>
+                                <th class="py-3 px-3 text-center w-36">Actions Workspace</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50 font-medium text-slate-700">
@@ -112,23 +126,26 @@
                                 <tr>
                                     <td colspan="5" class="py-12 text-center text-slate-400 font-normal">
                                         <i class="fa-solid fa-file-pdf text-2xl block mb-2 text-slate-200"></i>
-                                        No active resource data rows discovered inside Excel system repository.
+                                        No active resource data rows discovered inside system repository.
                                     </td>
                                 </tr>
                             <% } else { %>
                                 <% pdfs.forEach((item, index) => { %>
                                 <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="py-3 px-4 font-mono text-slate-400"><%= index + 1 %></td>
-                                    <td class="py-3 px-4 font-bold text-slate-900 uppercase tracking-wide"><%= item.title %></td>
-                                    <td class="py-3 px-4 text-slate-400 font-mono text-[10px]"><%= item.filename %></td>
-                                    <td class="py-3 px-4 text-slate-500"><%= item.uploadDate %></td>
-                                    <td class="py-3 px-4 text-center flex justify-center gap-4">
-                                        <a href="/uploads/<%= item.filename %>" target="_blank" class="text-blue-500 hover:text-blue-700 font-bold transition-colors">
-                                            <i class="fa-solid fa-eye mr-0.5"></i> View
-                                        </a>
-                                        <button type="button" data-id="<%= item.id %>" class="delete-pdf-btn text-rose-500 hover:text-rose-700 font-bold transition-colors cursor-pointer">
-                                            <i class="fa-solid fa-trash mr-0.5"></i> Delete File
-                                        </a>
+                                    <td class="py-3 px-3 font-mono text-slate-400"><%= index + 1 %></td>
+                                    <td class="py-3 px-3 font-bold text-slate-900 uppercase tracking-wide"><%= item.title %></td>
+                                    <td class="py-3 px-3 text-slate-400 font-mono text-[10px] max-w-[150px] truncate"><%= item.filename %></td>
+                                    <td class="py-3 px-3 text-slate-500"><%= item.uploadDate %></td>
+                                    <td class="py-3 px-3 text-center">
+                                        <div class="flex items-center justify-center gap-3">
+                                            <!-- 🎯 FIX: Direct Cloudinary PDF Link -->
+                                            <a href="<%= item.filename %>" target="_blank" class="text-blue-500 hover:text-blue-700 font-bold transition-colors">
+                                                <i class="fa-solid fa-eye mr-0.5"></i> View
+                                            </a>
+                                            <button type="button" data-id="<%= item.id %>" class="delete-pdf-btn text-rose-500 hover:text-rose-700 font-bold transition-colors cursor-pointer">
+                                                <i class="fa-solid fa-trash mr-0.5"></i> Delete
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <% }) %>
@@ -139,7 +156,7 @@
             </div>
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
+        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400 mt-12 w-full overflow-hidden">
             &copy; 2026 Avira Control Center. Secure Admin Workspace.
         </footer>
     </div>
@@ -163,7 +180,7 @@
             formData.append('pdfCategory', document.getElementById('pdfCategory').value);
 
             const btn = this.querySelector('button[type="submit"]');
-            btn.innerText = "Uploading to Server...";
+            btn.innerText = "Uploading to Cloud Server...";
             btn.disabled = true;
 
             try {
@@ -193,7 +210,7 @@
         document.querySelectorAll('.delete-pdf-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const pdfId = this.getAttribute('data-id');
-                if(confirm("Warning! Are you sure you want to delete this permanent resource document from Excel configuration listing?")) {
+                if(confirm("Warning! Are you sure you want to delete this permanent resource document from configuration listing?")) {
                     fetch(`/admin/api/delete-pdf/${pdfId}`, { method: 'DELETE' })
                     .then(res => res.json())
                     .then(data => {
