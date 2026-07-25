@@ -195,7 +195,7 @@ document.getElementById('cameraInput').addEventListener('change', async function
 
     try {
         // 1. Client-side Image Compression (Reduces 10MB photo to 200KB in milliseconds)
-        const compressedBlob = await compressImage(file, 1024, 0.7);
+        const compressedBlob = await compressImage(file);
 
         const formData = new FormData();
         formData.append('labelImage', compressedBlob, 'label.jpg');
