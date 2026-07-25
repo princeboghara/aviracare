@@ -6,6 +6,8 @@
     <title>Manual Entry Workspace - Avira Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tesseract.js OCR Engine for Label Scanning -->
+    <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
     <style>
         /* 🌌 OVERFLOW SAFE GLASS EFFECTS */
         html, body {
@@ -41,6 +43,31 @@
         <!-- Main Workspace -->
         <main class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-8 py-6 space-y-6 box-border">
             
+            <!-- 📸 CAMERA SCANNER QUICK WIDGET -->
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-4 sm:p-5 rounded-2xl shadow-lg text-white flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-12 w-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-xl flex-shrink-0 border border-white/20">
+                        <i class="fa-solid fa-camera-retro"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm sm:text-base font-black uppercase tracking-wide">Smart Label Scanner</h3>
+                        <p class="text-[11px] text-emerald-100 mt-0.5">Scan parcel label photo to auto-fill Tracking, Name, Mobile, and Pincode instantly! 🚀</p>
+                    </div>
+                </div>
+                <div>
+                    <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+                    <button type="button" onclick="document.getElementById('cameraInput').click()" class="bg-white hover:bg-slate-100 text-slate-950 font-black text-xs px-5 py-3 rounded-xl shadow-md transition-all uppercase tracking-wider cursor-pointer flex items-center gap-2 flex-shrink-0">
+                        <i class="fa-solid fa-expand text-emerald-600"></i> Scan with Camera
+                    </button>
+                </div>
+            </div>
+
+            <!-- OCR LOADING STATUS NOTIFICATION -->
+            <div id="ocrStatusBox" class="hidden bg-slate-900 text-white p-3 rounded-xl text-xs font-bold flex items-center justify-between shadow-md">
+                <span id="ocrStatusText" class="flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-emerald-400"></i> Scanning label text... Please wait...</span>
+                <span id="ocrProgress" class="font-mono text-emerald-400">0%</span>
+            </div>
+
             <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-md">
                 <div class="border-b pb-3 mb-4">
                     <h3 class="text-sm sm:text-base font-bold text-slate-900"><i class="fa-solid fa-plus text-emerald-500 mr-1"></i> Add New Dispatch</h3>
@@ -155,28 +182,102 @@
             renderTable(); 
         };
 
-        // 🔎 Neon DB કમ્પેટિબલ પિનકોડ ઓટો-ફેચ જાવાસ્ક્રિપ્ટ ફિક્સ ⚡
+        // 📸 CAMERA SCAN & OCR AUTO-FILL ENGINE 🚀
+        document.getElementById('cameraInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const statusBox = document.getElementById('ocrStatusBox');
+            const statusText = document.getElementById('ocrStatusText');
+            
+            statusBox.classList.remove('hidden');
+            statusText.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-emerald-400"></i> Reading parcel label text... Please wait...`;
+
+            try {
+                const worker = await Tesseract.createWorker('eng');
+                const ret = await worker.recognize(file);
+                const text = ret.data.text;
+                await worker.terminate();
+
+                statusBox.classList.add('hidden');
+                parseAndFillOcrText(text);
+
+            } catch (err) {
+                console.error("OCR Error:", err);
+                statusText.innerText = "Scanning failed! Please try taking a clear photo.";
+                setTimeout(() => statusBox.classList.add('hidden'), 4000);
+            }
+
+            this.value = '';
+        });
+
+        // 🔍 SMART REGEX PARSER FOR INDIA POST LABELS
+        async function parseAndFillOcrText(text) {
+            console.log("Raw OCR Text:\n", text);
+
+            // 1. Tracking Number Regex (e.g., CG135962165IN)
+            const trackingMatch = text.match(/[A-Z]{2}\d{9}[A-Z]{2}/);
+            if (trackingMatch) {
+                document.getElementById('mTracking').value = trackingMatch[0].toUpperCase();
+            }
+
+            // 2. Mobile Number Regex (10 digits starting with 6-9)
+            const mobileMatch = text.match(/[6-9]\d{9}/);
+            if (mobileMatch) {
+                document.getElementById('mMobile').value = mobileMatch[0];
+            }
+
+            // 3. Pincode Regex (6 digits)
+            const pincodeMatch = text.match(/\b[1-9][0-9]{5}\b/);
+            if (pincodeMatch) {
+                const pin = pincodeMatch[0];
+                document.getElementById('mPincode').value = pin;
+                await fetchPincodeDetails(pin);
+            }
+
+            // 4. Extract Receiver Name (Looking after 'DELIVER TO :')
+            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+            let nameFound = "";
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].toUpperCase().includes("DELIVER TO")) {
+                    let nameParts = [];
+                    if (lines[i+1]) nameParts.push(lines[i+1]);
+                    if (lines[i+2] && !lines[i+2].includes("—") && !lines[i+2].includes("-")) {
+                        nameParts.push(lines[i+2]);
+                    }
+                    nameFound = nameParts.join(" ");
+                    break;
+                }
+            }
+            if (nameFound) {
+                document.getElementById('mReceiverName').value = nameFound.toUpperCase();
+            } else if (lines[0]) {
+                document.getElementById('mReceiverName').value = lines[0].toUpperCase();
+            }
+
+            document.getElementById('mWeight').focus();
+        }
+
+        async function fetchPincodeDetails(pincode) {
+            try {
+                const res = await fetch(`/admin/api/fetch-details?pincode=${pincode}`);
+                const data = await res.json();
+                if (data.success && (data.city || data.state || data.address)) {
+                    document.getElementById('txtCity').value = data.city || '';
+                    document.getElementById('txtState').value = data.state || '';
+                    document.getElementById('txtAddress').value = data.address || '';
+                }
+            } catch(err) {
+                console.error("Auto-fetch address error:", err);
+            }
+        }
+
         document.getElementById('mPincode').addEventListener('input', async function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
-            
             const pincode = this.value.trim();
-            const name = document.getElementById('mReceiverName').value.trim();
             
             if (pincode.length === 6) {
-                try {
-                    const res = await fetch(`/admin/api/fetch-details?pincode=${pincode}&name=${encodeURIComponent(name)}`);
-                    const data = await res.json();
-                    
-                    if (data.success && (data.city || data.state || data.address)) {
-                        document.getElementById('txtCity').value = data.city || '';
-                        document.getElementById('txtState').value = data.state || '';
-                        document.getElementById('txtAddress').value = data.address || '';
-                    } else {
-                        console.log("Neon DB: Pincode found but fields are null or pincode missing.");
-                    }
-                } catch(err) { 
-                    console.error("Fetch API Crash:", err); 
-                }
+                await fetchPincodeDetails(pincode);
             } else {
                 document.getElementById('txtCity').value = '';
                 document.getElementById('txtState').value = '';
