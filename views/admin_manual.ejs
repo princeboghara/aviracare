@@ -182,52 +182,88 @@
             renderTable(); 
         };
 
-        // 🚀 1-SECOND LIGHTNING FAST AI SCANNER ENGINE
-        document.getElementById('cameraInput').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        // 🚀 1-SECOND LIGHTNING FAST AI SCANNER WITH AUTO-COMPRESSOR
+document.getElementById('cameraInput').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-            const statusBox = document.getElementById('ocrStatusBox');
-            const statusText = document.getElementById('ocrStatusText');
-            
-            statusBox.classList.remove('hidden');
-            statusText.innerHTML = `<i class="fa-solid fa-bolt animate-bounce text-amber-400"></i> AI Scanning Label in 1 second...`;
+    const statusBox = document.getElementById('ocrStatusBox');
+    const statusText = document.getElementById('ocrStatusText');
+    
+    statusBox.classList.remove('hidden');
+    statusText.innerHTML = `<i class="fa-solid fa-bolt animate-bounce text-amber-400"></i> Compressing & AI Scanning...`;
 
-            const formData = new FormData();
-            formData.append('labelImage', file);
+    try {
+        // 1. Client-side Image Compression (Reduces 10MB photo to 200KB in milliseconds)
+        const compressedBlob = await compressImage(file, 1024, 0.7);
 
-            try {
-                const res = await fetch('/admin/api/scan-ai-label', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await res.json();
-                statusBox.classList.add('hidden');
+        const formData = new FormData();
+        formData.append('labelImage', compressedBlob, 'label.jpg');
 
-                if (result.success && result.data) {
-                    const { tracking, name, mobile, pincode } = result.data;
+        // 2. Fast Upload to Server
+        const res = await fetch('/admin/api/scan-ai-label', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await res.json();
+        statusBox.classList.add('hidden');
 
-                    if (tracking) document.getElementById('mTracking').value = tracking.toUpperCase().trim();
-                    if (name) document.getElementById('mReceiverName').value = name.toUpperCase().trim();
-                    if (mobile) document.getElementById('mMobile').value = mobile.trim();
-                    if (pincode) {
-                        const cleanPin = pincode.toString().trim();
-                        document.getElementById('mPincode').value = cleanPin;
-                        await fetchPincodeDetails(cleanPin); // Auto-fetch City, State, Address from Neon DB
-                    }
+        if (result.success && result.data) {
+            const { tracking, name, mobile, pincode } = result.data;
 
-                    document.getElementById('mWeight').focus();
-                } else {
-                    alert(result.msg || "AI could not read the sticker clearly. Please try again with good lighting.");
-                }
-            } catch (err) {
-                console.error("AI Scan Error:", err);
-                statusText.innerText = "Scanning error! Please try again.";
-                setTimeout(() => statusBox.classList.add('hidden'), 3000);
+            if (tracking) document.getElementById('mTracking').value = tracking.toUpperCase().trim();
+            if (name) document.getElementById('mReceiverName').value = name.toUpperCase().trim();
+            if (mobile) document.getElementById('mMobile').value = mobile.trim();
+            if (pincode) {
+                const cleanPin = pincode.toString().trim();
+                document.getElementById('mPincode').value = cleanPin;
+                await fetchPincodeDetails(cleanPin);
             }
 
-            this.value = '';
-        });
+            document.getElementById('mWeight').focus();
+        } else {
+            alert(result.msg || "AI could not read the sticker clearly. Please try again.");
+        }
+    } catch (err) {
+        console.error("AI Scan Error:", err);
+        statusText.innerText = "Scanning error! Please try again.";
+        setTimeout(() => statusBox.classList.add('hidden'), 3000);
+    }
+
+    this.value = '';
+});
+
+// ⚡ Ultra-Fast Client Side Image Compression Helper
+function compressImage(file, maxWidth, quality) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/jpeg', quality);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
         async function fetchPincodeDetails(pincode) {
             try {
