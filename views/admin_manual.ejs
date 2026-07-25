@@ -6,8 +6,8 @@
     <title>Manual Entry Workspace - Avira Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tesseract.js OCR Engine for Label Scanning -->
-    <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
+    <!-- Tesseract OCR Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         /* 🌌 OVERFLOW SAFE GLASS EFFECTS */
         html, body {
@@ -17,13 +17,13 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
+    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા -->
-    <div class="lg:ml-64 flex-grow flex flex-col justify-between min-h-screen overflow-y-auto box-border w-full">
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FULL WIDTH RESPONSIVE) -->
+    <div class="lg:ml-64 flex-grow flex flex-col justify-between min-h-screen overflow-y-auto box-border w-full min-w-0">
         
         <!-- Top Navbar -->
         <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
@@ -40,122 +40,124 @@
             </div>
         </header>
 
-        <!-- Main Workspace -->
-        <main class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-8 py-6 space-y-6 box-border">
+        <!-- Main Workspace (CONTAINER EXPANDED FOR LAPTOP & MOBILE) -->
+        <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 box-border">
             
-            <!-- 📸 CAMERA SCANNER QUICK WIDGET -->
-            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-4 sm:p-5 rounded-2xl shadow-lg text-white flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="h-12 w-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-xl flex-shrink-0 border border-white/20">
+            <!-- 📸 CAMERA SCANNER QUICK WIDGET (PERFECT FIT) -->
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-4 sm:p-5 rounded-2xl shadow-lg text-white flex flex-col sm:flex-row justify-between items-center gap-4 w-full box-border">
+                <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+                    <div class="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl flex-shrink-0 border border-white/20">
                         <i class="fa-solid fa-camera-retro"></i>
                     </div>
-                    <div>
-                        <h3 class="text-sm sm:text-base font-black uppercase tracking-wide">Smart Label Scanner</h3>
-                        <p class="text-[11px] text-emerald-100 mt-0.5">Scan parcel label photo to auto-fill Tracking, Name, Mobile, and Pincode instantly! 🚀</p>
+                    <div class="min-w-0">
+                        <h3 class="text-xs sm:text-base font-black uppercase tracking-wide truncate">Smart Label Scanner</h3>
+                        <p class="text-[10px] sm:text-[11px] text-emerald-100 mt-0.5 truncate sm:whitespace-normal">Scan parcel label to auto-fill Tracking ID, Name, Mobile, and Pincode instantly.</p>
                     </div>
                 </div>
-                <div>
+                <div class="w-full sm:w-auto flex-shrink-0">
                     <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
-                    <button type="button" onclick="document.getElementById('cameraInput').click()" class="bg-white hover:bg-slate-100 text-slate-950 font-black text-xs px-5 py-3 rounded-xl shadow-md transition-all uppercase tracking-wider cursor-pointer flex items-center gap-2 flex-shrink-0">
+                    <button type="button" onclick="document.getElementById('cameraInput').click()" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-950 font-black text-xs px-5 py-3 rounded-xl shadow-md transition-all uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 flex-shrink-0 whitespace-nowrap">
                         <i class="fa-solid fa-expand text-emerald-600"></i> Scan with Camera
                     </button>
                 </div>
             </div>
 
             <!-- OCR LOADING STATUS NOTIFICATION -->
-            <div id="ocrStatusBox" class="hidden bg-slate-900 text-white p-3 rounded-xl text-xs font-bold flex items-center justify-between shadow-md">
-                <span id="ocrStatusText" class="flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-emerald-400"></i> Scanning label text... Please wait...</span>
+            <div id="ocrStatusBox" class="hidden bg-slate-900 text-white p-3.5 rounded-xl text-xs font-bold flex items-center justify-between shadow-md">
+                <span id="ocrStatusText" class="flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-emerald-400"></i> Auto-Detecting Label Text...</span>
                 <span id="ocrProgress" class="font-mono text-emerald-400">0%</span>
             </div>
 
-            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-md">
-                <div class="border-b pb-3 mb-4">
-                    <h3 class="text-sm sm:text-base font-bold text-slate-900"><i class="fa-solid fa-plus text-emerald-500 mr-1"></i> Add New Dispatch</h3>
+            <!-- MANUAL ENTRY FORM CARD -->
+            <div class="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl border border-slate-100 shadow-md w-full">
+                <div class="border-b pb-3 mb-5">
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-plus text-emerald-500"></i> Add New Dispatch</h3>
                 </div>
 
-                <form id="manualEntryForm" class="space-y-4 text-xs">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                <form id="manualEntryForm" class="space-y-5 text-xs w-full">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
                             <label class="block font-semibold text-slate-500 mb-1">Tracking Number</label>
-                            <input type="text" id="mTracking" required class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 uppercase font-mono font-bold focus:outline-none focus:border-emerald-500">
+                            <input type="text" id="mTracking" required class="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 uppercase font-mono font-bold focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
                             <label class="block font-semibold text-slate-500 mb-1">Receiver Name / Order Link</label>
-                            <input type="text" id="mReceiverName" required class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 uppercase font-semibold focus:outline-none focus:border-emerald-500">
+                            <input type="text" id="mReceiverName" required class="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 uppercase font-semibold focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
                             <label class="block font-semibold text-slate-500 mb-1">Receiver Mobile Number</label>
                             <input type="text" id="mMobile" required maxlength="10" placeholder="10 Digits Only"
                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);" 
-                                   class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono focus:outline-none focus:border-emerald-500">
+                                   class="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 font-mono focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
                             <label class="block font-semibold text-slate-500 mb-1">Receiver Pincode</label>
                             <input type="text" id="mPincode" maxlength="6" required oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                                   class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono font-bold focus:outline-none focus:border-emerald-500">
+                                   class="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 font-mono font-bold focus:outline-none focus:border-emerald-500">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/80 p-4 rounded-xl border border-slate-100">
                         <div>
-                            <label class="block font-semibold text-slate-400 mb-0.5">Weight (kg)</label>
-                            <input type="number" step="0.001" id="mWeight" required class="w-full px-2 py-1.5 bg-white rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                            <label class="block font-semibold text-slate-400 mb-1">Weight (kg)</label>
+                            <input type="number" step="0.001" id="mWeight" required class="w-full px-3 py-2 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-semibold">
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-400 mb-0.5">Length (cm)</label>
-                            <input type="number" id="mLength" required class="w-full px-2 py-1.5 bg-white rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                            <label class="block font-semibold text-slate-400 mb-1">Length (cm)</label>
+                            <input type="number" id="mLength" required class="w-full px-3 py-2 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-semibold">
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-400 mb-0.5">Breadth (cm)</label>
-                            <input type="number" id="mBreadth" required class="w-full px-2 py-1.5 bg-white rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                            <label class="block font-semibold text-slate-400 mb-1">Breadth (cm)</label>
+                            <input type="number" id="mBreadth" required class="w-full px-3 py-2 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-semibold">
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-400 mb-0.5">Height (cm)</label>
-                            <input type="number" id="mHeight" required class="w-full px-2 py-1.5 bg-white rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
-                        </div>
-                    </div>
-
-                    <div class="bg-emerald-50/40 p-3.5 sm:p-4 rounded-xl border border-emerald-100 grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-[10px] font-bold text-emerald-800 mb-0.5">City</label>
-                            <input type="text" id="txtCity" placeholder="MANUAL / AUTO" class="w-full px-2 py-1.5 bg-white border border-emerald-200 rounded text-[11px] font-semibold uppercase focus:outline-none focus:border-emerald-500">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-emerald-800 mb-0.5">State</label>
-                            <input type="text" id="txtState" placeholder="MANUAL / AUTO" class="w-full px-2 py-1.5 bg-white border border-emerald-200 rounded text-[11px] font-semibold uppercase focus:outline-none focus:border-emerald-500">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-emerald-800 mb-0.5">Area / Address Line</label>
-                            <input type="text" id="txtAddress" placeholder="MANUAL / AUTO" class="w-full px-2 py-1.5 bg-white border border-emerald-200 rounded text-[11px] font-semibold uppercase focus:outline-none focus:border-emerald-500">
+                            <label class="block font-semibold text-slate-400 mb-1">Height (cm)</label>
+                            <input type="number" id="mHeight" required class="w-full px-3 py-2 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-semibold">
                         </div>
                     </div>
 
-                    <div class="flex justify-end pt-2">
-                        <button type="submit" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black px-8 py-3 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider">
-                            <i class="fa-solid fa-circle-check mr-1"></i> SAVE ENTRY (ENTER)
+                    <div class="bg-emerald-50/40 p-4 rounded-xl border border-emerald-100/70 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-emerald-800 mb-1">City</label>
+                            <input type="text" id="txtCity" placeholder="MANUAL / AUTO" class="w-full px-3 py-2 bg-white border border-emerald-200/80 rounded-lg text-[11px] font-semibold uppercase focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-emerald-800 mb-1">State</label>
+                            <input type="text" id="txtState" placeholder="MANUAL / AUTO" class="w-full px-3 py-2 bg-white border border-emerald-200/80 rounded-lg text-[11px] font-semibold uppercase focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-emerald-800 mb-1">Area / Address Line</label>
+                            <input type="text" id="txtAddress" placeholder="MANUAL / AUTO" class="w-full px-3 py-2 bg-white border border-emerald-200/80 rounded-lg text-[11px] font-semibold uppercase focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-3">
+                        <button type="submit" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black px-8 py-3.5 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-sm"></i> SAVE ENTRY (ENTER)
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden">
+            <!-- SESSION ENTRIES TABLE -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden w-full">
                 <div class="px-4 sm:px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-2">
-                    <h3 class="text-xs sm:text-sm font-bold text-slate-900"><i class="fa-solid fa-list-check text-slate-400 mr-1"></i> Current Session Entries</h3>
+                    <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-list-check text-slate-400"></i> Current Session Entries</h3>
                     
-                    <button id="exportExcelBtn" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
-                        <i class="fa-solid fa-file-excel"></i> EXPORT EXCEL
+                    <button id="exportExcelBtn" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-xs px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-file-excel text-emerald-400"></i> EXPORT EXCEL
                     </button>
                 </div>
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
                         <thead>
                             <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase">
-                                <th class="py-3 px-4">Tracking No</th>
-                                <th class="py-3 px-4">Receiver Name</th>
-                                <th class="py-3 px-4">Mobile</th>
-                                <th class="py-3 px-4">Pincode</th>
-                                <th class="py-3 px-4">Place / Location</th>
-                                <th class="py-3 px-4 text-center">Actions</th>
+                                <th class="py-3.5 px-4">Tracking No</th>
+                                <th class="py-3.5 px-4">Receiver Name</th>
+                                <th class="py-3.5 px-4">Mobile</th>
+                                <th class="py-3.5 px-4">Pincode</th>
+                                <th class="py-3.5 px-4">Place / Location</th>
+                                <th class="py-3.5 px-4 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="sessionTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
@@ -182,7 +184,7 @@
             renderTable(); 
         };
 
-        // 📸 CAMERA SCAN & OCR AUTO-FILL ENGINE 🚀
+        // 📸 AUTO-ROTATE & SMART OCR ENGINE
         document.getElementById('cameraInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -191,43 +193,108 @@
             const statusText = document.getElementById('ocrStatusText');
             
             statusBox.classList.remove('hidden');
-            statusText.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-emerald-400"></i> Reading parcel label text... Please wait...`;
+            statusText.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-emerald-400"></i> Auto-Detecting Label Text...`;
 
             try {
-                const worker = await Tesseract.createWorker('eng');
-                const ret = await worker.recognize(file);
-                const text = ret.data.text;
-                await worker.terminate();
+                const img = await loadImage(file);
+                
+                // Try reading directly first
+                let result = await Tesseract.recognize(img, 'eng', {
+                    corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.0.0',
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            document.getElementById('ocrProgress').innerText = Math.round(m.progress * 100) + '%';
+                        }
+                    }
+                });
+
+                let text = result.data.text;
+
+                // AUTO-ROTATE CHECK
+                if (!text.match(/[A-Z]{2}\s?\d{9}\s?[A-Z]{2}/i) && !text.toUpperCase().includes("DELIVER TO")) {
+                    const angles = [90, 180, 270];
+                    for (let angle of angles) {
+                        statusText.innerHTML = `<i class="fa-solid fa-rotate animate-spin text-emerald-400"></i> Auto-rotating image (${angle}°)...`;
+                        const rotatedCanvas = getRotatedCanvas(img, angle);
+                        const rotResult = await Tesseract.recognize(rotatedCanvas, 'eng');
+                        if (rotResult.data.text.match(/[A-Z]{2}\s?\d{9}\s?[A-Z]{2}/i) || rotResult.data.text.toUpperCase().includes("DELIVER TO")) {
+                            text = rotResult.data.text;
+                            break;
+                        }
+                    }
+                }
 
                 statusBox.classList.add('hidden');
+
+                if(!text || text.trim().length === 0) {
+                    alert("Could not read text clearly. Please take a closer, well-lit photo.");
+                    return;
+                }
+
                 parseAndFillOcrText(text);
 
             } catch (err) {
                 console.error("OCR Error:", err);
-                statusText.innerText = "Scanning failed! Please try taking a clear photo.";
-                setTimeout(() => statusBox.classList.add('hidden'), 4000);
+                statusText.innerText = "Scanning error! Please try again.";
+                setTimeout(() => statusBox.classList.add('hidden'), 3000);
             }
 
             this.value = '';
         });
 
-        // 🔍 SMART REGEX PARSER FOR INDIA POST LABELS
+        function loadImage(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function getRotatedCanvas(img, degrees) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (degrees === 90 || degrees === 270) {
+                canvas.width = img.height;
+                canvas.height = img.width;
+            } else {
+                canvas.width = img.width;
+                canvas.height = img.height;
+            }
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate((degrees * Math.PI) / 180);
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+            return canvas;
+        }
+
+        // 🔍 ACCURATE PARSER WITH ADDRESS-FILTER FOR RECEIVER NAME
         async function parseAndFillOcrText(text) {
-            console.log("Raw OCR Text:\n", text);
+            console.log("Raw OCR Text Output:\n", text);
 
-            // 1. Tracking Number Regex (e.g., CG135962165IN)
-            const trackingMatch = text.match(/[A-Z]{2}\d{9}[A-Z]{2}/);
+            // 1. TRACKING NUMBER (e.g., CG135962112IN)
+            const trackingMatch = text.match(/[A-Z]{2}\s?\d{9}\s?[A-Z]{2}/i);
             if (trackingMatch) {
-                document.getElementById('mTracking').value = trackingMatch[0].toUpperCase();
+                document.getElementById('mTracking').value = trackingMatch[0].replace(/\s+/g, '').toUpperCase();
             }
 
-            // 2. Mobile Number Regex (10 digits starting with 6-9)
-            const mobileMatch = text.match(/[6-9]\d{9}/);
-            if (mobileMatch) {
-                document.getElementById('mMobile').value = mobileMatch[0];
+            // 2. RECEIVER MOBILE NUMBER (STRICTLY "Mob:")
+            const mobMatch = text.match(/Mob\s*:\s*([6-9]\d{9})/i);
+            if (mobMatch && mobMatch[1]) {
+                document.getElementById('mMobile').value = mobMatch[1];
+            } else {
+                const lines = text.split('\n');
+                for (let line of lines) {
+                    if (line.toUpperCase().includes("MOB")) {
+                        const digits = line.match(/[6-9]\d{9}/);
+                        if (digits) {
+                            document.getElementById('mMobile').value = digits[0];
+                            break;
+                        }
+                    }
+                }
             }
 
-            // 3. Pincode Regex (6 digits)
+            // 3. PINCODE (6 DIGITS)
             const pincodeMatch = text.match(/\b[1-9][0-9]{5}\b/);
             if (pincodeMatch) {
                 const pin = pincodeMatch[0];
@@ -235,24 +302,48 @@
                 await fetchPincodeDetails(pin);
             }
 
-            // 4. Extract Receiver Name (Looking after 'DELIVER TO :')
+            // 4. CLEAN BOLD/PRIMARY RECEIVER NAME
             const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-            let nameFound = "";
+            let nameParts = [];
+
+            const addressKeywords = [
+                "NEAR", "OPP", "ROAD", "HOUSE", "BLOCK", "PLOT", "NAGAR", "CHOWK", 
+                "STREET", "LANE", "FLAT", "APPT", "COMPLEX", "SOCIETY", "DIST", 
+                "POST", "TALUKA", "VIA", "COLONY", "BUILDING", "MARG", "GALI",
+                "MUMBAI", "SURAT", "GUJARAT", "MAHARASHTRA", "DELHI", "AHMEDABAD", "VASHINAKA"
+            ];
+
             for (let i = 0; i < lines.length; i++) {
                 if (lines[i].toUpperCase().includes("DELIVER TO")) {
-                    let nameParts = [];
-                    if (lines[i+1]) nameParts.push(lines[i+1]);
-                    if (lines[i+2] && !lines[i+2].includes("—") && !lines[i+2].includes("-")) {
-                        nameParts.push(lines[i+2]);
+                    for (let j = i + 1; j < Math.min(i + 4, lines.length); j++) {
+                        let candidateRaw = lines[j];
+                        let candUpper = candidateRaw.toUpperCase();
+
+                        const isAddress = addressKeywords.some(kw => candUpper.includes(kw));
+                        if (candUpper.includes("MOB") || candUpper.includes("PH:") || candUpper.match(/\d{6}/) || isAddress) {
+                            break;
+                        }
+
+                        let cleaned = candidateRaw.replace(/\d{1,2}\/\d{1,2}\/?\d{0,4}/g, '');
+                        cleaned = cleaned.replace(/[^a-zA-Z\s]/g, '');
+                        cleaned = cleaned.replace(/\b(POTH|DELIVER|TO|PREPAID|DATE)\b/gi, '');
+                        cleaned = cleaned.trim();
+
+                        if (cleaned.length >= 2) {
+                            nameParts.push(cleaned.toUpperCase());
+                        }
+
+                        if (nameParts.join(" ").split(" ").length >= 3) {
+                            break;
+                        }
                     }
-                    nameFound = nameParts.join(" ");
                     break;
                 }
             }
-            if (nameFound) {
-                document.getElementById('mReceiverName').value = nameFound.toUpperCase();
-            } else if (lines[0]) {
-                document.getElementById('mReceiverName').value = lines[0].toUpperCase();
+
+            let finalName = nameParts.join(" ").replace(/\s+/g, ' ').trim();
+            if (finalName) {
+                document.getElementById('mReceiverName').value = finalName;
             }
 
             document.getElementById('mWeight').focus();
