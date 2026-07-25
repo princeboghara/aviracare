@@ -5,9 +5,15 @@ const multer = require('multer');
 const ExcelJS = require('exceljs');
 const fs = require('fs');
 const db = require('./db.js'); // 🔌 ડેટાબેઝ કનેક્શન
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express(); 
 const session = require('express-session');
+
+// ==========================================
+// 🤖 GEMINI AI VISION INITIALIZATION
+// ==========================================
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 // ==========================================
 // 🔒 SECURE SESSION CONFIGURATION
@@ -56,6 +62,9 @@ const sharedStorage = multer.diskStorage({
         cb(null, uniqueSuffix + '-' + file.originalname.replace(/\s+/g, '_'));
     }
 });
+
+// Memory Storage setup for instant fast AI buffer scanning
+const memoryUpload = multer({ storage: multer.memoryStorage() });
 
 // 🎯 FIXED: બંને ઇનપુટ માટે સેમ એક્સ્ટેન્શન ક્લીન સ્ટોરેજ એન્જિન લિંક કરી દીધું
 const upload = multer({ storage: sharedStorage });
@@ -189,6 +198,46 @@ app.get('/member/downloads', async (req, res) => {
 });
 
 // ------------------ ⚡ SMART BACKEND OPERATIONS & SYSTEM APIs ------------------
+
+// ⚡ 1-SECOND FAST AI VISION LABEL PARSER API
+app.post('/admin/api/scan-ai-label', checkAdmin, memoryUpload.single('labelImage'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ success: false, msg: 'No image uploaded' });
+
+        // ✅ Correct Model Identifier
+const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+        
+        const imagePart = {
+            inlineData: {
+                data: req.file.buffer.toString("base64"),
+                mimeType: req.file.mimetype
+            }
+        };
+
+        const prompt = `Analyze this shipping parcel label sticker carefully and extract details into strict JSON format with these exact keys:
+        {
+            "tracking": "Tracking/Barcode number (e.g. CG135962112IN)",
+            "name": "Exact Full Name directly under DELIVER TO (include full bold name across lines if present, but DO NOT include address lines, city, state, or dates)",
+            "mobile": "10-digit mobile number explicitly written next to Mob: (ignore any seller Ph: numbers)",
+            "pincode": "6-digit delivery pincode (e.g., 400074)"
+        }
+        Return ONLY pure valid JSON, no markdown formatting or extra text.`;
+
+        const result = await model.generateContent([prompt, imagePart]);
+        const responseText = result.response.text();
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+
+        if (jsonMatch) {
+            const data = JSON.parse(jsonMatch[0]);
+            return res.json({ success: true, data });
+        } else {
+            return res.json({ success: false, msg: 'AI could not read JSON from sticker' });
+        }
+    } catch (err) {
+        console.error("❌ AI Scan API Error:", err);
+        return res.json({ success: false, msg: err.message });
+    }
+});
 
 // Member Ticket Generation Web API Endpoint
 app.post('/api/queries/create', async (req, res) => {
@@ -722,15 +771,12 @@ app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5),
     try {
         const { name, amount, pv, info, benefits, how_to_use } = req.body;
 
-        // ૧. ચેક કરો કે ફાઈલો અપલોડ થઈ છે કે નહીં
         if (!req.files || req.files.length === 0) {
             return res.json({ success: false, msg: "કૃપા કરીને ઓછામાં ઓછો ૧ ફોટો અપલોડ કરો!" });
         }
 
-        // ૨. બધી જ અપલોડ થયેલી ઈમેજીસના પાથ એક એરેમાં સેવ કરો
         const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
 
-        // ૩. ડેટાબેઝ ક્વેરી ફાયર કરો
         const queryText = `
             INSERT INTO avira_products (name, amount, pv, info, benefits, how_to_use, image_url, all_images) 
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -744,8 +790,8 @@ app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5),
             info.trim(),
             benefits.trim(),
             how_to_use.trim(),
-            imagePaths[0], // Main display image string path
-            JSON.stringify(imagePaths) // Store all images path as text/JSON
+            imagePaths[0],
+            JSON.stringify(imagePaths)
         ];
 
         await db.query(queryText, values);
@@ -761,7 +807,6 @@ app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5),
 // 🛒 VERSION 1.1: MEMBER PRODUCT CATALOG
 // ==========================================
 
-// 1. બધી પ્રોડક્ટ્સ એમેઝોન સ્ટાઈલ ગ્રીડમાં બતાવવાનું પેજ
 app.get('/products', async (req, res) => {
     try {
         const result = await db.query('SELECT id, name, amount, pv, image_url FROM avira_products ORDER BY id DESC');
@@ -772,7 +817,6 @@ app.get('/products', async (req, res) => {
     }
 });
 
-// 2. કોઈ સિંગલ પ્રોડક્ટ પર ક્લિક કરે ત્યારે તેનું ડિટેઇલ પેજ
 app.get('/products/:id', async (req, res) => {
     try {
         const productId = req.params.id;
@@ -789,7 +833,6 @@ app.get('/products/:id', async (req, res) => {
     }
 });
 
-// ૧. પ્રોડક્ટ્સ જોવા માટેનું મેઈન પેજ રાઉટ 📦
 app.get('/admin/view-products', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM avira_products ORDER BY id DESC');
@@ -800,7 +843,6 @@ app.get('/admin/view-products', checkAdmin, async (req, res) => {
     }
 });
 
-// ૨. કોઈ પ્રોડક્ટને ઇન્સ્ટન્ટ ડીલીટ કરવાની API ❌
 app.delete('/admin/api/delete-product/:id', checkAdmin, async (req, res) => {
     try {
         const productId = req.params.id;
@@ -812,7 +854,6 @@ app.delete('/admin/api/delete-product/:id', checkAdmin, async (req, res) => {
     }
 });
 
-// 🔄 પ્રોડક્ટની વિગતો અને મલ્ટિપલ ઈમેજ લાઈવ અપડેટ કરવાની API ⚡
 app.post('/admin/api/update-product/:id', checkAdmin, upload.array('productImages', 5), async (req, res) => {
     try {
         const productId = req.params.id;
@@ -858,7 +899,6 @@ app.post('/admin/api/update-product/:id', checkAdmin, upload.array('productImage
         res.json({ success: false, msg: "અપડેટ કરવામાં ભૂલ થઈ: " + error.message });
     }
 });
-
 
 // ------------------ SERVER KEEPALIVE ENGINE ------------------
 app.listen(PORT, () => {

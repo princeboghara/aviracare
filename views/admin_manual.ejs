@@ -6,8 +6,6 @@
     <title>Manual Entry Workspace - Avira Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tesseract OCR Engine -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         /* 🌌 OVERFLOW SAFE GLASS EFFECTS */
         html, body {
@@ -47,11 +45,11 @@
             <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-4 sm:p-5 rounded-2xl shadow-lg text-white flex flex-col sm:flex-row justify-between items-center gap-4 w-full box-border">
                 <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto">
                     <div class="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl flex-shrink-0 border border-white/20">
-                        <i class="fa-solid fa-camera-retro"></i>
+                        <i class="fa-solid fa-bolt text-amber-300"></i>
                     </div>
                     <div class="min-w-0">
-                        <h3 class="text-xs sm:text-base font-black uppercase tracking-wide truncate">Smart Label Scanner</h3>
-                        <p class="text-[10px] sm:text-[11px] text-emerald-100 mt-0.5 truncate sm:whitespace-normal">Scan parcel label to auto-fill Tracking ID, Name, Mobile, and Pincode instantly.</p>
+                        <h3 class="text-xs sm:text-base font-black uppercase tracking-wide truncate">AI Smart Label Scanner</h3>
+                        <p class="text-[10px] sm:text-[11px] text-emerald-100 mt-0.5 truncate sm:whitespace-normal">Scan parcel label to auto-fill Tracking ID, Name, Mobile, and Pincode in 1 second.</p>
                     </div>
                 </div>
                 <div class="w-full sm:w-auto flex-shrink-0">
@@ -62,10 +60,10 @@
                 </div>
             </div>
 
-            <!-- OCR LOADING STATUS NOTIFICATION -->
+            <!-- AI SCANNING STATUS NOTIFICATION -->
             <div id="ocrStatusBox" class="hidden bg-slate-900 text-white p-3.5 rounded-xl text-xs font-bold flex items-center justify-between shadow-md">
-                <span id="ocrStatusText" class="flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-emerald-400"></i> Auto-Detecting Label Text...</span>
-                <span id="ocrProgress" class="font-mono text-emerald-400">0%</span>
+                <span id="ocrStatusText" class="flex items-center gap-2"><i class="fa-solid fa-bolt animate-bounce text-amber-400"></i> AI Scanning Label in 1 second...</span>
+                <span id="ocrProgress" class="font-mono text-emerald-400">⚡ AI Vision Engine</span>
             </div>
 
             <!-- MANUAL ENTRY FORM CARD -->
@@ -184,7 +182,7 @@
             renderTable(); 
         };
 
-        // 📸 AUTO-ROTATE & SMART OCR ENGINE
+        // 🚀 1-SECOND LIGHTNING FAST AI SCANNER ENGINE
         document.getElementById('cameraInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -193,161 +191,43 @@
             const statusText = document.getElementById('ocrStatusText');
             
             statusBox.classList.remove('hidden');
-            statusText.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-emerald-400"></i> Auto-Detecting Label Text...`;
+            statusText.innerHTML = `<i class="fa-solid fa-bolt animate-bounce text-amber-400"></i> AI Scanning Label in 1 second...`;
+
+            const formData = new FormData();
+            formData.append('labelImage', file);
 
             try {
-                const img = await loadImage(file);
-                
-                // Try reading directly first
-                let result = await Tesseract.recognize(img, 'eng', {
-                    corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.0.0',
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            document.getElementById('ocrProgress').innerText = Math.round(m.progress * 100) + '%';
-                        }
-                    }
+                const res = await fetch('/admin/api/scan-ai-label', {
+                    method: 'POST',
+                    body: formData
                 });
-
-                let text = result.data.text;
-
-                // AUTO-ROTATE CHECK
-                if (!text.match(/[A-Z]{2}\s?\d{9}\s?[A-Z]{2}/i) && !text.toUpperCase().includes("DELIVER TO")) {
-                    const angles = [90, 180, 270];
-                    for (let angle of angles) {
-                        statusText.innerHTML = `<i class="fa-solid fa-rotate animate-spin text-emerald-400"></i> Auto-rotating image (${angle}°)...`;
-                        const rotatedCanvas = getRotatedCanvas(img, angle);
-                        const rotResult = await Tesseract.recognize(rotatedCanvas, 'eng');
-                        if (rotResult.data.text.match(/[A-Z]{2}\s?\d{9}\s?[A-Z]{2}/i) || rotResult.data.text.toUpperCase().includes("DELIVER TO")) {
-                            text = rotResult.data.text;
-                            break;
-                        }
-                    }
-                }
-
+                const result = await res.json();
                 statusBox.classList.add('hidden');
 
-                if(!text || text.trim().length === 0) {
-                    alert("Could not read text clearly. Please take a closer, well-lit photo.");
-                    return;
+                if (result.success && result.data) {
+                    const { tracking, name, mobile, pincode } = result.data;
+
+                    if (tracking) document.getElementById('mTracking').value = tracking.toUpperCase().trim();
+                    if (name) document.getElementById('mReceiverName').value = name.toUpperCase().trim();
+                    if (mobile) document.getElementById('mMobile').value = mobile.trim();
+                    if (pincode) {
+                        const cleanPin = pincode.toString().trim();
+                        document.getElementById('mPincode').value = cleanPin;
+                        await fetchPincodeDetails(cleanPin); // Auto-fetch City, State, Address from Neon DB
+                    }
+
+                    document.getElementById('mWeight').focus();
+                } else {
+                    alert(result.msg || "AI could not read the sticker clearly. Please try again with good lighting.");
                 }
-
-                parseAndFillOcrText(text);
-
             } catch (err) {
-                console.error("OCR Error:", err);
+                console.error("AI Scan Error:", err);
                 statusText.innerText = "Scanning error! Please try again.";
                 setTimeout(() => statusBox.classList.add('hidden'), 3000);
             }
 
             this.value = '';
         });
-
-        function loadImage(file) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = () => resolve(img);
-                img.onerror = reject;
-                img.src = URL.createObjectURL(file);
-            });
-        }
-
-        function getRotatedCanvas(img, degrees) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            if (degrees === 90 || degrees === 270) {
-                canvas.width = img.height;
-                canvas.height = img.width;
-            } else {
-                canvas.width = img.width;
-                canvas.height = img.height;
-            }
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate((degrees * Math.PI) / 180);
-            ctx.drawImage(img, -img.width / 2, -img.height / 2);
-            return canvas;
-        }
-
-        // 🔍 ACCURATE PARSER WITH ADDRESS-FILTER FOR RECEIVER NAME
-        async function parseAndFillOcrText(text) {
-            console.log("Raw OCR Text Output:\n", text);
-
-            // 1. TRACKING NUMBER (e.g., CG135962112IN)
-            const trackingMatch = text.match(/[A-Z]{2}\s?\d{9}\s?[A-Z]{2}/i);
-            if (trackingMatch) {
-                document.getElementById('mTracking').value = trackingMatch[0].replace(/\s+/g, '').toUpperCase();
-            }
-
-            // 2. RECEIVER MOBILE NUMBER (STRICTLY "Mob:")
-            const mobMatch = text.match(/Mob\s*:\s*([6-9]\d{9})/i);
-            if (mobMatch && mobMatch[1]) {
-                document.getElementById('mMobile').value = mobMatch[1];
-            } else {
-                const lines = text.split('\n');
-                for (let line of lines) {
-                    if (line.toUpperCase().includes("MOB")) {
-                        const digits = line.match(/[6-9]\d{9}/);
-                        if (digits) {
-                            document.getElementById('mMobile').value = digits[0];
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // 3. PINCODE (6 DIGITS)
-            const pincodeMatch = text.match(/\b[1-9][0-9]{5}\b/);
-            if (pincodeMatch) {
-                const pin = pincodeMatch[0];
-                document.getElementById('mPincode').value = pin;
-                await fetchPincodeDetails(pin);
-            }
-
-            // 4. CLEAN BOLD/PRIMARY RECEIVER NAME
-            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-            let nameParts = [];
-
-            const addressKeywords = [
-                "NEAR", "OPP", "ROAD", "HOUSE", "BLOCK", "PLOT", "NAGAR", "CHOWK", 
-                "STREET", "LANE", "FLAT", "APPT", "COMPLEX", "SOCIETY", "DIST", 
-                "POST", "TALUKA", "VIA", "COLONY", "BUILDING", "MARG", "GALI",
-                "MUMBAI", "SURAT", "GUJARAT", "MAHARASHTRA", "DELHI", "AHMEDABAD", "VASHINAKA"
-            ];
-
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].toUpperCase().includes("DELIVER TO")) {
-                    for (let j = i + 1; j < Math.min(i + 4, lines.length); j++) {
-                        let candidateRaw = lines[j];
-                        let candUpper = candidateRaw.toUpperCase();
-
-                        const isAddress = addressKeywords.some(kw => candUpper.includes(kw));
-                        if (candUpper.includes("MOB") || candUpper.includes("PH:") || candUpper.match(/\d{6}/) || isAddress) {
-                            break;
-                        }
-
-                        let cleaned = candidateRaw.replace(/\d{1,2}\/\d{1,2}\/?\d{0,4}/g, '');
-                        cleaned = cleaned.replace(/[^a-zA-Z\s]/g, '');
-                        cleaned = cleaned.replace(/\b(POTH|DELIVER|TO|PREPAID|DATE)\b/gi, '');
-                        cleaned = cleaned.trim();
-
-                        if (cleaned.length >= 2) {
-                            nameParts.push(cleaned.toUpperCase());
-                        }
-
-                        if (nameParts.join(" ").split(" ").length >= 3) {
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-
-            let finalName = nameParts.join(" ").replace(/\s+/g, ' ').trim();
-            if (finalName) {
-                document.getElementById('mReceiverName').value = finalName;
-            }
-
-            document.getElementById('mWeight').focus();
-        }
 
         async function fetchPincodeDetails(pincode) {
             try {
