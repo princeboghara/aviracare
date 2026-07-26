@@ -9,10 +9,10 @@
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
 
-    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
+    <!-- 🌐 સાઇડબાર -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (FIXED: lg:ml-64 લેપટોપમાં સાઇડબારની બાજુમાં પ્રોપર જગ્યા આપશે) -->
+    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા -->
     <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
         
         <!-- Top Navbar -->
@@ -62,7 +62,7 @@
                                 <th class="p-4">PV Status</th>
                                 <th class="p-4">Amount</th>
                                 <th class="p-4">Tracking Number</th>
-                                <th class="p-4 text-center w-24">Actions</th>
+                                <th class="p-4 text-center w-36">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50 font-medium text-slate-700" id="masterTableBody">
@@ -74,18 +74,32 @@
                                     </td>
                                 </tr>
                             <% } else { %>
-                                <% entries.forEach((item) => { %>
-                                <tr class="hover:bg-slate-50 transition-colors table-row-item">
-                                    <td class="p-4 font-mono text-slate-400 sr-number-cell"><%= item.srNo %></td>
+                                <% entries.forEach((item, index) => { %>
+                                <tr class="hover:bg-slate-50 transition-colors table-row-item" id="row-master-<%= item.srNo %>">
+                                    <!-- 🎯 સીરીયલ નંબર હંમેશા લાઈનસર (1, 2, 3...) જ બતાવશે -->
+                                    <td class="p-4 font-mono text-slate-400 sr-number-cell"><%= index + 1 %></td>
                                     <td class="p-4 font-bold font-mono text-emerald-700 member-id-cell"><%= item.memberId %></td>
                                     <td class="p-4 uppercase text-slate-800 font-semibold name-cell"><%= item.name %></td>
                                     <td class="p-4 text-slate-500 date-cell" data-raw-date="<%= item.orderDate %>"><%= item.orderDate %></td>
-                                    <td class="p-4 font-mono text-slate-600"><%= item.pv %> PV</td>
-                                    <td class="p-4 font-bold font-mono text-slate-900">₹<%= item.amount %></td>
+                                    <td class="p-4 font-mono text-slate-600 pv-cell"><%= item.pv %> PV</td>
+                                    <td class="p-4 font-bold font-mono text-slate-900 amount-cell">₹<%= item.amount %></td>
                                     <td class="p-4 font-mono font-bold tracking-wide text-slate-800 tracking-cell"><%= item.tracking %></td>
-                                    <td class="p-4 text-center">
+                                    <td class="p-4 text-center space-x-2">
+                                        <!-- ✏️ EDIT BUTTON -->
+                                        <button type="button" 
+                                                data-srno="<%= item.srNo %>"
+                                                data-memberid="<%= item.memberId %>"
+                                                data-name="<%= item.name %>"
+                                                data-orderdate="<%= item.orderDate %>"
+                                                data-pv="<%= item.pv %>"
+                                                data-amount="<%= item.amount %>"
+                                                data-tracking="<%= item.tracking %>"
+                                                class="edit-btn text-amber-500 hover:text-amber-700 transition-colors cursor-pointer font-bold">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </button>
+                                        <!-- ❌ DELETE BUTTON -->
                                         <button type="button" data-srno="<%= item.srNo %>" class="delete-btn text-rose-500 hover:text-rose-700 transition-colors cursor-pointer font-bold">
-                                            <i class="fa-solid fa-trash mr-0.5"></i> Delete
+                                            <i class="fa-solid fa-trash"></i> Delete
                                         </button>
                                     </td>
                                 </tr>
@@ -102,7 +116,137 @@
         </header>
     </div>
 
+    <!-- ✏️ EDIT MODAL DIALOG -->
+    <div id="editMasterModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg border border-slate-100 overflow-hidden">
+            <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
+                <h3 class="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Master Database Record
+                </h3>
+                <button type="button" id="btnCloseModal" class="text-slate-400 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            
+            <form id="editMasterForm" class="p-6 space-y-4">
+                <input type="hidden" id="editSrNo">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Member ID</label>
+                        <input type="text" id="editMemberId" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Tracking Number</label>
+                        <input type="text" id="editTracking" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Full Name</label>
+                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold uppercase text-slate-900 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Order Date</label>
+                        <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">PV</label>
+                        <input type="number" id="editPv" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-700 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Amount (₹)</label>
+                        <input type="number" id="editAmount" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" id="btnCancelModal" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold cursor-pointer transition-all">Cancel</button>
+                    <button type="submit" id="btnSaveEdit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black uppercase tracking-wider shadow cursor-pointer transition-all">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        const modal = document.getElementById('editMasterModal');
+
+        // 🎯 સર્ચ કે સોર્ટ કર્યા પછી સીરીયલ નંબર્સ (1, 2, 3...) ફરીથી લાઈનસર સેટ કરવાનું ફંક્શન
+        function reindexTableSrNumbers() {
+            const visibleRows = document.querySelectorAll('.table-row-item');
+            let count = 1;
+            visibleRows.forEach(row => {
+                if (row.style.display !== 'none') {
+                    row.querySelector('.sr-number-cell').innerText = count++;
+                }
+            });
+        }
+
+        // ✏️ EDIT BUTTON CLICK HANDLER
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('editSrNo').value = this.getAttribute('data-srno');
+                document.getElementById('editMemberId').value = this.getAttribute('data-memberid');
+                document.getElementById('editName').value = this.getAttribute('data-name');
+                document.getElementById('editOrderDate').value = this.getAttribute('data-orderdate');
+                document.getElementById('editPv').value = this.getAttribute('data-pv');
+                document.getElementById('editAmount').value = this.getAttribute('data-amount');
+                document.getElementById('editTracking').value = this.getAttribute('data-tracking');
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            });
+        });
+
+        // 🔒 CLOSE MODAL
+        document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+        document.getElementById('btnCancelModal').addEventListener('click', closeModal);
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // 🚀 SUBMIT EDIT FORM
+        document.getElementById('editMasterForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const srNo = document.getElementById('editSrNo').value;
+            const btn = document.getElementById('btnSaveEdit');
+            
+            btn.innerText = "SAVING...";
+            btn.disabled = true;
+
+            const payload = {
+                memberId: document.getElementById('editMemberId').value,
+                name: document.getElementById('editName').value,
+                orderDate: document.getElementById('editOrderDate').value,
+                pv: document.getElementById('editPv').value,
+                amount: document.getElementById('editAmount').value,
+                tracking: document.getElementById('editTracking').value
+            };
+
+            try {
+                const res = await fetch(`/admin/api/update-master/${srNo}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert("Error: " + result.msg);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server error updating record.");
+            } finally {
+                btn.innerText = "Save Changes";
+                btn.disabled = false;
+            }
+        });
+
         // ❌ DELETE RECORD PERMANENTLY
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -161,6 +305,8 @@
                     existingNoMatchRow.remove();
                 }
             }
+
+            reindexTableSrNumbers();
         });
 
         // 📅 DATE CONVERTOR LOGIC FOR SORTING
@@ -197,6 +343,7 @@
             }
 
             isAscending = !isAscending;
+            reindexTableSrNumbers();
         });
     </script>
 </body>

@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 🌌 OVERFLOW SAFE GLASS EFFECTS */
         html, body {
             max-width: 100vw !important;
             overflow-x: hidden !important;
@@ -17,11 +16,10 @@
         .confirm-input {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            padding: 4px 8px;
+            padding: 3px 6px;
             border-radius: 6px;
             font-size: 11px;
             font-weight: 700;
-            width: 100%;
         }
         .confirm-input:focus {
             outline: none;
@@ -32,73 +30,72 @@
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-amber-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
+    <!-- 🌐 સાઇડબાર -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા -->
-    <div class="lg:ml-64 flex-grow flex flex-col justify-between min-h-screen overflow-y-auto box-border w-full">
+    <!-- જમણી બાજુનો લેપટોપ સ્ક્રીન ફિટ કંટેન્ટ એરિયા -->
+    <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen w-full box-border">
         
         <!-- Top Navbar -->
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center sticky top-0 z-40 shadow-sm gap-2.5 sm:gap-0 w-full">
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-3 sm:px-6 py-2.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
             <div class="flex items-center gap-2 min-w-0">
                 <i class="fa-solid fa-user-check text-emerald-500 flex-shrink-0"></i>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Tracking Manager / Confirm Members</span>
             </div>
             
-            <form id="excelMatchForm" class="flex items-center gap-2 bg-amber-50 p-1.5 rounded-xl border border-amber-200 w-full sm:w-auto overflow-hidden">
-                <span class="text-[10px] font-black text-amber-800 uppercase px-1 sm:px-2 whitespace-nowrap flex-shrink-0"><i class="fa-solid fa-robot"></i> Auto Fill:</span>
-                <input type="file" id="matchExcelFile" accept=".xlsx, .xls" required class="text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:sm:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-600 cursor-pointer w-full min-w-0">
-                <button type="submit" class="bg-slate-900 hover:bg-slate-950 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm uppercase flex-shrink-0">Run Match</button>
-            </form>
+            <!-- 🚀 ડીબી માંથી ઓટો મેચ કરવાનું સ્માર્ટ બટન -->
+            <button id="btnRunMatches" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
+                <i class="fa-solid fa-bolt text-amber-300"></i> Run Matches
+            </button>
         </header>
 
         <!-- Main Workspace -->
-        <main class="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-8 py-6 space-y-6 box-border">
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden w-full">
+        <main class="flex-grow w-full px-2 sm:px-4 py-3 space-y-3 box-border">
+            <div class="bg-white rounded-xl border border-slate-100 shadow-md overflow-hidden w-full">
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
                         <thead>
-                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase">
-                                <th class="py-3 px-4 w-44">Tracking / Name</th>
-                                <th class="py-3 px-4 w-40">Pincode & Place</th>
-                                <th class="py-3 px-4 w-32">Member ID</th>
-                                <th class="py-3 px-4 w-40">Order Date</th>
-                                <th class="py-3 px-4 w-24">PV</th>
-                                <th class="py-3 px-4 w-28">Amount</th>
-                                <th class="py-3 px-4 text-center w-24">Actions</th>
+                            <tr class="bg-slate-100/80 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px] tracking-tight">
+                                <th class="py-2 px-2.5">Tracking / Name</th>
+                                <th class="py-2 px-2">Pincode & Place</th>
+                                <th class="py-2 px-1">Member ID</th>
+                                <th class="py-2 px-1">Order Date</th>
+                                <th class="py-2 px-1">PV</th>
+                                <th class="py-2 px-1">Amount</th>
+                                <th class="py-2 px-2 text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="confirmTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tbody id="confirmTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
                             <% if(entries.length === 0) { %>
                                 <tr id="empty-row">
                                     <td colspan="7" class="py-12 text-center text-slate-400 font-normal">All entries verified!</td>
                                 </tr>
                             <% } else { %>
                                 <% entries.forEach((item, index) => { %>
-                                    <tr class="hover:bg-slate-50/40 transition-colors" id="row-<%= index %>">
-                                        <td class="py-3 px-4">
-                                            <div class="font-mono font-bold text-slate-900 tracking-number-text"><%= item.tracking %></div>
-                                            <div class="text-[10px] text-slate-400 uppercase font-semibold name-text"><%= item.name %></div>
+                                    <tr class="hover:bg-slate-50/60 transition-colors" id="row-<%= index %>">
+                                        <td class="py-1.5 px-2.5">
+                                            <div class="font-mono font-bold text-slate-900 tracking-number-text text-[11px]"><%= item.tracking %></div>
+                                            <div class="text-[9px] text-slate-400 uppercase font-semibold name-text truncate max-w-[140px]"><%= item.name %></div>
                                         </td>
-                                        <td class="py-3 px-4">
-                                            <div class="font-mono font-bold text-emerald-600"><%= item.pincode %></div>
-                                            <div class="text-[10px] text-slate-400 uppercase"><%= item.city %>, <%= item.state %></div>
+                                        <td class="py-1.5 px-2">
+                                            <div class="font-mono font-bold text-emerald-600 text-[11px]"><%= item.pincode %></div>
+                                            <div class="text-[9px] text-slate-400 uppercase truncate max-w-[120px]"><%= item.city %>, <%= item.state %></div>
                                         </td>
-                                        <td class="py-3 px-2">
-                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="MEMBER ID" class="confirm-input font-mono uppercase text-slate-700">
+                                        <td class="py-1.5 px-1">
+                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="MEMBER ID" class="confirm-input font-mono uppercase text-slate-700 w-[100px]">
                                         </td>
-                                        <td class="py-3 px-2">
-                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-700 font-semibold">
+                                        <td class="py-1.5 px-1">
+                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-700 font-semibold w-[115px]">
                                             <input type="hidden" id="formatted-date-<%= index %>" value="<%= item.order_date %>">
                                         </td>
-                                        <td class="py-3 px-2">
-                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" class="confirm-input font-mono text-emerald-600">
+                                        <td class="py-1.5 px-1">
+                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" class="confirm-input font-mono text-emerald-600 w-[50px]">
                                         </td>
-                                        <td class="py-3 px-2">
-                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-bold text-slate-900">
+                                        <td class="py-1.5 px-1">
+                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-bold text-slate-900 w-[65px]">
                                         </td>
-                                        <td class="py-3 px-4 text-center">
-                                            <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-500 hover:bg-emerald-600 text-white font-black px-4 py-1.5 rounded-lg transition-all text-[10px] tracking-wider uppercase cursor-pointer">OK</button>
+                                        <td class="py-1.5 px-2 text-center">
+                                            <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-500 hover:bg-emerald-600 text-white font-black px-2.5 py-1 rounded transition-all text-[10px] tracking-wider uppercase cursor-pointer shadow-sm">OK</button>
                                         </td>
                                     </tr>
                                 <% }) %>
@@ -109,7 +106,7 @@
             </div>
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400 mt-8 w-full overflow-hidden">
+        <footer class="bg-white border-t border-slate-100 py-2.5 text-center text-[10px] font-medium text-slate-400 mt-2 w-full overflow-hidden">
             &copy; 2026 Avira Control Center. All rights reserved.
         </footer>
     </div>
@@ -122,7 +119,7 @@
         function convertAndSetInputDate(picker) {
             const savedDateStr = picker.getAttribute('data-saved-date'); 
             if (savedDateStr) {
-                const cleanStr = savedDateStr.replace(/(\d+)(st|nd|rd|th)/, "$1");
+                const cleanStr = savedDateStr.replace(/(\d+)(st|nd|rd|th)/i, "$1");
                 const dateObj = new Date(cleanStr);
                 if (!isNaN(dateObj.getTime())) {
                     const yyyy = dateObj.getFullYear();
@@ -135,7 +132,8 @@
 
         function formatCustomDate(dateString) {
             if (!dateString) return '';
-            const date = new Date(dateString);
+            const cleanStr = dateString.replace(/(\d+)(st|nd|rd|th)/i, "$1");
+            const date = new Date(cleanStr);
             if (isNaN(date.getTime())) return dateString;
             const day = date.getDate();
             let suffix = 'th';
@@ -143,10 +141,14 @@
             else if (day === 2 || day === 22) suffix = 'nd';
             else if (day === 3 || day === 23) suffix = 'rd';
             const realMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            return `${day}${suffix} ${realMonths[date.getMonth()]} ${realMonths[date.getMonth()]} ${date.getFullYear()}`;
+            return `${day}${suffix} ${realMonths[date.getMonth()]} ${date.getFullYear()}`;
         }
 
-        // 🎯 ૧. ડેટાબેઝ સેવ ફંક્શન
+        function getStrictCleanKey(str) {
+            if (!str) return '';
+            return str.toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        }
+
         async function triggerRowSave(index) {
             const memberId = document.getElementById(`member-${index}`).value;
             const rawDate = document.getElementById(`date-${index}`).value;
@@ -168,7 +170,7 @@
             } catch(err) { console.error("Update Row Save Error:", err); }
         }
 
-        // 🎯 ૨. OK બટન હેન્ડલર
+        // 🎯 OK બટન દબાવવાથી જ DB માં સેવ થશે
         document.querySelectorAll('.approve-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const index = this.getAttribute('data-idx');
@@ -187,10 +189,8 @@
                 this.innerText = "SAVING...";
                 this.disabled = true;
 
-                // Step A: ઓટો-ફિલ થયેલો / મોડિફાય થયેલો ડબ્બો પેન્ડિંગ ટેબલમાં સેવ થશે
                 await triggerRowSave(index);
 
-                // Step B: Neon DB ના મેઈન ડેટાબેઝમાં ડેટા શિફ્ટ થશે
                 try {
                     const tracking = row.querySelector('.tracking-number-text').innerText.trim();
                     const res = await fetch('/admin/api/approve-entry-by-tracking', { 
@@ -215,53 +215,54 @@
             });
         });
 
-        // 🎯 ૩. એક્સેલ ઓટો રન મેચ ફોર્મ
-        document.getElementById('excelMatchForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const fileInput = document.getElementById('matchExcelFile');
-            if(fileInput.files.length === 0) return;
-
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.innerText = "MATCHING...";
-            submitBtn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('excelFile', fileInput.files[0]);
+        // 🚀 RUN MATCHES BUTTON CLICK HANDLER (FETCHES DIRECTLY FROM DATABASE ORDERS_MASTER)
+        document.getElementById('btnRunMatches').addEventListener('click', async function() {
+            this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> MATCHING...`;
+            this.disabled = true;
 
             try {
-                const response = await fetch('/admin/api/match-confirm-excel', { method: 'POST', body: formData });
+                const response = await fetch('/admin/api/match-confirm-db');
                 const result = await response.json();
 
-                if (result.success && result.excelData) {
-                    const excelMap = result.excelData;
+                if (result.success && result.dbData) {
+                    const dbMap = result.dbData;
                     const rows = document.querySelectorAll('#confirmTableBody tr:not(#empty-row)');
                     let matchCount = 0;
 
                     for (let row of rows) {
                         const index = row.id.replace('row-', '');
-                        const nameInTable = row.querySelector('.name-text').innerText.toUpperCase().trim();
+                        const rawNameInTable = row.querySelector('.name-text').innerText;
+                        const cleanTableKey = getStrictCleanKey(rawNameInTable);
 
-                        if (excelMap[nameInTable]) {
-                            const matchInfo = excelMap[nameInTable];
-                            
-                            document.getElementById(`member-${index}`).value = matchInfo.memberId || '';
-                            document.getElementById(`pv-${index}`).value = matchInfo.pv || '0';
-                            document.getElementById(`amount-${index}`).value = matchInfo.amount || '0';
-                            document.getElementById(`formatted-date-${index}`).value = matchInfo.dateStr || '';
+                        const matchedData = dbMap[cleanTableKey] || dbMap[rawNameInTable.toUpperCase().trim()];
 
-                            if(matchInfo.dateStr) {
+                        if (matchedData) {
+                            document.getElementById(`member-${index}`).value = matchedData.memberId || '';
+                            document.getElementById(`pv-${index}`).value = matchedData.pv || '0';
+                            document.getElementById(`amount-${index}`).value = matchedData.amount || '0';
+                            document.getElementById(`formatted-date-${index}`).value = matchedData.dateStr || '';
+
+                            if(matchedData.dateStr) {
                                 const picker = document.getElementById(`date-${index}`);
-                                picker.setAttribute('data-saved-date', matchInfo.dateStr);
+                                picker.setAttribute('data-saved-date', matchedData.dateStr);
                                 convertAndSetInputDate(picker);
                             }
 
+                            row.classList.add('bg-emerald-50/80');
                             matchCount++;
                         }
                     }
-                    alert(`સફળતા! ${matchCount} એન્ટ્રીઝ સ્ક્રીન પર ઓટો-ફિલ થઈ ગઈ છે! હવે ચકાસીને 'OK' દબાવતાં જ ડેટાબેઝમાં સેવ થશે. 🚀`);
+                    alert(`🎉 સફળતા! orders_master ટેબલમાંથી ${matchCount} એન્ટ્રીઝ ઓટો-ફિલ થઈ ગઈ છે! હવે ચકાસીને 'OK' દબાવતાં જ ડેટાબેઝમાં સેવ થશે.`);
+                } else {
+                    alert(result.msg || "No match data found in database.");
                 }
-            } catch (err) { alert("Excel matching process failed."); }
-            finally { submitBtn.innerText = "Run Match"; submitBtn.disabled = false; }
+            } catch (err) {
+                console.error(err);
+                alert("Database matching process failed.");
+            } finally {
+                this.innerHTML = `<i class="fa-solid fa-bolt text-amber-300"></i> Run Matches`;
+                this.disabled = false;
+            }
         });
     </script>
 </body>

@@ -27,9 +27,9 @@ app.use(session({
 // 🛡️ Admin Authentication Gatekeeper Middleware
 function checkAdmin(req, res, next) {
     if (req.session && req.session.isAdmin) {
-        next(); // Authorization Granted
+        next();
     } else {
-        res.redirect('/admin/login'); // Unauthorized - Kick back to Login
+        res.redirect('/admin/login');
     }
 }
 
@@ -38,7 +38,6 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// 🎯 FIXED: પ્રોપર સ્ટેટિક કન્ફિગરેશન (બ્રાઉઝર પબ્લિકલી ફોટા એક્સેસ કરી શકશે)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
@@ -50,7 +49,6 @@ app.use(bodyParser.json());
 // ==========================================
 const sharedStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // બધા જ મીડિયા ફાઇલો એક જ સેફ પબ્લિક ફોલ્ડરમાં જશે
         const uploadDir = path.join(__dirname, 'public', 'uploads');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
@@ -63,20 +61,12 @@ const sharedStorage = multer.diskStorage({
     }
 });
 
-// Memory Storage setup for instant fast AI buffer scanning
 const memoryUpload = multer({ storage: multer.memoryStorage() });
-
-// 🎯 FIXED: બંને ઇનપુટ માટે સેમ એક્સ્ટેન્શન ક્લીન સ્ટોરેજ એન્જિન લિંક કરી દીધું
 const upload = multer({ storage: sharedStorage });
 const uploadPdf = multer({ storage: sharedStorage });
 
-// 🚀 MASTER EXCEL PATHS
-const PINCODE_FILE = path.join(__dirname, 'master_files', 'pincode.xlsx');
-const ORDERS_FILE = path.join(__dirname, 'master_files', 'orders.xlsx');
-
 // ------------------ FRONTEND PUBLIC PAGES ROUTES ------------------
 
-// Main Home Page - Dynamic PDF Fetch Loader
 app.get('/', async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM content_pdf');
@@ -96,11 +86,7 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/track-parcel', (req, res) => res.render('member_tracking'));
-
-// Member Query Workspace Route
-app.get('/member/queries', (req, res) => {
-    res.render('member_queries');
-});
+app.get('/member/queries', (req, res) => res.render('member_queries'));
 
 // ------------------ 🔑 ADMIN CREDENTIAL AUTHENTICATION ------------------
 
@@ -126,7 +112,17 @@ app.get('/admin/logout', (req, res) => {
 app.get('/admin/home', checkAdmin, (req, res) => res.render('admin_home'));
 app.get('/admin/tracking', checkAdmin, (req, res) => res.render('admin_tracking'));
 
-// Manual Entry Workspace
+// 🚀 NEW PAGE ROUTE: ORDER MASTER EXCEL REPOSITORY
+app.get('/admin/orders-master', checkAdmin, async (req, res) => {
+    try {
+        const ordersRes = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
+        res.render('admin_orders_master', { orders: ordersRes.rows });
+    } catch (err) {
+        console.error("❌ Fetch Orders Master Error:", err);
+        res.render('admin_orders_master', { orders: [] });
+    }
+});
+
 app.get('/admin/manual-entry', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM pending_entries ORDER BY id DESC');
@@ -137,7 +133,6 @@ app.get('/admin/manual-entry', checkAdmin, async (req, res) => {
     }
 });
 
-// Member Verification Desk
 app.get('/admin/confirm-member', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM pending_entries ORDER BY id DESC');
@@ -148,7 +143,6 @@ app.get('/admin/confirm-member', checkAdmin, async (req, res) => {
     }
 });
 
-// Admin Control Hub Query Desk Router
 app.get('/admin/queries', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM query_tickets ORDER BY id DESC');
@@ -158,7 +152,6 @@ app.get('/admin/queries', checkAdmin, async (req, res) => {
     }
 });
 
-// Live Master Database View
 app.get('/admin/master-database', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM main_database ORDER BY sr_no DESC');
@@ -177,7 +170,6 @@ app.get('/admin/master-database', checkAdmin, async (req, res) => {
     }
 });
 
-// Content Manager Workspace Router
 app.get('/admin/content-manager', checkAdmin, async (req, res) => {
     const result = await db.query('SELECT * FROM content_pdf ORDER BY id DESC');
     const formattedPdfs = result.rows.map(row => ({
@@ -187,7 +179,6 @@ app.get('/admin/content-manager', checkAdmin, async (req, res) => {
     res.render('admin_content', { pdfs: formattedPdfs });
 });
 
-// Public Member Downloads Repository Alias
 app.get('/member/downloads', async (req, res) => {
     const result = await db.query('SELECT * FROM content_pdf ORDER BY id DESC');
     const formattedPdfs = result.rows.map(row => ({
@@ -204,8 +195,7 @@ app.post('/admin/api/scan-ai-label', checkAdmin, memoryUpload.single('labelImage
     try {
         if (!req.file) return res.status(400).json({ success: false, msg: 'No image uploaded' });
 
-        // ✅ Correct Model Identifier
-const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-002" });
         
         const imagePart = {
             inlineData: {
@@ -239,7 +229,143 @@ const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
     }
 });
 
-// Member Ticket Generation Web API Endpoint
+// ⚡ DIRECT DB MATCH API: orders_master ટેબલમાંથી ડાયરેક્ટ મેચ કરશે
+app.get('/admin/api/match-confirm-db', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT order_date, member_id, name, pv, amount FROM orders_master');
+        
+        let dbRowsMap = {};
+        
+        result.rows.forEach(row => {
+            if (row.name) {
+                const rawName = row.name.toUpperCase().trim();
+                const cleanKey = rawName.replace(/[^A-Z0-9]/g, ''); // સ્પેશિયલ કેરેક્ટર અને સ્પેસ વગરની કી
+                
+                const rowDataObj = {
+                    dateStr: row.order_date || '',
+                    memberId: row.member_id || '',
+                    pv: row.pv || '0',
+                    amount: row.amount || '0'
+                };
+
+                dbRowsMap[cleanKey] = rowDataObj;
+                dbRowsMap[rawName] = rowDataObj;
+            }
+        });
+
+        res.json({ success: true, dbData: dbRowsMap });
+    } catch (error) {
+        console.error("❌ DB Match Fetch Error:", error);
+        res.json({ success: false, msg: error.message });
+    }
+});
+
+// 🚀 ORDER EXCEL UPLOADER & AUTO DUPLICATE REMOVER ENGINE (FIXED DATE PARSING)
+app.post('/admin/api/upload-orders-excel', checkAdmin, upload.single('excelFile'), async (req, res) => {
+    try {
+        if (!req.file) return res.json({ success: false, msg: "Please select an Excel file." });
+
+        const filePath = req.file.path;
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(filePath);
+        const worksheet = workbook.getWorksheet(1) || workbook.worksheets[0];
+
+        let addedCount = 0;
+        let skippedCount = 0;
+
+        // 📅 ૧૦૦% એક્યુરેટ ડેટ ફોર્મેટર (2st June 2026 ને સાચી તારીખમાં કન્વર્ટ કરશે)
+        const parseExcelDate = (cell) => {
+            if (!cell || cell.value === null || cell.value === undefined) return '';
+
+            let val = cell.value;
+
+            if (val instanceof Date) {
+                return formatDateObj(val);
+            }
+
+            if (typeof val === 'object') {
+                if (val.result instanceof Date) return formatDateObj(val.result);
+                if (val.result) val = val.result;
+                else if (cell.text) val = cell.text;
+            }
+
+            let rawStr = cell.text ? String(cell.text).trim() : String(val).trim();
+            let cleanDateText = rawStr.replace(/(\d+)(st|nd|rd|th)/i, '$1');
+
+            let parsedDate = new Date(cleanDateText);
+            if (!isNaN(parsedDate.getTime())) {
+                return formatDateObj(parsedDate);
+            }
+
+            return rawStr;
+        };
+
+        function formatDateObj(d) {
+            const day = d.getDate();
+            let suffix = 'th';
+            if (day === 1 || day === 21 || day === 31) suffix = 'st';
+            else if (day === 2 || day === 22) suffix = 'nd';
+            else if (day === 3 || day === 23) suffix = 'rd';
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            return `${day}${suffix} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
+
+        if (worksheet) {
+            for (let rowNumber = 3; rowNumber <= worksheet.rowCount; rowNumber++) {
+                const row = worksheet.getRow(rowNumber);
+
+                const dateCell = row.getCell(2);
+                const memberId = row.getCell(5).text ? row.getCell(5).text.trim().toUpperCase() : '';
+                const name = row.getCell(6).text ? row.getCell(6).text.trim().toUpperCase() : '';
+                const pv = row.getCell(8).value ? row.getCell(8).value.toString().trim() : '0';
+                const amount = row.getCell(9).value ? row.getCell(9).value.toString().trim() : '0';
+
+                if (name && name !== 'NAME') {
+                    const formattedDate = parseExcelDate(dateCell);
+
+                    const insertQuery = `
+                        INSERT INTO orders_master (order_date, member_id, name, pv, amount)
+                        VALUES ($1, $2, $3, $4, $5)
+                        ON CONFLICT (member_id, name, order_date, pv, amount) DO NOTHING
+                        RETURNING id;
+                    `;
+
+                    const result = await db.query(insertQuery, [formattedDate, memberId, name, pv, amount]);
+                    if (result.rows.length > 0) {
+                        addedCount++;
+                    } else {
+                        skippedCount++;
+                    }
+                }
+            }
+        }
+
+        fs.unlinkSync(filePath);
+
+        const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
+        res.json({
+            success: true,
+            msg: `🎉 ${addedCount} નવી એન્ટ્રી ઉમેરાઈ! (${skippedCount} ડુપ્લિકેટ એન્ટ્રી હટાવી દીધી)`,
+            orders: allOrders.rows
+        });
+
+    } catch (error) {
+        console.error("❌ Order Excel Import Error:", error);
+        res.json({ success: false, msg: error.message });
+    }
+});
+
+// Single Order Delete API
+app.delete('/admin/api/delete-order/:id', checkAdmin, async (req, res) => {
+    try {
+        await db.query('DELETE FROM orders_master WHERE id = $1', [req.params.id]);
+        const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
+        res.json({ success: true, orders: allOrders.rows });
+    } catch (err) {
+        res.json({ success: false, msg: err.message });
+    }
+});
+
 app.post('/api/queries/create', async (req, res) => {
     try {
         const { memberId, subject, description, contactNo } = req.body;
@@ -257,7 +383,6 @@ app.post('/api/queries/create', async (req, res) => {
     }
 });
 
-// Member Historical Tickets Fetch Pipeline API
 app.get('/api/queries/history', async (req, res) => {
     try {
         const memberId = req.query.memberId ? req.query.memberId.toUpperCase().trim() : '';
@@ -269,7 +394,6 @@ app.get('/api/queries/history', async (req, res) => {
     }
 });
 
-// Admin Ticket Status Update State Mutator API Engine
 app.post('/admin/api/queries/update-status', checkAdmin, async (req, res) => {
     try {
         const { ticketId, status } = req.body;
@@ -280,7 +404,6 @@ app.post('/admin/api/queries/update-status', checkAdmin, async (req, res) => {
     }
 });
 
-// Auto-Fetch Smart Pincode Map & Customer Validation API
 app.get('/admin/api/fetch-details', checkAdmin, async (req, res) => {
     const pincode = req.query.pincode ? String(req.query.pincode).trim() : '';
     const name = req.query.name ? req.query.name.trim().toUpperCase() : '';
@@ -315,7 +438,6 @@ app.get('/admin/api/fetch-details', checkAdmin, async (req, res) => {
     }
 });
 
-// Admin Manual Entry Creator Endpoint
 app.post('/admin/api/save-manual', checkAdmin, async (req, res) => {
     try {
         const item = req.body;
@@ -333,7 +455,6 @@ app.post('/admin/api/save-manual', checkAdmin, async (req, res) => {
     }
 });
 
-// India Post Uniform Matrix Format Excel Generator Engine
 app.get('/admin/api/export-excel', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM pending_entries ORDER BY id DESC');
@@ -424,7 +545,6 @@ app.get('/admin/api/export-excel', checkAdmin, async (req, res) => {
     }
 });
 
-// Public Dynamic Tracking API for Members
 app.get('/api/track', async (req, res) => {
     const { memberId, fromDate, toDate } = req.query;
     try {
@@ -452,7 +572,6 @@ app.get('/api/track', async (req, res) => {
     }
 });
 
-// Admin Pending Row Shredder API
 app.delete('/admin/api/delete-entry/:id', checkAdmin, async (req, res) => {
     try {
         const idParam = parseInt(req.params.id);
@@ -471,7 +590,6 @@ app.delete('/admin/api/delete-entry/:id', checkAdmin, async (req, res) => {
     }
 });
 
-// Inline Pending Entry Data Editor API
 app.post('/admin/api/update-pending-entry/:id', checkAdmin, async (req, res) => {
     try {
         const idParam = parseInt(req.params.id);
@@ -497,7 +615,6 @@ app.post('/admin/api/update-pending-entry/:id', checkAdmin, async (req, res) => 
     }
 });
 
-// Commit Pending Row to Master Production DB Engine API
 app.post('/admin/api/approve-entry-by-tracking', checkAdmin, async (req, res) => {
     const { tracking } = req.body;
     if (!tracking) return res.json({ success: false, msg: "Tracking number required" });
@@ -532,7 +649,6 @@ app.post('/admin/api/approve-entry-by-tracking', checkAdmin, async (req, res) =>
     }
 });
 
-// Master Row Purge Endpoint API
 app.delete('/admin/api/delete-master/:srNo', checkAdmin, async (req, res) => {
     try {
         const srNoParam = parseInt(req.params.srNo);
@@ -550,8 +666,34 @@ app.delete('/admin/api/delete-master/:srNo', checkAdmin, async (req, res) => {
         res.json({ success: false, msg: error.message });
     }
 });
+// ✏️ UPDATE MASTER DATABASE ENTRY API
+app.post('/admin/api/update-master/:srNo', checkAdmin, async (req, res) => {
+    try {
+        const srNo = parseInt(req.params.srNo);
+        const { memberId, name, orderDate, pv, amount, tracking } = req.body;
 
-// Bulk Import Matrix Excel Pipeline Parser
+        await db.query(
+            `UPDATE main_database 
+             SET member_id = $1, name = $2, order_date = $3, pv = $4, amount = $5, tracking = $6 
+             WHERE sr_no = $7`,
+            [
+                memberId ? memberId.toUpperCase().trim() : '', 
+                name ? name.toUpperCase().trim() : '', 
+                orderDate ? orderDate.trim() : '', 
+                pv ? pv.toString().trim() : '0', 
+                amount ? amount.toString().trim() : '0', 
+                tracking ? tracking.toUpperCase().trim() : '', 
+                srNo
+            ]
+        );
+
+        res.json({ success: true, msg: "Record updated successfully! 🚀" });
+    } catch (error) {
+        console.error("❌ UPDATE MASTER ERROR:", error);
+        res.json({ success: false, msg: error.message });
+    }
+});
+
 app.post('/admin/api/upload-master-excel', checkAdmin, upload.single('excelFile'), async (req, res) => {
     try {
         if (!req.file) return res.json({ success: false, msg: "Please select an Excel file." });
@@ -592,7 +734,6 @@ app.post('/admin/api/upload-master-excel', checkAdmin, upload.single('excelFile'
     }
 });
 
-// Matrix Array Bulk Stash API
 app.post('/admin/api/save-bulk-master', checkAdmin, async (req, res) => {
     const { entries } = req.body;
     if (!entries || entries.length === 0) return res.json({ success: false, msg: "No entries to save." });
@@ -619,7 +760,6 @@ app.post('/admin/api/save-bulk-master', checkAdmin, async (req, res) => {
     }
 });
 
-// Corporate PDF Asset Push Handler
 app.post('/admin/api/upload-pdf', checkAdmin, uploadPdf.single('pdfFile'), async (req, res) => {
     try {
         if (!req.file) return res.json({ success: false, msg: "No file uploaded!" });
@@ -647,7 +787,6 @@ app.post('/admin/api/upload-pdf', checkAdmin, uploadPdf.single('pdfFile'), async
     }
 });
 
-// Asset Discard Pipeline Engine
 app.delete('/admin/api/delete-pdf/:id', checkAdmin, async (req, res) => {
     try {
         const pdfId = req.params.id;
@@ -670,7 +809,6 @@ app.delete('/admin/api/delete-pdf/:id', checkAdmin, async (req, res) => {
     }
 });
 
-// Master Logistics Pincode Registry Seeder API
 app.post('/admin/api/upload-pincode-excel', checkAdmin, upload.single('excelFile'), async (req, res) => {
     try {
         if (!req.file) return res.json({ success: false, msg: "Please select an Excel file." });
@@ -710,63 +848,14 @@ app.post('/admin/api/upload-pincode-excel', checkAdmin, upload.single('excelFile
     }
 });
 
-// Pre-verification Multi-matrix Auto Match Parser API Engine
-app.post('/admin/api/match-confirm-excel', checkAdmin, upload.single('excelFile'), async (req, res) => {
-    try {
-        if (!req.file) return res.json({ success: false, msg: "Please select an Excel file." });
-
-        const filePath = req.file.path;
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.readFile(filePath);
-        const worksheet = workbook.getWorksheet(1) || workbook.worksheets[0];
-
-        let excelRowsMap = {};
-
-        if (worksheet) {
-            for(let rowNumber = 3; rowNumber <= worksheet.rowCount; rowNumber++) {
-                const row = worksheet.getRow(rowNumber);
-                
-                const rawDate = row.getCell(2).text ? row.getCell(2).text.trim() : ''; 
-                const memberId = row.getCell(5).text ? row.getCell(5).text.trim().toUpperCase() : ''; 
-                const name = row.getCell(6).text ? row.getCell(6).text.trim().toUpperCase() : ''; 
-                const pv = row.getCell(8).value ? row.getCell(8).value.toString().trim() : '0'; 
-                const amount = row.getCell(9).value ? row.getCell(9).value.toString().trim() : '0'; 
-
-                let dateStr = rawDate;
-                if (row.getCell(2).value instanceof Date) {
-                    const d = row.getCell(2).value;
-                    const day = d.getDate();
-                    let suffix = 'th';
-                    if (day === 1 || day === 21 || day === 31) suffix = 'st';
-                    else if (day === 2 || day === 22) suffix = 'nd';
-                    else if (day === 3 || day === 23) suffix = 'rd';
-                    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                    dateStr = `${day}${suffix} ${months[d.getMonth()]} ${d.getFullYear()}`;
-                }
-
-                if (name) {
-                    excelRowsMap[name] = { dateStr, memberId, pv, amount };
-                }
-            }
-        }
-
-        fs.unlinkSync(filePath); 
-        res.json({ success: true, excelData: excelRowsMap });
-    } catch (error) {
-        res.json({ success: false, msg: error.message });
-    }
-});
-
 // ==========================================
 // 📦 VERSION 1.1: ADMIN PRODUCT MANAGEMENT
 // ==========================================
 
-// ૧. એડમિન પ્રોડક્ટ એડ કરવાનું પેજ વ્યૂ
 app.get('/admin/add-product', checkAdmin, (req, res) => {
     res.render('admin_add_product');
 });
 
-// 📦 ૧૦૦% પરફેક્ટ અને સિક્યોર પ્રોડક્ટ એડ કરવાની API 🚀
 app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5), async (req, res) => {
     try {
         const { name, amount, pv, info, benefits, how_to_use } = req.body;
@@ -905,8 +994,7 @@ app.listen(PORT, () => {
     console.log(`🚀 Engine running on http://localhost:${PORT}`);
 });
 
-// Production Render Automated Keepalive Route Trigger
 const https = require('https');
 setInterval(() => {
     https.get('https://aviracare.onrender.com/');
-}, 300000); // 5 Minutes Interval Loop Trigger
+}, 300000);
