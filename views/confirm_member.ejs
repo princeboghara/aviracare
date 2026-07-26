@@ -149,28 +149,7 @@
             return str.toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
         }
 
-        async function triggerRowSave(index) {
-            const memberId = document.getElementById(`member-${index}`).value;
-            const rawDate = document.getElementById(`date-${index}`).value;
-            const pv = document.getElementById(`pv-${index}`).value;
-            const amount = document.getElementById(`amount-${index}`).value;
-            
-            let orderDate = document.getElementById(`formatted-date-${index}`).value;
-            if(rawDate) {
-                orderDate = formatCustomDate(rawDate);
-                document.getElementById(`formatted-date-${index}`).value = orderDate;
-            }
-
-            try {
-                await fetch(`/admin/api/update-pending-entry/${index}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ memberId, orderDate, pv, amount })
-                });
-            } catch(err) { console.error("Update Row Save Error:", err); }
-        }
-
-        // 🎯 OK બટન દબાવવાથી જ DB માં સેવ થશે
+        // 🎯 OK બટન દબાવવાથી સ્ક્રીન પર બોક્સમાં દેખાતો સાચો ડેટા જ ડાયરેક્ટ main_database માં જશે
         document.querySelectorAll('.approve-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const index = this.getAttribute('data-idx');
@@ -180,6 +159,7 @@
                 const rawDate = document.getElementById(`date-${index}`).value;
                 const pv = document.getElementById(`pv-${index}`).value.trim();
                 const amount = document.getElementById(`amount-${index}`).value.trim();
+                const tracking = row.querySelector('.tracking-number-text').innerText.trim();
 
                 if(!memberId || !rawDate || !pv || !amount) {
                     alert("કૃપા કરીને પહેલા ચારેય વિગતો (Member ID, Date, PV, Amount) ભરો!");
@@ -189,16 +169,23 @@
                 this.innerText = "SAVING...";
                 this.disabled = true;
 
-                await triggerRowSave(index);
+                const formattedDate = formatCustomDate(rawDate);
 
                 try {
-                    const tracking = row.querySelector('.tracking-number-text').innerText.trim();
+                    // 🚀 સ્ક્રીન પરની સાચી વિગતો સાથે ડાયરેક્ટ API કૉલ
                     const res = await fetch('/admin/api/approve-entry-by-tracking', { 
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ tracking }) 
+                        body: JSON.stringify({ 
+                            tracking,
+                            memberId,
+                            orderDate: formattedDate,
+                            pv,
+                            amount
+                        }) 
                     });
                     const data = await res.json();
+
                     if(data.success) { 
                         row.remove(); 
                     } else {
@@ -215,7 +202,7 @@
             });
         });
 
-        // 🚀 RUN MATCHES BUTTON CLICK HANDLER (FETCHES DIRECTLY FROM DATABASE ORDERS_MASTER)
+        // 🚀 RUN MATCHES: orders_master ટેબલમાંથી ડેટા બોક્સમાં ઓટો-ફિલ કરશે
         document.getElementById('btnRunMatches').addEventListener('click', async function() {
             this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> MATCHING...`;
             this.disabled = true;
@@ -252,7 +239,7 @@
                             matchCount++;
                         }
                     }
-                    alert(`🎉 સફળતા! orders_master ટેબલમાંથી ${matchCount} એન્ટ્રીઝ ઓટો-ફિલ થઈ ગઈ છે! હવે ચકાસીને 'OK' દબાવતાં જ ડેટાબેઝમાં સેવ થશે.`);
+                    alert(`🎉 સફળતા! orders_master ટેબલમાંથી ${matchCount} એન્ટ્રીઝ ઓટો-ફિલ થઈ ગઈ છે! હવે ચકાસીને 'OK' દબાવતાં જ આ જ વિગતો ડેટાબેઝમાં સેવ થશે.`);
                 } else {
                     alert(result.msg || "No match data found in database.");
                 }

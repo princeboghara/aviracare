@@ -112,7 +112,7 @@ app.get('/admin/logout', (req, res) => {
 app.get('/admin/home', checkAdmin, (req, res) => res.render('admin_home'));
 app.get('/admin/tracking', checkAdmin, (req, res) => res.render('admin_tracking'));
 
-// 🚀 NEW PAGE ROUTE: ORDER MASTER EXCEL REPOSITORY
+// 🚀 ORDER MASTER EXCEL REPOSITORY ROUTE
 app.get('/admin/orders-master', checkAdmin, async (req, res) => {
     try {
         const ordersRes = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
@@ -260,7 +260,7 @@ app.get('/admin/api/match-confirm-db', checkAdmin, async (req, res) => {
     }
 });
 
-// 🚀 ORDER EXCEL UPLOADER & AUTO DUPLICATE REMOVER ENGINE (FIXED DATE PARSING)
+// 🚀 ORDER EXCEL UPLOADER & AUTO DUPLICATE REMOVER ENGINE
 app.post('/admin/api/upload-orders-excel', checkAdmin, upload.single('excelFile'), async (req, res) => {
     try {
         if (!req.file) return res.json({ success: false, msg: "Please select an Excel file." });
@@ -273,7 +273,6 @@ app.post('/admin/api/upload-orders-excel', checkAdmin, upload.single('excelFile'
         let addedCount = 0;
         let skippedCount = 0;
 
-        // 📅 ૧૦૦% એક્યુરેટ ડેટ ફોર્મેટર (2st June 2026 ને સાચી તારીખમાં કન્વર્ટ કરશે)
         const parseExcelDate = (cell) => {
             if (!cell || cell.value === null || cell.value === undefined) return '';
 
@@ -546,14 +545,11 @@ app.get('/admin/api/export-excel', checkAdmin, async (req, res) => {
 });
 
 app.get('/api/track', async (req, res) => {
-    const { memberId, fromDate, toDate } = req.query;
+    const { memberId } = req.query;
     try {
         const searchMemberId = memberId.toUpperCase().trim();
-        let queryText = 'SELECT * FROM main_database WHERE UPPER(member_id) = $1';
-        let params = [searchMemberId];
-
-        queryText += ' ORDER BY sr_no DESC';
-        const result = await db.query(queryText, params);
+        let queryText = 'SELECT * FROM main_database WHERE UPPER(member_id) = $1 ORDER BY sr_no DESC';
+        const result = await db.query(queryText, [searchMemberId]);
         
         const formattedResults = result.rows.map(row => ({
             srNo: row.sr_no,
@@ -615,36 +611,49 @@ app.post('/admin/api/update-pending-entry/:id', checkAdmin, async (req, res) => 
     }
 });
 
+// 🎯 APPROVE ENTRY API (FIXED: સ્ક્રીન પર દેખાતી વિગતો જ સીધી main_database માં જશે)
 app.post('/admin/api/approve-entry-by-tracking', checkAdmin, async (req, res) => {
-    const { tracking } = req.body;
+    const { tracking, memberId, orderDate, pv, amount } = req.body;
     if (!tracking) return res.json({ success: false, msg: "Tracking number required" });
 
     try {
+        // ૧. pending_entries માંથી નામ અને આઈડી લાવીએ
         const pendingResult = await db.query('SELECT * FROM pending_entries WHERE UPPER(tracking) = $1', [tracking.trim().toUpperCase()]);
-        if (pendingResult.rows.length === 0) {
-            return res.json({ success: false, msg: "Entry not found in pending list" });
-        }
         
-        const approvedData = pendingResult.rows[0];
+        let name = '';
+        let pendingId = null;
 
+        if (pendingResult.rows.length > 0) {
+            name = pendingResult.rows[0].name || '';
+            pendingId = pendingResult.rows[0].id;
+        }
+
+        // ૨. ફ્રન્ટએન્ડમાંથી જે તાજો સાચો ડેટા મોકલ્યો છે તે જ main_database માં સેવ થશે
         const insertQuery = `
             INSERT INTO main_database (member_id, name, order_date, pv, amount, tracking)
             VALUES ($1, $2, $3, $4, $5, $6)
         `;
         const insertValues = [
-            approvedData.member_id || '', 
-            approvedData.name || '',
-            approvedData.order_date || '', 
-            approvedData.pv || '0', 
-            approvedData.amount || '0', 
-            approvedData.tracking || ''
+            memberId ? memberId.toUpperCase().trim() : '', 
+            name ? name.toUpperCase().trim() : '',
+            orderDate || '', 
+            pv || '0', 
+            amount || '0', 
+            tracking.trim().toUpperCase()
         ];
+        
         await db.query(insertQuery, insertValues);
-        await db.query('DELETE FROM pending_entries WHERE id = $1', [approvedData.id]);
 
-        res.json({ success: true });
+        // ૩. pending_entries માંથી રેકોર્ડ ડિલીટ
+        if (pendingId) {
+            await db.query('DELETE FROM pending_entries WHERE id = $1', [pendingId]);
+        } else {
+            await db.query('DELETE FROM pending_entries WHERE UPPER(tracking) = $1', [tracking.trim().toUpperCase()]);
+        }
+
+        res.json({ success: true, msg: "Saved to Main Database successfully!" });
     } catch (err) {
-        console.error(err);
+        console.error("❌ APPROVE ERROR:", err);
         res.json({ success: false, msg: err.message });
     }
 });
@@ -666,6 +675,7 @@ app.delete('/admin/api/delete-master/:srNo', checkAdmin, async (req, res) => {
         res.json({ success: false, msg: error.message });
     }
 });
+
 // ✏️ UPDATE MASTER DATABASE ENTRY API
 app.post('/admin/api/update-master/:srNo', checkAdmin, async (req, res) => {
     try {
