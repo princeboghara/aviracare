@@ -195,7 +195,7 @@ app.post('/admin/api/scan-ai-label', checkAdmin, memoryUpload.single('labelImage
     try {
         if (!req.file) return res.status(400).json({ success: false, msg: 'No image uploaded' });
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-002" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
         
         const imagePart = {
             inlineData: {
