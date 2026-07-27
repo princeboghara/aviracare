@@ -14,15 +14,15 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex font-sans antialiased text-slate-800 w-full overflow-x-hidden">
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden block">
 
     <!-- 🌐 Sidebar Partial -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- Main Workspace -->
-    <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen w-full box-border min-w-0">
-        
-        <!-- Header -->
+    <!-- Main Workspace Area (100% Full Width on Mobile, Padded on Large Screen) -->
+    <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between box-border min-w-0">
+
+        <!-- Top Header Bar -->
         <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
             <div class="flex items-center gap-2 min-w-0">
                 <i class="fa-solid fa-file-invoice text-emerald-500 flex-shrink-0"></i>
@@ -38,17 +38,17 @@
         </header>
 
         <!-- Main Workspace Body -->
-        <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 box-border">
-            
+        <main class="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 box-border">
+
             <!-- UPLOAD ORDER EXCEL CARD -->
-            <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-6 rounded-2xl shadow-lg text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div class="flex items-start gap-4">
-                    <div class="h-12 w-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-xl flex-shrink-0 border border-white/20">
+            <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-4 sm:p-6 rounded-2xl shadow-lg text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full">
+                <div class="flex items-start gap-3.5">
+                    <div class="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl flex-shrink-0 border border-white/20">
                         <i class="fa-solid fa-file-excel text-amber-300"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-black uppercase tracking-wide">Upload Order Excel File</h3>
-                        <p class="text-xs text-emerald-100 mt-1">Upload order Excel. Automatically extracts Date, Member ID, Name, PV, & Amount into database while skipping duplicates.</p>
+                        <h3 class="text-sm sm:text-base font-black uppercase tracking-wide">Upload Order Excel File</h3>
+                        <p class="text-[11px] sm:text-xs text-emerald-100 mt-0.5">Upload order Excel. Automatically extracts Date, Member ID, Name, PV, & Amount while skipping duplicates.</p>
                     </div>
                 </div>
                 <form id="uploadOrdersForm" class="flex items-center gap-2 bg-white/10 p-2 rounded-xl border border-white/20 w-full md:w-auto">
@@ -57,44 +57,69 @@
                 </form>
             </div>
 
-            <!-- PERMANENT ORDERS LIST TABLE -->
+            <!-- PERMANENT ORDERS LIST TABLE CARD -->
             <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden w-full">
-                <div class="px-4 sm:px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-2">
-                    <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-list text-emerald-500"></i> Permanent Order Repository
-                    </h3>
-                    <span id="ordersCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-1 rounded-full"><%= orders.length %> Records Saved</span>
+                <div class="px-4 sm:px-6 py-3.5 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-list text-emerald-500"></i> Permanent Order Repository
+                        </h3>
+                        <span id="ordersCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-0.5 rounded-full"><%= orders.length %> Records Saved</span>
+                    </div>
+
+                    <!-- 🗑️ MULTI-SELECT BULK DELETE BUTTON -->
+                    <button id="btnBulkDelete" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
+                        <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedCount">0</span>)
+                    </button>
                 </div>
 
                 <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[650px]">
                         <thead>
-                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
-                                <th class="py-3.5 px-4">#</th>
-                                <th class="py-3.5 px-4">Ordered Date</th>
-                                <th class="py-3.5 px-4">Member ID</th>
-                                <th class="py-3.5 px-4">Customer Name</th>
-                                <th class="py-3.5 px-4">Total PV</th>
-                                <th class="py-3.5 px-4">Amount</th>
-                                <th class="py-3.5 px-4 text-center">Action</th>
+                            <tr class="bg-slate-100/80 border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
+                                <th class="py-3 px-3 text-center w-10">
+                                    <input type="checkbox" id="selectAllCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                                </th>
+                                <th class="py-3 px-3 w-12">#</th>
+                                <th class="py-3 px-4">Ordered Date</th>
+                                <th class="py-3 px-4">Member ID</th>
+                                <th class="py-3 px-4">Customer Name</th>
+                                <th class="py-3 px-4">Total PV</th>
+                                <th class="py-3 px-4">Amount</th>
+                                <th class="py-3 px-4 text-center w-36">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
                             <% if(!orders || orders.length === 0) { %>
                                 <tr>
-                                    <td colspan="7" class="py-8 text-center text-slate-400 font-normal">No order excel imported yet. Upload an order file above!</td>
+                                    <td colspan="8" class="py-8 text-center text-slate-400 font-normal">No order excel imported yet. Upload an order file above!</td>
                                 </tr>
                             <% } else { %>
                                 <% orders.forEach((item, index) => { %>
-                                    <tr class="hover:bg-slate-50/50">
-                                        <td class="py-3 px-4 text-slate-400 font-mono"><%= index + 1 %></td>
-                                        <td class="py-3 px-4 font-semibold text-slate-800"><%= item.order_date %></td>
-                                        <td class="py-3 px-4 font-mono font-bold text-emerald-600"><%= item.member_id %></td>
-                                        <td class="py-3 px-4 uppercase font-semibold text-slate-900"><%= item.name %></td>
-                                        <td class="py-3 px-4 font-mono font-bold text-slate-700"><%= item.pv %></td>
-                                        <td class="py-3 px-4 font-mono font-bold text-slate-900">₹<%= item.amount %></td>
-                                        <td class="py-3 px-4 text-center">
-                                            <button type="button" data-order-id="<%= item.id %>" class="btn-delete-order text-rose-500 hover:text-rose-600 font-bold cursor-pointer text-xs">
+                                    <tr class="hover:bg-slate-50/70 transition-colors" id="order-row-<%= item.id %>">
+                                        <td class="py-2.5 px-3 text-center">
+                                            <input type="checkbox" value="<%= item.id %>" class="row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                                        </td>
+                                        <td class="py-2.5 px-3 text-slate-400 font-mono"><%= index + 1 %></td>
+                                        <td class="py-2.5 px-4 font-semibold text-slate-800 row-date"><%= item.order_date %></td>
+                                        <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 row-memberid"><%= item.member_id %></td>
+                                        <td class="py-2.5 px-4 uppercase font-semibold text-slate-900 row-name"><%= item.name %></td>
+                                        <td class="py-2.5 px-4 font-mono font-bold text-slate-700 row-pv"><%= item.pv %></td>
+                                        <td class="py-2.5 px-4 font-mono font-bold text-slate-900 row-amount">₹<%= item.amount %></td>
+                                        <td class="py-2.5 px-4 text-center space-x-2">
+                                            <!-- ✏️ EDIT BUTTON -->
+                                            <button type="button" 
+                                                    data-id="<%= item.id %>"
+                                                    data-date="<%= item.order_date %>"
+                                                    data-memberid="<%= item.member_id %>"
+                                                    data-name="<%= item.name %>"
+                                                    data-pv="<%= item.pv %>"
+                                                    data-amount="<%= item.amount %>"
+                                                    class="btn-edit-order text-amber-500 hover:text-amber-700 font-bold cursor-pointer text-xs transition-colors">
+                                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                                            </button>
+                                            <!-- ❌ DELETE BUTTON -->
+                                            <button type="button" data-order-id="<%= item.id %>" class="btn-delete-order text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-xs transition-colors">
                                                 <i class="fa-solid fa-trash"></i> Delete
                                             </button>
                                         </td>
@@ -108,12 +133,63 @@
 
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400 mt-8 w-full overflow-hidden">
+        <footer class="bg-white border-t border-slate-100 py-3 text-center text-xs font-medium text-slate-400 mt-6 w-full overflow-hidden">
             &copy; 2026 Avira LifeCare. All rights reserved.
         </footer>
     </div>
 
+    <!-- ✏️ EDIT ORDER MODAL DIALOG -->
+    <div id="editOrderModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md border border-slate-100 overflow-hidden">
+            <div class="bg-slate-900 px-5 py-3.5 text-white flex justify-between items-center">
+                <h3 class="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Order Record
+                </h3>
+                <button type="button" id="btnCloseOrderModal" class="text-slate-400 hover:text-white font-bold text-lg cursor-pointer">&times;</button>
+            </div>
+            
+            <form id="editOrderForm" class="p-5 space-y-3.5 text-xs">
+                <input type="hidden" id="editOrderId">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Order Date</label>
+                        <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-800 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Member ID</label>
+                        <input type="text" id="editMemberId" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Customer Full Name</label>
+                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold uppercase text-slate-900 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Total PV</label>
+                        <input type="text" id="editPv" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-slate-700 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Amount (₹)</label>
+                        <input type="text" id="editAmount" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" id="btnCancelOrderModal" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold cursor-pointer transition-all">Cancel</button>
+                    <button type="submit" id="btnSaveOrderEdit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black uppercase tracking-wider shadow cursor-pointer transition-all">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        const editModal = document.getElementById('editOrderModal');
+
+        // 📤 Upload Order Excel Handler
         document.getElementById('uploadOrdersForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const fileInput = document.getElementById('orderExcelFile');
@@ -149,7 +225,72 @@
             }
         });
 
-        // 🗑️ Event Listener for Delete Buttons
+        // ✏️ EDIT BUTTON CLICK HANDLER (POPUP MODAL)
+        document.addEventListener('click', function(e) {
+            const editBtn = e.target.closest('.btn-edit-order');
+            if (editBtn) {
+                document.getElementById('editOrderId').value = editBtn.getAttribute('data-id');
+                document.getElementById('editOrderDate').value = editBtn.getAttribute('data-date');
+                document.getElementById('editMemberId').value = editBtn.getAttribute('data-memberid');
+                document.getElementById('editName').value = editBtn.getAttribute('data-name');
+                document.getElementById('editPv').value = editBtn.getAttribute('data-pv');
+                document.getElementById('editAmount').value = editBtn.getAttribute('data-amount');
+
+                editModal.classList.remove('hidden');
+                editModal.classList.add('flex');
+            }
+        });
+
+        // 🔒 CLOSE EDIT MODAL
+        document.getElementById('btnCloseOrderModal').addEventListener('click', closeEditModal);
+        document.getElementById('btnCancelOrderModal').addEventListener('click', closeEditModal);
+
+        function closeEditModal() {
+            editModal.classList.add('hidden');
+            editModal.classList.remove('flex');
+        }
+
+        // 🚀 SUBMIT ORDER EDIT FORM
+        document.getElementById('editOrderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editOrderId').value;
+            const btn = document.getElementById('btnSaveOrderEdit');
+            
+            btn.innerText = "SAVING...";
+            btn.disabled = true;
+
+            const payload = {
+                orderDate: document.getElementById('editOrderDate').value,
+                memberId: document.getElementById('editMemberId').value,
+                name: document.getElementById('editName').value,
+                pv: document.getElementById('editPv').value,
+                amount: document.getElementById('editAmount').value
+            };
+
+            try {
+                const res = await fetch(`/admin/api/update-order/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    renderOrdersTable(result.orders);
+                    closeEditModal();
+                } else {
+                    alert("Error: " + result.msg);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server error updating order.");
+            } finally {
+                btn.innerText = "Save Changes";
+                btn.disabled = false;
+            }
+        });
+
+        // 🗑️ SINGLE DELETE ORDER HANDLER
         document.addEventListener('click', async function(e) {
             const delBtn = e.target.closest('.btn-delete-order');
             if (delBtn) {
@@ -168,27 +309,109 @@
             }
         });
 
+        // ☑️ SELECT ALL CHECKBOX LOGIC
+        document.getElementById('selectAllCheckbox').addEventListener('change', function() {
+            const isChecked = this.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => {
+                cb.checked = isChecked;
+            });
+            updateBulkDeleteButton();
+        });
+
+        // ☑️ INDIVIDUAL CHECKBOX CHANGE LOGIC
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                updateBulkDeleteButton();
+            }
+        });
+
+        function updateBulkDeleteButton() {
+            const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+            const bulkBtn = document.getElementById('btnBulkDelete');
+            const counterSpan = document.getElementById('selectedCount');
+
+            if (selectedCheckboxes.length > 0) {
+                counterSpan.innerText = selectedCheckboxes.length;
+                bulkBtn.classList.remove('hidden');
+                bulkBtn.classList.add('flex');
+            } else {
+                bulkBtn.classList.add('hidden');
+                bulkBtn.classList.remove('flex');
+                document.getElementById('selectAllCheckbox').checked = false;
+            }
+        }
+
+        // 🗑️ MULTI-DELETE SELECTED ORDERS HANDLER
+        document.getElementById('btnBulkDelete').addEventListener('click', async function() {
+            const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+            const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+
+            if (selectedIds.length === 0) return;
+
+            if (confirm(`Warning! Do you really want to delete all ${selectedIds.length} selected orders permanently?`)) {
+                this.innerText = "DELETING...";
+                this.disabled = true;
+
+                try {
+                    const res = await fetch('/admin/api/delete-multiple-orders', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ids: selectedIds })
+                    });
+                    const result = await res.json();
+
+                    if (result.success) {
+                        renderOrdersTable(result.orders);
+                    } else {
+                        alert(result.msg || "Deletion failed!");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Server error during bulk delete.");
+                } finally {
+                    this.disabled = false;
+                    updateBulkDeleteButton();
+                }
+            }
+        });
+
+        // 📊 RENDER TABLE DYNAMICALLY
         function renderOrdersTable(orders) {
             const tbody = document.getElementById('ordersTableBody');
             document.getElementById('ordersCounter').innerText = `${orders.length} Records Saved`;
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateBulkDeleteButton();
 
             if (!orders || orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 font-normal">No order excel imported yet. Upload an order file above!</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400 font-normal">No order excel imported yet. Upload an order file above!</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
             orders.forEach((item, index) => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/50">
-                        <td class="py-3 px-4 text-slate-400 font-mono">${index + 1}</td>
-                        <td class="py-3 px-4 font-semibold text-slate-800">${item.order_date}</td>
-                        <td class="py-3 px-4 font-mono font-bold text-emerald-600">${item.member_id}</td>
-                        <td class="py-3 px-4 uppercase font-semibold text-slate-900">${item.name}</td>
-                        <td class="py-3 px-4 font-mono font-bold text-slate-700">${item.pv}</td>
-                        <td class="py-3 px-4 font-mono font-bold text-slate-900">₹${item.amount}</td>
-                        <td class="py-3 px-4 text-center">
-                            <button type="button" data-order-id="${item.id}" class="btn-delete-order text-rose-500 hover:text-rose-600 font-bold cursor-pointer text-xs">
+                    <tr class="hover:bg-slate-50/70 transition-colors" id="order-row-${item.id}">
+                        <td class="py-2.5 px-3 text-center">
+                            <input type="checkbox" value="${item.id}" class="row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-400 font-mono">${index + 1}</td>
+                        <td class="py-2.5 px-4 font-semibold text-slate-800 row-date">${item.order_date}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 row-memberid">${item.member_id}</td>
+                        <td class="py-2.5 px-4 uppercase font-semibold text-slate-900 row-name">${item.name}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-slate-700 row-pv">${item.pv}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-slate-900 row-amount">₹${item.amount}</td>
+                        <td class="py-2.5 px-4 text-center space-x-2">
+                            <button type="button" 
+                                    data-id="${item.id}"
+                                    data-date="${item.order_date}"
+                                    data-memberid="${item.member_id}"
+                                    data-name="${item.name}"
+                                    data-pv="${item.pv}"
+                                    data-amount="${item.amount}"
+                                    class="btn-edit-order text-amber-500 hover:text-amber-700 font-bold cursor-pointer text-xs transition-colors">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                            <button type="button" data-order-id="${item.id}" class="btn-delete-order text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-xs transition-colors">
                                 <i class="fa-solid fa-trash"></i> Delete
                             </button>
                         </td>
