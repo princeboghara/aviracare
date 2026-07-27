@@ -367,15 +367,21 @@ app.delete('/admin/api/delete-order/:id', checkAdmin, async (req, res) => {
 
 app.post('/api/queries/create', async (req, res) => {
     try {
-        const { memberId, subject, description, contactNo } = req.body;
-        if (!memberId || !subject || !description || !contactNo) {
-            return res.json({ success: false, msg: "All fields are required!" });
+        const { memberId, name, subject, description, contactNo } = req.body;
+        if (!memberId || !name || !subject || !description || !contactNo) {
+            return res.json({ success: false, msg: "All fields (Name, Mobile, Subject, Description) are required!" });
         }
         const insertQuery = `
-            INSERT INTO query_tickets (member_id, subject, description, contact_no)
-            VALUES ($1, $2, $3, $4) RETURNING *
+            INSERT INTO query_tickets (member_id, name, subject, description, contact_no)
+            VALUES ($1, $2, $3, $4, $5) RETURNING *
         `;
-        await db.query(insertQuery, [memberId.toUpperCase().trim(), subject.trim(), description.trim(), contactNo.trim()]);
+        await db.query(insertQuery, [
+            memberId.toUpperCase().trim(), 
+            name.toUpperCase().trim(), 
+            subject.trim(), 
+            description.trim(), 
+            contactNo.trim()
+        ]);
         res.json({ success: true, msg: "Your ticket has been logged successfully! 🚀" });
     } catch (error) {
         res.json({ success: false, msg: error.message });
