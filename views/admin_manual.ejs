@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,36 +9,17 @@
 </head>
 <body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <!-- 📱 Background Overlay (જ્યારે સાઇડબાર ખુલે ત્યારે પાછળ અંધારું કરવા માટે) -->
-    <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/50 z-40 hidden transition-opacity duration-300 opacity-0"></div>
+    <!-- 🌐 ડાયનેમિક લાઈવ સાઇડબાર (આ ફાઈલમાં જ પોતાનું સાઈડબાર અને ટોગલ બટન છે) -->
+    <%- include('partials/admin_navbar') %>
 
-    <!-- 🌐 Sidebar Drawer (By default સંતાડેલું રહેશે - ક્લિક કરવા પર જ ખુલશે) -->
-    <div id="sidebarWrapper" class="fixed top-0 left-0 bottom-0 z-50 -translate-x-full transition-transform duration-300 ease-in-out w-64 bg-white border-r border-slate-200 shadow-2xl">
+    <!-- 🚀 Main Page Content (LG સ્ક્રીન પર પેડિંગ અને મોબાઇલ પર full width) -->
+    <div class="lg:pl-64 flex flex-col min-h-screen w-full min-w-0">
         
-        <!-- સાઇડબારની અંદર બંધ કરવાનું બટન -->
-        <div class="p-3 flex justify-end border-b border-slate-100">
-            <button id="closeSidebarBtn" type="button" class="p-2 text-slate-400 hover:text-slate-700 rounded-lg">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-        </div>
-
-        <%- include('partials/admin_navbar') %>
-    </div>
-
-    <!-- 🚀 Main Page Content (હવે આખી સ્ક્રીન રોકશે) -->
-    <div class="flex flex-col min-h-screen w-full">
-        
-        <!-- Top Navbar with Menu Toggle Button -->
+        <!-- Top Header (જ્યાંથી આપણે વધારાનું Toggle Button કાઢી નાખ્યું છે) -->
         <header class="bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3 flex justify-between items-center sticky top-0 z-30 shadow-sm w-full">
-            <div class="flex items-center gap-3 min-w-0">
-                <!-- 📱 TOGGLE BUTTON (આ બટનથી સાઇડબાર ખુલશે) -->
-                <button type="button" id="mobileMenuBtn" class="p-2 text-slate-600 hover:text-emerald-600 focus:outline-none rounded-lg bg-slate-100 active:scale-95 transition-all cursor-pointer">
-                    <i class="fa-solid fa-bars text-lg"></i>
-                </button>
-                <div class="flex items-center gap-2 min-w-0">
-                    <i class="fa-solid fa-keyboard text-emerald-500 flex-shrink-0"></i>
-                    <span class="text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wider truncate">Manual Entry</span>
-                </div>
+            <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-keyboard text-emerald-500 flex-shrink-0"></i>
+                <span class="text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wider truncate">Manual Entry</span>
             </div>
             
             <div class="flex items-center gap-3 flex-shrink-0 ml-2">
@@ -188,29 +169,6 @@
 
     <script>
         let localEntries = JSON.parse('<%- JSON.stringify(entries || []) %>');
-
-        // 📱 SIDEBAR OPEN / CLOSE HANDLERS
-        const menuBtn = document.getElementById('mobileMenuBtn');
-        const closeBtn = document.getElementById('closeSidebarBtn');
-        const sidebarWrapper = document.getElementById('sidebarWrapper');
-        const backdrop = document.getElementById('sidebarBackdrop');
-
-        function toggleSidebar() {
-            const isHidden = sidebarWrapper.classList.contains('-translate-x-full');
-            if (isHidden) {
-                sidebarWrapper.classList.remove('-translate-x-full');
-                backdrop.classList.remove('hidden');
-                setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
-            } else {
-                sidebarWrapper.classList.add('-translate-x-full');
-                backdrop.classList.add('opacity-0');
-                setTimeout(() => backdrop.classList.add('hidden'), 300);
-            }
-        }
-
-        if(menuBtn) menuBtn.addEventListener('click', toggleSidebar);
-        if(closeBtn) closeBtn.addEventListener('click', toggleSidebar);
-        if(backdrop) backdrop.addEventListener('click', toggleSidebar);
 
         window.onload = () => { 
             document.getElementById('mTracking').focus(); 
