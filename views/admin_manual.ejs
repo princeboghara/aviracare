@@ -6,31 +6,33 @@
     <title>Manual Entry Workspace - Avira Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Smooth Drawer Transition */
-        #mobileSidebarOverlay {
-            transition: opacity 0.3s ease-in-out;
-        }
-    </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <!-- 📱 Mobile Overlay Backdrop (ક્લિક કરવાથી સાઇડબાર બંધ થઈ જશે) -->
-    <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/50 z-40 lg:hidden hidden transition-opacity duration-300 opacity-0"></div>
+    <!-- 📱 Background Overlay (જ્યારે સાઇડબાર ખુલે ત્યારે પાછળ અંધારું કરવા માટે) -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/50 z-40 hidden transition-opacity duration-300 opacity-0"></div>
 
-    <!-- 🌐 Sidebar Container (Mobile Drawer + Desktop Fixed Sidebar) -->
-    <div id="sidebarWrapper" class="fixed top-0 left-0 bottom-0 z-50 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out w-64 bg-white border-r border-slate-200">
+    <!-- 🌐 Sidebar Drawer (By default સંતાડેલું રહેશે - ક્લિક કરવા પર જ ખુલશે) -->
+    <div id="sidebarWrapper" class="fixed top-0 left-0 bottom-0 z-50 -translate-x-full transition-transform duration-300 ease-in-out w-64 bg-white border-r border-slate-200 shadow-2xl">
+        
+        <!-- સાઇડબારની અંદર બંધ કરવાનું બટન -->
+        <div class="p-3 flex justify-end border-b border-slate-100">
+            <button id="closeSidebarBtn" type="button" class="p-2 text-slate-400 hover:text-slate-700 rounded-lg">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+
         <%- include('partials/admin_navbar') %>
     </div>
 
-    <!-- 🚀 Right Content Container (Full responsiveness for Mobile & Desktop) -->
-    <div class="lg:pl-64 flex flex-col min-h-screen w-full transition-all duration-300">
+    <!-- 🚀 Main Page Content (હવે આખી સ્ક્રીન રોકશે) -->
+    <div class="flex flex-col min-h-screen w-full">
         
-        <!-- Top Navbar with Mobile Toggle Button -->
+        <!-- Top Navbar with Menu Toggle Button -->
         <header class="bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3 flex justify-between items-center sticky top-0 z-30 shadow-sm w-full">
             <div class="flex items-center gap-3 min-w-0">
-                <!-- 📱 MOBILE SIDEBAR TOGGLE BUTTON -->
-                <button type="button" id="mobileMenuBtn" class="lg:hidden p-2 text-slate-600 hover:text-emerald-600 focus:outline-none rounded-lg bg-slate-100 active:scale-95 transition-all">
+                <!-- 📱 TOGGLE BUTTON (આ બટનથી સાઇડબાર ખુલશે) -->
+                <button type="button" id="mobileMenuBtn" class="p-2 text-slate-600 hover:text-emerald-600 focus:outline-none rounded-lg bg-slate-100 active:scale-95 transition-all cursor-pointer">
                     <i class="fa-solid fa-bars text-lg"></i>
                 </button>
                 <div class="flex items-center gap-2 min-w-0">
@@ -187,8 +189,9 @@
     <script>
         let localEntries = JSON.parse('<%- JSON.stringify(entries || []) %>');
 
-        // 📱 SMOOTH MOBILE SIDEBAR TOGGLE SYSTEM
-        const mobileBtn = document.getElementById('mobileMenuBtn');
+        // 📱 SIDEBAR OPEN / CLOSE HANDLERS
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
         const sidebarWrapper = document.getElementById('sidebarWrapper');
         const backdrop = document.getElementById('sidebarBackdrop');
 
@@ -205,7 +208,8 @@
             }
         }
 
-        if(mobileBtn) mobileBtn.addEventListener('click', toggleSidebar);
+        if(menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+        if(closeBtn) closeBtn.addEventListener('click', toggleSidebar);
         if(backdrop) backdrop.addEventListener('click', toggleSidebar);
 
         window.onload = () => { 
