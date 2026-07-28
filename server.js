@@ -344,7 +344,7 @@ app.post('/admin/api/upload-orders-excel', checkAdmin, upload.single('excelFile'
         const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
         res.json({
             success: true,
-            msg: `🎉 ${addedCount} નવી એન્ટ્રી ઉમેરાઈ! (${skippedCount} ડુપ્લિકેટ એન્ટ્રી હટાવી દીધી)`,
+            msg: `🎉 ${addedCount} New Entries Addes! (${skippedCount} Dublicate Entrys Are Detained.)`,
             orders: allOrders.rows
         });
 
@@ -521,7 +521,7 @@ app.get('/admin/api/export-excel', checkAdmin, async (req, res) => {
                 del_inst: 'NROL',
                 rts: 'RTA',
                 s_name: 'Avira LifeCare',
-                s_add1: 'The Galleria Bussiness Hub 2',
+                s_add1: '103 The Galleria Bussiness Hub 2',
                 s_add2: 'SURAT',
                 s_city: 'SURAT',
                 s_state: 'GUJRAT',
@@ -877,7 +877,7 @@ app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5),
         const { name, amount, pv, info, benefits, how_to_use } = req.body;
 
         if (!req.files || req.files.length === 0) {
-            return res.json({ success: false, msg: "કૃપા કરીને ઓછામાં ઓછો ૧ ફોટો અપલોડ કરો!" });
+            return res.json({ success: false, msg: "Please Upload Atleast One Image!" });
         }
 
         const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
@@ -900,11 +900,11 @@ app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5),
         ];
 
         await db.query(queryText, values);
-        res.json({ success: true, msg: "પ્રોડક્ટ સફળતાપૂર્વક પબ્લિશ થઈ ગઈ છે! 🎉" });
+        res.json({ success: true, msg: "Product Is Uploaded Successfully 🎉" });
 
     } catch (error) {
         console.error("❌ CRITICAL SERVER ERROR [Add Product]:", error);
-        res.json({ success: false, msg: "ડેટાબેઝ અથવા સર્વરમાં ભૂલ થઈ છે: " + error.message });
+        res.json({ success: false, msg: "Something Went Wrong About Server: " + error.message });
     }
 });
 
@@ -952,7 +952,7 @@ app.delete('/admin/api/delete-product/:id', checkAdmin, async (req, res) => {
     try {
         const productId = req.params.id;
         await db.query('DELETE FROM avira_products WHERE id = $1', [productId]);
-        res.json({ success: true, msg: "પ્રોડક્ટ સફળતાપૂર્વક ડીલીટ થઈ ગઈ છે! 🗑️" });
+        res.json({ success: true, msg: "Product Deleted Successfully 🗑️" });
     } catch (error) {
         console.error("❌ Delete Product API Error:", error);
         res.json({ success: false, msg: "ડીલીટ કરવામાં ભૂલ થઈ: " + error.message });
@@ -998,7 +998,7 @@ app.post('/admin/api/update-product/:id', checkAdmin, upload.array('productImage
         ];
 
         await db.query(queryText, values);
-        res.json({ success: true, msg: "પ્રોડક્ટ અને ઈમેજ પ્રોપરલી અપડેટ થઈ ગઈ છે! 🚀" });
+        res.json({ success: true, msg: "Product Is Successfully Editted 🚀" });
     } catch (error) {
         console.error("❌ Update Product API Error:", error);
         res.json({ success: false, msg: "અપડેટ કરવામાં ભૂલ થઈ: " + error.message });
@@ -1010,7 +1010,7 @@ app.post('/admin/api/delete-bulk-orders', checkAdmin, async (req, res) => {
         const { ids } = req.body; // ફ્રન્ટએન્ડ પરથી Array મોકલવો (ઉદા. [12, 13, 14])
 
         if (!ids || !Array.isArray(ids) || ids.length === 0) {
-            return res.json({ success: false, msg: "ડિલીટ કરવા માટે કોઈ એન્ટ્રી સિલેક્ટ કરેલી નથી." });
+            return res.json({ success: false, msg: "No Entries Are Selected." });
         }
 
         // 1. Postgres માટે ANY($1) કવેરી વાપરીને એકસાથે બધી એન્ટ્રી ડિલીટ કરો
@@ -1021,7 +1021,7 @@ app.post('/admin/api/delete-bulk-orders', checkAdmin, async (req, res) => {
         
         res.json({ 
             success: true, 
-            msg: `🎉 ${ids.length} એન્ટ્રીઓ સફળતાપૂર્વક ડિલીટ થઈ ગઈ!`, 
+            msg: ` ${ids.length} Entry Delected Successfully!`, 
             orders: allOrders.rows 
         });
 
