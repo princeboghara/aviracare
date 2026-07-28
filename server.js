@@ -1004,6 +1004,33 @@ app.post('/admin/api/update-product/:id', checkAdmin, upload.array('productImage
         res.json({ success: false, msg: "અપડેટ કરવામાં ભૂલ થઈ: " + error.message });
     }
 });
+// 🚀 ORDER MASTER - BULK DELETE API
+app.post('/admin/api/delete-bulk-orders', checkAdmin, async (req, res) => {
+    try {
+        const { ids } = req.body; // ફ્રન્ટએન્ડ પરથી Array મોકલવો (ઉદા. [12, 13, 14])
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.json({ success: false, msg: "ડિલીટ કરવા માટે કોઈ એન્ટ્રી સિલેક્ટ કરેલી નથી." });
+        }
+
+        // 1. Postgres માટે ANY($1) કવેરી વાપરીને એકસાથે બધી એન્ટ્રી ડિલીટ કરો
+        await db.query('DELETE FROM orders_master WHERE id = ANY($1::int[])', [ids]);
+
+        // 2. તાજો અપડેટ થયેલો ડેટા પાછો મોકલો
+        const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
+        
+        res.json({ 
+            success: true, 
+            msg: `🎉 ${ids.length} એન્ટ્રીઓ સફળતાપૂર્વક ડિલીટ થઈ ગઈ!`, 
+            orders: allOrders.rows 
+        });
+
+    } catch (err) {
+        console.error("❌ Bulk Delete Orders Error:", err);
+        res.json({ success: false, msg: "સર્વર એરર: " + err.message });
+    }
+});
+
 
 // ------------------ SERVER KEEPALIVE ENGINE ------------------
 app.listen(PORT, () => {
