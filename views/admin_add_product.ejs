@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Add New Product - Admin Control Center</title>
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <title>Add New Product - Avira Admin Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -73,7 +75,7 @@
                     </div>
                     <div>
                         <h2 class="text-base sm:text-lg font-black uppercase text-slate-900 leading-none">Add New Product</h2>
-                        <p class="text-slate-400 text-[10px] mt-1 font-semibold">Publish new inventory items to the catalog.</p>
+                        <p class="text-slate-400 text-[10px] mt-1 font-semibold">Publish new inventory item assets to member store bounds.</p>
                     </div>
                 </div>
 
@@ -82,48 +84,48 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Product Title / Name</label>
-                            <input type="text" name="name" required class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
+                            <input type="text" id="productName" name="name" required class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Showcase Images</label>
+                            <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Product Showcase Images</label>
                             <input type="file" id="imageInput" accept="image/*" multiple 
                                 class="w-full p-1.5 sm:p-2 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer file:mr-2 sm:file:mr-3 file:py-1 sm:file:py-1.5 file:px-2.5 sm:file:px-3 file:rounded-lg file:border-0 file:text-[9px] sm:file:text-[10px] file:font-black file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition-all">
                         </div>
                     </div>
 
                     <div id="previewWrapper" class="hidden flex-col gap-2 bg-white/50 backdrop-blur-md p-3 rounded-2xl border border-slate-200/60 shadow-inner">
-                        <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider"><i class="fa-solid fa-images mr-1"></i> Image Preview:</span>
+                        <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider"><i class="fa-solid fa-images mr-1"></i> Selected Pics Preview:</span>
                         <div id="previewContainer" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Price (₹)</label>
-                            <input type="number" step="0.01" name="amount" required class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
+                            <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Amount (Price ₹)</label>
+                            <input type="number" step="0.01" id="productAmount" name="amount" required class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">PV (Point Value)</label>
-                            <input type="number" name="pv" required class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
+                            <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">PV Bound (Point Value)</label>
+                            <input type="number" id="productPv" name="pv" required class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Product Description</label>
-                        <textarea name="info" rows="3" required placeholder="Provide detailed product specifications..." class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
+                        <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Product Information (Description)</label>
+                        <textarea id="productInfo" name="info" rows="3" required placeholder="Write granular operational specs in English..." class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Key Benefits</label>
-                        <textarea name="benefits" rows="3" required placeholder="List key features and advantages..." class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
+                        <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Product Benefits Matrix</label>
+                        <textarea id="productBenefits" name="benefits" rows="3" required placeholder="List distinct wellness capabilities..." class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">Usage Instructions</label>
-                        <textarea name="how_to_use" rows="2" required placeholder="Specify recommended application or dosage guidelines..." class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
+                        <label class="block text-[10px] font-black uppercase mb-1.5 text-slate-500 tracking-wider">How To Consume / Apply</label>
+                        <textarea id="productHowToUse" name="how_to_use" rows="2" required placeholder="Dosage instructions metrics..." class="w-full p-2.5 sm:p-3 bg-slate-100/60 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"></textarea>
                     </div>
 
                     <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 sm:py-3.5 rounded-xl text-xs uppercase tracking-widest transition-all shadow-md shadow-emerald-500/10 cursor-pointer">
-                        Publish Product &rarr;
+                        Publish Inventory Base &rarr;
                     </button>
                 </form>
             </div>
@@ -162,7 +164,7 @@
                         div.className = "h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-white p-1 border border-slate-200 flex-shrink-0 overflow-hidden shadow-sm flex items-center justify-center relative group";
                         
                         div.innerHTML = `
-                            <img src="${event.target.result}" class="h-full w-full object-contain">
+                            <img src="${escapeHTML(event.target.result)}" class="h-full w-full object-contain">
                             <button type="button" onclick="removeImage(${index})" class="absolute top-0.5 right-0.5 bg-rose-500 hover:bg-rose-600 text-white text-[8px] h-4 w-4 rounded-full flex items-center justify-center transition-all shadow-md focus:outline-none">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
@@ -195,7 +197,13 @@
             submitBtn.innerText = "Publishing to Server...";
             submitBtn.disabled = true;
 
-            const formData = new FormData(e.target);
+            const formData = new FormData();
+            formData.append('name', sanitizeString(document.getElementById('productName').value));
+            formData.append('amount', sanitizeString(document.getElementById('productAmount').value));
+            formData.append('pv', sanitizeString(document.getElementById('productPv').value));
+            formData.append('info', sanitizeString(document.getElementById('productInfo').value));
+            formData.append('benefits', sanitizeString(document.getElementById('productBenefits').value));
+            formData.append('how_to_use', sanitizeString(document.getElementById('productHowToUse').value));
             
             selectedFiles.forEach(file => {
                 formData.append('productImages', file);
@@ -209,21 +217,39 @@
                 const result = await response.json();
                 
                 if(result.success) {
-                    alert(result.msg);
+                    alert(result.msg || "Product published successfully!");
                     e.target.reset();
                     selectedFiles = [];
                     document.getElementById('previewWrapper').classList.add('hidden');
                     document.getElementById('previewContainer').innerHTML = '';
                 } else {
-                    alert('Error: ' + result.msg);
+                    alert('Error: ' + (result.msg || "Failed to add product"));
                 }
             } catch (err) {
-                alert('Server Connection Error!');
+                console.error(err);
+                alert('Server system error occurred during submission.');
             } finally {
                 submitBtn.innerText = originalText;
                 submitBtn.disabled = false;
             }
         });
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>"'/]/g, function (s) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                    '/': '&#x2F;'
+                }[s];
+            });
+        }
+
+        function sanitizeString(str) {
+            return String(str || '').trim();
+        }
     </script>
 </body>
 </html>

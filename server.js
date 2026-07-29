@@ -323,7 +323,7 @@ app.post('/admin/api/upload-orders-excel', checkAdmin, upload.single('excelFile'
         const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
         res.json({
             success: true,
-            msg: `${addedCount} entries imported successfully (${skippedCount} duplicates skipped)`,
+            msg: `🎉 ${addedCount} નવી એન્ટ્રી ઉમેરાઈ! (${skippedCount} ડુપ્લિકેટ એન્ટ્રી હટાવી દીધી)`,
             orders: allOrders.rows
         });
 
@@ -563,7 +563,7 @@ app.get('/admin/api/export-excel', checkAdmin, async (req, res) => {
                 del_inst: 'NROL',
                 rts: 'RTA',
                 s_name: 'Avira LifeCare',
-                s_add1: 'The Galleria Bussiness Hub 2',
+                s_add1: '103 The Galleria Bussiness Hub 2',
                 s_add2: 'SURAT',
                 s_city: 'SURAT',
                 s_state: 'GUJRAT',
@@ -910,7 +910,7 @@ app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5),
         const { name, amount, pv, info, benefits, how_to_use } = req.body;
 
         if (!req.files || req.files.length === 0) {
-            return res.json({ success: false, msg: "Please upload at least one image." });
+            return res.json({ success: false, msg: "કૃપા કરીને ઓછામાં ઓછો ૧ ફોટો અપલોડ કરો!" });
         }
 
         const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
@@ -933,11 +933,11 @@ app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5),
         ];
 
         await db.query(queryText, values);
-        res.json({ success: true, msg: "Product published successfully" });
+        res.json({ success: true, msg: "પ્રોડક્ટ સફળતાપૂર્વક પબ્લિશ થઈ ગઈ છે! 🎉" });
 
     } catch (error) {
-        console.error("Server Error [Add Product]:", error);
-        res.json({ success: false, msg: "Database or server error: " + error.message });
+        console.error("❌ CRITICAL SERVER ERROR [Add Product]:", error);
+        res.json({ success: false, msg: "ડેટાબેઝ અથવા સર્વરમાં ભૂલ થઈ છે: " + error.message });
     }
 });
 
@@ -981,7 +981,7 @@ app.delete('/admin/api/delete-product/:id', checkAdmin, async (req, res) => {
     try {
         const productId = req.params.id;
         await db.query('DELETE FROM avira_products WHERE id = $1', [productId]);
-        res.json({ success: true, msg: "Product deleted successfully" });
+        res.json({ success: true, msg: "પ્રોડક્ટ સફળતાપૂર્વક ડીલીટ થઈ ગઈ છે! 🗑️" });
     } catch (error) {
         console.error("Delete Product API Error:", error);
         res.json({ success: false, msg: "Failed to delete product: " + error.message });
@@ -1027,12 +1027,39 @@ app.post('/admin/api/update-product/:id', checkAdmin, upload.array('productImage
         ];
 
         await db.query(queryText, values);
-        res.json({ success: true, msg: "Product updated successfully" });
+        res.json({ success: true, msg: "પ્રોડક્ટ અને ઈમેજ પ્રોપરલી અપડેટ થઈ ગઈ છે! 🚀" });
     } catch (error) {
         console.error("Update Product API Error:", error);
         res.json({ success: false, msg: "Failed to update product: " + error.message });
     }
 });
+// 🚀 ORDER MASTER - BULK DELETE API
+app.post('/admin/api/delete-bulk-orders', checkAdmin, async (req, res) => {
+    try {
+        const { ids } = req.body; // ફ્રન્ટએન્ડ પરથી Array મોકલવો (ઉદા. [12, 13, 14])
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.json({ success: false, msg: "No Entries Are Selected." });
+        }
+
+        // 1. Postgres માટે ANY($1) કવેરી વાપરીને એકસાથે બધી એન્ટ્રી ડિલીટ કરો
+        await db.query('DELETE FROM orders_master WHERE id = ANY($1::int[])', [ids]);
+
+        // 2. તાજો અપડેટ થયેલો ડેટા પાછો મોકલો
+        const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
+        
+        res.json({ 
+            success: true, 
+            msg: ` ${ids.length} Entry Delected Successfully!`, 
+            orders: allOrders.rows 
+        });
+
+    } catch (err) {
+        console.error("❌ Bulk Delete Orders Error:", err);
+        res.json({ success: false, msg: "સર્વર એરર: " + err.message });
+    }
+});
+
 
 app.get('/admin/settings', checkAdmin, async (req, res) => {
     try {
