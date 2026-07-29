@@ -39,13 +39,10 @@
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા (બધી સ્ક્રીનમાં ઓટો-ફિટ) -->
     <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen box-border w-full min-w-0">
         
-        <!-- Top Navbar -->
         <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
             <div class="flex items-center gap-2 min-w-0">
                 <i class="fa-solid fa-truck-fast text-emerald-500 flex-shrink-0"></i>
@@ -60,7 +57,6 @@
             </div>
         </header>
 
-        <!-- Main Workspace Body -->
         <main class="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-6 box-border">
             
             <div class="space-y-1.5 text-center max-w-xl mx-auto mb-4">
@@ -68,10 +64,8 @@
                 <p class="text-slate-500 text-xs md:text-sm">Select a module below to upload bulk parcel shipment files, manage manual workflows or run permanent queries.</p>
             </div>
 
-            <!-- 📊 4 CARDS WORKSPACE (RESPONSIVE GRID) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 w-full">
                 
-                <!-- 1. UPLOAD MASTER DATA CARD -->
                 <div class="admin-menu-card p-5 rounded-2xl border border-slate-100 flex flex-col justify-between shadow-sm">
                     <div class="text-center mb-4">
                         <div class="w-11 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg mx-auto mb-3 border border-emerald-100/50">
@@ -88,7 +82,6 @@
                     </form>
                 </div>
 
-                <!-- 2. ORDER MASTER REPOSITORY CARD -->
                 <div class="admin-menu-card p-5 rounded-2xl border border-slate-100 flex flex-col justify-between shadow-sm">
                     <div class="text-center mb-4">
                         <div class="w-11 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-lg mx-auto mb-3 border border-teal-100/50">
@@ -102,7 +95,6 @@
                     </a>
                 </div>
 
-                <!-- 3. MANUAL ENTRY PORTAL CARD -->
                 <div class="admin-menu-card p-5 rounded-2xl border border-slate-100 flex flex-col justify-between shadow-sm">
                     <div class="text-center mb-4">
                         <div class="w-11 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg mx-auto mb-3 border border-emerald-100/50">
@@ -121,7 +113,6 @@
                     </div>
                 </div>
 
-                <!-- 4. LIVE MASTER RECORDS CARD -->
                 <div class="admin-menu-card p-5 rounded-2xl border border-slate-100 flex flex-col justify-between shadow-sm">
                     <div class="text-center mb-4">
                         <div class="w-11 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg mx-auto mb-3 border border-emerald-100/50">
@@ -137,12 +128,11 @@
 
             </div>
 
-            <!-- 📊 PREVIEW LIVE EDITOR ROW TABLE -->
             <div id="previewSection" class="hidden w-full bg-white p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-lg mt-6 space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-3">
                     <div>
                         <h3 class="text-sm sm:text-base font-bold text-slate-900"><i class="fa-solid fa-eye text-emerald-500 mr-1"></i> Excel Upload Preview & Live Editor</h3>
-                        <p class="text-slate-400 text-xs mt-0.5">ટેબલની અંદર જ વિગતો સુધારી શકો છો. ત્યારપછી "Confirm Bulk Save" બટન દબાવો.</p>
+                        <p class="text-slate-400 text-xs mt-0.5">Review and modify details directly in the table before clicking "Confirm Bulk Save".</p>
                     </div>
                     <div class="flex gap-2 w-full sm:w-auto">
                         <button id="btnCancelUpload" type="button" class="w-1/2 sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer">Cancel</button>
@@ -185,7 +175,7 @@
             
             const fileInput = document.getElementById('dashExcel');
             if (fileInput.files.length === 0) {
-                alert("Please select an Excel file first!");
+                alert("Please select an Excel file first.");
                 return;
             }
 
@@ -273,14 +263,14 @@
         }
 
         function deletePreviewRow(index) {
-            if (confirm("આ રો (Row) ને પ્રીવ્યૂ લિસ્ટમાંથી હટાવવી છે?")) {
+            if (confirm("Are you sure you want to remove this row from the preview list?")) {
                 tempUploadedData.splice(index, 1);
                 renderPreviewTable();
             }
         }
 
         document.getElementById('btnCancelUpload').addEventListener('click', () => {
-            if (confirm("અપલોડ કેન્સલ કરવું છે? બધો પ્રીવ્યૂ ડેટા સાફ થઈ જશે.")) {
+            if (confirm("Are you sure you want to cancel the upload process? All preview data will be cleared.")) {
                 tempUploadedData = [];
                 document.getElementById('previewSection').classList.add('hidden');
                 document.getElementById('dashUploadForm').reset();
@@ -311,7 +301,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert("Failed to save records. Try again.");
+                alert("Failed to save records. Please try again.");
             } finally {
                 this.innerHTML = `<i class="fa-solid fa-cloud-arrow-up mr-1"></i> Confirm Bulk Save (<span id="uploadCount">0</span>)`;
                 this.disabled = false;

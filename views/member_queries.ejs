@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>Query Support Center - Avira Lifecare</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         html, body {
             max-width: 100vw !important;
@@ -13,7 +16,7 @@
             position: relative;
         }
 
-        /* 🌌 Ultra 3D Glassmorphism Card Effect */
+        /* ULTRA 3D GLASSMORPHISM CARD EFFECT */
         .premium-card { 
             background: rgba(255, 255, 255, 0.88); 
             backdrop-filter: blur(20px) saturate(180%); 
@@ -22,7 +25,7 @@
             box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.07);
         }
 
-        /* 🔮 Animated Floating Background Blobs */
+        /* ANIMATED FLOATING BACKGROUND BLOBS */
         .animated-blob {
             filter: blur(80px);
             opacity: 0.35;
@@ -34,7 +37,7 @@
             100% { transform: translate(25px, 35px) scale(1.08); }
         }
 
-        /* 💎 3D Animated Stylish Inputs */
+        /* 3D ANIMATED INPUTS */
         .cyber-input {
             background: rgba(248, 250, 252, 0.85);
             border: 1.5px solid #e2e8f0;
@@ -47,7 +50,7 @@
             transform: translateY(-2px);
         }
 
-        /* ✨ 3D Interactive Gradient Buttons */
+        /* 3D INTERACTIVE GRADIENT BUTTONS */
         .btn-3d-emerald {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             box-shadow: 0 8px 20px -3px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -64,7 +67,7 @@
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* 👑 CUSTOM 3D DROPDOWN POPOVER MENU */
+        /* CUSTOM 3D DROPDOWN POPOVER MENU */
         .custom-dropdown-menu {
             opacity: 0;
             visibility: hidden;
@@ -77,7 +80,7 @@
             transform: translateY(0) scale(1);
         }
 
-        /* 📜 Smooth Slide-down animation */
+        /* SMOOTH SLIDE-DOWN ANIMATION */
         .slide-down-anim {
             animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -89,13 +92,11 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative w-full overflow-x-hidden">
 
-    <!-- 🔮 BACKGROUND ANIMATED BLOBS -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div class="absolute -top-10 -left-10 w-72 h-72 sm:w-96 sm:h-96 bg-emerald-300/20 rounded-full animated-blob"></div>
         <div class="absolute -bottom-10 -right-10 w-72 h-72 sm:w-96 sm:h-96 bg-blue-300/20 rounded-full animated-blob" style="animation-delay: -5s;"></div>
     </div>
 
-    <!-- 🌐 NAVIGATION HEADER -->
     <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-6 py-3.5 sticky top-0 z-50 shadow-sm w-full">
         <div class="max-w-3xl mx-auto flex justify-between items-center w-full">
             <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -113,10 +114,8 @@
         </div>
     </header>
 
-    <!-- 📦 MAIN CONTAINER -->
     <main class="flex-grow w-full max-w-2xl mx-auto px-4 py-6 sm:py-8 space-y-6 relative z-10 box-border">
         
-        <!-- MEMBER AUTH ID FORM -->
         <div id="authSection" class="premium-card p-6 sm:p-8 rounded-3xl text-center space-y-4">
             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200/80 uppercase tracking-wider shadow-sm">
                 <i class="fa-solid fa-lock text-amber-500"></i> Secure Gateway
@@ -129,7 +128,6 @@
             </form>
         </div>
 
-        <!-- MAIN DASHBOARD CONTENT AREA -->
         <div id="dashboardSection" class="hidden space-y-6">
             
             <div class="premium-card p-4 sm:p-5 rounded-2xl flex justify-between items-center shadow-sm">
@@ -142,30 +140,25 @@
                 </button>
             </div>
 
-            <!-- LODGE COMPLAINT FORM BOX -->
             <div id="newQueryFormContainer" class="hidden premium-card p-5 sm:p-7 rounded-3xl shadow-xl bg-white/95 space-y-4 border border-slate-100">
                 <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase border-b border-slate-100 pb-3 flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-emerald-500 text-sm"></i> Lodge New Support Ticket
                 </h3>
                 <form id="newTicketForm" class="space-y-4">
                     
-                    <!-- 1. FULL NAME -->
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Full Name</label>
                         <input type="text" id="formName" placeholder="Enter Your Full Name" required class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-bold uppercase focus:outline-none text-slate-800">
                     </div>
 
-                    <!-- 2. CONTACT NUMBER -->
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Contact Number</label>
                         <input type="tel" id="formContactNo" placeholder="Enter 10 Digit Mobile Number" required maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);" class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-bold font-mono focus:outline-none text-slate-800">
                     </div>
 
-                    <!-- 3. 🎨 ULTRA 3D STYLISH CUSTOM DROPDOWN BUTTON -->
                     <div class="relative">
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Select Subject</label>
                         
-                        <!-- Trigger Button -->
                         <button type="button" id="dropdownBtn" class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-bold text-left flex justify-between items-center cursor-pointer text-slate-700">
                             <span id="selectedSubjectText" class="flex items-center gap-2">
                                 <i class="fa-solid fa-list-check text-emerald-500"></i> Select Subject...
@@ -173,10 +166,8 @@
                             <i id="dropdownChevron" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300"></i>
                         </button>
 
-                        <!-- Hidden Form Input Value Container -->
                         <input type="hidden" id="selectedSubjectValue" value="">
 
-                        <!-- 3D Popover Dropdown Card -->
                         <div id="dropdownMenu" class="custom-dropdown-menu absolute left-0 right-0 top-full mt-2 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-2xl z-50 p-2 space-y-1">
                             
                             <div onclick="selectSubjectOption('Order Tracking', 'fa-truck-fast')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
@@ -212,13 +203,11 @@
                         </div>
                     </div>
 
-                    <!-- CUSTOM SUBJECT INPUT (Slide-down animated when 'Other' selected) -->
                     <div id="customSubjectContainer" class="hidden slide-down-anim">
                         <label class="text-[10px] font-black text-emerald-600 uppercase tracking-wider block mb-1">Specify Custom Subject</label>
                         <input type="text" id="formCustomSubject" placeholder="Enter your query topic..." class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-bold focus:outline-none uppercase border-emerald-300 text-slate-800">
                     </div>
 
-                    <!-- 4. DESCRIPTION -->
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Description / Ticket Details</label>
                         <textarea id="formDescription" rows="4" placeholder="Write your concern or problem in detail here..." required class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-medium focus:outline-none text-slate-800"></textarea>
@@ -231,7 +220,6 @@
                 </form>
             </div>
 
-            <!-- TICKET HISTORY VIEW LIST -->
             <div class="space-y-3.5">
                 <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 flex items-center gap-1.5">
                     <i class="fa-solid fa-clock-rotate-left text-emerald-500"></i> Past Query History
@@ -250,7 +238,6 @@
     <script>
         let loggedMemberId = '';
 
-        // 👑 3D CUSTOM DROPDOWN ENGINE LOGIC
         const dropdownBtn = document.getElementById('dropdownBtn');
         const dropdownMenu = document.getElementById('dropdownMenu');
         const dropdownChevron = document.getElementById('dropdownChevron');
@@ -280,7 +267,7 @@
 
         function selectSubjectOption(val, icon) {
             document.getElementById('selectedSubjectValue').value = val;
-            document.getElementById('selectedSubjectText').innerHTML = `<i class="fa-solid ${icon} text-emerald-500"></i> ${val}`;
+            document.getElementById('selectedSubjectText').innerHTML = `<i class="fa-solid ${icon} text-emerald-500"></i> ${escapeHTML(val)}`;
             
             const customBox = document.getElementById('customSubjectContainer');
             const customInput = document.getElementById('formCustomSubject');
@@ -300,7 +287,7 @@
 
         document.getElementById('queryAuthForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const mId = document.getElementById('memberIdInput').value.trim().toUpperCase();
+            const mId = escapeHTML(document.getElementById('memberIdInput').value.trim().toUpperCase());
             if(!mId) return;
 
             loggedMemberId = mId;
@@ -333,15 +320,15 @@
                             <div class="premium-card p-4 sm:p-5 rounded-2xl bg-white shadow-sm border border-slate-100/70 space-y-3">
                                 <div class="flex justify-between items-start gap-3">
                                     <div>
-                                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-wide block">Ticket ID: #${ticket.id} | ${ticket.name || 'MEMBER'}</span>
-                                        <h4 class="text-xs font-black text-slate-900 mt-0.5 uppercase">${ticket.subject}</h4>
+                                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-wide block">Ticket ID: #${escapeHTML(String(ticket.id))} | ${escapeHTML(ticket.name || 'MEMBER')}</span>
+                                        <h4 class="text-xs font-black text-slate-900 mt-0.5 uppercase">${escapeHTML(ticket.subject || '')}</h4>
                                     </div>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black border uppercase tracking-wide flex-shrink-0 ${statusColor}">${ticket.status}</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black border uppercase tracking-wide flex-shrink-0 ${statusColor}">${escapeHTML(ticket.status || '')}</span>
                                 </div>
-                                <p class="text-xs text-slate-600 leading-relaxed font-medium bg-slate-50/70 p-3 rounded-xl border border-slate-100 break-words">${ticket.description}</p>
+                                <p class="text-xs text-slate-600 leading-relaxed font-medium bg-slate-50/70 p-3 rounded-xl border border-slate-100 break-words">${escapeHTML(ticket.description || '')}</p>
                                 <div class="flex justify-between items-center text-[10px] text-slate-400 font-bold border-t pt-2 border-slate-100 flex-wrap gap-1">
-                                    <span><i class="fa-solid fa-phone text-slate-300 mr-0.5"></i> Call: ${ticket.contact_no}</span>
-                                    <span><i class="fa-solid fa-calendar text-slate-300 mr-0.5"></i> ${new Date(ticket.created_at).toLocaleString()}</span>
+                                    <span><i class="fa-solid fa-phone text-slate-300 mr-0.5"></i> Call: ${escapeHTML(ticket.contact_no || '')}</span>
+                                    <span><i class="fa-solid fa-calendar text-slate-300 mr-0.5"></i> ${escapeHTML(new Date(ticket.created_at).toLocaleString())}</span>
                                 </div>
                             </div>
                         `;
@@ -375,20 +362,43 @@
                 const res = await fetch('/api/queries/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ memberId: loggedMemberId, name, contactNo, subject: finalSubject, description })
+                    body: JSON.stringify({ 
+                        memberId: loggedMemberId, 
+                        name: sanitizeString(name), 
+                        contactNo: sanitizeString(contactNo), 
+                        subject: sanitizeString(finalSubject), 
+                        description: sanitizeString(description) 
+                    })
                 });
                 const result = await res.json();
                 if(result.success) {
-                    alert(result.msg);
+                    alert(result.msg || "Ticket submitted successfully!");
                     document.getElementById('newTicketForm').reset();
                     document.getElementById('selectedSubjectValue').value = '';
                     document.getElementById('selectedSubjectText').innerHTML = `<i class="fa-solid fa-list-check text-emerald-500"></i> Select Subject...`;
                     document.getElementById('customSubjectContainer').classList.add('hidden');
                     toggleForm();
                     fetchHistory();
-                } else { alert(result.msg); }
+                } else { alert(result.msg || "Failed to submit ticket."); }
             } catch(err) { console.error(err); }
         });
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>"'/]/g, function (s) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                    '/': '&#x2F;'
+                }[s];
+            });
+        }
+
+        function sanitizeString(str) {
+            return String(str || '').trim();
+        }
     </script>
 </body>
 </html>

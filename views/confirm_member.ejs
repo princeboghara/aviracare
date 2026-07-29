@@ -30,26 +30,21 @@
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-amber-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <!-- 🌐 સાઇડબાર -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- જમણી બાજુનો લેપટોપ સ્ક્રીન ફિટ કંટેન્ટ એરિયા -->
     <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen w-full box-border">
         
-        <!-- Top Navbar -->
         <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-3 sm:px-6 py-2.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
             <div class="flex items-center gap-2 min-w-0">
                 <i class="fa-solid fa-user-check text-emerald-500 flex-shrink-0"></i>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Tracking Manager / Confirm Members</span>
             </div>
             
-            <!-- 🚀 ડીબી માંથી ઓટો મેચ કરવાનું સ્માર્ટ બટન -->
             <button id="btnRunMatches" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
                 <i class="fa-solid fa-bolt text-amber-300"></i> Run Matches
             </button>
         </header>
 
-        <!-- Main Workspace -->
         <main class="flex-grow w-full px-2 sm:px-4 py-3 space-y-3 box-border">
             <div class="bg-white rounded-xl border border-slate-100 shadow-md overflow-hidden w-full">
                 <div class="overflow-x-auto w-full">
@@ -149,7 +144,6 @@
             return str.toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
         }
 
-        // 🎯 OK બટન દબાવવાથી સ્ક્રીન પર બોક્સમાં દેખાતો સાચો ડેટા જ ડાયરેક્ટ main_database માં જશે
         document.querySelectorAll('.approve-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const index = this.getAttribute('data-idx');
@@ -162,7 +156,7 @@
                 const tracking = row.querySelector('.tracking-number-text').innerText.trim();
 
                 if(!memberId || !rawDate || !pv || !amount) {
-                    alert("કૃપા કરીને પહેલા ચારેય વિગતો (Member ID, Date, PV, Amount) ભરો!");
+                    alert("Please fill in all four required fields: Member ID, Date, PV, and Amount.");
                     return;
                 }
 
@@ -172,7 +166,6 @@
                 const formattedDate = formatCustomDate(rawDate);
 
                 try {
-                    // 🚀 સ્ક્રીન પરની સાચી વિગતો સાથે ડાયરેક્ટ API કૉલ
                     const res = await fetch('/admin/api/approve-entry-by-tracking', { 
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -195,14 +188,13 @@
                     }
                 } catch(err) { 
                     console.error(err); 
-                    alert("સર્વર સિંક એરર!");
+                    alert("Server sync error occurred!");
                     this.innerText = "OK";
                     this.disabled = false;
                 }
             });
         });
 
-        // 🚀 RUN MATCHES: orders_master ટેબલમાંથી ડેટા બોક્સમાં ઓટો-ફિલ કરશે
         document.getElementById('btnRunMatches').addEventListener('click', async function() {
             this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> MATCHING...`;
             this.disabled = true;
@@ -239,7 +231,7 @@
                             matchCount++;
                         }
                     }
-                    alert(`🎉 સફળતા! orders_master ટેબલમાંથી ${matchCount} એન્ટ્રીઝ ઓટો-ફિલ થઈ ગઈ છે! હવે ચકાસીને 'OK' દબાવતાં જ આ જ વિગતો ડેટાબેઝમાં સેવ થશે.`);
+                    alert(`Success! Auto-filled ${matchCount} matching entries from orders_master. Please review and click 'OK' to save.`);
                 } else {
                     alert(result.msg || "No match data found in database.");
                 }

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
@@ -7,8 +6,8 @@
     <title>Content Manager - Avira Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* 🌌 OVERFLOW SAFE GLASS EFFECTS */
         html, body {
             max-width: 100vw !important;
             overflow-x: hidden !important;
@@ -27,13 +26,10 @@
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <!-- 🌐 ડાયનેમિક લાઈવ એકોર્ડિયન સાઇડબાર મેનુબાર (કોડ રીયુઝ) -->
     <%- include('partials/admin_navbar') %>
 
-    <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા -->
     <div class="lg:ml-64 flex-grow flex flex-col justify-between min-h-screen overflow-y-auto box-border w-full">
         
-        <!-- Top Navbar -->
         <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
             <div class="flex items-center gap-2 min-w-0">
                 <i class="fa-solid fa-file-pdf text-emerald-500 flex-shrink-0"></i>
@@ -48,64 +44,58 @@
             </div>
         </header>
 
-        <!-- Main Workspace -->
         <main class="flex-grow w-full max-w-4xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-6 sm:space-y-10 box-border">
             
             <div class="space-y-2 text-center max-w-xl mx-auto mb-4 sm:mb-6">
                 <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-950">Content Management</h1>
-                <p class="text-slate-500 text-xs md:text-sm">Upload business models, products flyers, or catalog resources. All PDF links dynamically sync onto the Member Portal.</p>
+                <p class="text-slate-500 text-xs md:text-sm">Upload business models, product flyers, or catalog resources. All PDF documents automatically sync with the Member Portal.</p>
             </div>
 
-            <!-- Upload Card -->
             <div class="max-w-2xl mx-auto w-full">
                 <div class="admin-menu-card p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-md shadow-slate-100/50">
                     <div class="text-center mb-6">
                         <div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg sm:text-xl mx-auto mb-3 sm:mb-4 border border-emerald-100/50">
                             <i class="fa-solid fa-cloud-arrow-up"></i>
                         </div>
-                        <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-1.5">Upload New Resource / PDF</h3>
-                        <p class="text-slate-400 text-xs leading-relaxed">Enter a unique name tag title and link file sheet formats into content portal database.</p>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-1.5">Upload New PDF Resource</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">Enter a document title and upload the official PDF file to sync with the database.</p>
                     </div>
 
                     <form id="pdfUploadForm" class="space-y-4 text-xs">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
-                            <!-- Document Title -->
                             <div>
-                                <label class="block font-bold text-slate-500 mb-1">Document File Name Title</label>
+                                <label class="block font-bold text-slate-500 mb-1">Document Title</label>
                                 <input type="text" id="pdfTitle" required placeholder="E.G. NEW BUSINESS PLAN 2026" 
                                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold uppercase focus:outline-none focus:border-emerald-500 text-slate-700">
                             </div>
                             
-                            <!-- Display Category Dropdown -->
                             <div>
-                                <label class="block font-bold text-slate-500 mb-1">Select Display Category</label>
+                                <label class="block font-bold text-slate-500 mb-1">Display Category</label>
                                 <select id="pdfCategory" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold focus:outline-none focus:border-emerald-500 text-slate-700">
-                                    <option value="BUSINESS_PLAN">💼 BUSINESS PLAN CARD</option>
-                                    <option value="PRODUCT_CATALOG">📦 PRODUCT CATALOG CARD</option>
+                                    <option value="BUSINESS_PLAN">Business Plan Card</option>
+                                    <option value="PRODUCT_CATALOG">Product Catalog Card</option>
                                 </select>
                             </div>
 
-                            <!-- Select PDF File -->
                             <div>
-                                <label class="block font-bold text-slate-500 mb-1">Select Official PDF Format</label>
+                                <label class="block font-bold text-slate-500 mb-1">Select PDF File</label>
                                 <input type="file" id="pdfFile" accept=".pdf" required 
                                        class="w-full text-[10px] text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
                             </div>
                         </div>
 
                         <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm uppercase tracking-wider">
-                            Upload Document Link <i class="fa-solid fa-circle-check ml-1"></i>
+                            Upload Document <i class="fa-solid fa-circle-check ml-1"></i>
                         </button>
                     </form>
                 </div>
             </div>
 
-            <!-- 📊 LIVE UPLOADED PREVIEW LIST SECTION -->
             <div class="w-full bg-white p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-lg mt-8 sm:mt-12 space-y-4">
                 <div class="flex justify-between items-center border-b pb-3 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm sm:text-base font-bold text-slate-900"><i class="fa-solid fa-list-check text-emerald-500 mr-1"></i> Active PDF Database Resources</h3>
-                        <p class="text-slate-400 text-[11px] sm:text-xs mt-0.5">Below records represent active dynamic documents synced with Cloud Database.</p>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900"><i class="fa-solid fa-list-check text-emerald-500 mr-1"></i> Active PDF Resources</h3>
+                        <p class="text-slate-400 text-[11px] sm:text-xs mt-0.5">Below records represent active documents synced with the database.</p>
                     </div>
                     <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-xl">Total Items: <%= pdfs.length %></span>
                 </div>
@@ -115,10 +105,10 @@
                         <thead>
                             <tr class="bg-slate-50 border-b text-slate-400 font-bold uppercase">
                                 <th class="py-3 px-3 w-12">SR</th>
-                                <th class="py-3 px-3">Document Title Tag Name</th>
-                                <th class="py-3 px-3">Generated File Storage Path</th>
-                                <th class="py-3 px-3">Upload Stamp Date</th>
-                                <th class="py-3 px-3 text-center w-36">Actions Workspace</th>
+                                <th class="py-3 px-3">Document Title</th>
+                                <th class="py-3 px-3">File Storage Path</th>
+                                <th class="py-3 px-3">Upload Date</th>
+                                <th class="py-3 px-3 text-center w-36">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50 font-medium text-slate-700">
@@ -126,7 +116,7 @@
                                 <tr>
                                     <td colspan="5" class="py-12 text-center text-slate-400 font-normal">
                                         <i class="fa-solid fa-file-pdf text-2xl block mb-2 text-slate-200"></i>
-                                        No active resource data rows discovered inside system repository.
+                                        No active documents found in system repository.
                                     </td>
                                 </tr>
                             <% } else { %>
@@ -138,7 +128,6 @@
                                     <td class="py-3 px-3 text-slate-500"><%= item.uploadDate %></td>
                                     <td class="py-3 px-3 text-center">
                                         <div class="flex items-center justify-center gap-3">
-                                            <!-- 🎯 FIX: Direct Cloudinary PDF Link -->
                                             <a href="<%= item.filename %>" target="_blank" class="text-blue-500 hover:text-blue-700 font-bold transition-colors">
                                                 <i class="fa-solid fa-eye mr-0.5"></i> View
                                             </a>
@@ -162,7 +151,6 @@
     </div>
 
     <script>
-        // 💾 PDF SUBMISSION HANDLER
         document.getElementById('pdfUploadForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -170,7 +158,7 @@
             const titleInput = document.getElementById('pdfTitle');
             
             if(fileInput.files.length === 0) {
-                alert("Please select a valid PDF format document file first!");
+                alert("Please select a valid PDF file first.");
                 return;
             }
 
@@ -194,23 +182,22 @@
                     alert(data.msg);
                     location.reload();
                 } else {
-                    alert("Error Response: " + data.msg);
-                    btn.innerHTML = `Upload Document Link <i class="fa-solid fa-circle-check ml-1"></i>`;
+                    alert("Upload Error: " + data.msg);
+                    btn.innerHTML = `Upload Document <i class="fa-solid fa-circle-check ml-1"></i>`;
                     btn.disabled = false;
                 }
             } catch(err) {
                 console.error(err);
-                alert("Server upload communication breakdown crash.");
-                btn.innerHTML = `Upload Document Link <i class="fa-solid fa-circle-check ml-1"></i>`;
+                alert("Server connection failed. Please try again.");
+                btn.innerHTML = `Upload Document <i class="fa-solid fa-circle-check ml-1"></i>`;
                 btn.disabled = false;
             }
         });
 
-        // ❌ REMOVE / DELETE PDF FILE LOGIC
         document.querySelectorAll('.delete-pdf-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const pdfId = this.getAttribute('data-id');
-                if(confirm("Warning! Are you sure you want to delete this permanent resource document from configuration listing?")) {
+                if(confirm("Are you sure you want to delete this document permanently?")) {
                     fetch(`/admin/api/delete-pdf/${pdfId}`, { method: 'DELETE' })
                     .then(res => res.json())
                     .then(data => {

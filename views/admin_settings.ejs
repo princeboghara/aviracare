@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth overflow-x-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>System Settings - Avira Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            position: relative;
+        }
+
+        .slide-down-anim {
+            animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden block">
+
+    <%- include('partials/admin_navbar') %>
+
+    <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between box-border">
+        
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
+            <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-gears text-emerald-500"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Control Panel / System Settings</span>
+            </div>
+        </header>
+
+        <main class="flex-grow w-full max-w-4xl mx-auto px-4 py-6 space-y-6">
+            
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-md space-y-2">
+                <label class="text-xs font-black text-slate-500 uppercase tracking-wider block">
+                    <i class="fa-solid fa-sliders text-emerald-500 mr-1"></i> Select Setting Option
+                </label>
+                <div class="relative">
+                    <select id="mainSettingSelect" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 cursor-pointer appearance-none">
+                        <option value="" disabled selected>-- Choose Setting Category --</option>
+                        <option value="box_dimensions">Box Dimensions (L x B x H Shortcuts)</option>
+                    </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-xs">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="boxDimensionsSection" class="hidden space-y-6 slide-down-anim">
+                
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-md space-y-4">
+                    <h3 class="text-sm font-black text-slate-900 uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-emerald-500"></i> Add New Box Dimension Shortcut
+                    </h3>
+                    <form id="addPresetForm" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div class="sm:col-span-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Box Name (e.g. Courier Box A)</label>
+                            <input type="text" id="pName" required placeholder="ENTER BOX NAME" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 uppercase">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Length (cm)</label>
+                            <input type="number" id="pLength" required placeholder="0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Breadth (cm)</label>
+                            <input type="number" id="pBreadth" required placeholder="0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Height (cm)</label>
+                            <input type="number" id="pHeight" required placeholder="0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div class="sm:col-span-4 flex justify-end pt-2">
+                            <button type="submit" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-[10px] px-6 py-2.5 rounded-xl uppercase tracking-widest shadow-md transition-all cursor-pointer">
+                                Save Preset to Database
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden">
+                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 font-bold text-xs text-slate-900 uppercase flex items-center justify-between">
+                        <span>Stored Box Dimensions</span>
+                        <span class="text-[10px] text-emerald-600 font-mono font-bold"><%= presets.length %> Active Presets</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100/50 border-b border-slate-100 text-slate-400 font-bold uppercase">
+                                    <th class="p-4">Box Name</th>
+                                    <th class="p-4">L x B x H</th>
+                                    <th class="p-4 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                <% if(presets.length === 0) { %>
+                                    <tr><td colspan="3" class="p-8 text-center text-slate-400">No presets found in database. Add your first box dimension above.</td></tr>
+                                <% } else { %>
+                                    <% presets.forEach(p => { %>
+                                        <tr class="hover:bg-slate-50/50">
+                                            <td class="p-4 font-bold text-slate-900 uppercase"><%= p.name %></td>
+                                            <td class="p-4 font-mono text-emerald-600 font-bold"><%= p.length %> x <%= p.breadth %> x <%= p.height %> cm</td>
+                                            <td class="p-4 text-center">
+                                                <button onclick="deletePreset('<%= p.id %>')" class="text-rose-500 hover:text-rose-700 font-bold cursor-pointer uppercase text-[10px]">
+                                                    <i class="fa-solid fa-trash-can"></i> Remove
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <footer class="bg-white border-t border-slate-100 py-3 text-center text-xs font-medium text-slate-400 mt-6 w-full">
+            &copy; 2026 Avira LifeCare. Control Panel.
+        </footer>
+
+    </div>
+
+    <script>
+        document.getElementById('mainSettingSelect').addEventListener('change', function() {
+            const boxSection = document.getElementById('boxDimensionsSection');
+            if (this.value === 'box_dimensions') {
+                boxSection.classList.remove('hidden');
+            } else {
+                boxSection.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('addPresetForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('pName').value,
+                length: document.getElementById('pLength').value,
+                breadth: document.getElementById('pBreadth').value,
+                height: document.getElementById('pHeight').value
+            };
+
+            try {
+                const res = await fetch('/admin/api/add-box-preset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if(data.success) { 
+                    location.reload(); 
+                } else {
+                    alert(data.msg);
+                }
+            } catch(err) {
+                console.error(err);
+            }
+        });
+
+        async function deletePreset(id) {
+            if(confirm("Are you sure you want to remove this box dimension preset?")) {
+                try {
+                    const res = await fetch(`/admin/api/delete-box-preset/${id}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if(data.success) { location.reload(); }
+                } catch(err) {
+                    console.error(err);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

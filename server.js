@@ -4,27 +4,21 @@ const path = require('path');
 const multer = require('multer');
 const ExcelJS = require('exceljs');
 const fs = require('fs');
-const db = require('./db.js'); // 🔌 ડેટાબેઝ કનેક્શન
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
-const app = express(); 
+const https = require('https');
 const session = require('express-session');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const db = require('./db.js');
 
-// ==========================================
-// 🤖 GEMINI AI VISION INITIALIZATION
-// ==========================================
+const app = express();
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-// ==========================================
-// 🔒 SECURE SESSION CONFIGURATION
-// ==========================================
 app.use(session({
-    secret: 'avira-secret-key-2026', // Secure Session Key
+    secret: 'avira-secret-key-2026',
     resave: false,
     saveUninitialized: false
 }));
 
-// 🛡️ Admin Authentication Gatekeeper Middleware
 function checkAdmin(req, res, next) {
     if (req.session && req.session.isAdmin) {
         next();
@@ -44,9 +38,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// ==========================================
-// 📂 MULTI-IMAGE & PDF UNIFORM STORAGE SETUP
-// ==========================================
 const sharedStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = path.join(__dirname, 'public', 'uploads');
@@ -64,8 +55,6 @@ const sharedStorage = multer.diskStorage({
 const memoryUpload = multer({ storage: multer.memoryStorage() });
 const upload = multer({ storage: sharedStorage });
 const uploadPdf = multer({ storage: sharedStorage });
-
-// ------------------ FRONTEND PUBLIC PAGES ROUTES ------------------
 
 app.get('/', async (req, res) => {
     try {
@@ -88,8 +77,6 @@ app.get('/', async (req, res) => {
 app.get('/track-parcel', (req, res) => res.render('member_tracking'));
 app.get('/member/queries', (req, res) => res.render('member_queries'));
 
-// ------------------ 🔑 ADMIN CREDENTIAL AUTHENTICATION ------------------
-
 app.get('/admin/login', (req, res) => res.render('admin_login'));
 
 app.post('/admin/login', (req, res) => {
@@ -107,18 +94,15 @@ app.get('/admin/logout', (req, res) => {
     res.redirect('/admin/login');
 });
 
-// ------------------ 🔒 100% LOCKED & SECURED ADMIN ROUTES ------------------
-
 app.get('/admin/home', checkAdmin, (req, res) => res.render('admin_home'));
 app.get('/admin/tracking', checkAdmin, (req, res) => res.render('admin_tracking'));
 
-// 🚀 ORDER MASTER EXCEL REPOSITORY ROUTE
 app.get('/admin/orders-master', checkAdmin, async (req, res) => {
     try {
         const ordersRes = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
         res.render('admin_orders_master', { orders: ordersRes.rows });
     } catch (err) {
-        console.error("❌ Fetch Orders Master Error:", err);
+        console.error("Fetch Orders Master Error:", err);
         res.render('admin_orders_master', { orders: [] });
     }
 });
@@ -188,9 +172,6 @@ app.get('/member/downloads', async (req, res) => {
     res.render('member_downloads', { pdfs: formattedPdfs });
 });
 
-// ------------------ ⚡ SMART BACKEND OPERATIONS & SYSTEM APIs ------------------
-
-// ⚡ 1-SECOND FAST AI VISION LABEL PARSER API
 app.post('/admin/api/scan-ai-label', checkAdmin, memoryUpload.single('labelImage'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ success: false, msg: 'No image uploaded' });
@@ -221,15 +202,14 @@ app.post('/admin/api/scan-ai-label', checkAdmin, memoryUpload.single('labelImage
             const data = JSON.parse(jsonMatch[0]);
             return res.json({ success: true, data });
         } else {
-            return res.json({ success: false, msg: 'AI could not read JSON from sticker' });
+            return res.json({ success: false, msg: 'AI could not process JSON from image' });
         }
     } catch (err) {
-        console.error("❌ AI Scan API Error:", err);
+        console.error("AI Scan API Error:", err);
         return res.json({ success: false, msg: err.message });
     }
 });
 
-// ⚡ DIRECT DB MATCH API: orders_master ટેબલમાંથી ડાયરેક્ટ મેચ કરશે
 app.get('/admin/api/match-confirm-db', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT order_date, member_id, name, pv, amount FROM orders_master');
@@ -239,7 +219,7 @@ app.get('/admin/api/match-confirm-db', checkAdmin, async (req, res) => {
         result.rows.forEach(row => {
             if (row.name) {
                 const rawName = row.name.toUpperCase().trim();
-                const cleanKey = rawName.replace(/[^A-Z0-9]/g, ''); // સ્પેશિયલ કેરેક્ટર અને સ્પેસ વગરની કી
+                const cleanKey = rawName.replace(/[^A-Z0-9]/g, '');
                 
                 const rowDataObj = {
                     dateStr: row.order_date || '',
@@ -255,12 +235,11 @@ app.get('/admin/api/match-confirm-db', checkAdmin, async (req, res) => {
 
         res.json({ success: true, dbData: dbRowsMap });
     } catch (error) {
-        console.error("❌ DB Match Fetch Error:", error);
+        console.error("DB Match Fetch Error:", error);
         res.json({ success: false, msg: error.message });
     }
 });
 
-// 🚀 ORDER EXCEL UPLOADER & AUTO DUPLICATE REMOVER ENGINE
 app.post('/admin/api/upload-orders-excel', checkAdmin, upload.single('excelFile'), async (req, res) => {
     try {
         if (!req.file) return res.json({ success: false, msg: "Please select an Excel file." });
@@ -344,23 +323,86 @@ app.post('/admin/api/upload-orders-excel', checkAdmin, upload.single('excelFile'
         const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
         res.json({
             success: true,
-            msg: `🎉 ${addedCount} નવી એન્ટ્રી ઉમેરાઈ! (${skippedCount} ડુપ્લિકેટ એન્ટ્રી હટાવી દીધી)`,
+            msg: `${addedCount} entries imported successfully (${skippedCount} duplicates skipped)`,
             orders: allOrders.rows
         });
 
     } catch (error) {
-        console.error("❌ Order Excel Import Error:", error);
+        console.error("Order Excel Import Error:", error);
         res.json({ success: false, msg: error.message });
     }
 });
 
-// Single Order Delete API
+app.post('/admin/api/update-order/:id', checkAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { orderDate, memberId, name, pv, amount } = req.body;
+
+        const updateQuery = `
+            UPDATE orders_master 
+            SET order_date = $1, member_id = $2, name = $3, pv = $4, amount = $5
+            WHERE id = $6
+            RETURNING *;
+        `;
+
+        await db.query(updateQuery, [
+            orderDate.trim(),
+            memberId.toUpperCase().trim(),
+            name.toUpperCase().trim(),
+            pv.trim(),
+            amount.trim(),
+            id
+        ]);
+
+        const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
+        res.json({ success: true, msg: "Order updated successfully", orders: allOrders.rows });
+    } catch (err) {
+        console.error("Update Order Error:", err);
+        res.json({ success: false, msg: err.message });
+    }
+});
+
 app.delete('/admin/api/delete-order/:id', checkAdmin, async (req, res) => {
     try {
-        await db.query('DELETE FROM orders_master WHERE id = $1', [req.params.id]);
+        const { id } = req.params;
+        await db.query('DELETE FROM orders_master WHERE id = $1', [id]);
+
         const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
-        res.json({ success: true, orders: allOrders.rows });
+        res.json({ success: true, msg: "Order deleted successfully", orders: allOrders.rows });
     } catch (err) {
+        console.error("Delete Order Error:", err);
+        res.json({ success: false, msg: err.message });
+    }
+});
+
+app.post('/admin/api/delete-multiple-orders', checkAdmin, async (req, res) => {
+    try {
+        const { ids } = req.body;
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.json({ success: false, msg: "No orders selected for deletion." });
+        }
+
+        const numericIds = ids.map(id => parseInt(id)).filter(id => !isNaN(id));
+
+        if (numericIds.length === 0) {
+            return res.json({ success: false, msg: "Invalid order IDs provided." });
+        }
+
+        const placeholders = numericIds.map((_, index) => `$${index + 1}`).join(', ');
+        const deleteQuery = `DELETE FROM orders_master WHERE id IN (${placeholders})`;
+
+        await db.query(deleteQuery, numericIds);
+
+        const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
+        
+        res.json({ 
+            success: true, 
+            msg: `${numericIds.length} orders deleted successfully`, 
+            orders: allOrders.rows 
+        });
+    } catch (err) {
+        console.error("Bulk Delete Orders Error:", err);
         res.json({ success: false, msg: err.message });
     }
 });
@@ -369,7 +411,7 @@ app.post('/api/queries/create', async (req, res) => {
     try {
         const { memberId, name, subject, description, contactNo } = req.body;
         if (!memberId || !name || !subject || !description || !contactNo) {
-            return res.json({ success: false, msg: "All fields (Name, Mobile, Subject, Description) are required!" });
+            return res.json({ success: false, msg: "All fields (Name, Mobile, Subject, Description) are required." });
         }
         const insertQuery = `
             INSERT INTO query_tickets (member_id, name, subject, description, contact_no)
@@ -382,7 +424,7 @@ app.post('/api/queries/create', async (req, res) => {
             description.trim(), 
             contactNo.trim()
         ]);
-        res.json({ success: true, msg: "Your ticket has been logged successfully! 🚀" });
+        res.json({ success: true, msg: "Ticket logged successfully" });
     } catch (error) {
         res.json({ success: false, msg: error.message });
     }
@@ -403,7 +445,7 @@ app.post('/admin/api/queries/update-status', checkAdmin, async (req, res) => {
     try {
         const { ticketId, status } = req.body;
         await db.query('UPDATE query_tickets SET status = $1 WHERE id = $2', [status, ticketId]);
-        res.json({ success: true, msg: "Ticket status modified successfully!" });
+        res.json({ success: true, msg: "Ticket status updated successfully" });
     } catch (error) {
         res.json({ success: false, msg: error.message });
     }
@@ -438,7 +480,7 @@ app.get('/admin/api/fetch-details', checkAdmin, async (req, res) => {
 
         res.json(responseData);
     } catch (error) {
-        console.error("❌ Neon Fetch Error Details:", error); 
+        console.error("Fetch Details Error:", error); 
         res.json({ success: false, msg: error.message });
     }
 });
@@ -569,7 +611,7 @@ app.get('/api/track', async (req, res) => {
 
         res.json(formattedResults);
     } catch (err) {
-        console.error("❌ TRACK ERROR:", err);
+        console.error("Track Error:", err);
         res.json([]);
     }
 });
@@ -611,19 +653,17 @@ app.post('/admin/api/update-pending-entry/:id', checkAdmin, async (req, res) => 
             'UPDATE pending_entries SET member_id = $1, order_date = $2, pv = $3, amount = $4 WHERE id = $5', 
             [mId, orderDate, setPv, setAmt, targetId]
         );
-        res.json({ success: true, msg: "Row updated in pending_entries database" });
+        res.json({ success: true, msg: "Pending entry updated successfully" });
     } catch (error) {
         res.json({ success: false, msg: error.message });
     }
 });
 
-// 🎯 APPROVE ENTRY API (FIXED: સ્ક્રીન પર દેખાતી વિગતો જ સીધી main_database માં જશે)
 app.post('/admin/api/approve-entry-by-tracking', checkAdmin, async (req, res) => {
     const { tracking, memberId, orderDate, pv, amount } = req.body;
     if (!tracking) return res.json({ success: false, msg: "Tracking number required" });
 
     try {
-        // ૧. pending_entries માંથી નામ અને આઈડી લાવીએ
         const pendingResult = await db.query('SELECT * FROM pending_entries WHERE UPPER(tracking) = $1', [tracking.trim().toUpperCase()]);
         
         let name = '';
@@ -634,7 +674,6 @@ app.post('/admin/api/approve-entry-by-tracking', checkAdmin, async (req, res) =>
             pendingId = pendingResult.rows[0].id;
         }
 
-        // ૨. ફ્રન્ટએન્ડમાંથી જે તાજો સાચો ડેટા મોકલ્યો છે તે જ main_database માં સેવ થશે
         const insertQuery = `
             INSERT INTO main_database (member_id, name, order_date, pv, amount, tracking)
             VALUES ($1, $2, $3, $4, $5, $6)
@@ -650,16 +689,15 @@ app.post('/admin/api/approve-entry-by-tracking', checkAdmin, async (req, res) =>
         
         await db.query(insertQuery, insertValues);
 
-        // ૩. pending_entries માંથી રેકોર્ડ ડિલીટ
         if (pendingId) {
             await db.query('DELETE FROM pending_entries WHERE id = $1', [pendingId]);
         } else {
             await db.query('DELETE FROM pending_entries WHERE UPPER(tracking) = $1', [tracking.trim().toUpperCase()]);
         }
 
-        res.json({ success: true, msg: "Saved to Main Database successfully!" });
+        res.json({ success: true, msg: "Saved to main database successfully" });
     } catch (err) {
-        console.error("❌ APPROVE ERROR:", err);
+        console.error("Approve Error:", err);
         res.json({ success: false, msg: err.message });
     }
 });
@@ -677,12 +715,11 @@ app.delete('/admin/api/delete-master/:srNo', checkAdmin, async (req, res) => {
         await db.query('DELETE FROM main_database WHERE sr_no = $1', [targetSrNo]);
         res.json({ success: true });
     } catch (error) {
-        console.error("❌ DELETE MASTER ERROR:", error);
+        console.error("Delete Master Error:", error);
         res.json({ success: false, msg: error.message });
     }
 });
 
-// ✏️ UPDATE MASTER DATABASE ENTRY API
 app.post('/admin/api/update-master/:srNo', checkAdmin, async (req, res) => {
     try {
         const srNo = parseInt(req.params.srNo);
@@ -703,9 +740,9 @@ app.post('/admin/api/update-master/:srNo', checkAdmin, async (req, res) => {
             ]
         );
 
-        res.json({ success: true, msg: "Record updated successfully! 🚀" });
+        res.json({ success: true, msg: "Record updated successfully" });
     } catch (error) {
-        console.error("❌ UPDATE MASTER ERROR:", error);
+        console.error("Update Master Error:", error);
         res.json({ success: false, msg: error.message });
     }
 });
@@ -770,7 +807,7 @@ app.post('/admin/api/save-bulk-master', checkAdmin, async (req, res) => {
             ];
             await db.query(insertQuery, values);
         }
-        res.json({ success: true, msg: `${entries.length} entries pushed to Pending List successfully! 🚀` });
+        res.json({ success: true, msg: `${entries.length} entries pushed to pending list successfully` });
     } catch (error) {
         res.json({ success: false, msg: error.message });
     }
@@ -796,7 +833,7 @@ app.post('/admin/api/upload-pdf', checkAdmin, uploadPdf.single('pdfFile'), async
         const queryText = 'INSERT INTO content_pdf (id, title, filename, category, upload_date) VALUES ($1, $2, $3, $4, $5)';
         await db.query(queryText, [id, title, filename, category, uploadDate]);
 
-        res.json({ success: true, msg: "PDF Document Uploaded to Database Successfully!" });
+        res.json({ success: true, msg: "PDF document uploaded successfully" });
     } catch (err) {
         console.error(err);
         res.json({ success: false, msg: "Server error during PDF upload." });
@@ -816,12 +853,12 @@ app.delete('/admin/api/delete-pdf/:id', checkAdmin, async (req, res) => {
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
-            return res.json({ success: true, msg: "PDF Deleted from database and storage!" });
+            return res.json({ success: true, msg: "PDF deleted successfully" });
         }
-        res.json({ success: false, msg: "PDF Not Found!" });
+        res.json({ success: false, msg: "PDF file not found!" });
     } catch (err) {
         console.error(err);
-        res.json({ success: false, msg: "Error deleting PDF." });
+        res.json({ success: false, msg: "Error deleting PDF file." });
     }
 });
 
@@ -857,16 +894,12 @@ app.post('/admin/api/upload-pincode-excel', checkAdmin, upload.single('excelFile
         }
 
         fs.unlinkSync(filePath);
-        res.json({ success: true, msg: `Success! ${insertCount} pincodes saved to Neon Database.` });
+        res.json({ success: true, msg: `${insertCount} pincodes saved successfully` });
     } catch (error) {
-        console.error("❌ Bulk Upload Error:", error);
+        console.error("Bulk Upload Error:", error);
         res.json({ success: false, msg: error.message });
     }
 });
-
-// ==========================================
-// 📦 VERSION 1.1: ADMIN PRODUCT MANAGEMENT
-// ==========================================
 
 app.get('/admin/add-product', checkAdmin, (req, res) => {
     res.render('admin_add_product');
@@ -877,7 +910,7 @@ app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5),
         const { name, amount, pv, info, benefits, how_to_use } = req.body;
 
         if (!req.files || req.files.length === 0) {
-            return res.json({ success: false, msg: "કૃપા કરીને ઓછામાં ઓછો ૧ ફોટો અપલોડ કરો!" });
+            return res.json({ success: false, msg: "Please upload at least one image." });
         }
 
         const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
@@ -900,17 +933,13 @@ app.post('/admin/api/add-product', checkAdmin, upload.array('productImages', 5),
         ];
 
         await db.query(queryText, values);
-        res.json({ success: true, msg: "પ્રોડક્ટ સફળતાપૂર્વક પબ્લિશ થઈ ગઈ છે! 🎉" });
+        res.json({ success: true, msg: "Product published successfully" });
 
     } catch (error) {
-        console.error("❌ CRITICAL SERVER ERROR [Add Product]:", error);
-        res.json({ success: false, msg: "ડેટાબેઝ અથવા સર્વરમાં ભૂલ થઈ છે: " + error.message });
+        console.error("Server Error [Add Product]:", error);
+        res.json({ success: false, msg: "Database or server error: " + error.message });
     }
 });
-
-// ==========================================
-// 🛒 VERSION 1.1: MEMBER PRODUCT CATALOG
-// ==========================================
 
 app.get('/products', async (req, res) => {
     try {
@@ -943,8 +972,8 @@ app.get('/admin/view-products', checkAdmin, async (req, res) => {
         const result = await db.query('SELECT * FROM avira_products ORDER BY id DESC');
         res.render('admin_view_products', { products: result.rows });
     } catch (error) {
-        console.error("❌ View Products Route Error:", error);
-        res.status(500).send("સર્વર એરર: પ્રોડક્ટ્સ લોડ થઈ શકી નથી.");
+        console.error("View Products Route Error:", error);
+        res.status(500).send("Server error: Unable to load products.");
     }
 });
 
@@ -952,10 +981,10 @@ app.delete('/admin/api/delete-product/:id', checkAdmin, async (req, res) => {
     try {
         const productId = req.params.id;
         await db.query('DELETE FROM avira_products WHERE id = $1', [productId]);
-        res.json({ success: true, msg: "પ્રોડક્ટ સફળતાપૂર્વક ડીલીટ થઈ ગઈ છે! 🗑️" });
+        res.json({ success: true, msg: "Product deleted successfully" });
     } catch (error) {
-        console.error("❌ Delete Product API Error:", error);
-        res.json({ success: false, msg: "ડીલીટ કરવામાં ભૂલ થઈ: " + error.message });
+        console.error("Delete Product API Error:", error);
+        res.json({ success: false, msg: "Failed to delete product: " + error.message });
     }
 });
 
@@ -998,19 +1027,57 @@ app.post('/admin/api/update-product/:id', checkAdmin, upload.array('productImage
         ];
 
         await db.query(queryText, values);
-        res.json({ success: true, msg: "પ્રોડક્ટ અને ઈમેજ પ્રોપરલી અપડેટ થઈ ગઈ છે! 🚀" });
+        res.json({ success: true, msg: "Product updated successfully" });
     } catch (error) {
-        console.error("❌ Update Product API Error:", error);
-        res.json({ success: false, msg: "અપડેટ કરવામાં ભૂલ થઈ: " + error.message });
+        console.error("Update Product API Error:", error);
+        res.json({ success: false, msg: "Failed to update product: " + error.message });
     }
 });
 
-// ------------------ SERVER KEEPALIVE ENGINE ------------------
-app.listen(PORT, () => {
-    console.log(`🚀 Engine running on http://localhost:${PORT}`);
+app.get('/admin/settings', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM box_presets ORDER BY id DESC');
+        res.render('admin_settings', { presets: result.rows });
+    } catch (err) {
+        res.render('admin_settings', { presets: [] });
+    }
 });
 
-const https = require('https');
+app.get('/admin/api/get-box-presets', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM box_presets ORDER BY id DESC');
+        res.json({ success: true, presets: result.rows });
+    } catch (err) {
+        res.json({ success: false, presets: [] });
+    }
+});
+
+app.post('/admin/api/add-box-preset', checkAdmin, async (req, res) => {
+    try {
+        const { name, length, breadth, height } = req.body;
+        await db.query(
+            'INSERT INTO box_presets (name, length, breadth, height) VALUES ($1, $2, $3, $4)',
+            [name.trim(), length, breadth, height]
+        );
+        res.json({ success: true, msg: "Preset saved successfully" });
+    } catch (err) {
+        res.json({ success: false, msg: err.message });
+    }
+});
+
+app.delete('/admin/api/delete-box-preset/:id', checkAdmin, async (req, res) => {
+    try {
+        await db.query('DELETE FROM box_presets WHERE id = $1', [req.params.id]);
+        res.json({ success: true, msg: "Preset removed successfully" });
+    } catch (err) {
+        res.json({ success: false, msg: err.message });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
+});
+
 setInterval(() => {
     https.get('https://aviracare.onrender.com/');
 }, 300000);

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>Track Your Shipment - Avira Lifecare</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,13 +15,20 @@
             position: relative;
         }
 
+        /* PREMIUM GLASSMORPHISM CARDS */
         .premium-card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.7);
+            transition: all 0.35s ease;
+        }
+        .premium-card:hover {
+            box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.3);
         }
 
+        /* ANIMATED BACKGROUND BLOBS */
         .glass-blob {
             filter: blur(80px);
             opacity: 0.35;
@@ -34,13 +43,11 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative w-full overflow-x-hidden">
 
-    <!-- 🔮 BACKGROUND DESIGNS -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div class="absolute -top-10 -left-10 w-72 h-72 sm:w-96 sm:h-96 bg-emerald-300/30 rounded-full glass-blob"></div>
         <div class="absolute -bottom-10 -right-10 w-72 h-72 sm:w-96 sm:h-96 bg-blue-300/20 rounded-full glass-blob" style="animation-delay: -4s;"></div>
     </div>
 
-    <!-- 🌐 NAVIGATION HEADER -->
     <header class="bg-white/70 backdrop-blur-md border-b border-slate-100 px-4 sm:px-6 py-3.5 sticky top-0 z-50 shadow-sm w-full">
         <div class="max-w-4xl mx-auto flex justify-between items-center w-full">
             <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -59,10 +66,8 @@
         </div>
     </header>
 
-    <!-- 📦 MAIN CONTAINER -->
     <main class="flex-grow w-full max-w-2xl mx-auto px-4 py-6 sm:py-10 flex flex-col justify-center gap-6 relative z-10 box-border">
         
-        <!-- TRACKING SEARCH BOX -->
         <div class="w-full text-center space-y-4">
             <div class="space-y-1.5">
                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase tracking-wider shadow-sm">
@@ -83,7 +88,6 @@
                 </button>
             </form>
 
-            <!-- RECORD FILTERS -->
             <div id="filterSection" class="hidden flex flex-wrap items-center justify-center gap-2 pt-1">
                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider mr-1">View:</span>
                 <button type="button" onclick="setLimit(5)" id="limit-5" class="limit-btn bg-slate-900 text-white text-[10px] font-black px-3 py-1 rounded-lg transition-all cursor-pointer">LAST 5</button>
@@ -93,13 +97,11 @@
             </div>
         </div>
 
-        <!-- 📊 RESULTS CONTAINER -->
         <div id="resultsWrapper" class="w-full hidden space-y-5">
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1"><i class="fa-solid fa-clock-history text-emerald-500 mr-1"></i> Dispatch Records</h3>
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1"><i class="fa-solid fa-clock-rotate-left text-emerald-500 mr-1"></i> Dispatch Records</h3>
             
             <div id="resultsList" class="space-y-4"></div>
 
-            <!-- 🎧 CLEAN & PROFESSIONAL QUERY SUPPORT BANNER -->
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
                 <div class="flex items-center gap-3">
                     <div class="h-9 w-9 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-600 text-sm flex-shrink-0">
@@ -107,7 +109,7 @@
                     </div>
                     <div>
                         <h4 class="text-xs font-bold text-slate-900 uppercase">Can't Find Your Order?</h4>
-                        <p class="text-[11px] text-slate-400">If your order is not listed here or the details are incorrect, please submit a query and our team will assist you.</p>
+                        <p class="text-[11px] text-slate-400">If your order is not listed here or details are incorrect, submit a ticket for assistance.</p>
                     </div>
                 </div>
                 <a href="/member/queries" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-950 text-white font-bold text-[11px] px-4 py-2 rounded-xl transition-all shadow uppercase tracking-wider text-center flex-shrink-0 flex items-center justify-center gap-1.5 cursor-pointer">
@@ -118,7 +120,6 @@
 
     </main>
 
-    <!-- 🌐 FOOTER -->
     <footer class="bg-white/60 backdrop-blur-md border-t border-slate-100 py-4 text-center text-[10px] font-medium text-slate-400 px-4 relative z-10 w-full overflow-hidden">
         &copy; 2026 Avira Lifecare. Official Tracking & Dispatch Network.
     </footer>
@@ -129,7 +130,8 @@
 
         document.getElementById('memberTrackForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const memberId = document.getElementById('memberIdInput').value.trim();
+            const rawMemberId = document.getElementById('memberIdInput').value.trim();
+            const memberId = sanitizeString(rawMemberId);
             if(!memberId) return;
 
             const submitBtn = this.querySelector('button[type="submit"]');
@@ -191,20 +193,27 @@
 
                 displayData.forEach((item, index) => {
                     const uniqueBtnId = `copy-btn-${index}`;
+                    const safeName = escapeHTML(item.name || '');
+                    const safeMemberId = escapeHTML(item.memberId || '');
+                    const safeOrderDate = escapeHTML(item.orderDate || 'Processing');
+                    const safePv = escapeHTML(String(item.pv || 0));
+                    const safeAmount = escapeHTML(String(item.amount || 0));
+                    const safeTracking = escapeHTML(item.tracking || '');
+
                     list.innerHTML += `
                         <div class="premium-card rounded-2xl shadow-md overflow-hidden bg-white/95 border border-slate-200/60">
                             <div class="px-4 sm:px-5 py-3.5 bg-slate-50/80 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-3 gap-2">
                                 <div>
                                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide">Customer Name</p>
-                                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 uppercase mt-0.5 break-words">${item.name}</h4>
+                                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 uppercase mt-0.5 break-words">${safeName}</h4>
                                 </div>
                                 <div>
                                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide">Member ID</p>
-                                    <h4 class="text-xs sm:text-sm font-mono font-bold text-emerald-600 mt-0.5">${item.memberId}</h4>
+                                    <h4 class="text-xs sm:text-sm font-mono font-bold text-emerald-600 mt-0.5">${safeMemberId}</h4>
                                 </div>
                                 <div class="col-span-2 sm:col-span-1 sm:text-right">
                                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide">Order Date</p>
-                                    <p class="text-xs font-bold text-slate-700 mt-0.5">${item.orderDate || 'Processing'}</p>
+                                    <p class="text-xs font-bold text-slate-700 mt-0.5">${safeOrderDate}</p>
                                 </div>
                             </div>
 
@@ -212,12 +221,12 @@
                                 <div class="flex flex-col">
                                     <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Business Status</span>
                                     <div>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mt-1 font-mono">${item.pv} PV</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 mt-1 font-mono">${safePv} PV</span>
                                     </div>
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Invoice Amount</span>
-                                    <span class="text-sm sm:text-base font-black text-slate-900 mt-0.5 font-mono">₹${item.amount}</span>
+                                    <span class="text-sm sm:text-base font-black text-slate-900 mt-0.5 font-mono">₹${safeAmount}</span>
                                 </div>
                             </div>
 
@@ -236,20 +245,20 @@
                                             <div class="h-6 w-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] flex-shrink-0 shadow-sm mt-0.5"><i class="fa-solid fa-truck-ramp-box"></i></div>
                                             <div class="min-w-0">
                                                 <h5 class="text-[11px] font-bold text-slate-900">India Post Barcode / Tracking Number</h5>
-                                                <p class="text-sm sm:text-base font-mono font-black text-slate-900 tracking-wider mt-0.5 select-all break-all">${item.tracking || 'ALLOCATING'}</p>
+                                                <p class="text-sm sm:text-base font-mono font-black text-slate-900 tracking-wider mt-0.5 select-all break-all">${safeTracking || 'ALLOCATING'}</p>
                                             </div>
                                         </div>
                                         
-                                        ${item.tracking ? `
-                                            <button type="button" id="${uniqueBtnId}" onclick="copyToClipboard('${item.tracking}', '${uniqueBtnId}')" class="inline-flex items-center justify-center gap-1 bg-white hover:bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-200 transition-all cursor-pointer shadow-sm self-start sm:self-center flex-shrink-0">
+                                        ${safeTracking ? `
+                                            <button type="button" id="${uniqueBtnId}" onclick="copyToClipboard('${safeTracking}', '${uniqueBtnId}')" class="inline-flex items-center justify-center gap-1 bg-white hover:bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-200 transition-all cursor-pointer shadow-sm self-start sm:self-center flex-shrink-0">
                                                 <i class="fa-solid fa-copy"></i> Copy
                                             </button>
                                         ` : ''}
                                     </div>
                                     
-                                    ${item.tracking ? `
+                                    ${safeTracking ? `
                                         <div class="pt-2 border-t border-slate-200/50 flex justify-end">
-                                            <a href="https://www.indiapost.gov.in/" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-950 text-white text-[10px] font-bold px-3.5 py-1.5 rounded-lg transition-all shadow-sm uppercase tracking-wide cursor-pointer text-center">
+                                            <a href="https://www.indiapost.gov.in/" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-950 text-white text-[10px] font-bold px-3.5 py-1.5 rounded-lg transition-all shadow-sm uppercase tracking-wide cursor-pointer text-center">
                                                 Track via India Post <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
                                             </a>
                                         </div>
@@ -270,6 +279,23 @@
                     </div>`;
                 wrapper.classList.remove('hidden');
             }
+        }
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>"'/]/g, function (s) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                    '/': '&#x2F;'
+                }[s];
+            });
+        }
+
+        function sanitizeString(str) {
+            return String(str || '').trim();
         }
     </script>
 </body>
