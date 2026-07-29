@@ -18,7 +18,7 @@
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <!-- 🌐 ડાયનેમિક લાઇટ ૩D એકોર્ડિયન સાઇડબાર મેનુબાર -->
+   
     <%- include('partials/admin_navbar') %>
 
     <!-- જમણી બાજુનો મુખ્ય કંટેન્ટ એરિયા -->
@@ -100,7 +100,7 @@
         </footer>
     </div>
 
-    <!-- ⚡ DYNAMIC LIVE MODAL BOX SYSTEM FOR EDITING SPECIFICATIONS -->
+    <!-- ⚡DYNAMIC LIVE MODAL BOX SYSTEM FOR EDITING SPECIFICATIONS -->
     <div id="editModal" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white rounded-2xl sm:rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-4 sm:p-8 border border-slate-200 shadow-2xl space-y-4 sm:space-y-5 box-border">
             <div class="flex justify-between items-center border-b pb-3 border-slate-100">
@@ -174,7 +174,7 @@
     <script>
         let newSelectedFiles = [];
 
-        // 🔮 ૧. ઓપન એડિટ મોડલ પોપઅપ
+        // 
         document.querySelectorAll('.edit-product-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.getElementById('editProductId').value = this.getAttribute('data-id');
@@ -220,7 +220,7 @@
             });
         });
 
-        // 📸 ૨. નવા એડ થનારા ફોટા માટેનું સ્માર્ટ લાઈવ પ્રીવ્યૂ
+        // 📸 ૨.  પ્રીવ્યૂ
         document.getElementById('editImageInput').addEventListener('change', function() {
             Array.from(this.files).forEach(file => {
                 newSelectedFiles.push(file);
@@ -263,7 +263,7 @@
             renderNewPreviews();
         }
 
-        // ❌ ૩. ક્લોઝ મોડલ પોપઅપ બોક્સ
+        // 
         function closeEditModal() {
             document.getElementById('editModal').classList.add('hidden');
             document.getElementById('editProductForm').reset();
@@ -279,7 +279,7 @@
             
             const formData = new FormData(this);
             
-            // નવા સિલેક્ટ કરેલા ફોટા FormData માં એડ કરો
+            // p
             newSelectedFiles.forEach(file => {
                 formData.append('productImages', file);
             });
@@ -304,7 +304,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert("સર્વર કનેક્શન પ્રોબ્લેમ અથવા એરર આવી છે!");
+                alert("Server Error Found");
                 submitBtn.innerText = "Save Changes →";
                 submitBtn.disabled = false;
             }
@@ -314,7 +314,7 @@
         document.querySelectorAll('.delete-product-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const id = this.getAttribute('data-id');
-                if(confirm("સાવધાન! શું તમે આ પ્રોડક્ટને ડેટાબેઝમાંથી કાયમ માટે ડીલીટ કરવા માંગો છો?")) {
+                if(confirm("Are u Sure?")) {
                     try {
                         const res = await fetch(`/admin/api/delete-product/${id}`, { method: 'DELETE' });
                         const data = await res.json();
