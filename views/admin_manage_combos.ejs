@@ -30,7 +30,7 @@
                     </button>
                 </div>
                 
-                <form id="comboForm" class="space-y-4 text-xs">
+                <form id="comboForm" class="space-y-4 text-xs" oninput="calculateLivePreview()">
                     <input type="hidden" id="comboId" value="">
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -46,7 +46,7 @@
                         <div>
                             <label class="block font-bold text-purple-600 mb-1 uppercase">Target Total PV (જેમ કે 500 PV)</label>
                             <input type="number" id="totalOfferPv" placeholder="e.g. 500" class="w-full px-3.5 py-2 bg-purple-50 border border-purple-300 text-purple-900 rounded-lg font-black focus:outline-none">
-                            <span class="text-[9px] text-slate-400 mt-0.5 block">*તફાવતના PV Offer PV માં ઉમેરાશે</span>
+                            <span class="text-[9px] text-slate-400 mt-0.5 block">*તફાવતના PV (Z = Y - X) Offer PV માં ઉમેરાશે</span>
                         </div>
                     </div>
 
@@ -106,6 +106,42 @@
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-xl space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <span class="font-black text-emerald-400 uppercase tracking-wider text-xs flex items-center gap-2">
+                                <i class="fa-solid fa-receipt"></i> Mini Invoice Live Calculation Summary
+                            </span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-bold border border-emerald-500/30">Auto Math Active</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-center">
+                            <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                                <span class="text-[9px] text-slate-400 font-bold block uppercase">Normal PV (X)</span>
+                                <span id="prevNormalPv" class="text-sm font-black text-white">0</span>
+                            </div>
+                            <div class="bg-purple-950/60 p-2.5 rounded-xl border border-purple-800/50">
+                                <span class="text-[9px] text-purple-300 font-bold block uppercase">Offer PV (Z)</span>
+                                <span id="prevOfferPv" class="text-sm font-black text-purple-300">0</span>
+                            </div>
+                            <div class="bg-purple-900/80 p-2.5 rounded-xl border border-purple-500">
+                                <span class="text-[9px] text-purple-200 font-bold block uppercase">Final Total PV (Y)</span>
+                                <span id="prevTotalPv" class="text-sm font-black text-purple-200">0</span>
+                            </div>
+                            <div class="bg-amber-950/60 p-2.5 rounded-xl border border-amber-800/50">
+                                <span class="text-[9px] text-amber-300 font-bold block uppercase">Total Offer Disc ₹</span>
+                                <span id="prevOfferDisc" class="text-sm font-black text-amber-300">₹0.00</span>
+                            </div>
+                            <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                                <span class="text-[9px] text-slate-400 font-bold block uppercase">Total Base Amt ₹</span>
+                                <span id="prevBaseAmt" class="text-sm font-black text-white">₹0.00</span>
+                            </div>
+                            <div class="bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-500">
+                                <span class="text-[9px] text-emerald-300 font-bold block uppercase">Final Net Amt ₹</span>
+                                <span id="prevNetAmt" class="text-sm font-black text-emerald-400 text-base">₹0.00</span>
                             </div>
                         </div>
                     </div>
@@ -216,6 +252,7 @@
             </div>
         `;
         container.appendChild(row);
+        calculateLivePreview();
     }
 
     // ❌ REMOVE PRODUCT ROW
@@ -223,9 +260,69 @@
         const rows = document.querySelectorAll('.prod-row');
         if (rows.length > 1) {
             btn.closest('.prod-row').remove();
+            calculateLivePreview();
         } else {
             alert("ઓછામાં ઓછી એક પ્રોડક્ટ તો રાખવી પડશે!");
         }
+    }
+
+    // 📊 CALCULATE LIVE MINI INVOICE PREVIEW
+    function calculateLivePreview() {
+        const rows = document.querySelectorAll('.prod-row');
+        const totalProductsCount = rows.length;
+        const totalOfferDiscountInput = parseFloat(document.getElementById('totalOfferDiscount').value) || 0;
+        const targetTotalPvInput = parseInt(document.getElementById('totalOfferPv').value) || 0;
+
+        let sumNormalPv = 0;
+        let sumBaseAmt = 0;
+        let sumNormalDisc = 0;
+
+        rows.forEach(r => {
+            const pPv = parseInt(r.querySelector('.p-pv').value) || 0;
+            const pQty = parseInt(r.querySelector('.p-qty').value) || 1;
+            const pNet = parseFloat(r.querySelector('.p-net').value) || 0;
+            const pDisc = parseFloat(r.querySelector('.p-discount').value) || 0;
+
+            sumNormalPv += (pPv * pQty);
+            sumBaseAmt += pNet;
+            sumNormalDisc += pDisc;
+        });
+
+        let totalOfferPvNeeded = 0;
+        if (targetTotalPvInput > sumNormalPv) {
+            totalOfferPvNeeded = targetTotalPvInput - sumNormalPv; // Z = Y - X
+        } else if (targetTotalPvInput > 0) {
+            totalOfferPvNeeded = targetTotalPvInput;
+        }
+
+        const baseOfferPv = totalProductsCount > 0 ? Math.floor(totalOfferPvNeeded / totalProductsCount) : 0;
+        let remainderPv = totalProductsCount > 0 ? (totalOfferPvNeeded % totalProductsCount) : 0;
+        const baseOfferDisc = totalProductsCount > 0 ? parseFloat((totalOfferDiscountInput / totalProductsCount).toFixed(2)) : 0;
+
+        let runningOfferDiscSum = 0;
+
+        rows.forEach((r, idx) => {
+            let rowOfferPv = baseOfferPv + (idx < remainderPv ? 1 : 0);
+            let rowOfferDisc = baseOfferDisc;
+            if (idx === totalProductsCount - 1 && totalProductsCount > 1) {
+                rowOfferDisc = parseFloat((totalOfferDiscountInput - runningOfferDiscSum).toFixed(2));
+            } else {
+                runningOfferDiscSum += rowOfferDisc;
+            }
+
+            r.querySelector('.p-offer-pv').value = rowOfferPv;
+            r.querySelector('.p-offer-discount').value = rowOfferDisc;
+        });
+
+        const finalNetAmt = Math.max(0, sumBaseAmt - sumNormalDisc - totalOfferDiscountInput);
+        const finalTotalPv = sumNormalPv + totalOfferPvNeeded;
+
+        document.getElementById('prevNormalPv').innerText = sumNormalPv;
+        document.getElementById('prevOfferPv').innerText = totalOfferPvNeeded;
+        document.getElementById('prevTotalPv').innerText = finalTotalPv;
+        document.getElementById('prevOfferDisc').innerText = '₹' + totalOfferDiscountInput.toFixed(2);
+        document.getElementById('prevBaseAmt').innerText = '₹' + sumBaseAmt.toFixed(2);
+        document.getElementById('prevNetAmt').innerText = '₹' + finalNetAmt.toFixed(2);
     }
 
     // ✏️ EDIT & VIEW COMBO PRESET
@@ -254,7 +351,6 @@
             });
 
             document.getElementById('totalOfferDiscount').value = totOfferDisc > 0 ? totOfferDisc : '';
-            // Display total PV target (Normal PV + Offer PV)
             document.getElementById('totalOfferPv').value = (totNormalPv + totOfferPv) > 0 ? (totNormalPv + totOfferPv) : '';
 
             products.forEach(p => addProductRow(p));
@@ -280,7 +376,7 @@
         addProductRow();
     }
 
-    // 💾 SAVE / UPDATE COMBO FORM SUBMIT WITH SMART PV & OFFER DISCOUNT LOGIC
+    // 💾 SAVE / UPDATE COMBO FORM SUBMIT
     document.getElementById('comboForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -292,7 +388,7 @@
         const rows = document.querySelectorAll('.prod-row');
         const totalProductsCount = rows.length;
 
-        // 🎯 1. Calculate sum of Normal PV across all items
+        // Calculate sum of Normal PV
         let sumNormalPv = 0;
         rows.forEach(r => {
             const pPv = parseInt(r.querySelector('.p-pv').value) || 0;
@@ -300,18 +396,18 @@
             sumNormalPv += (pPv * pQty);
         });
 
-        // 🎯 2. Calculate remaining extra PV difference (e.g., 500 - 402 = 98 PV)
-        let extraPvTotal = 0;
+        let totalOfferPvNeeded = 0;
         if (targetTotalPvInput > sumNormalPv) {
-            extraPvTotal = targetTotalPvInput - sumNormalPv;
-        } else {
-            extraPvTotal = targetTotalPvInput;
+            totalOfferPvNeeded = targetTotalPvInput - sumNormalPv;
+        } else if (targetTotalPvInput > 0) {
+            totalOfferPvNeeded = targetTotalPvInput;
         }
 
-        // 🎯 3. Equal distribution across products
-        const perProductOfferPv = totalProductsCount > 0 ? Math.floor(extraPvTotal / totalProductsCount) : 0;
-        const perProductOfferDiscount = totalProductsCount > 0 ? parseFloat((totalOfferDiscountInput / totalProductsCount).toFixed(2)) : 0;
+        const baseOfferPv = totalProductsCount > 0 ? Math.floor(totalOfferPvNeeded / totalProductsCount) : 0;
+        let remainderPv = totalProductsCount > 0 ? (totalOfferPvNeeded % totalProductsCount) : 0;
+        const baseOfferDisc = totalProductsCount > 0 ? parseFloat((totalOfferDiscountInput / totalProductsCount).toFixed(2)) : 0;
 
+        let runningOfferDiscSum = 0;
         let products = [];
 
         rows.forEach((r, idx) => {
@@ -321,17 +417,21 @@
             const qty = parseInt(r.querySelector('.p-qty').value) || 1;
             const normalPv = parseInt(r.querySelector('.p-pv').value) || 0;
 
-            // Set visual value in readonly fields
-            r.querySelector('.p-offer-discount').value = perProductOfferDiscount;
-            r.querySelector('.p-offer-pv').value = perProductOfferPv;
+            let rowOfferPv = baseOfferPv + (idx < remainderPv ? 1 : 0);
+            let rowOfferDisc = baseOfferDisc;
+            if (idx === totalProductsCount - 1 && totalProductsCount > 1) {
+                rowOfferDisc = parseFloat((totalOfferDiscountInput - runningOfferDiscSum).toFixed(2));
+            } else {
+                runningOfferDiscSum += rowOfferDisc;
+            }
 
-            // 🎯 GST ON BASE AMOUNT
+            // GST on base amount
             const taxableVal = parseFloat((baseAmount / (1 + (gstPct / 100))).toFixed(2));
             const gstAmt = parseFloat((baseAmount - taxableVal).toFixed(2));
             const rate = parseFloat((taxableVal / qty).toFixed(2));
 
-            // 🎯 FINAL NET AMOUNT CUTS BOTH NORMAL DISCOUNT AND PER-PRODUCT OFFER DISCOUNT
-            const finalNetAmt = parseFloat((baseAmount - discount - perProductOfferDiscount).toFixed(2));
+            // Net Amount minus normal discount and offer discount
+            const finalNetAmt = parseFloat((baseAmount - discount - rowOfferDisc).toFixed(2));
 
             products.push({
                 sr: idx + 1,
@@ -339,14 +439,14 @@
                 hsn: r.querySelector('.p-hsn').value.trim(),
                 qty: qty,
                 rate: rate,
-                pv: normalPv,
-                offer_pv: perProductOfferPv,                   // 🎯 DIFFERENCE OFFER PV
+                pv: normalPv,                       // Normal PV (X)
+                offer_pv: rowOfferPv,               // Exact Difference Offer PV (Z)
                 discount: discount,
-                offer_discount: perProductOfferDiscount,       // 🎯 OFFER DISCOUNT CUT
+                offer_discount: rowOfferDisc,       // Offer Discount
                 taxable_val: taxableVal,
                 gst_pct: gstPct,
                 gst_amt: gstAmt,
-                net_amt: finalNetAmt                           // 🎯 FINAL CUT AMOUNT
+                net_amt: finalNetAmt
             });
         });
 
