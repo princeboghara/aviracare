@@ -178,7 +178,7 @@
                                             <%= Array.isArray(c.products) ? c.products.length : JSON.parse(c.products || '[]').length %> Items
                                         </td>
                                         <td class="p-4 text-center space-x-2">
-                                            <button onclick='editCombo(<%- JSON.stringify(c) %>)' class="text-blue-600 font-bold hover:text-blue-800 uppercase text-[10px] border border-blue-200 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-all">
+                                            <button data-combo='<%- JSON.stringify(c) %>' onclick="editCombo(this)" class="text-blue-600 font-bold hover:text-blue-800 uppercase text-[10px] border border-blue-200 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-all">
                                                 <i class="fa-solid fa-pen-to-square mr-1"></i> View / Edit
                                             </button>
                                             <button onclick="deleteCombo('<%= c.id %>')" class="text-rose-500 font-bold hover:text-rose-700 uppercase text-[10px] border border-rose-200 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition-all">
@@ -290,7 +290,7 @@
 
         let totalOfferPvNeeded = 0;
         if (targetTotalPvInput > sumNormalPv) {
-            totalOfferPvNeeded = targetTotalPvInput - sumNormalPv; // Z = Y - X
+            totalOfferPvNeeded = targetTotalPvInput - sumNormalPv;
         } else if (targetTotalPvInput > 0) {
             totalOfferPvNeeded = targetTotalPvInput;
         }
@@ -326,7 +326,9 @@
     }
 
     // ✏️ EDIT & VIEW COMBO PRESET
-    function editCombo(comboData) {
+    function editCombo(btn) {
+        const comboData = JSON.parse(btn.getAttribute('data-combo'));
+
         document.getElementById('comboId').value = comboData.id;
         document.getElementById('comboName').value = comboData.combo_name;
 
