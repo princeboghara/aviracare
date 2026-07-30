@@ -1101,55 +1101,94 @@ app.delete('/admin/api/delete-box-preset/:id', checkAdmin, async (req, res) => {
     }
 });
 // =============================================================
-// 🎛️ 1. COMBO MASTER SETTINGS APIs (Add/Edit/Delete Combos)
+// 🎛️ 1. COMBO MASTER SETTINGS APIs (Add/Edit/View/Delete Combos)
 // =============================================================
 
-// Get All Combos
+// 1. Get All Combos (બધા કોમ્બો લાવો)
 app.get('/admin/api/get-combos', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
         res.json({ success: true, combos: result.rows });
     } catch (err) {
+        console.error("Fetch Combos Error:", err);
         res.json({ success: false, msg: err.message });
     }
 });
 
-// Add or Update Combo
+// 2. Get Single Combo by ID (કોઈ એક કોમ્બો View / Edit કરવા માટે)
+app.get('/admin/api/get-combo/:id', checkAdmin, async (req, res) => {
+    try {
+        const comboId = parseInt(req.params.id);
+        const result = await db.query('SELECT * FROM combo_presets WHERE id = $1', [comboId]);
+        
+        if (result.rows.length === 0) {
+            return res.json({ success: false, msg: "કોમ્બો મળ્યો નથી!" });
+        }
+        
+        res.json({ success: true, combo: result.rows[0] });
+    } catch (err) {
+        console.error("Fetch Single Combo Error:", err);
+        res.json({ success: false, msg: err.message });
+    }
+});
+
+// 3. Add or Edit/Update Combo (નવો ઉમેરો અથવા જૂનો ડેટાબેઝમાં કાયમી અપડેટ કરો)
 app.post('/admin/api/save-combo', checkAdmin, async (req, res) => {
     try {
-        const { id, combo_name, products } = req.body; // products should be array of items
+        const { id, combo_name, products } = req.body;
 
-        if (id) {
-            // Update Existing Combo
-            await db.query(
-                'UPDATE combo_presets SET combo_name = $1, products = $2 WHERE id = $3',
-                [combo_name.trim(), JSON.stringify(products), id]
-            );
+        if (!combo_name || !products) {
+            return res.json({ success: false, msg: "કોમ્બોનું નામ અને પ્રોડક્ટ્સ જરૂરી છે!" });
+        }
+
+        const productsJson = typeof products === 'string' ? products : JSON.stringify(products);
+
+        if (id && parseInt(id) > 0) {
+            // 🔄 UPDATE Existing Combo permanently in Database
+            const updateQuery = `
+                UPDATE combo_presets 
+                SET combo_name = $1, products = $2 
+                WHERE id = $3 
+                RETURNING *;
+            `;
+            await db.query(updateQuery, [combo_name.trim(), productsJson, parseInt(id)]);
         } else {
-            // Create New Combo
-            await db.query(
-                'INSERT INTO combo_presets (combo_name, products) VALUES ($1, $2)',
-                [combo_name.trim(), JSON.stringify(products)]
-            );
+            // ➕ CREATE New Combo in Database
+            const insertQuery = `
+                INSERT INTO combo_presets (combo_name, products) 
+                VALUES ($1, $2) 
+                RETURNING *;
+            `;
+            await db.query(insertQuery, [combo_name.trim(), productsJson]);
         }
 
         const result = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
-        res.json({ success: true, msg: "Combo saved successfully! 🚀", combos: result.rows });
+        res.json({ 
+            success: true, 
+            msg: id ? "ડેટાબેઝમાં કોમ્બો સફળતાપૂર્વક અપડેટ થઈ ગયો છે! 🚀" : "નવો કોમ્બો સેવ થઈ ગયો છે! 🎉", 
+            combos: result.rows 
+        });
+
     } catch (err) {
+        console.error("Save Combo Error:", err);
         res.json({ success: false, msg: err.message });
     }
 });
 
-// Delete Combo
+// 4. Delete Combo (ડેટાબેઝમાંથી કોમ્બો ડીલીટ કરો)
 app.delete('/admin/api/delete-combo/:id', checkAdmin, async (req, res) => {
     try {
-        await db.query('DELETE FROM combo_presets WHERE id = $1', [req.params.id]);
+        const comboId = parseInt(req.params.id);
+        await db.query('DELETE FROM combo_presets WHERE id = $1', [comboId]);
+        
         const result = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
-        res.json({ success: true, msg: "Combo deleted!", combos: result.rows });
+        res.json({ success: true, msg: "કોમ્બો ડેટાબેઝમાંથી ડિલીટ થયો!", combos: result.rows });
     } catch (err) {
+        console.error("Delete Combo Error:", err);
         res.json({ success: false, msg: err.message });
     }
 });
+
 // 📥 PROCESS BILLS API (FULL DATA EXTRACTION)
 app.post('/admin/api/process-bills', checkAdmin, upload.array('billFiles', 10), async (req, res) => {
     try {
