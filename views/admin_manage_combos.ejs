@@ -21,11 +21,18 @@
         <main class="flex-grow max-w-7xl w-full mx-auto p-6 space-y-6">
 
             <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-md space-y-4">
-                <h3 class="text-sm font-black text-slate-900 uppercase flex items-center gap-2">
-                    <i class="fa-solid fa-plus-circle text-emerald-500"></i> Add New Combo Breakup Preset
-                </h3>
+                <div class="flex justify-between items-center">
+                    <h3 id="formHeading" class="text-sm font-black text-slate-900 uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-emerald-500"></i> Add New Combo Breakup Preset
+                    </h3>
+                    <button type="button" id="btnCancelEdit" onclick="resetForm()" class="hidden bg-slate-200 text-slate-700 hover:bg-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg uppercase transition-all">
+                        <i class="fa-solid fa-xmark mr-1"></i> Cancel Edit
+                    </button>
+                </div>
                 
                 <form id="comboForm" class="space-y-4 text-xs">
+                    <input type="hidden" id="comboId" value="">
+
                     <div>
                         <label class="block font-bold text-slate-500 mb-1 uppercase">Combo Title (Exact Name in Bill)</label>
                         <input type="text" id="comboName" required placeholder="e.g. Offer Combo 2200/-" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold uppercase focus:outline-none focus:border-emerald-500">
@@ -92,7 +99,7 @@
                     </div>
 
                     <div class="flex justify-end pt-2">
-                        <button type="submit" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-xs px-8 py-3.5 rounded-xl uppercase tracking-widest shadow-md transition-all">
+                        <button type="submit" id="btnSubmitCombo" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-xs px-8 py-3.5 rounded-xl uppercase tracking-widest shadow-md transition-all">
                             Save Combo To System
                         </button>
                     </div>
@@ -119,8 +126,14 @@
                                 <% combos.forEach(c => { %>
                                     <tr class="hover:bg-slate-50">
                                         <td class="p-4 font-bold text-slate-900 uppercase"><%= c.combo_name %></td>
-                                        <td class="p-4 font-mono font-bold text-emerald-600"><%= Array.isArray(c.products) ? c.products.length : JSON.parse(c.products || '[]').length %> Items</td>
-                                        <td class="p-4 text-center">
+                                        <td class="p-4 font-mono font-bold text-emerald-600">
+                                            <%= Array.isArray(c.products) ? c.products.length : JSON.parse(c.products || '[]').length %> Items
+                                        </td>
+                                        <td class="p-4 text-center space-x-2">
+                                            <button onclick='editCombo(<%- JSON.stringify(c) %>)' class="text-blue-600 font-bold hover:text-blue-800 uppercase text-[10px] border border-blue-200 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-all">
+                                                <i class="fa-solid fa-pen-to-square mr-1"></i> View / Edit
+                                            </button>
+
                                             <button onclick="deleteCombo('<%= c.id %>')" class="text-rose-500 font-bold hover:text-rose-700 uppercase text-[10px] border border-rose-200 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition-all">
                                                 <i class="fa-solid fa-trash mr-1"></i> Delete
                                             </button>
@@ -138,50 +151,51 @@
 
 <script>
     // ➕ ADD NEW PRODUCT ROW
-    function addProductRow() {
+    function addProductRow(data = null) {
         const container = document.getElementById('productRowsContainer');
         const row = document.createElement('div');
         row.className = 'bg-white p-4 rounded-xl border border-slate-200 prod-row shadow-sm space-y-3';
+        
         row.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                 <div class="md:col-span-4">
                     <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">Product Name</label>
-                    <input type="text" placeholder="Full Product Name" class="p-name w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:bg-white focus:border-emerald-500 focus:outline-none" required>
+                    <input type="text" placeholder="Full Product Name" class="p-name w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold uppercase focus:bg-white focus:border-emerald-500 focus:outline-none" value="${data ? data.product || '' : ''}" required>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">HSN Code</label>
-                    <input type="text" placeholder="e.g. 30045090" class="p-hsn w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:bg-white focus:border-emerald-500 focus:outline-none" required>
+                    <input type="text" placeholder="e.g. 30045090" class="p-hsn w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:bg-white focus:border-emerald-500 focus:outline-none" value="${data ? data.hsn || '' : ''}" required>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">Qty</label>
-                    <input type="number" placeholder="1" class="p-qty w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:bg-white focus:outline-none" value="1" required>
+                    <input type="number" placeholder="1" class="p-qty w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:bg-white focus:outline-none" value="${data ? data.qty || 1 : 1}" required>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">PV</label>
-                    <input type="number" placeholder="PV" class="p-pv w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:bg-white focus:outline-none">
+                    <input type="number" placeholder="PV" class="p-pv w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:bg-white focus:outline-none" value="${data ? data.pv || '' : ''}">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">Offer PV</label>
-                    <input type="number" placeholder="Offer PV" class="p-offer-pv w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none">
+                    <input type="number" placeholder="Offer PV" class="p-offer-pv w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none" value="${data ? data.offer_pv || '' : ''}">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end pt-1">
                 <div class="md:col-span-3">
                     <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">Discount (₹)</label>
-                    <input type="number" step="0.01" placeholder="0.00" class="p-discount w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none">
+                    <input type="number" step="0.01" placeholder="0.00" class="p-discount w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none" value="${data ? data.discount || '' : ''}">
                 </div>
                 <div class="md:col-span-3">
                     <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">Offer Discount (₹)</label>
-                    <input type="number" step="0.01" placeholder="0.00" class="p-offer-discount w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none">
+                    <input type="number" step="0.01" placeholder="0.00" class="p-offer-discount w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none" value="${data ? data.offer_discount || '' : ''}">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase">GST %</label>
-                    <input type="number" step="0.01" placeholder="e.g. 18" class="p-gst-pct w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:bg-white focus:outline-none">
+                    <input type="number" step="0.01" placeholder="e.g. 18" class="p-gst-pct w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:bg-white focus:outline-none" value="${data ? data.gst_pct || '' : ''}">
                 </div>
                 <div class="md:col-span-3">
                     <label class="block text-[10px] font-black text-emerald-600 mb-1 uppercase">Net Amount (₹)</label>
-                    <input type="number" step="0.01" placeholder="Amount ₹" class="p-net w-full px-3 py-2 bg-emerald-50 border border-emerald-300 rounded-lg text-xs font-black text-emerald-900 focus:outline-none" required>
+                    <input type="number" step="0.01" placeholder="Amount ₹" class="p-net w-full px-3 py-2 bg-emerald-50 border border-emerald-300 rounded-lg text-xs font-black text-emerald-900 focus:outline-none" value="${data ? (data.net_amt + (data.discount || 0) + (data.offer_discount || 0)) : ''}" required>
                 </div>
                 <div class="md:col-span-1 flex justify-end">
                     <button type="button" onclick="removeProductRow(this)" class="bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white w-full py-2 rounded-lg font-bold transition-all" title="Delete Product">
@@ -203,10 +217,49 @@
         }
     }
 
-    // 💾 SAVE COMBO FORM SUBMIT
+    // ✏️ EDIT & VIEW COMBO PRESET
+    function editCombo(comboData) {
+        document.getElementById('comboId').value = comboData.id;
+        document.getElementById('comboName').value = comboData.combo_name;
+
+        document.getElementById('formHeading').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-500"></i> Edit Combo Breakup Preset`;
+        document.getElementById('btnSubmitCombo').innerText = "Update Combo In System";
+        document.getElementById('btnCancelEdit').classList.remove('hidden');
+
+        // Clear existing product rows
+        const container = document.getElementById('productRowsContainer');
+        container.innerHTML = '';
+
+        let products = typeof comboData.products === 'string' ? JSON.parse(comboData.products) : comboData.products;
+
+        if (Array.isArray(products) && products.length > 0) {
+            products.forEach(p => addProductRow(p));
+        } else {
+            addProductRow();
+        }
+
+        // Scroll to form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 🔄 RESET FORM (CANCEL EDIT)
+    function resetForm() {
+        document.getElementById('comboId').value = '';
+        document.getElementById('comboName').value = '';
+        document.getElementById('formHeading').innerHTML = `<i class="fa-solid fa-plus-circle text-emerald-500"></i> Add New Combo Breakup Preset`;
+        document.getElementById('btnSubmitCombo').innerText = "Save Combo To System";
+        document.getElementById('btnCancelEdit').classList.add('hidden');
+
+        const container = document.getElementById('productRowsContainer');
+        container.innerHTML = '';
+        addProductRow();
+    }
+
+    // 💾 SAVE / UPDATE COMBO FORM SUBMIT
     document.getElementById('comboForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
+        const comboId = document.getElementById('comboId').value;
         const comboName = document.getElementById('comboName').value;
         const rows = document.querySelectorAll('.prod-row');
         let products = [];
@@ -243,15 +296,21 @@
             });
         });
 
+        const payload = {
+            id: comboId || null,
+            combo_name: comboName,
+            products: products
+        };
+
         try {
             const res = await fetch('/admin/api/save-combo', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ combo_name: comboName, products: products })
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
             if(data.success) { 
-                alert("કોમ્બો સફળતાપૂર્વક સેટ થઈ ગયો છે! 🎉");
+                alert(comboId ? "કોમ્બો સફળતાપૂર્વક અપડેટ થઈ ગયો છે! 🎉" : "કોમ્બો સફળતાપૂર્વક સેટ થઈ ગયો છે! 🎉");
                 location.reload(); 
             } else { 
                 alert(data.msg); 
