@@ -176,7 +176,7 @@ app.post('/admin/api/scan-ai-label', checkAdmin, memoryUpload.single('labelImage
     try {
         if (!req.file) return res.status(400).json({ success: false, msg: 'No image uploaded' });
 
-        const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
         const imagePart = {
             inlineData: {
@@ -1033,19 +1033,17 @@ app.post('/admin/api/update-product/:id', checkAdmin, upload.array('productImage
         res.json({ success: false, msg: "Failed to update product: " + error.message });
     }
 });
-// 🚀 ORDER MASTER - BULK DELETE API
+
 app.post('/admin/api/delete-bulk-orders', checkAdmin, async (req, res) => {
     try {
-        const { ids } = req.body; // ફ્રન્ટએન્ડ પરથી Array મોકલવો (ઉદા. [12, 13, 14])
+        const { ids } = req.body;
 
         if (!ids || !Array.isArray(ids) || ids.length === 0) {
             return res.json({ success: false, msg: "No Entries Are Selected." });
         }
 
-        // 1. Postgres માટે ANY($1) કવેરી વાપરીને એકસાથે બધી એન્ટ્રી ડિલીટ કરો
         await db.query('DELETE FROM orders_master WHERE id = ANY($1::int[])', [ids]);
 
-        // 2. તાજો અપડેટ થયેલો ડેટા પાછો મોકલો
         const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
         
         res.json({ 
@@ -1059,7 +1057,6 @@ app.post('/admin/api/delete-bulk-orders', checkAdmin, async (req, res) => {
         res.json({ success: false, msg: "સર્વર એરર: " + err.message });
     }
 });
-
 
 app.get('/admin/settings', checkAdmin, async (req, res) => {
     try {
@@ -1100,11 +1097,11 @@ app.delete('/admin/api/delete-box-preset/:id', checkAdmin, async (req, res) => {
         res.json({ success: false, msg: err.message });
     }
 });
+
 // =============================================================
-// 🎛️ 1. COMBO MASTER SETTINGS APIs (Add/Edit/View/Delete Combos)
+// 🎛️ COMBO MASTER SETTINGS APIs
 // =============================================================
 
-// 1. Get All Combos (બધા કોમ્બો લાવો)
 app.get('/admin/api/get-combos', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
@@ -1115,7 +1112,6 @@ app.get('/admin/api/get-combos', checkAdmin, async (req, res) => {
     }
 });
 
-// 2. Get Single Combo by ID (કોઈ એક કોમ્બો View / Edit કરવા માટે)
 app.get('/admin/api/get-combo/:id', checkAdmin, async (req, res) => {
     try {
         const comboId = parseInt(req.params.id);
@@ -1132,7 +1128,6 @@ app.get('/admin/api/get-combo/:id', checkAdmin, async (req, res) => {
     }
 });
 
-// 3. Add or Edit/Update Combo (નવો ઉમેરો અથવા જૂનો ડેટાબેઝમાં કાયમી અપડેટ કરો)
 app.post('/admin/api/save-combo', checkAdmin, async (req, res) => {
     try {
         const { id, combo_name, products } = req.body;
@@ -1144,7 +1139,6 @@ app.post('/admin/api/save-combo', checkAdmin, async (req, res) => {
         const productsJson = typeof products === 'string' ? products : JSON.stringify(products);
 
         if (id && parseInt(id) > 0) {
-            // 🔄 UPDATE Existing Combo permanently in Database
             const updateQuery = `
                 UPDATE combo_presets 
                 SET combo_name = $1, products = $2 
@@ -1153,7 +1147,6 @@ app.post('/admin/api/save-combo', checkAdmin, async (req, res) => {
             `;
             await db.query(updateQuery, [combo_name.trim(), productsJson, parseInt(id)]);
         } else {
-            // ➕ CREATE New Combo in Database
             const insertQuery = `
                 INSERT INTO combo_presets (combo_name, products) 
                 VALUES ($1, $2) 
@@ -1175,7 +1168,6 @@ app.post('/admin/api/save-combo', checkAdmin, async (req, res) => {
     }
 });
 
-// 4. Delete Combo (ડેટાબેઝમાંથી કોમ્બો ડીલીટ કરો)
 app.delete('/admin/api/delete-combo/:id', checkAdmin, async (req, res) => {
     try {
         const comboId = parseInt(req.params.id);
@@ -1189,7 +1181,9 @@ app.delete('/admin/api/delete-combo/:id', checkAdmin, async (req, res) => {
     }
 });
 
-// 📥 PROCESS BILLS API (FULL DATA EXTRACTION)
+// =============================================================
+// 📥 PROCESS BILLS API
+// =============================================================
 app.post('/admin/api/process-bills', checkAdmin, upload.array('billFiles', 10), async (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
@@ -1200,7 +1194,7 @@ app.post('/admin/api/process-bills', checkAdmin, upload.array('billFiles', 10), 
         const comboList = comboRes.rows || [];
 
         let convertedBills = [];
-        const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         for (let file of req.files) {
             let extractedData = {};
@@ -1279,7 +1273,6 @@ app.post('/admin/api/process-bills', checkAdmin, upload.array('billFiles', 10), 
                 };
             }
 
-            // Combo Swap Logic
             const comboSearchTerm = (extractedData.raw_combo_name || "").toLowerCase().trim();
             let matchedCombo = comboList.find(c => {
                 const dbComboName = (c.combo_name || "").toLowerCase().trim();
@@ -1361,7 +1354,8 @@ app.post('/admin/api/process-bills', checkAdmin, upload.array('billFiles', 10), 
         res.json({ success: false, msg: err.message });
     }
 });
-// 🔢 Helper Function: Convert Number to Words (e.g. 2200 -> Two Thousand Two Hundred Rupees Only)
+
+// 🔢 Helper Function: Convert Number to Words
 function numberToWords(num) {
     const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
     const b = ['', '', 'Twenty ', 'Thirty ', 'Forty ', 'Fifty ', 'Sixty ', 'Seventy ', 'Eighty ', 'Ninety '];
@@ -1381,7 +1375,9 @@ function numberToWords(num) {
     return inWords(n).trim() + ' Rupees Only';
 }
 
-// 🖨️ EXACT ORIGINAL TAX INVOICE PRINT / PREVIEW ROUTE
+// =============================================================
+// 🖨️ PERFECT A4 TAX INVOICE PREVIEW ROUTE
+// =============================================================
 app.get('/admin/api/print-bill/:id', checkAdmin, async (req, res) => {
     try {
         const billRes = await db.query('SELECT * FROM bill_history WHERE id = $1', [req.params.id]);
@@ -1389,7 +1385,6 @@ app.get('/admin/api/print-bill/:id', checkAdmin, async (req, res) => {
 
         const bill = billRes.rows[0];
 
-        // Parse Items SAFELY
         let items = [];
         if (Array.isArray(bill.items)) {
             items = bill.items;
@@ -1397,38 +1392,36 @@ app.get('/admin/api/print-bill/:id', checkAdmin, async (req, res) => {
             try { items = JSON.parse(bill.items); } catch (e) { items = []; }
         }
 
-        // Totals Calculations
         let totalQty = 0, totalPv = 0, totalOfferPv = 0;
-let totalDiscount = 0, totalOfferDiscount = 0, totalTaxable = 0, totalGstAmt = 0, totalNetAmt = 0;
-let primaryGstPct = 18;
+        let totalDiscount = 0, totalOfferDiscount = 0, totalTaxable = 0, totalGstAmt = 0, totalNetAmt = 0;
+        let primaryGstPct = 18;
 
-items.forEach(it => {
-    const qty = parseInt(it.qty) || 1;
-    const netAmt = parseFloat((it.net_amt || 0).toString().replace(/,/g, ''));
-    const gstPct = parseFloat((it.gst_pct || 18).toString().replace(/,/g, ''));
-    const discount = parseFloat((it.discount || 0).toString().replace(/,/g, ''));
-    const offerDiscount = parseFloat((it.offer_discount || 0).toString().replace(/,/g, ''));
-    
-    const taxableVal = it.taxable_val ? parseFloat(it.taxable_val) : parseFloat((netAmt / (1 + (gstPct / 100))).toFixed(2));
-    const gstAmt = it.gst_amt ? parseFloat(it.gst_amt) : parseFloat((netAmt - taxableVal).toFixed(2));
-    const rate = it.rate ? parseFloat(it.rate) : parseFloat((taxableVal / qty).toFixed(2));
+        items.forEach(it => {
+            const qty = parseInt(it.qty) || 1;
+            const netAmt = parseFloat((it.net_amt || 0).toString().replace(/,/g, ''));
+            const gstPct = parseFloat((it.gst_pct || 18).toString().replace(/,/g, ''));
+            const discount = parseFloat((it.discount || 0).toString().replace(/,/g, ''));
+            const offerDiscount = parseFloat((it.offer_discount || 0).toString().replace(/,/g, ''));
+            
+            const taxableVal = it.taxable_val ? parseFloat(it.taxable_val) : parseFloat((netAmt / (1 + (gstPct / 100))).toFixed(2));
+            const gstAmt = it.gst_amt ? parseFloat(it.gst_amt) : parseFloat((netAmt - taxableVal).toFixed(2));
+            const rate = it.rate ? parseFloat(it.rate) : parseFloat((taxableVal / qty).toFixed(2));
 
-    it.calculated_rate = rate;
-    it.calculated_taxable = taxableVal;
-    it.calculated_gst = gstAmt;
+            it.calculated_rate = rate;
+            it.calculated_taxable = taxableVal;
+            it.calculated_gst = gstAmt;
 
-    totalQty += qty;
-    totalPv += parseFloat((it.pv || 0).toString().replace(/,/g, ''));
-    totalOfferPv += parseFloat((it.offer_pv || 0).toString().replace(/,/g, ''));
-    totalDiscount += discount;
-    totalOfferDiscount += offerDiscount;
-    totalTaxable += taxableVal;
-    totalGstAmt += gstAmt;
-    totalNetAmt += netAmt; // Total માં પણ માઈનસ થયેલું Net Amount જ પ્લસ થશે
-    if (gstPct) primaryGstPct = gstPct;
-});
+            totalQty += qty;
+            totalPv += parseFloat((it.pv || 0).toString().replace(/,/g, ''));
+            totalOfferPv += parseFloat((it.offer_pv || 0).toString().replace(/,/g, ''));
+            totalDiscount += discount;
+            totalOfferDiscount += offerDiscount;
+            totalTaxable += taxableVal;
+            totalGstAmt += gstAmt;
+            totalNetAmt += netAmt;
+            if (gstPct) primaryGstPct = gstPct;
+        });
 
-        // Determine State Tax Breakdown (CGST+SGST vs IGST)
         const buyerState = (bill.buyer_state || '').toLowerCase().trim();
         const isInterState = buyerState !== 'gujarat' && buyerState !== 'gj';
 
@@ -1441,23 +1434,76 @@ items.forEach(it => {
             <meta charset="utf-8">
             <title>Tax Invoice - ${bill.invoice_no || 'Invoice'}</title>
             <style>
-                @page { size: A4; margin: 6mm; }
+                @page { 
+                    size: A4 portrait; 
+                    margin: 0; 
+                }
+                
                 * { box-sizing: border-box; }
-                body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5px; color: #000; margin: 0; padding: 0; background: #525659; }
-                
-                .action-bar { position: sticky; top: 0; background: #2a2e33; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
-                .btn { background: #10b981; color: white; border: none; padding: 7px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; text-decoration: none; font-size: 11px; }
-                .btn-secondary { background: #6b7280; margin-right: 5px; }
 
-                .preview-wrapper { padding: 15px 5px; }
-                .invoice-container { border: 1.5px solid #000; padding: 8px; max-width: 820px; margin: auto; background: white; box-shadow: 0 0 12px rgba(0,0,0,0.3); }
-                
+                body { 
+                    font-family: Arial, Helvetica, sans-serif; 
+                    font-size: 9px; 
+                    color: #000; 
+                    margin: 0; 
+                    padding: 0; 
+                    background: #1e293b; 
+                }
+
+                .action-bar { 
+                    position: sticky; 
+                    top: 0; 
+                    background: #0f172a; 
+                    padding: 12px 24px; 
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center; 
+                    color: white; 
+                    z-index: 1000; 
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
+                    border-bottom: 1px solid #334155;
+                }
+
+                .btn { 
+                    background: #10b981; 
+                    color: white; 
+                    border: none; 
+                    padding: 8px 18px; 
+                    border-radius: 8px; 
+                    font-weight: bold; 
+                    cursor: pointer; 
+                    font-size: 11px; 
+                    text-decoration: none; 
+                    display: inline-flex; 
+                    align-items: center; 
+                    gap: 6px;
+                    transition: all 0.2s;
+                }
+
+                .btn-secondary { background: #475569; margin-right: 8px; }
+                .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+                .preview-wrapper { 
+                    padding: 24px 0; 
+                    display: flex; 
+                    justify-content: center; 
+                }
+
+                /* 📄 EXACT REAL A4 SHEET CONTAINER */
+                .invoice-container { 
+                    width: 210mm; 
+                    min-height: 297mm; 
+                    padding: 10mm; 
+                    background: white; 
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+                    margin: auto;
+                }
+
                 .doc-type { text-align: right; font-size: 8px; font-weight: bold; margin-bottom: 2px; }
-                
                 .top-header { text-align: center; position: relative; padding-bottom: 4px; }
-                .logo-img { position: absolute; left: 5px; top: 0; width: 65px; height: auto; }
-                .company-name { font-size: 17px; font-weight: bold; font-family: 'Times New Roman', Times, serif; }
-                .company-address { font-size: 8.5px; margin-top: 1px; line-height: 1.2; }
+                .logo-img { position: absolute; left: 0; top: 0; width: 65px; height: auto; }
+                .company-name { font-size: 18px; font-weight: bold; font-family: 'Times New Roman', Times, serif; }
+                .company-address { font-size: 8.5px; margin-top: 2px; line-height: 1.2; }
                 .gstin-right { text-align: right; font-weight: bold; font-size: 9px; margin-top: -8px; }
 
                 .tax-invoice-bar { border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: center; font-weight: bold; font-size: 11px; padding: 2px; margin: 4px 0; background: #ffffff; }
@@ -1480,14 +1526,19 @@ items.forEach(it => {
                     .action-bar { display: none !important; }
                     body { background: white !important; }
                     .preview-wrapper { padding: 0 !important; }
-                    .invoice-container { box-shadow: none !important; border: 1px solid #000 !important; width: 100% !important; max-width: 100% !important; }
+                    .invoice-container { 
+                        box-shadow: none !important; 
+                        border: none !important; 
+                        width: 100% !important; 
+                        padding: 5mm !important; 
+                    }
                 }
             </style>
         </head>
         <body>
 
             <div class="action-bar">
-                <div style="font-weight: bold;">📄 Tax Invoice Preview (Inv No: ${bill.invoice_no || 'N/A'})</div>
+                <div style="font-weight: bold; font-size: 13px;">📄 Tax Invoice Preview (Inv No: #${bill.invoice_no || 'N/A'})</div>
                 <div>
                     <button class="btn btn-secondary" onclick="window.close()">Close</button>
                     <button class="btn" onclick="window.print()">🖨️ Download / Print PDF</button>
@@ -1687,17 +1738,8 @@ items.forEach(it => {
         res.status(500).send("Error rendering bill preview: " + err.message);
     }
 });
-// Render Main Page Route
-app.get('/admin/bill-uploader', checkAdmin, async (req, res) => {
-    try {
-        const bills = await db.query('SELECT * FROM bill_history ORDER BY id DESC');
-        const combos = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
-        res.render('admin_bill_uploader', { bills: bills.rows || [], combos: combos.rows || [] });
-    } catch (e) {
-        res.render('admin_bill_uploader', { bills: [], combos: [] });
-    }
-});
-// 1. Manage Combos Page Render
+
+// Manage Combos Page Render
 app.get('/admin/manage-combos', checkAdmin, async (req, res) => {
     try {
         const combos = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
@@ -1707,7 +1749,7 @@ app.get('/admin/manage-combos', checkAdmin, async (req, res) => {
     }
 });
 
-// 2. Bill Uploader Page Render
+// Bill Uploader Page Render
 app.get('/admin/bill-uploader', checkAdmin, async (req, res) => {
     try {
         const bills = await db.query('SELECT * FROM bill_history ORDER BY id DESC');
