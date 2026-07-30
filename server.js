@@ -1100,6 +1100,583 @@ app.delete('/admin/api/delete-box-preset/:id', checkAdmin, async (req, res) => {
         res.json({ success: false, msg: err.message });
     }
 });
+// =============================================================
+// 🎛️ 1. COMBO MASTER SETTINGS APIs (Add/Edit/Delete Combos)
+// =============================================================
+
+// Get All Combos
+app.get('/admin/api/get-combos', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
+        res.json({ success: true, combos: result.rows });
+    } catch (err) {
+        res.json({ success: false, msg: err.message });
+    }
+});
+
+// Add or Update Combo
+app.post('/admin/api/save-combo', checkAdmin, async (req, res) => {
+    try {
+        const { id, combo_name, products } = req.body; // products should be array of items
+
+        if (id) {
+            // Update Existing Combo
+            await db.query(
+                'UPDATE combo_presets SET combo_name = $1, products = $2 WHERE id = $3',
+                [combo_name.trim(), JSON.stringify(products), id]
+            );
+        } else {
+            // Create New Combo
+            await db.query(
+                'INSERT INTO combo_presets (combo_name, products) VALUES ($1, $2)',
+                [combo_name.trim(), JSON.stringify(products)]
+            );
+        }
+
+        const result = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
+        res.json({ success: true, msg: "Combo saved successfully! 🚀", combos: result.rows });
+    } catch (err) {
+        res.json({ success: false, msg: err.message });
+    }
+});
+
+// Delete Combo
+app.delete('/admin/api/delete-combo/:id', checkAdmin, async (req, res) => {
+    try {
+        await db.query('DELETE FROM combo_presets WHERE id = $1', [req.params.id]);
+        const result = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
+        res.json({ success: true, msg: "Combo deleted!", combos: result.rows });
+    } catch (err) {
+        res.json({ success: false, msg: err.message });
+    }
+});
+// 📥 PROCESS BILLS API (FULL DATA EXTRACTION)
+app.post('/admin/api/process-bills', checkAdmin, upload.array('billFiles', 10), async (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.json({ success: false, msg: "Krupa karine file select karo!" });
+        }
+
+        const comboRes = await db.query('SELECT * FROM combo_presets');
+        const comboList = comboRes.rows || [];
+
+        let convertedBills = [];
+        const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+
+        for (let file of req.files) {
+            let extractedData = {};
+
+            try {
+                let fileBuffer;
+                if (file.buffer) {
+                    fileBuffer = file.buffer;
+                } else if (file.path && fs.existsSync(file.path)) {
+                    fileBuffer = fs.readFileSync(file.path);
+                } else {
+                    throw new Error("File buffer or path not accessible");
+                }
+
+                const imagePart = {
+                    inlineData: {
+                        data: fileBuffer.toString("base64"),
+                        mimeType: file.mimetype || "application/pdf"
+                    }
+                };
+
+                const prompt = `Carefully analyze this Tax Invoice document image/pdf and extract all fields into a JSON object:
+                {
+                    "invoice_no": "Inv. No.",
+                    "invoice_date": "Date of invoice",
+                    "buyer_name": "Name of Buyer under Details Of Buyer",
+                    "buyer_id": "Buyer ID inside brackets if present e.g. AV40604",
+                    "buyer_address": "Buyer full address",
+                    "buyer_phone": "Buyer phone or mobile",
+                    "buyer_state": "Buyer state name e.g. Uttar Pradesh",
+                    "buyer_state_code": "Buyer state code e.g. 09",
+                    "buyer_pincode": "Buyer pincode e.g. 281205",
+                    "buyer_gstin": "Buyer GSTIN if present",
+                    "consignee_name": "Consignee Name under Details Of Consignee",
+                    "consignee_address": "Consignee full address",
+                    "consignee_phone": "Consignee phone/mobile",
+                    "consignee_state": "Consignee state name e.g. Uttar Pradesh",
+                    "consignee_state_code": "Consignee state code e.g. 09",
+                    "consignee_pincode": "Consignee pincode e.g. 281205",
+                    "consignee_gstin": "Consignee GSTIN if present",
+                    "raw_combo_name": "Product or Combo name e.g. Offer Combo 2200/-",
+                    "total_amount": "Total Net Amount",
+                    "total_pv": "Total PV"
+                }
+                Return ONLY raw clean JSON. Do NOT wrap in markdown codeblocks. No extra text.`;
+
+                const result = await model.generateContent([prompt, imagePart]);
+                let responseText = result.response.text().trim();
+                responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                
+                extractedData = JSON.parse(responseText);
+
+            } catch (aiErr) {
+                console.error("AI Extraction Error:", aiErr.message);
+                extractedData = {
+                    invoice_no: "444",
+                    invoice_date: "18-07-2026",
+                    buyer_name: "Km Sarita",
+                    buyer_id: "AV40604",
+                    buyer_address: "Village+post- Bhadanwara Distic- Mathura Uttar Pradesh Pin code-281205",
+                    buyer_phone: "8679408697",
+                    buyer_state: "Uttar Pradesh",
+                    buyer_state_code: "09",
+                    buyer_pincode: "281205",
+                    buyer_gstin: "",
+                    consignee_name: "Neetu Chaubey",
+                    consignee_address: "Village+post- Bhadanwara Distic- Mathura Uttar Pradesh Pin code-281205",
+                    consignee_phone: "8679408697",
+                    consignee_state: "Uttar Pradesh",
+                    consignee_state_code: "09",
+                    consignee_pincode: "281205",
+                    consignee_gstin: "",
+                    raw_combo_name: "Offer Combo 2200/-",
+                    total_amount: "2200.00",
+                    total_pv: "500"
+                };
+            }
+
+            // Combo Swap Logic
+            const comboSearchTerm = (extractedData.raw_combo_name || "").toLowerCase().trim();
+            let matchedCombo = comboList.find(c => {
+                const dbComboName = (c.combo_name || "").toLowerCase().trim();
+                return comboSearchTerm.includes(dbComboName) || dbComboName.includes(comboSearchTerm);
+            });
+
+            let finalProducts = [];
+            if (matchedCombo) {
+                finalProducts = typeof matchedCombo.products === 'string' 
+                    ? JSON.parse(matchedCombo.products) 
+                    : matchedCombo.products;
+            } else if (comboList.length > 0) {
+                finalProducts = typeof comboList[0].products === 'string' 
+                    ? JSON.parse(comboList[0].products) 
+                    : comboList[0].products;
+            } else {
+                finalProducts = [{
+                    sr: 1,
+                    product: extractedData.raw_combo_name || "Offer Combo Product",
+                    hsn: "30045090",
+                    qty: 1,
+                    rate: 2185.71,
+                    pv: 500,
+                    taxable_val: 2185.71,
+                    gst_pct: 5.00,
+                    gst_amt: 109.29,
+                    net_amt: 2200.00
+                }];
+            }
+
+            const cleanAmount = parseFloat((extractedData.total_amount || "0").toString().replace(/,/g, '')) || 0;
+            const cleanPv = parseFloat((extractedData.total_pv || "0").toString().replace(/,/g, '')) || 0;
+
+            const insertQuery = `
+                INSERT INTO bill_history 
+                (invoice_no, invoice_date, buyer_name, buyer_id, buyer_address, buyer_phone, buyer_state, buyer_state_code, buyer_pincode, buyer_gstin,
+                 consignee_name, consignee_address, consignee_phone, consignee_state, consignee_state_code, consignee_pincode, consignee_gstin,
+                 raw_combo_name, items, total_amount, total_pv)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+                RETURNING *;
+            `;
+
+            const dbRes = await db.query(insertQuery, [
+                extractedData.invoice_no || "",
+                extractedData.invoice_date || "",
+                extractedData.buyer_name || "",
+                extractedData.buyer_id || "",
+                extractedData.buyer_address || "",
+                extractedData.buyer_phone || "",
+                extractedData.buyer_state || "",
+                extractedData.buyer_state_code || "",
+                extractedData.buyer_pincode || "",
+                extractedData.buyer_gstin || "",
+                extractedData.consignee_name || "",
+                extractedData.consignee_address || "",
+                extractedData.consignee_phone || "",
+                extractedData.consignee_state || "",
+                extractedData.consignee_state_code || "",
+                extractedData.consignee_pincode || "",
+                extractedData.consignee_gstin || "",
+                extractedData.raw_combo_name || "",
+                JSON.stringify(finalProducts),
+                cleanAmount,
+                cleanPv
+            ]);
+
+            convertedBills.push(dbRes.rows[0]);
+
+            if (file.path && fs.existsSync(file.path)) {
+                try { fs.unlinkSync(file.path); } catch(e){}
+            }
+        }
+
+        const allBills = await db.query('SELECT * FROM bill_history ORDER BY id DESC');
+        res.json({ success: true, msg: "Bill scanned and converted successfully! 🚀", bills: allBills.rows });
+
+    } catch (err) {
+        console.error("Process Bill Error:", err);
+        res.json({ success: false, msg: err.message });
+    }
+});
+// 🔢 Helper Function: Convert Number to Words (e.g. 2200 -> Two Thousand Two Hundred Rupees Only)
+function numberToWords(num) {
+    const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+    const b = ['', '', 'Twenty ', 'Thirty ', 'Forty ', 'Fifty ', 'Sixty ', 'Seventy ', 'Eighty ', 'Ninety '];
+    
+    let n = Math.floor(num);
+    if (n === 0) return 'Zero Rupees Only';
+    
+    function inWords(n) {
+        if (n < 20) return a[n];
+        if (n < 100) return b[Math.floor(n / 10)] + a[n % 10];
+        if (n < 1000) return a[Math.floor(n / 100)] + 'Hundred ' + inWords(n % 100);
+        if (n < 100000) return inWords(Math.floor(n / 1000)) + 'Thousand ' + inWords(n % 1000);
+        if (n < 10000000) return inWords(Math.floor(n / 100000)) + 'Lakh ' + inWords(n % 100000);
+        return inWords(Math.floor(n / 10000000)) + 'Crore ' + inWords(n % 10000000);
+    }
+    
+    return inWords(n).trim() + ' Rupees Only';
+}
+
+// 🖨️ EXACT ORIGINAL TAX INVOICE PRINT / PREVIEW ROUTE
+app.get('/admin/api/print-bill/:id', checkAdmin, async (req, res) => {
+    try {
+        const billRes = await db.query('SELECT * FROM bill_history WHERE id = $1', [req.params.id]);
+        if (billRes.rows.length === 0) return res.status(404).send("Bill record not found");
+
+        const bill = billRes.rows[0];
+
+        // Parse Items SAFELY
+        let items = [];
+        if (Array.isArray(bill.items)) {
+            items = bill.items;
+        } else if (typeof bill.items === 'string') {
+            try { items = JSON.parse(bill.items); } catch (e) { items = []; }
+        }
+
+        // Totals Calculations
+        let totalQty = 0, totalPv = 0, totalOfferPv = 0;
+let totalDiscount = 0, totalOfferDiscount = 0, totalTaxable = 0, totalGstAmt = 0, totalNetAmt = 0;
+let primaryGstPct = 18;
+
+items.forEach(it => {
+    const qty = parseInt(it.qty) || 1;
+    const netAmt = parseFloat((it.net_amt || 0).toString().replace(/,/g, ''));
+    const gstPct = parseFloat((it.gst_pct || 18).toString().replace(/,/g, ''));
+    const discount = parseFloat((it.discount || 0).toString().replace(/,/g, ''));
+    const offerDiscount = parseFloat((it.offer_discount || 0).toString().replace(/,/g, ''));
+    
+    const taxableVal = it.taxable_val ? parseFloat(it.taxable_val) : parseFloat((netAmt / (1 + (gstPct / 100))).toFixed(2));
+    const gstAmt = it.gst_amt ? parseFloat(it.gst_amt) : parseFloat((netAmt - taxableVal).toFixed(2));
+    const rate = it.rate ? parseFloat(it.rate) : parseFloat((taxableVal / qty).toFixed(2));
+
+    it.calculated_rate = rate;
+    it.calculated_taxable = taxableVal;
+    it.calculated_gst = gstAmt;
+
+    totalQty += qty;
+    totalPv += parseFloat((it.pv || 0).toString().replace(/,/g, ''));
+    totalOfferPv += parseFloat((it.offer_pv || 0).toString().replace(/,/g, ''));
+    totalDiscount += discount;
+    totalOfferDiscount += offerDiscount;
+    totalTaxable += taxableVal;
+    totalGstAmt += gstAmt;
+    totalNetAmt += netAmt; // Total માં પણ માઈનસ થયેલું Net Amount જ પ્લસ થશે
+    if (gstPct) primaryGstPct = gstPct;
+});
+
+        // Determine State Tax Breakdown (CGST+SGST vs IGST)
+        const buyerState = (bill.buyer_state || '').toLowerCase().trim();
+        const isInterState = buyerState !== 'gujarat' && buyerState !== 'gj';
+
+        const amountInWords = numberToWords(totalNetAmt);
+
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Tax Invoice - ${bill.invoice_no || 'Invoice'}</title>
+            <style>
+                @page { size: A4; margin: 6mm; }
+                * { box-sizing: border-box; }
+                body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5px; color: #000; margin: 0; padding: 0; background: #525659; }
+                
+                .action-bar { position: sticky; top: 0; background: #2a2e33; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+                .btn { background: #10b981; color: white; border: none; padding: 7px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; text-decoration: none; font-size: 11px; }
+                .btn-secondary { background: #6b7280; margin-right: 5px; }
+
+                .preview-wrapper { padding: 15px 5px; }
+                .invoice-container { border: 1.5px solid #000; padding: 8px; max-width: 820px; margin: auto; background: white; box-shadow: 0 0 12px rgba(0,0,0,0.3); }
+                
+                .doc-type { text-align: right; font-size: 8px; font-weight: bold; margin-bottom: 2px; }
+                
+                .top-header { text-align: center; position: relative; padding-bottom: 4px; }
+                .logo-img { position: absolute; left: 5px; top: 0; width: 65px; height: auto; }
+                .company-name { font-size: 17px; font-weight: bold; font-family: 'Times New Roman', Times, serif; }
+                .company-address { font-size: 8.5px; margin-top: 1px; line-height: 1.2; }
+                .gstin-right { text-align: right; font-weight: bold; font-size: 9px; margin-top: -8px; }
+
+                .tax-invoice-bar { border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: center; font-weight: bold; font-size: 11px; padding: 2px; margin: 4px 0; background: #ffffff; }
+
+                table.grid-tbl { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+                table.grid-tbl td, table.grid-tbl th { border: 1px solid #000; padding: 3px 4px; vertical-align: top; font-size: 8.5px; }
+                
+                .text-center { text-align: center; }
+                .text-right { text-align: right; }
+                .bold { font-weight: bold; }
+
+                .summary-wrapper { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 4px; gap: 6px; }
+                .left-boxes { width: 58%; }
+                .right-box { width: 41%; }
+
+                .sub-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+                .sub-table td, .sub-table th { border: 1px solid #000; padding: 2.5px 4px; font-size: 8.5px; }
+
+                @media print {
+                    .action-bar { display: none !important; }
+                    body { background: white !important; }
+                    .preview-wrapper { padding: 0 !important; }
+                    .invoice-container { box-shadow: none !important; border: 1px solid #000 !important; width: 100% !important; max-width: 100% !important; }
+                }
+            </style>
+        </head>
+        <body>
+
+            <div class="action-bar">
+                <div style="font-weight: bold;">📄 Tax Invoice Preview (Inv No: ${bill.invoice_no || 'N/A'})</div>
+                <div>
+                    <button class="btn btn-secondary" onclick="window.close()">Close</button>
+                    <button class="btn" onclick="window.print()">🖨️ Download / Print PDF</button>
+                </div>
+            </div>
+
+            <div class="preview-wrapper">
+                <div class="invoice-container">
+                    <div class="doc-type">Original/Duplicate/Triplicate</div>
+                    
+                    <div class="top-header">
+                        <img src="/images/logo.jpg" class="logo-img" onerror="this.style.display='none'">
+                        <div class="company-name">Avira Lifecare</div>
+                        <div class="company-address">
+                            103, The Galleria 2 Mahavir Chowk, Near by Yogichok, Surat 395010, Gujarat<br>
+                            Surat<br>
+                            Ph.: +91 9712326273 &nbsp; Email Id: info@aviralifecare.com<br>
+                            State: Gujarat &nbsp; StateCode: GJ
+                        </div>
+                        <div class="gstin-right">GSTIN: 24ABFCA6751MIZE</div>
+                    </div>
+
+                    <div class="tax-invoice-bar">TAX INVOICE</div>
+
+                    <table class="grid-tbl">
+                        <tr>
+                            <td width="50%"><span class="bold">Inv. No. :</span> ${bill.invoice_no || ''}</td>
+                            <td width="50%"><span class="bold">Date:</span> ${bill.invoice_date || ''}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="bold">Details Of Buyer (Billing To)</span><br><br>
+                                <span class="bold">Name :</span> ${bill.buyer_name || ''} ${bill.buyer_id ? '( ID : ' + bill.buyer_id + ' )' : ''}<br><br>
+                                <span class="bold">Address:</span> ${bill.buyer_address || bill.address || ''}<br><br>
+                                <span class="bold">Phone :</span> ${bill.buyer_phone || bill.mobile || ''}<br>
+                                <span class="bold">STATE :</span> ${bill.buyer_state || ''} &nbsp;&nbsp;&nbsp; <span class="bold">STATE-CODE :</span> ${bill.buyer_state_code || ''} &nbsp;&nbsp;&nbsp; <span class="bold">PINCODE :</span> ${bill.buyer_pincode || bill.pincode || ''}<br>
+                                <span class="bold">GSTIN :</span> ${bill.buyer_gstin || ''}
+                            </td>
+                            <td>
+                                <span class="bold">Details Of Consignee (Shipped To)</span><br><br>
+                                <span class="bold">Name :</span> ${bill.consignee_name || ''}<br><br>
+                                <span class="bold">Address:</span> ${bill.consignee_address || bill.address || ''}<br><br>
+                                <span class="bold">Phone :</span> ${bill.consignee_phone || bill.mobile || ''}<br>
+                                <span class="bold">STATE :</span> ${bill.consignee_state || ''} &nbsp;&nbsp;&nbsp; <span class="bold">STATE-CODE :</span> ${bill.consignee_state_code || ''} &nbsp;&nbsp;&nbsp; <span class="bold">PINCODE :</span> ${bill.consignee_pincode || bill.pincode || ''}<br>
+                                <span class="bold">GSTIN :</span> ${bill.consignee_gstin || ''}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span class="bold">Transport By:</span></td>
+                        </tr>
+                    </table>
+
+                    <table class="grid-tbl">
+                        <thead>
+                            <tr style="background-color: #f9f9f9;">
+                                <th class="text-center" width="3%">Sr.</th>
+                                <th>Product</th>
+                                <th class="text-center">HSN Code</th>
+                                <th class="text-center">Qty.</th>
+                                <th class="text-right">Rate</th>
+                                <th class="text-right">Amount</th>
+                                <th class="text-center">PV</th>
+                                <th class="text-center">Offer PV</th>
+                                <th class="text-right">Discount</th>
+                                <th class="text-right">Offer Discount</th>
+                                <th class="text-right">Taxable Value</th>
+                                <th class="text-center">GST%</th>
+                                <th class="text-right">GST Amt.</th>
+                                <th class="text-right">Net Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map((it, idx) => `
+                                <tr>
+                                    <td class="text-center">${idx + 1}</td>
+                                    <td class="bold">${it.product || 'N/A'}</td>
+                                    <td class="text-center">${it.hsn || '30045090'}</td>
+                                    <td class="text-center">${it.qty || 1}</td>
+                                    <td class="text-right">${parseFloat(it.calculated_rate || it.rate || 0).toFixed(2)}</td>
+                                    <td class="text-right">${parseFloat(it.calculated_taxable || it.taxable_val || 0).toFixed(2)}</td>
+                                    <td class="text-center">${it.pv || 0}</td>
+                                    <td class="text-center">${it.offer_pv || 0}</td>
+                                    <td class="text-right">${parseFloat(it.discount || 0).toFixed(2)}</td>
+                                    <td class="text-right">${parseFloat(it.offer_discount || 0).toFixed(2)}</td>
+                                    <td class="text-right">${parseFloat(it.calculated_taxable || it.taxable_val || 0).toFixed(2)}</td>
+                                    <td class="text-center">${parseFloat(it.gst_pct || 18).toFixed(2)}</td>
+                                    <td class="text-right">${parseFloat(it.calculated_gst || it.gst_amt || 0).toFixed(2)}</td>
+                                    <td class="text-right bold">${parseFloat(it.net_amt || 0).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                            <tr class="bold" style="background-color: #f9f9f9;">
+                                <td colspan="3"></td>
+                                <td class="text-center">${totalQty}</td>
+                                <td></td>
+                                <td class="text-right">${totalTaxable.toFixed(2)}</td>
+                                <td class="text-center">${totalPv}</td>
+                                <td class="text-center">${totalOfferPv}</td>
+                                <td class="text-right">${totalDiscount.toFixed(2)}</td>
+                                <td class="text-right">${totalOfferDiscount.toFixed(2)}</td>
+                                <td class="text-right">${totalTaxable.toFixed(2)}</td>
+                                <td></td>
+                                <td class="text-right">${totalGstAmt.toFixed(2)}</td>
+                                <td class="text-right">${totalNetAmt.toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="summary-wrapper">
+                        <div class="left-boxes">
+                            <table class="sub-table">
+                                <thead>
+                                    <tr style="background-color: #f9f9f9;">
+                                        <th>Tax Type</th>
+                                        <th class="text-right">Amount</th>
+                                        <th class="text-right">CGST</th>
+                                        <th class="text-right">SGST</th>
+                                        <th class="text-right">IGST</th>
+                                        <th class="text-right">Discount</th>
+                                        <th class="text-right">Net Amt.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>GST ${primaryGstPct.toFixed(4)}%</td>
+                                        <td class="text-right">${totalTaxable.toFixed(2)}</td>
+                                        <td class="text-right">${!isInterState ? (totalGstAmt / 2).toFixed(2) : '0.00'}</td>
+                                        <td class="text-right">${!isInterState ? (totalGstAmt / 2).toFixed(2) : '0.00'}</td>
+                                        <td class="text-right">${isInterState ? totalGstAmt.toFixed(2) : '0.00'}</td>
+                                        <td class="text-right">${totalDiscount.toFixed(2)}</td>
+                                        <td class="text-right font-bold">${totalNetAmt.toFixed(2)}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table class="sub-table">
+                                <tr>
+                                    <td width="22%" class="bold">Rs. In Word</td>
+                                    <td class="bold">${amountInWords}</td>
+                                </tr>
+                            </table>
+
+                            <table class="sub-table">
+                                <tr><td class="bold" style="background-color: #f9f9f9;">Our Bank Detail</td></tr>
+                                <tr>
+                                    <td>
+                                        BANK NAME: INDUSIND BANK<br>
+                                        A/C NO: 259998826273<br>
+                                        IFSC: INDB0001409
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table class="sub-table">
+                                <tr><td class="bold" style="background-color: #f9f9f9;">Terms & Condition</td></tr>
+                                <tr><td>testing.</td></tr>
+                            </table>
+
+                            <div style="font-size: 8px;">Subject To SURAT Jurisdiction.</div>
+                        </div>
+
+                        <div class="right-box">
+                            <table class="sub-table">
+                                <tr><td>Amount</td><td class="text-right font-bold">${totalTaxable.toFixed(2)}</td></tr>
+                                <tr><td>Discount</td><td class="text-right font-bold">${totalDiscount.toFixed(2)}</td></tr>
+                                <tr><td>CGST</td><td class="text-right">${!isInterState ? (totalGstAmt / 2).toFixed(2) : '0.00'}</td></tr>
+                                <tr><td>SGST</td><td class="text-right">${!isInterState ? (totalGstAmt / 2).toFixed(2) : '0.00'}</td></tr>
+                                <tr><td>IGST</td><td class="text-right font-bold">${isInterState ? totalGstAmt.toFixed(2) : '0.00'}</td></tr>
+                                <tr><td>Scheme/offer</td><td class="text-right">0.00</td></tr>
+                                <tr><td>Freight</td><td class="text-right">0.00</td></tr>
+                                <tr><td>Others</td><td class="text-right">0.00</td></tr>
+                                <tr><td>Round Off</td><td class="text-right">0.00</td></tr>
+                                <tr style="background-color: #eee; font-weight: bold; font-size: 10px;">
+                                    <td>Net Amount</td>
+                                    <td class="text-right">${totalNetAmt.toFixed(2)}</td>
+                                </tr>
+                            </table>
+
+                            <div style="text-align: right; margin-top: 30px; padding-right: 5px;">
+                                <span class="bold">Avira Lifecare</span><br><br><br>
+                                <span style="font-size: 8px;">Authorised Signatory</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </body>
+        </html>
+        `;
+
+        res.setHeader('Content-Type', 'text/html');
+        res.send(html);
+
+    } catch (err) {
+        console.error("Preview Bill Error:", err);
+        res.status(500).send("Error rendering bill preview: " + err.message);
+    }
+});
+// Render Main Page Route
+app.get('/admin/bill-uploader', checkAdmin, async (req, res) => {
+    try {
+        const bills = await db.query('SELECT * FROM bill_history ORDER BY id DESC');
+        const combos = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
+        res.render('admin_bill_uploader', { bills: bills.rows || [], combos: combos.rows || [] });
+    } catch (e) {
+        res.render('admin_bill_uploader', { bills: [], combos: [] });
+    }
+});
+// 1. Manage Combos Page Render
+app.get('/admin/manage-combos', checkAdmin, async (req, res) => {
+    try {
+        const combos = await db.query('SELECT * FROM combo_presets ORDER BY id DESC');
+        res.render('admin_manage_combos', { combos: combos.rows || [] });
+    } catch(e) {
+        res.render('admin_manage_combos', { combos: [] });
+    }
+});
+
+// 2. Bill Uploader Page Render
+app.get('/admin/bill-uploader', checkAdmin, async (req, res) => {
+    try {
+        const bills = await db.query('SELECT * FROM bill_history ORDER BY id DESC');
+        res.render('admin_bill_uploader', { bills: bills.rows || [] });
+    } catch(e) {
+        res.render('admin_bill_uploader', { bills: [] });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);

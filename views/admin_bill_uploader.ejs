@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth overflow-x-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Manager & Converter - Avira Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800">
+
+    <%- include('partials/admin_navbar') %>
+
+    <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between">
+        
+        <header class="bg-white/90 border-b border-slate-100 px-6 py-3.5 flex justify-between items-center sticky top-0 z-40">
+            <span class="text-xs font-bold text-slate-500 uppercase">Bill Manager / Smart Combo Converter</span>
+            <button onclick="openComboModal()" class="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-slate-800">
+                <i class="fa-solid fa-sliders mr-1 text-emerald-400"></i> Manage Combo Presets
+            </button>
+        </header>
+
+        <main class="flex-grow max-w-7xl w-full mx-auto p-6 space-y-6">
+
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-6 rounded-2xl text-white flex justify-between items-center">
+                <div>
+                    <h3 class="text-base font-black uppercase">Upload Bills For Conversion</h3>
+                    <p class="text-xs text-emerald-100 mt-1">Upload PDF/JPG bills. System automatically swaps 'Offer Combos' with your mapped products.</p>
+                </div>
+                <form id="uploadBillsForm" class="flex gap-2">
+                    <input type="file" id="billFiles" multiple required class="text-xs text-white file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-400 file:text-slate-950">
+                    <button type="submit" id="btnUpload" class="bg-white text-slate-950 font-black text-xs px-6 py-2.5 rounded-xl uppercase">Convert Bill</button>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b font-bold text-xs uppercase flex justify-between">
+                    <span>Converted Bills Repository</span>
+                    <span class="text-emerald-600"><%= bills.length %> Records</span>
+                </div>
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-slate-100/80 text-slate-400 font-bold uppercase">
+                            <th class="p-4">Inv No</th>
+                            <th class="p-4">Date</th>
+                            <th class="p-4">Buyer Name</th>
+                            <th class="p-4">Consignee</th>
+                            <th class="p-4">PV</th>
+                            <th class="p-4">Amount</th>
+                            <th class="p-4 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <% if(bills.length === 0) { %>
+                            <tr><td colspan="7" class="p-8 text-center text-slate-400">No bills converted yet. Upload bills above!</td></tr>
+                        <% } else { %>
+                            <% bills.forEach(item => { %>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-4 font-mono font-bold text-slate-900"><%= item.invoice_no %></td>
+                                    <td class="p-4"><%= item.invoice_date %></td>
+                                    <td class="p-4 font-bold text-emerald-600 uppercase"><%= item.buyer_name %></td>
+                                    <td class="p-4 uppercase"><%= item.consignee_name %></td>
+                                    <td class="p-4 font-mono font-bold"><%= item.total_pv %></td>
+                                    <td class="p-4 font-mono font-bold text-slate-900">₹<%= item.total_amount %></td>
+                                    <td class="p-4 text-center">
+                                        <a href="/admin/api/print-bill/<%= item.id %>" target="_blank" class="bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] uppercase">
+                                            <i class="fa-solid fa-print"></i> Download PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('uploadBillsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const files = document.getElementById('billFiles').files;
+            if(files.length === 0) return;
+
+            const btn = document.getElementById('btnUpload');
+            btn.innerText = "CONVERTING...";
+            btn.disabled = true;
+
+            const formData = new FormData();
+            for(let i=0; i<files.length; i++) formData.append('billFiles', files[i]);
+
+            try {
+                const res = await fetch('/admin/api/process-bills', { method: 'POST', body: formData });
+                const result = await res.json();
+                if(result.success) { location.reload(); } else { alert(result.msg); }
+            } catch(e) { console.error(e); } finally { btn.innerText = "Convert Bill"; btn.disabled = false; }
+        });
+    </script>
+</body>
+</html>
