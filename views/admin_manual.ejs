@@ -256,6 +256,12 @@
                 }
             } catch (err) {
                 console.error("Fetch Presets Error:", err);
+                menu.innerHTML = `
+                    <div onclick="applyBoxPreset(15, 10, 5, 'Default Box (15x10x5 cm)')" class="p-2 text-slate-700 hover:bg-emerald-50 rounded-lg cursor-pointer">
+                        <p class="text-xs font-bold">Default Small Box</p>
+                        <p class="text-[9px] text-slate-400">15 x 10 x 5 cm</p>
+                    </div>
+                `;
             }
         }
 
