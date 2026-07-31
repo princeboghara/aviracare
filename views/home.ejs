@@ -16,6 +16,23 @@
             position: relative;
         }
 
+        /* 🎬 SMOOTH PAGE FADE & SLIDE ANIMATION ENGINE */
+        body {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body.page-loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        body.page-exiting {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
         /* ULTRA 3D GLASSMORPHISM CARD ENGINE */
         .glass-card-3d {
             background: rgba(255, 255, 255, 0.82);
@@ -290,6 +307,28 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // 🎬 1. PAGE LOAD ANIMATION
+            document.body.classList.add("page-loaded");
+
+            // 🎬 2. SMOOTH PAGE EXIT TRANSITION ON LINK CLICK
+            document.querySelectorAll("a").forEach(link => {
+                link.addEventListener("click", function(e) {
+                    const href = this.getAttribute("href");
+                    
+                    // Bypass transitions for anchors, downloads, JS scripts or new tab links
+                    if (href && !href.startsWith("#") && !href.startsWith("javascript:") && this.target !== "_blank" && !this.hasAttribute("download")) {
+                        e.preventDefault();
+                        document.body.classList.remove("page-loaded");
+                        document.body.classList.add("page-exiting");
+
+                        setTimeout(() => {
+                            window.location.href = href;
+                        }, 220);
+                    }
+                });
+            });
+
+            // 🌀 3. 3D TILT CARD EFFECT
             const tiltElements = document.querySelectorAll(".tilt-element");
 
             tiltElements.forEach((card) => {
