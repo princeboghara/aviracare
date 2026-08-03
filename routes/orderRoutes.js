@@ -175,28 +175,95 @@ router.post('/admin/api/save-manual', checkAdmin, async (req, res) => {
     }
 });
 
+// 📊 EXPORT EXCEL API (EXACT 37-COLUMN INDIA POST BULK FORMAT)
 router.get('/admin/api/export-excel', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM pending_entries ORDER BY id DESC');
+        const dbEntries = result.rows;
+
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('ArticleDetails');
 
+        // 🎯 EXACT 37-COLUMN FORMAT LIKE 27-7-26.xlsx
         sheet.columns = [
-            { header: 'ARTICLE SERIAL NUMBER', key: 'sn' }, { header: 'BARCODE NO india post', key: 'tracking' },
-            { header: 'delhivary', key: 'blank1' }, { header: 'PHYSICAL WEIGHT', key: 'weight' },
-            { header: 'SHAPE OF ARTICLE', key: 'shape' }, { header: 'LENGTH', key: 'length' },
-            { header: 'BREADTH/DIAMETER', key: 'breadth' }, { header: 'HEIGHT', key: 'height' },
-            { header: 'SENDER NAME', key: 's_name' }, { header: 'RECEIVER NAME', key: 'r_name' },
-            { header: 'RECEIVER ADD LINE 1', key: 'r_add1' }, { header: 'RECEIVER CITY', key: 'r_city' },
-            { header: 'RECEIVER STATE/UT', key: 'r_state' }, { header: 'RECEIVER PINCODE', key: 'r_pin' },
-            { header: 'RECEIVER MOBILE NO', key: 'r_mobile' }
+            { header: 'ARTICLE SERIAL NUMBER', key: 'sn' },
+            { header: 'BARCODE NO india post', key: 'tracking' },
+            { header: 'delhivary', key: 'blank1' },
+            { header: 'PHYSICAL WEIGHT', key: 'weight' },
+            { header: 'SHAPE OF ARTICLE', key: 'shape' },
+            { header: 'LENGTH', key: 'length' },
+            { header: 'BREADTH/DIAMETER', key: 'breadth' },
+            { header: 'HEIGHT', key: 'height' },
+            { header: 'PRIORITY FLAG', key: 'priority' },
+            { header: 'DELIVERY INSTRUCTION', key: 'del_inst' },
+            { header: 'INSTRUCTION RTS', key: 'rts' },
+            { header: 'SENDER NAME', key: 's_name' },
+            { header: 'SENDER ADD LINE 1', key: 's_add1' },
+            { header: 'SENDER ADD LINE 2', key: 's_add2' },
+            { header: 'SENDER ADD LINE 3', key: 's_add3' },
+            { header: 'SENDER CITY', key: 's_city' },
+            { header: 'SENDER STATE/UT', key: 's_state' },
+            { header: 'SENDER PINCODE', key: 's_pin' },
+            { header: 'SENDER EMAIL ID', key: 's_email' },
+            { header: 'RECEIVER NAME', key: 'r_name' },
+            { header: 'RECEIVER ADD LINE 1', key: 'r_add1' },
+            { header: 'RECEIVER ADD LINE 2', key: 'r_add2' },
+            { header: 'RECEIVER ADD LINE 3', key: 'r_add3' },
+            { header: 'RECEIVER CITY', key: 'r_city' },
+            { header: 'RECEIVER STATE/UT', key: 'r_state' },
+            { header: 'RECEIVER PINCODE', key: 'r_pin' },
+            { header: 'RECEIVER EMAILID', key: 'r_email' },
+            { header: 'SENDER MOBILE NO', key: 's_mobile' },
+            { header: 'RECEIVER MOBILE NO', key: 'r_mobile' },
+            { header: 'CODR/COD', key: 'cod' },
+            { header: 'VALUE FOR CODR/COD', key: 'cod_val' },
+            { header: 'ACK', key: 'ack' },
+            { header: 'PREPAYMENT CODE', key: 'prep_code' },
+            { header: 'VALUE OF PREPAYMENT', key: 'prep_val' },
+            { header: 'ALT ADDRESS FLAG', key: 'alt_add' },
+            { header: 'INSURANCE TYPE', key: 'ins_type' },
+            { header: 'VALUE OF INSURANCE', key: 'ins_val' }
         ];
 
-        result.rows.forEach((item, index) => {
+        dbEntries.forEach((item, index) => {
             sheet.addRow({
-                sn: index + 1, tracking: item.tracking, weight: item.weight, shape: 'NROL', length: item.length,
-                breadth: item.breadth, height: item.height, s_name: 'Avira LifeCare', r_name: item.name,
-                r_add1: item.address, r_city: item.city, r_state: item.state, r_pin: item.pincode, r_mobile: item.mobile
+                sn: index + 1,
+                tracking: item.tracking,
+                blank1: '',
+                weight: item.weight,
+                shape: 'NROL',
+                length: item.length,
+                breadth: item.breadth,
+                height: item.height,
+                priority: 'False',
+                del_inst: 'NROL',
+                rts: 'RTA',
+                s_name: 'Avira LifeCare',
+                s_add1: 'The Galleria Bussiness Hub 2',
+                s_add2: 'SURAT',
+                s_add3: '',
+                s_city: 'SURAT',
+                s_state: 'GUJRAT',
+                s_pin: '395010',
+                s_email: '',
+                r_name: item.name,
+                r_add1: item.address,
+                r_add2: '',
+                r_add3: '',
+                r_city: item.city,
+                r_state: item.state,
+                r_pin: item.pincode,
+                r_email: '',
+                s_mobile: item.mobile,
+                r_mobile: item.mobile,
+                cod: '',
+                cod_val: 0,
+                ack: 'False',
+                prep_code: '',
+                prep_val: '',
+                alt_add: 'False',
+                ins_type: '',
+                ins_val: 0
             });
         });
 
@@ -206,9 +273,11 @@ router.get('/admin/api/export-excel', checkAdmin, async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (err) {
+        console.error("Excel Export Error:", err);
         res.status(500).send("Excel export error: " + err.message);
     }
 });
+
 
 // Pincode & Address Search API
 router.get('/admin/api/fetch-details', checkAdmin, async (req, res) => {
