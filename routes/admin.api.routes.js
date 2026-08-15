@@ -16,7 +16,9 @@ router.post('/scan-ai-label', memoryUpload.single('labelImage'), async (req, res
     try {
         if (!req.file) return res.status(400).json({ success: false, msg: 'No image uploaded' });
 
-        const model = getModel();
+        const model = getModel('gemini-3.6-flash', {
+            generationConfig: { responseMimeType: 'application/json' }
+        });
         
         const imagePart = {
             inlineData: {
@@ -32,21 +34,43 @@ router.post('/scan-ai-label', memoryUpload.single('labelImage'), async (req, res
             "mobile": "10-digit mobile number explicitly written next to Mob: (ignore any seller Ph: numbers)",
             "pincode": "6-digit delivery pincode (e.g., 400074)"
         }
-        Return ONLY pure valid JSON, no markdown formatting or extra text.`;
+        Return ONLY valid JSON.`;
 
-        const result = await model.generateContent([prompt, imagePart]);
+        let result;
+        let lastErr = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                result = await model.generateContent([prompt, imagePart]);
+                if (result && result.response) break;
+            } catch (apiErr) {
+                lastErr = apiErr;
+                console.warn(`Gemini 3.6 Scan Attempt ${attempt} failed:`, apiErr.message);
+                if (attempt < 3) {
+                    await new Promise(r => setTimeout(r, 1200 * attempt));
+                }
+            }
+        }
+
+        if (!result || !result.response) {
+            throw lastErr || new Error("Gemini AI did not return a response");
+        }
+
         const responseText = result.response.text();
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-
-        if (jsonMatch) {
-            const data = JSON.parse(jsonMatch[0]);
+        
+        try {
+            const data = JSON.parse(responseText.trim());
             return res.json({ success: true, data });
-        } else {
-            return res.json({ success: false, msg: 'AI could not process JSON from image' });
+        } catch (parseErr) {
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                const data = JSON.parse(jsonMatch[0]);
+                return res.json({ success: true, data });
+            }
+            return res.json({ success: false, msg: 'AI could not parse label details' });
         }
     } catch (err) {
         console.error("AI Scan API Error:", err);
-        return res.json({ success: false, msg: err.message });
+        return res.json({ success: false, msg: err.message || 'AI scanning error' });
     }
 });
 

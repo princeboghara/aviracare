@@ -5,5 +5,9 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 module.exports = {
     genAI,
-    getModel: (modelName) => genAI.getGenerativeModel({ model: modelName || process.env.GEMINI_MODEL || "gemini-2.5-flash" })
+    getModel: (modelName, options = {}) => genAI.getGenerativeModel({ 
+        model: modelName || process.env.GEMINI_MODEL || "gemini-3.6-flash",
+        ...options 
+    })
 };
+
