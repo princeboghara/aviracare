@@ -39,54 +39,55 @@
         <main class="flex-grow w-full px-2 sm:px-4 py-3 space-y-3 box-border">
             <div class="bg-white rounded-xl border border-slate-100 shadow-md overflow-hidden w-full">
                 <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[700px]">
                         <thead>
-                            <tr class="bg-slate-100/80 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px] tracking-tight">
-                                <th class="py-2 px-2.5">Tracking / Name</th>
-                                <th class="py-2 px-2">Pincode & Place</th>
-                                <th class="py-2 px-1">Member ID</th>
-                                <th class="py-2 px-1">Order Date</th>
-                                <th class="py-2 px-1">PV</th>
-                                <th class="py-2 px-1">Amount</th>
-                                <th class="py-2 px-2 text-center">Action</th>
+                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-black uppercase text-[10px] tracking-wider">
+                                <th class="py-3 px-3 w-10 text-center">#</th>
+                                <th class="py-3 px-3">Tracking No</th>
+                                <th class="py-3 px-4">Customer Name</th>
+                                <th class="py-3 px-3">Order Date</th>
+                                <th class="py-3 px-3">Member ID</th>
+                                <th class="py-3 px-3 w-20">PV</th>
+                                <th class="py-3 px-3 w-24">Amount (₹)</th>
+                                <th class="py-3 px-4 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="confirmTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                        <tbody id="confirmTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
                             <% if(entries.length === 0) { %>
-                                <tr id="empty-row">
-                                    <td colspan="7" class="py-12 text-center text-slate-400 font-normal">All entries verified!</td>
+                                <tr>
+                                    <td colspan="8" class="py-12 text-center text-slate-400 font-normal">
+                                        <i class="fa-solid fa-circle-check text-3xl block mb-2 text-emerald-500"></i>
+                                        All entries are fully matched and saved into master database!
+                                    </td>
                                 </tr>
                             <% } else { %>
                                 <% entries.forEach((item, index) => { %>
-                                    <tr class="hover:bg-slate-50/60 transition-colors" id="row-<%= index %>">
-                                        <td class="py-1.5 px-2.5">
-                                            <div class="font-mono font-bold text-slate-900 tracking-number-text text-[11px]"><%= item.tracking %></div>
-                                            <div class="text-[9px] text-slate-400 uppercase font-semibold name-text truncate max-w-[140px]"><%= item.name %></div>
+                                    <tr class="hover:bg-slate-50/70 transition-colors" id="row-<%= index %>">
+                                        <td class="py-2.5 px-3 text-slate-400 text-center"><%= index + 1 %></td>
+                                        <td class="py-2.5 px-3 font-bold text-slate-900 tracking-number-text"><%= item.tracking %></td>
+                                        <td class="py-2.5 px-4">
+                                            <div class="uppercase font-bold text-emerald-700 name-text"><%= item.name %></div>
                                         </td>
-                                        <td class="py-1.5 px-2">
-                                            <div class="font-mono font-bold text-emerald-600 text-[11px]"><%= item.pincode %></div>
-                                            <div class="text-[9px] text-slate-400 uppercase truncate max-w-[120px]"><%= item.city %>, <%= item.state %></div>
-                                        </td>
-                                        <td class="py-1.5 px-1">
-                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="AV12345" maxlength="7" oninput="formatMemberIdInput(this)" class="confirm-input font-mono uppercase text-slate-700 w-[100px]">
-                                        </td>
-                                        <td class="py-1.5 px-1">
-                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-700 font-semibold w-[115px]">
+                                        <td class="py-2.5 px-3">
+                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="w-32 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-emerald-500 date-picker-field">
                                             <input type="hidden" id="formatted-date-<%= index %>" value="<%= item.order_date %>">
                                         </td>
-                                        <td class="py-1.5 px-1">
-                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" class="confirm-input font-mono text-emerald-600 w-[50px]">
+                                        <td class="py-2.5 px-3">
+                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" maxlength="7" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-28 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-emerald-600 focus:outline-none focus:border-emerald-500">
                                         </td>
-                                        <td class="py-1.5 px-1">
-                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-bold text-slate-900 w-[65px]">
+                                        <td class="py-2.5 px-3">
+                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="0" class="w-16 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-700 focus:outline-none focus:border-emerald-500">
                                         </td>
-                                        <td class="py-1.5 px-2 text-center">
-                                            <div class="flex items-center justify-center gap-1.5">
-                                                <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-500 hover:bg-emerald-600 text-white font-black px-2.5 py-1 rounded transition-all text-[10px] tracking-wider uppercase cursor-pointer shadow-sm">OK</button>
-                                                <button type="button" onclick="deletePendingMember('<%= item.id %>', '<%= index %>')" class="bg-rose-500 hover:bg-rose-600 text-white font-black px-2 py-1 rounded transition-all text-[10px] tracking-wider uppercase cursor-pointer shadow-sm" title="Delete Entry">
-                                                    <i class="fa-solid fa-trash text-[9px]"></i>
-                                                </button>
-                                            </div>
+                                        <td class="py-2.5 px-3">
+                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="0" class="w-20 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+                                        </td>
+                                        <td class="py-2.5 px-4 text-center space-x-2">
+                                            <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] px-3 py-1.5 rounded-xl shadow-xs transition-all uppercase cursor-pointer inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-check"></i> Approve
+                                            </button>
+                                            <button type="button" onclick="deletePendingMember('<%= item.id %>', '<%= index %>')" class="text-rose-500 hover:text-rose-600 font-black text-xs cursor-pointer inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 <% }) %>
@@ -95,34 +96,25 @@
                     </table>
                 </div>
             </div>
+
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-2.5 text-center text-[10px] font-medium text-slate-400 mt-2 w-full overflow-hidden">
-            &copy; 2026 Avira Control Center. All rights reserved.
+        <footer class="bg-white border-t border-slate-200/80 py-3.5 text-center text-xs font-medium text-slate-400 mt-6 w-full overflow-hidden">
+            &copy; 2026 Avira LifeCare System. All rights reserved.
         </footer>
     </div>
 
     <script>
         function formatMemberIdInput(el) {
             let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            if (!raw) {
-                el.value = '';
-                return;
-            }
-            if (raw === 'A' || raw === 'AV') {
-                el.value = raw;
-                return;
-            }
+            if (!raw) { el.value = ''; return; }
+            if (raw === 'A' || raw === 'AV') { el.value = raw; return; }
             if (raw.startsWith('AV')) {
                 let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 5);
                 el.value = 'AV' + num;
             } else {
                 let num = raw.replace(/[^0-9]/g, '').slice(0, 5);
-                if (num.length > 0) {
-                    el.value = 'AV' + num;
-                } else {
-                    el.value = '';
-                }
+                el.value = num.length > 0 ? 'AV' + num : '';
             }
         }
 
