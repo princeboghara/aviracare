@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth overflow-x-hidden">
+<head>
+    <%- include('../partials/head_meta') %>
+    <title>Downloads & Resources Hub - Avira Lifecare</title>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-mesh-emerald font-sans antialiased text-slate-800 relative w-full overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+
+    <!-- Navigation -->
+    <%- include('../partials/member_navbar') %>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-14 space-y-10 relative z-10 box-border">
+        
+        <!-- Header -->
+        <div class="text-center space-y-3 max-w-xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-widest shadow-xs">
+                <i class="fa-solid fa-folder-open text-emerald-600"></i> Corporate Digital Library
+            </div>
+            
+            <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-slate-950 uppercase">
+                Downloads & <span class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Resources</span>
+            </h1>
+            
+            <p class="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
+                Official PDF documents, compensation plans, catalogs, and marketing collaterals available for direct download.
+            </p>
+        </div>
+
+        <!-- Documents Container -->
+        <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl shadow-md border-emerald-200/90 space-y-6">
+            
+            <!-- List Header with count -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-xs sm:text-sm font-black uppercase text-slate-900">Available Files</h2>
+                        <p class="text-[10px] font-bold text-slate-400">Total <%= pdfs.length %> document(s) uploaded</p>
+                    </div>
+                </div>
+                <span class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 uppercase tracking-wider">
+                    Verified PDFs
+                </span>
+            </div>
+
+            <!-- Documents Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <% if(!pdfs || pdfs.length === 0) { %>
+                    <div class="col-span-full py-16 text-center space-y-3">
+                        <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center text-3xl mx-auto border border-slate-100">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                        <h3 class="text-sm font-black text-slate-700">No documents uploaded yet</h3>
+                        <p class="text-xs text-slate-400 font-medium max-w-xs mx-auto">Please check back soon or contact your team leader for official copies.</p>
+                    </div>
+                <% } else { %>
+                    <% pdfs.forEach(item => { %>
+                        <div class="p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-500/50 hover:shadow-md transition-all flex items-center justify-between gap-4 group">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="truncate">
+                                    <h4 class="text-xs font-black text-slate-900 uppercase truncate leading-tight"><%= item.title %></h4>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-1">
+                                        <i class="fa-solid fa-calendar-days text-[9px] mr-1"></i> <%= item.uploadDate || 'Recent' %>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <a href="/uploads/<%= item.filename %>" download="<%= item.title %>.pdf"
+                                class="btn-emerald-3d text-[11px] font-black uppercase tracking-wider px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 flex-shrink-0 shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-download text-[10px]"></i>
+                                <span class="hidden sm:inline">Download</span>
+                            </a>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <%- include('../partials/member_footer') %>
+
+</body>
+</html>

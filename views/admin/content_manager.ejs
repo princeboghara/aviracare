@@ -1,19 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <%- include('../partials/head_meta') %>
     <title>Content Manager - Avira Control</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        html, body {
-            max-width: 100vw !important;
-            overflow-x: hidden !important;
-            position: relative;
-        }
-
         .admin-menu-card { 
             background: white; 
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
@@ -26,9 +16,9 @@
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <%- include('partials/admin_navbar') %>
+    <%- include('../partials/admin_navbar') %>
 
-    <div class="lg:ml-64 flex-grow flex flex-col justify-between min-h-screen overflow-y-auto box-border w-full">
+    <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen overflow-y-auto box-border w-full">
         
         <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
             <div class="flex items-center gap-2 min-w-0">
@@ -57,7 +47,7 @@
                         <div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg sm:text-xl mx-auto mb-3 sm:mb-4 border border-emerald-100/50">
                             <i class="fa-solid fa-cloud-arrow-up"></i>
                         </div>
-                        <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-1.5">Upload New PDF Resource</h3>
+                        <h2 class="text-sm sm:text-base font-bold text-slate-900 mb-1.5">Upload New PDF Resource</h2>
                         <p class="text-slate-400 text-xs leading-relaxed">Enter a document title and upload the official PDF file to sync with the database.</p>
                     </div>
 
@@ -94,7 +84,7 @@
             <div class="w-full bg-white p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-lg mt-8 sm:mt-12 space-y-4">
                 <div class="flex justify-between items-center border-b pb-3 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm sm:text-base font-bold text-slate-900"><i class="fa-solid fa-list-check text-emerald-500 mr-1"></i> Active PDF Resources</h3>
+                        <h2 class="text-sm sm:text-base font-bold text-slate-900"><i class="fa-solid fa-list-check text-emerald-500 mr-1"></i> Active PDF Resources</h2>
                         <p class="text-slate-400 text-[11px] sm:text-xs mt-0.5">Below records represent active documents synced with the database.</p>
                     </div>
                     <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-xl">Total Items: <%= pdfs.length %></span>
@@ -128,7 +118,7 @@
                                     <td class="py-3 px-3 text-slate-500"><%= item.uploadDate %></td>
                                     <td class="py-3 px-3 text-center">
                                         <div class="flex items-center justify-center gap-3">
-                                            <a href="<%= item.filename %>" target="_blank" class="text-blue-500 hover:text-blue-700 font-bold transition-colors">
+                                            <a href="/uploads/<%= item.filename %>" target="_blank" class="text-blue-500 hover:text-blue-700 font-bold transition-colors">
                                                 <i class="fa-solid fa-eye mr-0.5"></i> View
                                             </a>
                                             <button type="button" data-id="<%= item.id %>" class="delete-pdf-btn text-rose-500 hover:text-rose-700 font-bold transition-colors cursor-pointer">

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth overflow-x-hidden">
+<head>
+    <%- include('../partials/head_meta') %>
+    <title>Avira Lifecare - Official Member Portal & Digital Workspace</title>
+    <style>
+        /* 🚀 ZERO-LAG MARQUEE TICKER */
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee 26s linear infinite;
+            will-change: transform;
+        }
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-mesh-emerald font-sans antialiased text-slate-800 relative w-full overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <%- include('../partials/member_navbar') %>
+
+    <!-- 📢 Live Trust & Realtime Ticker Strip -->
+    <div class="w-full bg-slate-900 text-slate-200 py-2.5 overflow-hidden border-b border-slate-800 text-[11px] font-bold z-10 relative shadow-inner">
+        <div class="animate-marquee whitespace-nowrap flex items-center gap-8">
+            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-400"></i> 100% Genuine Ayurvedic & Herbal Range</span>
+            <span class="text-slate-600">•</span>
+            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-truck-fast text-emerald-400"></i> Real-time India Post Consignment Tracking</span>
+            <span class="text-slate-600">•</span>
+            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-shield-halved text-teal-400"></i> Verified PV Points & Direct Payout Records</span>
+            <span class="text-slate-600">•</span>
+            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-headset text-emerald-400"></i> Dedicated Helpline: +91 97123 26273</span>
+            <span class="text-slate-600">•</span>
+            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-400"></i> Direct Central Warehouse Dispatch</span>
+            <span class="text-slate-600">•</span>
+            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-400"></i> Instant Digital Support Ticket Resolution</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-16 relative z-10 box-border">
+
+        <!-- Hero Section -->
+        <div class="w-full text-center space-y-4 max-w-3xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-widest shadow-xs">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Official Member Network
+            </div>
+            
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-950 leading-tight">
+                Empowering Health,<br class="hidden sm:inline">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500">
+                    Enriching Life.
+                </span>
+            </h1>
+            
+            <p class="text-slate-600 text-xs sm:text-sm lg:text-base leading-relaxed max-w-2xl mx-auto font-medium">
+                Welcome to your Avira Digital Workspace. Download official compensation blueprints, explore the wellness product showcase, track live dispatches, and log member support queries.
+            </p>
+        </div>
+
+        <!-- 3-Column Resource Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+
+            <!-- 1. Business Plan Card -->
+            <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl flex flex-col justify-between text-center sm:text-left relative overflow-hidden group">
+                <div class="space-y-4 mb-6">
+                    <div class="w-14 h-14 bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl mx-auto sm:mx-0 border border-emerald-200/50 shadow-xs group-hover:scale-110 transition-transform duration-300">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Opportunity Blueprint</span>
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 mt-0.5">Business Plan</h2>
+                    </div>
+                    <p class="text-slate-500 text-xs leading-relaxed font-medium">
+                        Download official compensation plan documentation, binary structure guidelines, and leadership incentive details.
+                    </p>
+                </div>
+
+                <a href="<%= businessPlan %>" download class="btn-dark-3d w-full text-center text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer">
+                    <span>Download Plan</span>
+                    <i class="fa-solid fa-file-arrow-download text-emerald-400 text-xs"></i>
+                </a>
+            </div>
+
+            <!-- 2. Product Catalog Card -->
+            <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl flex flex-col justify-between text-center sm:text-left relative overflow-hidden group">
+                <div class="space-y-4 mb-6">
+                    <div class="w-14 h-14 bg-teal-500/10 text-teal-600 rounded-2xl flex items-center justify-center text-2xl mx-auto sm:mx-0 border border-teal-200/50 shadow-xs group-hover:scale-110 transition-transform duration-300">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-extrabold text-teal-600 uppercase tracking-widest">Complete Range</span>
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 mt-0.5">Product Catalog</h2>
+                    </div>
+                    <p class="text-slate-500 text-xs leading-relaxed font-medium">
+                        Access high-resolution digital catalog covering all herbal wellness, dietary formulations, and personal care solutions.
+                    </p>
+                </div>
+
+                <a href="<%= catalog %>" download class="btn-dark-3d w-full text-center text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer">
+                    <span>Download PDF</span>
+                    <i class="fa-solid fa-file-arrow-download text-teal-400 text-xs"></i>
+                </a>
+            </div>
+
+            <!-- 3. Product Showcase Card -->
+            <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl flex flex-col justify-between text-center sm:text-left relative overflow-hidden group border-emerald-300/90">
+                <div class="space-y-4 mb-6">
+                    <div class="w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center text-2xl mx-auto sm:mx-0 shadow-md shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Interactive Store</span>
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 mt-0.5">Product Showcase</h2>
+                    </div>
+                    <p class="text-slate-500 text-xs leading-relaxed font-medium">
+                        Browse active product listings, MRP pricing, PV volume scores, multi-language usage directions, and ingredients.
+                    </p>
+                </div>
+
+                <a href="/products" class="btn-emerald-3d w-full text-center text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer">
+                    <span>Explore Products</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 2-Column Banner Action Cards (Tracking & Support) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            
+            <!-- Live Consignment Tracker Banner -->
+            <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 border-emerald-300/80">
+                <div class="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
+                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-md shadow-emerald-500/25 flex-shrink-0">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wide">Live Dispatch Tracker</h3>
+                        <p class="text-slate-500 text-xs font-medium">Check real-time India Post tracking numbers and parcel status instantly.</p>
+                    </div>
+                </div>
+                <a href="/track-parcel" class="btn-emerald-3d emerald-pulse w-full sm:w-auto text-white font-extrabold text-xs py-3.5 px-6 rounded-2xl uppercase tracking-wider cursor-pointer text-center flex-shrink-0">
+                    Track Now &rarr;
+                </a>
+            </div>
+
+            <!-- Helpdesk Support Banner -->
+            <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 border-amber-300/80">
+                <div class="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
+                    <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-md shadow-amber-500/25 flex-shrink-0">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wide">Official Support Desk</h3>
+                        <p class="text-slate-500 text-xs font-medium">Lodge queries regarding product dispatches, payout inquiries, or technical support.</p>
+                    </div>
+                </div>
+                <a href="/member/queries" class="btn-dark-3d w-full sm:w-auto text-white font-extrabold text-xs py-3.5 px-6 rounded-2xl uppercase tracking-wider cursor-pointer text-center flex-shrink-0">
+                    Open Desk &rarr;
+                </a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <%- include('../partials/member_footer') %>
+
+</body>
+</html>

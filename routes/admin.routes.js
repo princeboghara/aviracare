@@ -1,0 +1,150 @@
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
+const { checkAdmin } = require('../middleware/auth');
+
+// 🔐 Admin Login Page
+router.get('/login', (req, res) => {
+    if (req.session && req.session.isAdmin) {
+        return res.redirect('/admin/home');
+    }
+    res.render('admin/login');
+});
+
+// 🔑 Admin Login Authentication Handler
+router.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    const adminUser = process.env.ADMIN_USERNAME || 'admin';
+    const adminPass = process.env.ADMIN_PASSWORD || 'Avira@123';
+    
+    if (username === adminUser && password === adminPass) {
+        req.session.isAdmin = true;
+        res.redirect('/admin/home');
+    } else {
+        res.send('Invalid Credentials! <a href="/admin/login">Try Again</a>');
+    }
+});
+
+// 🚪 Admin Logout Handler
+router.get('/logout', (req, res) => {
+    req.session.isAdmin = false;
+    res.redirect('/admin/login');
+});
+
+// 📊 Admin Dashboard Hub
+router.get('/home', checkAdmin, (req, res) => {
+    res.render('admin/home');
+});
+
+// 🏷️ Admin Tracking & Label Generation
+router.get('/tracking', checkAdmin, (req, res) => {
+    res.render('admin/tracking');
+});
+
+// 📋 Admin Orders Master View
+router.get('/orders-master', checkAdmin, async (req, res) => {
+    try {
+        const ordersRes = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
+        res.render('admin/orders_master', { orders: ordersRes.rows });
+    } catch (err) {
+        console.error("Fetch Orders Master Error:", err);
+        res.render('admin/orders_master', { orders: [] });
+    }
+});
+
+// ✍️ Admin Manual Entry View
+router.get('/manual-entry', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM pending_entries ORDER BY id DESC');
+        res.render('admin/manual_entry', { entries: result.rows });
+    } catch (err) {
+        console.error("Fetch Manual Entry Error:", err);
+        res.render('admin/manual_entry', { entries: [] });
+    }
+});
+
+// 🤝 Admin Confirm & Match Member View
+router.get('/confirm-member', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM pending_entries ORDER BY id DESC');
+        res.render('admin/confirm_member', { entries: result.rows });
+    } catch (err) {
+        console.error("Fetch Confirm Member Error:", err);
+        res.render('admin/confirm_member', { entries: [] });
+    }
+});
+
+// 📨 Admin Helpdesk Queries View
+router.get('/queries', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM query_tickets ORDER BY id DESC');
+        res.render('admin/queries', { tickets: result.rows });
+    } catch (error) {
+        console.error("Fetch Admin Queries Error:", error);
+        res.render('admin/queries', { tickets: [] });
+    }
+});
+
+// 🗄️ Admin Master Database View
+router.get('/master-database', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM main_database ORDER BY sr_no DESC');
+        const formattedRows = result.rows.map(row => ({
+            srNo: row.sr_no,
+            memberId: row.member_id,
+            name: row.name,
+            orderDate: row.order_date,
+            pv: row.pv,
+            amount: row.amount,
+            tracking: row.tracking
+        }));
+        res.render('admin/master_database', { entries: formattedRows });
+    } catch (error) {
+        console.error("Fetch Master Database Error:", error);
+        res.send("Error reading database: " + error.message);
+    }
+});
+
+// 📑 Admin Content & PDF Manager View
+router.get('/content-manager', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM content_pdf ORDER BY id DESC');
+        const formattedPdfs = result.rows.map(row => ({
+            ...row,
+            uploadDate: row.upload_date
+        }));
+        res.render('admin/content_manager', { pdfs: formattedPdfs });
+    } catch (error) {
+        console.error("Fetch Content PDFs Error:", error);
+        res.render('admin/content_manager', { pdfs: [] });
+    }
+});
+
+// ➕ Admin Add Product View
+router.get('/add-product', checkAdmin, (req, res) => {
+    res.render('admin/add_product');
+});
+
+// 🛍️ Admin View & Edit Products View
+router.get('/view-products', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM avira_products ORDER BY id DESC');
+        res.render('admin/view_products', { products: result.rows });
+    } catch (error) {
+        console.error("View Products Route Error:", error);
+        res.status(500).send("Server error: Unable to load products.");
+    }
+});
+
+// ⚙️ Admin Settings & Box Presets View
+router.get('/settings', checkAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM box_presets ORDER BY id DESC');
+        res.render('admin/settings', { presets: result.rows });
+    } catch (err) {
+        console.error("Admin Settings Error:", err);
+        res.render('admin/settings', { presets: [] });
+    }
+});
+
+module.exports = router;

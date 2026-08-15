@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth overflow-x-hidden">
+<head>
+    <%- include('../partials/head_meta') %>
+    <title>Track Your Consignment - Avira Lifecare</title>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-mesh-emerald font-sans antialiased text-slate-800 relative w-full overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+
+    <!-- Navigation -->
+    <%- include('../partials/member_navbar') %>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 relative z-10 box-border">
+        
+        <!-- Header / Intro -->
+        <div class="text-center space-y-3 max-w-xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-widest shadow-xs">
+                <i class="fa-solid fa-shield-halved text-emerald-600"></i> Real-time Live Tracking Engine
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-950 uppercase">
+                Track Your <span class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Shipment</span>
+            </h1>
+            
+            <p class="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
+                Enter your Avira Member ID below to view instant dispatch consignment details, barcodes, and live India Post status.
+            </p>
+        </div>
+
+        <!-- Search Input Box Card -->
+        <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl max-w-xl mx-auto border-emerald-200/90 shadow-md">
+            <form onsubmit="handleTrack(event)" class="space-y-4">
+                <div class="relative">
+                    <label for="memberIdInput" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-2">
+                        Member Identification (ID)
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-id-card text-emerald-600 text-sm"></i>
+                        </span>
+                        <input type="text" id="memberIdInput" placeholder="e.g. AVI123456" required
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all uppercase placeholder:normal-case placeholder:font-medium placeholder:text-slate-400">
+                    </div>
+                </div>
+
+                <button type="submit" id="trackBtn"
+                    class="btn-emerald-3d w-full text-center font-black text-xs py-3.5 px-6 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    <span>Track Consignment</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Results Area -->
+        <div id="resultsContainer" class="max-w-2xl mx-auto w-full space-y-6">
+            <!-- Dynamic Content loaded by JS -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <%- include('../partials/member_footer') %>
+
+    <script>
+        async function handleTrack(e) {
+            e.preventDefault();
+            const memberId = document.getElementById('memberIdInput').value.trim().toUpperCase();
+            const btn = document.getElementById('trackBtn');
+            const results = document.getElementById('resultsContainer');
+
+            if (!memberId) return;
+
+            // Loading state
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Searching Records...</span>`;
+            results.innerHTML = `
+                <div class="glass-emerald-card p-10 rounded-3xl text-center space-y-3">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl text-emerald-500"></i>
+                    <p class="text-xs font-bold text-slate-500">Fetching records for ${memberId}...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`/api/track?memberId=${encodeURIComponent(memberId)}`);
+                const data = await response.json();
+
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-magnifying-glass text-xs"></i> <span>Track Consignment</span>`;
+
+                if (!data || data.length === 0) {
+                    results.innerHTML = `
+                        <div class="glass-emerald-card p-10 rounded-3xl text-center space-y-3 border-amber-200 bg-amber-50/20">
+                            <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl mx-auto">
+                                <i class="fa-solid fa-box-archive"></i>
+                            </div>
+                            <h3 class="text-base font-black text-slate-900">No Dispatches Found</h3>
+                            <p class="text-xs text-slate-500 max-w-md mx-auto font-medium">
+                                We could not find any active shipment records for Member ID <strong class="text-slate-900">${memberId}</strong>. Please confirm your ID or contact the support desk.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="flex items-center justify-between px-2">
+                        <span class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Found ${data.length} Consignment(s)</span>
+                        <span class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 uppercase tracking-wider">Verified Records</span>
+                    </div>
+                `;
+
+                data.forEach((item, index) => {
+                    const trackingNumber = item.tracking ? item.tracking.trim() : '';
+                    const hasTracking = trackingNumber.length > 0 && trackingNumber !== 'PENDING';
+
+                    html += `
+                        <div class="glass-emerald-card p-6 sm:p-7 rounded-3xl space-y-5 border-emerald-200/90 shadow-sm">
+                            
+                            <!-- Header Row: Name & Status -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+                                <div>
+                                    <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest block">Recipient Name</span>
+                                    <h3 class="text-base font-black text-slate-900 uppercase">${item.name || 'Member Consignment'}</h3>
+                                </div>
+                                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${hasTracking ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'} text-[10px] font-extrabold uppercase tracking-wider self-start sm:self-auto">
+                                    <span class="h-1.5 w-1.5 rounded-full ${hasTracking ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}"></span>
+                                    ${hasTracking ? 'Dispatched' : 'Processing in Warehouse'}
+                                </div>
+                            </div>
+
+                            <!-- Metrics Grid -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/80 p-4 rounded-2xl border border-slate-100 text-xs">
+                                <div>
+                                    <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Member ID</span>
+                                    <span class="font-black text-slate-900">${item.memberId || '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Order Date</span>
+                                    <span class="font-bold text-slate-700">${item.orderDate || '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">PV Score</span>
+                                    <span class="font-black text-emerald-600">${item.pv || '0'} PV</span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Invoice Amount</span>
+                                    <span class="font-black text-slate-900">₹${parseFloat(item.amount || 0).toLocaleString('en-IN')}</span>
+                                </div>
+                            </div>
+
+                            <!-- Tracking & India Post Action -->
+                            <% if (true) { %>
+                                <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div class="w-full sm:w-auto">
+                                        <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Consignment Barcode</span>
+                                        <div class="flex items-center gap-2 mt-0.5">
+                                            <span class="font-mono font-black text-sm text-slate-900 tracking-wider">${hasTracking ? trackingNumber : 'Awaiting Barcode Generation'}</span>
+                                            ${hasTracking ? `
+                                                <button type="button" onclick="copyText('${trackingNumber}')" class="text-[10px] text-slate-400 hover:text-emerald-600 transition-colors p-1" title="Copy Barcode">
+                                                    <i class="fa-solid fa-copy"></i>
+                                                </button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+
+                                    ${hasTracking ? `
+                                        <a href="https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx" target="_blank" rel="noopener noreferrer"
+                                            class="btn-emerald-3d w-full sm:w-auto text-center font-extrabold text-xs py-2.5 px-4 rounded-xl uppercase tracking-wider flex items-center justify-center gap-2">
+                                            <span>India Post Status</span>
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                        </a>
+                                    ` : ''}
+                                </div>
+                            <% } %>
+
+                        </div>
+                    `;
+                });
+
+                results.innerHTML = html;
+
+            } catch (err) {
+                console.error(err);
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-magnifying-glass text-xs"></i> <span>Track Consignment</span>`;
+                results.innerHTML = `
+                    <div class="glass-emerald-card p-8 rounded-3xl text-center space-y-2 border-rose-200 bg-rose-50/20">
+                        <i class="fa-solid fa-circle-xmark text-2xl text-rose-500"></i>
+                        <h4 class="text-sm font-black text-slate-900">Communication Error</h4>
+                        <p class="text-xs text-slate-500 font-medium">Unable to connect to tracking server. Please check your network and try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Tracking Barcode copied to clipboard: " + text);
+            }).catch(() => {
+                prompt("Copy Barcode:", text);
+            });
+        }
+    </script>
+</body>
+</html>

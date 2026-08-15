@@ -1,18 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <%- include('../partials/head_meta') %>
     <title>Tracking Manager - Avira Control</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        html, body {
-            max-width: 100vw !important;
-            overflow-x: hidden !important;
-            position: relative;
-        }
-
         .admin-menu-card { 
             background: white; 
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
@@ -39,7 +30,7 @@
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <%- include('partials/admin_navbar') %>
+    <%- include('../partials/admin_navbar') %>
 
     <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen box-border w-full min-w-0">
         
@@ -71,7 +62,7 @@
                         <div class="w-11 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg mx-auto mb-3 border border-emerald-100/50">
                             <i class="fa-solid fa-file-excel"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 mb-1">Upload Master Data</h3>
+                        <h2 class="text-sm font-bold text-slate-900 mb-1">Upload Master Data</h2>
                         <p class="text-slate-400 text-[11px] leading-relaxed">Upload India Post bulk Excel sheet formats directly into database.</p>
                     </div>
                     <form id="dashUploadForm" class="space-y-3">
@@ -87,7 +78,7 @@
                         <div class="w-11 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-lg mx-auto mb-3 border border-teal-100/50">
                             <i class="fa-solid fa-file-invoice"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 mb-1">Order Excel Master</h3>
+                        <h2 class="text-sm font-bold text-slate-900 mb-1">Order Excel Master</h2>
                         <p class="text-slate-400 text-[11px] leading-relaxed">Upload and manage permanent orders Excel sheet repository.</p>
                     </div>
                     <a href="/admin/orders-master" class="block w-full bg-teal-600 hover:bg-teal-700 text-white text-center font-bold text-xs py-2 rounded-xl transition-all shadow-sm uppercase tracking-wide">
@@ -100,7 +91,7 @@
                         <div class="w-11 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg mx-auto mb-3 border border-emerald-100/50">
                             <i class="fa-solid fa-keyboard"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 mb-1">Manual Entry Portal</h3>
+                        <h2 class="text-sm font-bold text-slate-900 mb-1">Manual Entry Portal</h2>
                         <p class="text-slate-400 text-[11px] leading-relaxed">Add single parcel details & download customized Excel templates.</p>
                     </div>
                     <div class="space-y-2">
@@ -118,7 +109,7 @@
                         <div class="w-11 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg mx-auto mb-3 border border-emerald-100/50">
                             <i class="fa-solid fa-database"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 mb-1">Live Master Records</h3>
+                        <h2 class="text-sm font-bold text-slate-900 mb-1">Live Master Records</h2>
                         <p class="text-slate-400 text-[11px] leading-relaxed">View ultimate history table, track member activities & status.</p>
                     </div>
                     <a href="/admin/master-database" class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold text-xs py-2 rounded-xl transition-all shadow-sm uppercase tracking-wide">

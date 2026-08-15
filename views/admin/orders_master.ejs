@@ -1,22 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <%- include('../partials/head_meta') %>
     <title>Order Master Repository - Avira Control</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        html, body {
-            max-width: 100vw !important;
-            overflow-x: hidden !important;
-            position: relative;
-        }
-    </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden block">
 
-    <%- include('partials/admin_navbar') %>
+    <%- include('../partials/admin_navbar') %>
 
     <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between box-border min-w-0">
 
@@ -42,7 +32,7 @@
                         <i class="fa-solid fa-file-excel text-amber-300"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm sm:text-base font-black uppercase tracking-wide">Upload Order Excel File</h3>
+                        <h2 class="text-sm sm:text-base font-black uppercase tracking-wide">Upload Order Excel File</h2>
                         <p class="text-[11px] sm:text-xs text-emerald-100 mt-0.5">Upload order Excel spreadsheet to automatically extract Date, Member ID, Name, PV, & Amount details while preventing duplicate records.</p>
                     </div>
                 </div>
@@ -55,9 +45,9 @@
             <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden w-full">
                 <div class="px-4 sm:px-6 py-3.5 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
                     <div class="flex items-center gap-3">
-                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <h2 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
                             <i class="fa-solid fa-list text-emerald-500"></i> Permanent Order Repository
-                        </h3>
+                        </h2>
                         <span id="ordersCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-0.5 rounded-full"><%= orders.length %> Records Saved</span>
                     </div>
 
@@ -314,24 +304,29 @@
             const counterSpan = document.getElementById('selectedCount');
 
             if (selectedCheckboxes.length > 0) {
-                counterSpan.innerText = selectedCheckboxes.length;
+                if (counterSpan) {
+                    counterSpan.innerText = selectedCheckboxes.length;
+                } else {
+                    bulkBtn.innerHTML = `<i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedCount">${selectedCheckboxes.length}</span>)`;
+                }
                 bulkBtn.classList.remove('hidden');
                 bulkBtn.classList.add('flex');
             } else {
                 bulkBtn.classList.add('hidden');
                 bulkBtn.classList.remove('flex');
-                document.getElementById('selectAllCheckbox').checked = false;
+                const selectAll = document.getElementById('selectAllCheckbox');
+                if (selectAll) selectAll.checked = false;
             }
         }
 
         document.getElementById('btnBulkDelete').addEventListener('click', async function() {
             const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
-            const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+            const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value)).filter(id => !isNaN(id));
 
             if (selectedIds.length === 0) return;
 
             if (confirm(`Warning! Do you really want to delete all ${selectedIds.length} selected orders permanently?`)) {
-                this.innerText = "DELETING...";
+                this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Deleting...`;
                 this.disabled = true;
 
                 try {
@@ -348,10 +343,11 @@
                         alert(result.msg || "Deletion failed!");
                     }
                 } catch (err) {
-                    console.error(err);
+                    console.error("Bulk delete error:", err);
                     alert("Server error during bulk delete.");
                 } finally {
                     this.disabled = false;
+                    this.innerHTML = `<i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedCount">0</span>)`;
                     updateBulkDeleteButton();
                 }
             }

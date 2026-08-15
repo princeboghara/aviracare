@@ -1,24 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <%- include('../partials/head_meta') %>
     <title>Master Database - Avira Care</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        html, body {
-            max-width: 100vw !important;
-            overflow-x: hidden !important;
-            position: relative;
-        }
-    </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
 
-    <%- include('partials/admin_navbar') %>
+    <%- include('../partials/admin_navbar') %>
 
-    <div class="lg:ml-64 flex-grow flex flex-col justify-between h-screen overflow-y-auto">
+    <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen box-border">
         
         <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
             <div class="flex items-center gap-2">
@@ -45,10 +35,17 @@
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-100 shadow-lg overflow-hidden">
-                <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
                     <div>
-                        <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-table text-emerald-500 mr-1"></i> Permanent Master Database History</h3>
+                        <h2 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-table text-emerald-500 mr-1"></i> Permanent Master Database History</h2>
                         <p class="text-[10px] text-slate-400 mt-0.5">Click "Order Date" column header to sort ascending or descending.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span id="masterCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-0.5 rounded-full"><%= entries.length %> Records Saved</span>
+                        <button id="btnBulkDeleteMaster" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
+                            <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedMasterCount">0</span>)
+                        </button>
                     </div>
                 </div>
 
@@ -56,6 +53,9 @@
                     <table class="w-full text-xs text-left border-collapse" id="masterDbTable">
                         <thead>
                             <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase select-none">
+                                <th class="p-4 w-10 text-center select-none">
+                                    <input type="checkbox" id="selectAllMasterCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                                </th>
                                 <th class="p-4 w-12">SR</th>
                                 <th class="p-4">Member ID</th>
                                 <th class="p-4">Full Name</th>
@@ -71,7 +71,7 @@
                         <tbody class="divide-y divide-slate-50 font-medium text-slate-700" id="masterTableBody">
                             <% if(entries.length === 0) { %>
                                 <tr id="no-records-row">
-                                    <td colspan="8" class="py-12 text-center text-slate-400 font-normal">
+                                    <td colspan="9" class="py-12 text-center text-slate-400 font-normal">
                                         <i class="fa-solid fa-database text-2xl block mb-2 text-slate-200"></i>
                                         Database is empty! No records found in main_database.
                                     </td>
@@ -79,6 +79,9 @@
                             <% } else { %>
                                 <% entries.forEach((item, index) => { %>
                                 <tr class="hover:bg-slate-50 transition-colors table-row-item" id="row-master-<%= item.srNo %>">
+                                    <td class="p-4 text-center">
+                                        <input type="checkbox" value="<%= item.srNo %>" class="master-row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                                    </td>
                                     <td class="p-4 font-mono text-slate-400 sr-number-cell"><%= index + 1 %></td>
                                     <td class="p-4 font-bold font-mono text-emerald-700 member-id-cell"><%= item.memberId %></td>
                                     <td class="p-4 uppercase text-slate-800 font-semibold name-cell"><%= item.name %></td>
@@ -111,9 +114,9 @@
             </div>
         </main>
 
-        <header class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
+        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
             &copy; 2026 Avira Control Center. Secure Master Workspace.
-        </header>
+        </footer>
     </div>
 
     <div id="editMasterModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
@@ -175,24 +178,98 @@
             let count = 1;
             visibleRows.forEach(row => {
                 if (row.style.display !== 'none') {
-                    row.querySelector('.sr-number-cell').innerText = count++;
+                    const srCell = row.querySelector('.sr-number-cell');
+                    if (srCell) srCell.innerText = count++;
                 }
             });
         }
 
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.getElementById('editSrNo').value = this.getAttribute('data-srno');
-                document.getElementById('editMemberId').value = this.getAttribute('data-memberid');
-                document.getElementById('editName').value = this.getAttribute('data-name');
-                document.getElementById('editOrderDate').value = this.getAttribute('data-orderdate');
-                document.getElementById('editPv').value = this.getAttribute('data-pv');
-                document.getElementById('editAmount').value = this.getAttribute('data-amount');
-                document.getElementById('editTracking').value = this.getAttribute('data-tracking');
+        function updateBulkDeleteMasterButton() {
+            const selectedCheckboxes = document.querySelectorAll('.master-row-checkbox:checked');
+            const bulkBtn = document.getElementById('btnBulkDeleteMaster');
+            const counterSpan = document.getElementById('selectedMasterCount');
+
+            if (selectedCheckboxes.length > 0) {
+                if (counterSpan) {
+                    counterSpan.innerText = selectedCheckboxes.length;
+                } else {
+                    bulkBtn.innerHTML = `<i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedMasterCount">${selectedCheckboxes.length}</span>)`;
+                }
+                bulkBtn.classList.remove('hidden');
+                bulkBtn.classList.add('flex');
+            } else {
+                bulkBtn.classList.add('hidden');
+                bulkBtn.classList.remove('flex');
+                const selectAll = document.getElementById('selectAllMasterCheckbox');
+                if (selectAll) selectAll.checked = false;
+            }
+        }
+
+        document.getElementById('selectAllMasterCheckbox').addEventListener('change', function() {
+            const isChecked = this.checked;
+            document.querySelectorAll('.table-row-item').forEach(row => {
+                if (row.style.display !== 'none') {
+                    const cb = row.querySelector('.master-row-checkbox');
+                    if (cb) cb.checked = isChecked;
+                }
+            });
+            updateBulkDeleteMasterButton();
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('master-row-checkbox')) {
+                updateBulkDeleteMasterButton();
+            }
+        });
+
+        document.getElementById('btnBulkDeleteMaster').addEventListener('click', async function() {
+            const selectedCheckboxes = document.querySelectorAll('.master-row-checkbox:checked');
+            const selectedSrNos = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value)).filter(n => !isNaN(n));
+
+            if (selectedSrNos.length === 0) return;
+
+            if (confirm(`Warning! Do you really want to delete all ${selectedSrNos.length} selected records permanently from database?`)) {
+                this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Deleting...`;
+                this.disabled = true;
+
+                try {
+                    const res = await fetch('/admin/api/delete-multiple-master', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ srNos: selectedSrNos })
+                    });
+                    const result = await res.json();
+
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert("Error: " + (result.msg || "Bulk deletion failed"));
+                    }
+                } catch (err) {
+                    console.error("Bulk delete master error:", err);
+                    alert("Server error during bulk delete.");
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = `<i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedMasterCount">0</span>)`;
+                    updateBulkDeleteMasterButton();
+                }
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            const editBtn = e.target.closest('.edit-btn');
+            if (editBtn) {
+                document.getElementById('editSrNo').value = editBtn.getAttribute('data-srno');
+                document.getElementById('editMemberId').value = editBtn.getAttribute('data-memberid');
+                document.getElementById('editName').value = editBtn.getAttribute('data-name');
+                document.getElementById('editOrderDate').value = editBtn.getAttribute('data-orderdate');
+                document.getElementById('editPv').value = editBtn.getAttribute('data-pv');
+                document.getElementById('editAmount').value = editBtn.getAttribute('data-amount');
+                document.getElementById('editTracking').value = editBtn.getAttribute('data-tracking');
 
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
-            });
+            }
         });
 
         document.getElementById('btnCloseModal').addEventListener('click', closeModal);
@@ -242,15 +319,16 @@
             }
         });
 
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const realSrNo = this.getAttribute('data-srno');
+        document.addEventListener('click', function(e) {
+            const delBtn = e.target.closest('.delete-btn');
+            if (delBtn) {
+                const realSrNo = delBtn.getAttribute('data-srno');
                 
                 if(confirm("Warning! Do you want to delete this permanent record from database?")) {
                     fetch(`/admin/api/delete-master/${realSrNo}`, { method: 'DELETE' })
                     .then(res => res.json())
                     .then(data => { 
-                        if(data.success) {
+                        if(data.success) { 
                             location.reload(); 
                         } else {
                             alert("Error: " + data.msg);
@@ -258,7 +336,7 @@
                     })
                     .catch(err => console.error(err));
                 }
-            });
+            }
         });
 
         document.getElementById('dbSearchInput').addEventListener('input', function() {
@@ -276,8 +354,12 @@
                     visibleCount++;
                 } else {
                     row.style.display = 'none';
+                    const cb = row.querySelector('.master-row-checkbox');
+                    if (cb) cb.checked = false;
                 }
             });
+
+            updateBulkDeleteMasterButton();
 
             const existingNoMatchRow = document.getElementById('no-match-row');
             if (visibleCount === 0) {
@@ -286,7 +368,7 @@
                     const noMatch = document.createElement('tr');
                     noMatch.id = 'no-match-row';
                     noMatch.innerHTML = `
-                        <td colspan="8" class="py-12 text-center text-slate-400 font-normal">
+                        <td colspan="9" class="py-12 text-center text-slate-400 font-normal">
                             <i class="fa-solid fa-magnifying-glass-minus text-2xl block mb-2 text-slate-200"></i>
                             No matching records found for "${query}"
                         </td>

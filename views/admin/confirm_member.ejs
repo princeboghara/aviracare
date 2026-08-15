@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <%- include('../partials/head_meta') %>
     <title>Confirm Member Workspace - Avira Control</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        html, body {
-            max-width: 100vw !important;
-            overflow-x: hidden !important;
-            position: relative;
-        }
-
         .confirm-input {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            padding: 3px 6px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 8px;
             font-size: 11px;
             font-weight: 700;
         }
@@ -30,7 +21,7 @@
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-amber-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
-    <%- include('partials/admin_navbar') %>
+    <%- include('../partials/admin_navbar') %>
 
     <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen w-full box-border">
         
@@ -90,7 +81,12 @@
                                             <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-bold text-slate-900 w-[65px]">
                                         </td>
                                         <td class="py-1.5 px-2 text-center">
-                                            <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-500 hover:bg-emerald-600 text-white font-black px-2.5 py-1 rounded transition-all text-[10px] tracking-wider uppercase cursor-pointer shadow-sm">OK</button>
+                                            <div class="flex items-center justify-center gap-1.5">
+                                                <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-500 hover:bg-emerald-600 text-white font-black px-2.5 py-1 rounded transition-all text-[10px] tracking-wider uppercase cursor-pointer shadow-sm">OK</button>
+                                                <button type="button" onclick="deletePendingMember('<%= item.id %>', '<%= index %>')" class="bg-rose-500 hover:bg-rose-600 text-white font-black px-2 py-1 rounded transition-all text-[10px] tracking-wider uppercase cursor-pointer shadow-sm" title="Delete Entry">
+                                                    <i class="fa-solid fa-trash text-[9px]"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <% }) %>
@@ -181,6 +177,7 @@
 
                     if(data.success) { 
                         row.remove(); 
+                        checkEmptyTableState();
                     } else {
                         alert("Error: " + data.msg);
                         this.innerText = "OK";
@@ -194,6 +191,40 @@
                 }
             });
         });
+
+        async function deletePendingMember(id, index) {
+            if (!id) {
+                alert("Invalid entry ID!");
+                return;
+            }
+            if (confirm("Are you sure you want to delete this pending dispatch entry?")) {
+                try {
+                    const res = await fetch(`/admin/api/delete-entry/${id}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.success) {
+                        const row = document.getElementById(`row-${index}`);
+                        if (row) row.remove();
+                        checkEmptyTableState();
+                    } else {
+                        alert("Error: " + (data.msg || "Failed to delete"));
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Server communication error while deleting.");
+                }
+            }
+        }
+
+        function checkEmptyTableState() {
+            const remainingRows = document.querySelectorAll('#confirmTableBody tr:not(#empty-row)');
+            if (remainingRows.length === 0) {
+                document.getElementById('confirmTableBody').innerHTML = `
+                    <tr id="empty-row">
+                        <td colspan="7" class="py-12 text-center text-slate-400 font-normal">All entries verified!</td>
+                    </tr>
+                `;
+            }
+        }
 
         document.getElementById('btnRunMatches').addEventListener('click', async function() {
             this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> MATCHING...`;
