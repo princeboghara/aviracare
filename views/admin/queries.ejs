@@ -169,92 +169,87 @@
     </div>
 
     <script>
-        const replyModal = document.getElementById('replyModal');
-
-        function openReplyModal(id, ticketNo, subject, desc, reply, status, memberId, memberName) {
+        function openReplyModal(id, rawName, memberId, rawSubject, rawDesc, rawReply, currentStatus) {
             document.getElementById('replyTicketId').value = id;
-            document.getElementById('replyTicketNumber').innerText = ticketNo;
-            document.getElementById('replyMemberInfo').innerText = `${memberName} (${memberId})`;
-            document.getElementById('replySubject').innerText = subject;
-            document.getElementById('replyDesc').innerText = desc;
-            document.getElementById('replyMessage').value = reply || '';
-            document.getElementById('replyStatus').value = status || 'OPEN';
+            document.getElementById('replyTicketNumber').innerText = '#' + id;
+            document.getElementById('replyMemberInfo').innerText = unescape(rawName) + ' (' + memberId + ')';
+            document.getElementById('replySubject').innerText = 'Subject: ' + unescape(rawSubject);
+            document.getElementById('replyDesc').innerText = 'Query: ' + unescape(rawDesc);
+            document.getElementById('replyMessage').value = rawReply ? unescape(rawReply) : '';
+            document.getElementById('replyStatus').value = currentStatus || 'SOLVED';
 
-            replyModal.classList.remove('hidden');
-            replyModal.classList.add('flex');
+            document.getElementById('replyModal').classList.remove('hidden');
         }
 
         function closeReplyModal() {
-            replyModal.classList.add('hidden');
-            replyModal.classList.remove('flex');
+            document.getElementById('replyModal').classList.add('hidden');
+            document.getElementById('replyQueryForm').reset();
         }
 
         document.getElementById('replyQueryForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             const ticketId = document.getElementById('replyTicketId').value;
-            const adminReply = document.getElementById('replyMessage').value.trim();
+            const reply = document.getElementById('replyMessage').value.trim();
             const status = document.getElementById('replyStatus').value;
+            const submitBtn = document.getElementById('btnSubmitReply');
 
-            const btn = document.getElementById('btnSubmitReply');
-            btn.innerText = "SENDING...";
-            btn.disabled = true;
+            if (!reply) {
+                alert("Please enter a reply message.");
+                return;
+            }
+
+            submitBtn.innerText = "Sending...";
+            submitBtn.disabled = true;
 
             try {
-                const res = await fetch('/admin/api/reply-query', {
+                const res = await fetch('/admin/api/queries/reply', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ticketId, adminReply, status })
+                    body: JSON.stringify({ ticketId, reply, status })
                 });
-                const result = await res.json();
+                const data = await res.json();
 
-                if (result.success) {
-                    alert(result.msg);
+                if (data.success) {
+                    alert(data.msg || "Reply sent successfully!");
                     location.reload();
                 } else {
-                    alert("Error: " + (result.msg || "Failed to update reply"));
+                    alert("Error: " + (data.msg || "Failed to send reply"));
+                    submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Send Reply`;
+                    submitBtn.disabled = false;
                 }
             } catch (err) {
                 console.error(err);
-                alert("Server communication error.");
-            } finally {
-                btn.innerText = "Send Resolution";
-                btn.disabled = false;
+                alert("Server error occurred while sending reply.");
+                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Send Reply`;
+                submitBtn.disabled = false;
             }
         });
 
         async function updateStatus(ticketId, status) {
             try {
-                const res = await fetch('/admin/api/update-query-status', {
+                const res = await fetch('/admin/api/queries/update-status', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ticketId, status })
                 });
-                const result = await res.json();
-                if (result.success) {
-                    location.reload();
-                } else {
-                    alert("Error: " + (result.msg || "Failed to update status"));
-                }
-            } catch (err) {
-                console.error(err);
-            }
+                const data = await res.json();
+                if(data.success) { location.reload(); }
+                else { alert("Error: " + (data.msg || "Failed to update")); }
+            } catch(err) { console.error(err); }
         }
 
         async function deleteTicket(ticketId) {
-            if (confirm("Are you sure you want to permanently delete this support query?")) {
+            if (confirm("Are you sure you want to delete this support query ticket?")) {
                 try {
-                    const res = await fetch(`/admin/api/delete-query/${ticketId}`, { method: 'DELETE' });
-                    const result = await res.json();
-                    if (result.success) {
+                    const res = await fetch(`/admin/api/queries/delete/${ticketId}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if(data.success) { 
                         const row = document.getElementById(`ticket-row-${ticketId}`);
                         if (row) row.remove();
                     } else {
-                        alert("Error: " + (result.msg || "Failed to delete ticket"));
+                        alert("Error: " + (data.msg || "Failed to delete"));
                     }
-                } catch (err) {
-                    console.error(err);
-                }
+                } catch(err) { console.error(err); }
             }
         }
     </script>

@@ -26,13 +26,6 @@
             transition: all 0.3s ease;
         }
 
-        html.dark .field-highlight {
-            background-color: rgba(16, 185, 129, 0.15) !important;
-            border-color: #10b981 !important;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3) !important;
-            color: #ffffff !important;
-        }
-
         .ai-scanned-glow {
             animation: highlightGlow 1.5s ease-in-out 2 alternate;
         }
@@ -51,65 +44,58 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+<body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden">
 
     <%- include('../partials/admin_navbar') %>
 
     <div class="lg:pl-64 flex flex-col min-h-screen w-full min-w-0">
         
-        <header class="glass-panel-header px-4 sm:px-8 py-3 flex justify-between items-center sticky top-0 z-30 shadow-xs w-full">
+        <header class="bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3 flex justify-between items-center sticky top-0 z-30 shadow-sm w-full">
             <div class="flex items-center gap-2 min-w-0">
-                <i class="fa-solid fa-keyboard text-emerald-500 flex-shrink-0 text-sm"></i>
-                <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider truncate">Tracking / Manual Entry Workspace</span>
+                <i class="fa-solid fa-keyboard text-emerald-500 flex-shrink-0"></i>
+                <span class="text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wider truncate">Manual Entry</span>
             </div>
             
             <div class="flex items-center gap-3 flex-shrink-0 ml-2">
                 <div class="text-right hidden sm:block">
-                    <p class="text-xs font-black text-slate-800 dark:text-slate-200">Avira Root</p>
-                    <p class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest font-mono-code">Dispatch Terminal</p>
+                    <p class="text-xs font-bold text-slate-800">Avira Admin</p>
+                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
                 </div>
-                <div class="h-8 w-8 bg-emerald-50 dark:bg-emerald-950/60 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800 font-black text-xs shadow-xs">
-                    <i class="fa-solid fa-truck-ramp-box text-xs"></i>
-                </div>
+                <div class="h-8 w-8 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 border border-emerald-100 font-bold text-xs shadow-sm">A</div>
             </div>
         </header>
 
         <main class="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 box-border">
             
-            <!-- AI Camera Label Scanner Banner -->
-            <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 p-4 sm:p-5 rounded-3xl shadow-lg text-white flex flex-col sm:flex-row justify-between items-center gap-4 w-full box-border relative overflow-hidden">
-                <div class="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-                
-                <div class="flex items-center gap-3.5 min-w-0 w-full sm:w-auto relative z-10">
-                    <div class="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl flex-shrink-0 border border-white/25 shadow-inner">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-4 sm:p-5 rounded-2xl shadow-md text-white flex flex-col sm:flex-row justify-between items-center gap-4 w-full box-border">
+                <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+                    <div class="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl flex-shrink-0 border border-white/20">
                         <i class="fa-solid fa-bolt text-amber-300"></i>
                     </div>
                     <div class="min-w-0">
-                        <h2 class="text-xs sm:text-base font-black uppercase tracking-wide truncate font-outfit">AI Smart Label Scanner</h2>
-                        <p class="text-[10px] sm:text-[11px] text-emerald-100 mt-0.5 truncate sm:whitespace-normal font-medium">Scan parcel labels with mobile camera to auto-fill Tracking ID, Name, Mobile, and Pincode instantly.</p>
+                        <h2 class="text-xs sm:text-base font-black uppercase tracking-wide truncate">AI Smart Label Scanner</h2>
+                        <p class="text-[10px] sm:text-[11px] text-emerald-100 mt-0.5 truncate sm:whitespace-normal">Scan parcel labels to auto-fill Tracking ID, Name, Mobile, and Pincode instantly.</p>
                     </div>
                 </div>
-                <div class="w-full sm:w-auto flex-shrink-0 relative z-10">
+                <div class="w-full sm:w-auto flex-shrink-0">
                     <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
-                    <button type="button" onclick="document.getElementById('cameraInput').click()" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-md transition-all uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 flex-shrink-0 whitespace-nowrap font-outfit">
-                        <i class="fa-solid fa-expand text-emerald-600"></i> <span>Scan Label</span>
+                    <button type="button" onclick="document.getElementById('cameraInput').click()" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl shadow transition-all uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 flex-shrink-0 whitespace-nowrap">
+                        <i class="fa-solid fa-expand text-emerald-600"></i> Scan with Camera
                     </button>
                 </div>
             </div>
 
-            <!-- AI OCR Live Status Box -->
-            <div id="ocrStatusBox" class="hidden bg-slate-900 dark:bg-slate-950 text-white p-3 rounded-2xl text-xs font-bold flex items-center justify-between shadow-md border border-slate-800">
+            <div id="ocrStatusBox" class="hidden bg-slate-900 text-white p-3 rounded-xl text-xs font-bold flex items-center justify-between shadow-md">
                 <span id="ocrStatusText" class="flex items-center gap-2"><i class="fa-solid fa-bolt animate-bounce text-amber-400"></i> AI Scanning Label...</span>
-                <span id="ocrProgress" class="font-mono-code text-emerald-400 text-[10px]"><i class="fa-solid fa-microchip mr-1"></i> Gemini Vision AI</span>
+                <span id="ocrProgress" class="font-mono text-emerald-400 text-[10px]"><i class="fa-solid fa-microchip mr-1"></i> Gemini Vision AI</span>
             </div>
 
-            <!-- Manual Entry Form Card -->
-            <div class="bg-white dark:bg-[#111827] p-4 sm:p-6 lg:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm w-full space-y-4">
-                <div class="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
-                    <h2 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase font-outfit tracking-wide flex items-center gap-2">
-                        <i class="fa-solid fa-plus text-emerald-500"></i> Add New Dispatch Entry
+            <div class="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl border border-slate-100 shadow-md w-full">
+                <div class="border-b border-slate-100 pb-2.5 mb-4 flex justify-between items-center">
+                    <h2 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-plus text-emerald-500"></i> Add New Dispatch
                     </h2>
-                    <span id="highlightNotice" class="hidden text-[10px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-lg">
+                    <span id="highlightNotice" class="hidden text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
                         <i class="fa-solid fa-eye mr-1"></i> Details Highlighted for Verification
                     </span>
                 </div>
@@ -117,54 +103,53 @@
                 <form id="manualEntryForm" class="space-y-4 text-xs w-full">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                         <div>
-                            <label class="block font-black uppercase text-[10px] text-slate-500 dark:text-slate-400 mb-1 tracking-wider flex items-center justify-between">
+                            <label class="block font-bold text-slate-600 mb-1 flex items-center justify-between">
                                 Tracking Number
-                                <span class="text-[9px] text-slate-400 font-normal">Required</span>
+                                <span class="text-[9px] text-slate-400 font-normal uppercase">Required</span>
                             </label>
-                            <input type="text" id="mTracking" required class="manual-field w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-700 uppercase font-mono-code font-bold focus:outline-none focus:border-emerald-500 text-slate-800 dark:text-slate-100 transition-all">
+                            <input type="text" id="mTracking" required class="manual-field w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 uppercase font-mono font-bold focus:outline-none focus:border-emerald-500 transition-all">
                         </div>
                         <div>
-                            <label class="block font-black uppercase text-[10px] text-slate-500 dark:text-slate-400 mb-1 tracking-wider flex items-center justify-between">
-                                Receiver Name / Link
-                                <span class="text-[9px] text-slate-400 font-normal">Required</span>
+                            <label class="block font-bold text-slate-600 mb-1 flex items-center justify-between">
+                                Receiver Name / Order Link
+                                <span class="text-[9px] text-slate-400 font-normal uppercase">Required</span>
                             </label>
-                            <input type="text" id="mReceiverName" required class="manual-field w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-700 uppercase font-semibold focus:outline-none focus:border-emerald-500 text-slate-800 dark:text-slate-100 transition-all">
+                            <input type="text" id="mReceiverName" required class="manual-field w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 uppercase font-semibold focus:outline-none focus:border-emerald-500 transition-all">
                         </div>
                         <div>
-                            <label class="block font-black uppercase text-[10px] text-slate-500 dark:text-slate-400 mb-1 tracking-wider flex items-center justify-between">
-                                Receiver Mobile
-                                <span class="text-[9px] text-slate-400 font-normal">10 Digits</span>
+                            <label class="block font-bold text-slate-600 mb-1 flex items-center justify-between">
+                                Receiver Mobile Number
+                                <span class="text-[9px] text-slate-400 font-normal uppercase">10 Digits</span>
                             </label>
                             <input type="text" id="mMobile" required maxlength="10" placeholder="10 Digits Only"
                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);" 
-                                   class="manual-field w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-700 font-mono-code font-bold focus:outline-none focus:border-emerald-500 text-slate-800 dark:text-slate-100 transition-all">
+                                   class="manual-field w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 font-mono font-bold focus:outline-none focus:border-emerald-500 transition-all">
                         </div>
                         <div>
-                            <label class="block font-black uppercase text-[10px] text-slate-500 dark:text-slate-400 mb-1 tracking-wider flex items-center justify-between">
+                            <label class="block font-bold text-slate-600 mb-1 flex items-center justify-between">
                                 Receiver Pincode
-                                <span class="text-[9px] text-slate-400 font-normal">6 Digits</span>
+                                <span class="text-[9px] text-slate-400 font-normal uppercase">6 Digits</span>
                             </label>
                             <input type="text" id="mPincode" maxlength="6" required oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                                   class="manual-field w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-700 font-mono-code font-bold focus:outline-none focus:border-emerald-500 text-slate-800 dark:text-slate-100 transition-all">
+                                   class="manual-field w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 font-mono font-bold focus:outline-none focus:border-emerald-500 transition-all">
                         </div>
                     </div>
 
-                    <!-- Box Dimensions & Presets Section -->
-                    <div class="bg-slate-50/90 dark:bg-slate-900/70 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-3">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200/60 dark:border-slate-800 pb-2.5">
-                            <label class="font-black uppercase text-[10px] text-slate-700 dark:text-slate-300 flex items-center gap-1.5 tracking-wider">
-                                <i class="fa-solid fa-boxes-packing text-emerald-500 text-xs"></i> Box Dimensions
+                    <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100 space-y-3">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200/60 pb-2">
+                            <label class="font-bold text-slate-700 flex items-center gap-1.5 text-xs">
+                                <i class="fa-solid fa-boxes-packing text-emerald-500"></i> Box Dimensions
                             </label>
                             
-                            <div class="relative w-full sm:w-72">
-                                <button type="button" id="presetBtn" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-emerald-400 focus:outline-none shadow-xs flex justify-between items-center cursor-pointer transition-all">
+                            <div class="relative w-full sm:w-64">
+                                <button type="button" id="presetBtn" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 hover:border-emerald-400 focus:outline-none shadow-xs flex justify-between items-center cursor-pointer transition-all">
                                     <span id="selectedPresetLabel" class="flex items-center gap-1.5 truncate">
                                         <i class="fa-solid fa-bolt text-amber-400"></i> Select Box Preset...
                                     </span>
                                     <i id="presetChevron" class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-300"></i>
                                 </button>
 
-                                <div id="presetMenu" class="custom-preset-menu absolute right-0 left-0 sm:left-auto sm:w-72 top-full mt-1 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 p-2 space-y-1">
+                                <div id="presetMenu" class="custom-preset-menu absolute right-0 left-0 sm:left-auto sm:w-72 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1.5 space-y-1">
                                     <p class="p-2 text-center text-[10px] text-slate-400 font-semibold">Loading Presets...</p>
                                 </div>
                             </div>
@@ -172,69 +157,67 @@
 
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
                             <div>
-                                <label class="block font-black uppercase text-[10px] text-slate-400 dark:text-slate-500 mb-1 tracking-wider">Weight (Grams / g)</label>
-                                <input type="number" id="mWeight" placeholder="e.g. 500" required class="manual-field w-full px-2.5 py-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-emerald-500 font-bold text-xs text-slate-800 dark:text-slate-100 transition-all font-mono-code">
+                                <label class="block font-semibold text-slate-400 mb-1">Weight (Grams / g)</label>
+                                <input type="number" id="mWeight" placeholder="e.g. 500" required class="manual-field w-full px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-bold text-xs transition-all">
                             </div>
                             <div>
-                                <label class="block font-black uppercase text-[10px] text-slate-400 dark:text-slate-500 mb-1 tracking-wider">Length (cm)</label>
-                                <input type="number" id="mLength" required class="manual-field w-full px-2.5 py-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-emerald-500 font-bold text-xs text-slate-800 dark:text-slate-100 transition-all font-mono-code">
+                                <label class="block font-semibold text-slate-400 mb-1">Length (cm)</label>
+                                <input type="number" id="mLength" required class="manual-field w-full px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-bold text-xs transition-all">
                             </div>
                             <div>
-                                <label class="block font-black uppercase text-[10px] text-slate-400 dark:text-slate-500 mb-1 tracking-wider">Breadth (cm)</label>
-                                <input type="number" id="mBreadth" required class="manual-field w-full px-2.5 py-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-emerald-500 font-bold text-xs text-slate-800 dark:text-slate-100 transition-all font-mono-code">
+                                <label class="block font-semibold text-slate-400 mb-1">Breadth (cm)</label>
+                                <input type="number" id="mBreadth" required class="manual-field w-full px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-bold text-xs transition-all">
                             </div>
                             <div>
-                                <label class="block font-black uppercase text-[10px] text-slate-400 dark:text-slate-500 mb-1 tracking-wider">Height (cm)</label>
-                                <input type="number" id="mHeight" required class="manual-field w-full px-2.5 py-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-emerald-500 font-bold text-xs text-slate-800 dark:text-slate-100 transition-all font-mono-code">
+                                <label class="block font-semibold text-slate-400 mb-1">Height (cm)</label>
+                                <input type="number" id="mHeight" required class="manual-field w-full px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-bold text-xs transition-all">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Auto-Fetched Location Section -->
-                    <div class="bg-emerald-50/40 dark:bg-emerald-950/20 p-3.5 sm:p-4 rounded-2xl border border-emerald-100/70 dark:border-emerald-900/50 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-emerald-50/40 p-3.5 rounded-xl border border-emerald-100/70 grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-[10px] font-black uppercase text-emerald-800 dark:text-emerald-400 mb-1 tracking-wider">City</label>
-                            <input type="text" id="txtCity" placeholder="MANUAL / AUTO" class="manual-field w-full px-3 py-2 bg-white dark:bg-slate-900 border border-emerald-200/80 dark:border-emerald-800/80 rounded-xl text-[11px] font-extrabold uppercase focus:outline-none focus:border-emerald-500 text-slate-800 dark:text-slate-100 transition-all">
+                            <label class="block text-[10px] font-bold text-emerald-800 mb-1">City</label>
+                            <input type="text" id="txtCity" placeholder="MANUAL / AUTO" class="manual-field w-full px-3 py-1.5 bg-white border border-emerald-200/80 rounded-lg text-[11px] font-extrabold uppercase focus:outline-none focus:border-emerald-500 transition-all">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black uppercase text-emerald-800 dark:text-emerald-400 mb-1 tracking-wider">State</label>
-                            <input type="text" id="txtState" placeholder="MANUAL / AUTO" class="manual-field w-full px-3 py-2 bg-white dark:bg-slate-900 border border-emerald-200/80 dark:border-emerald-800/80 rounded-xl text-[11px] font-extrabold uppercase focus:outline-none focus:border-emerald-500 text-slate-800 dark:text-slate-100 transition-all">
+                            <label class="block text-[10px] font-bold text-emerald-800 mb-1">State</label>
+                            <input type="text" id="txtState" placeholder="MANUAL / AUTO" class="manual-field w-full px-3 py-1.5 bg-white border border-emerald-200/80 rounded-lg text-[11px] font-extrabold uppercase focus:outline-none focus:border-emerald-500 transition-all">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black uppercase text-emerald-800 dark:text-emerald-400 mb-1 tracking-wider">Area / Address Line</label>
-                            <input type="text" id="txtAddress" placeholder="MANUAL / AUTO" class="manual-field w-full px-3 py-2 bg-white dark:bg-slate-900 border border-emerald-200/80 dark:border-emerald-800/80 rounded-xl text-[11px] font-extrabold uppercase focus:outline-none focus:border-emerald-500 text-slate-800 dark:text-slate-100 transition-all">
+                            <label class="block text-[10px] font-bold text-emerald-800 mb-1">Area / Address Line</label>
+                            <input type="text" id="txtAddress" placeholder="MANUAL / AUTO" class="manual-field w-full px-3 py-1.5 bg-white border border-emerald-200/80 rounded-lg text-[11px] font-extrabold uppercase focus:outline-none focus:border-emerald-500 transition-all">
                         </div>
                     </div>
 
                     <div class="flex justify-end pt-2">
-                        <button type="submit" class="w-full sm:w-auto btn-emerald-3d text-white text-xs font-black px-6 py-3 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-circle-check text-sm"></i> <span>Save Entry</span>
+                        <button type="submit" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black px-6 py-3 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-sm"></i> SAVE ENTRY
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- Current Session Entries Table Card -->
-            <div class="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden w-full">
-                <div class="px-4 py-3.5 bg-slate-50 dark:bg-[#0d1322] border-b border-slate-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-2">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden w-full">
+                <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-2">
                     <div class="flex items-center gap-3">
-                        <h2 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase font-outfit tracking-wide flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-emerald-500"></i> Current Session Entries
+                        <h2 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-slate-400"></i> Current Session Entries
                         </h2>
-                        <span id="entryCounter" class="bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-black px-2.5 py-0.5 rounded-full font-mono-code">
+                        <span id="entryCounter" class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full">
                             Total Entries: 0
                         </span>
                     </div>
                     
-                    <button id="exportExcelBtn" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-[11px] px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm uppercase tracking-wider">
-                        <i class="fa-solid fa-file-excel text-emerald-400"></i> <span>Export Excel</span>
+                    <button id="exportExcelBtn" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-[11px] px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-file-excel text-emerald-400"></i> EXPORT EXCEL
                     </button>
                 </div>
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[650px]">
                         <thead>
-                            <tr class="bg-slate-100/70 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-black uppercase text-[10px] tracking-wider select-none">
-                                <th class="py-3 px-3 w-12 text-center cursor-pointer hover:text-emerald-600 transition-colors" onclick="toggleSortOrder()">
+                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase select-none">
+                                <th class="py-3 px-3 w-12 cursor-pointer hover:text-emerald-600 transition-colors" onclick="toggleSortOrder()">
                                     SR <i class="fa-solid fa-sort text-[10px] ml-0.5" id="sortIcon"></i>
                                 </th>
                                 <th class="py-3 px-4">Tracking No</th>
@@ -245,12 +228,9 @@
                                 <th class="py-3 px-4 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="sessionTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-semibold text-slate-700 dark:text-slate-300">
+                        <tbody id="sessionTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
                             <tr>
-                                <td colspan="7" class="py-12 text-center text-slate-400 dark:text-slate-500 font-normal">
-                                    <i class="fa-solid fa-inbox text-3xl block mb-2 text-slate-300 dark:text-slate-700"></i>
-                                    No entries added in this session yet.
-                                </td>
+                                <td colspan="7" class="py-8 text-center text-slate-400 font-normal">No entries added in this session yet.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -259,8 +239,8 @@
 
         </main>
 
-        <footer class="bg-white dark:bg-[#0d1322] border-t border-slate-200/80 dark:border-slate-800 py-3.5 text-center text-xs font-medium text-slate-400 dark:text-slate-500 mt-6 w-full overflow-hidden">
-            &copy; 2026 Avira LifeCare System. All rights reserved.
+        <footer class="bg-white border-t border-slate-100 py-3 text-center text-xs font-medium text-slate-400 mt-6 w-full">
+            &copy; 2026 Avira LifeCare. All rights reserved.
         </footer>
     </div>
 
@@ -317,36 +297,36 @@
                     data.presets.forEach(p => {
                         const firstChar = p.name ? p.name.charAt(0).toUpperCase() : 'B';
                         menu.innerHTML += `
-                            <div onclick="applyBoxPreset(${p.length}, ${p.breadth}, ${p.height}, '${p.name}')" class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer transition-all">
-                                <div class="h-7 w-7 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xs flex-shrink-0">${firstChar}</div>
+                            <div onclick="applyBoxPreset(${p.length}, ${p.breadth}, ${p.height}, '${p.name}')" class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
+                                <div class="h-7 w-7 rounded-md bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs flex-shrink-0">${firstChar}</div>
                                 <div>
-                                    <p class="text-xs font-black uppercase font-outfit">${p.name}</p>
-                                    <p class="text-[9px] text-slate-400 font-mono-code">${p.length} x ${p.breadth} x ${p.height} cm</p>
+                                    <p class="text-xs font-bold uppercase">${p.name}</p>
+                                    <p class="text-[9px] text-slate-400 font-medium">${p.length} x ${p.breadth} x ${p.height} cm</p>
                                 </div>
                             </div>
                         `;
                     });
                 } else {
                     menu.innerHTML = `
-                        <div onclick="applyBoxPreset(15, 10, 5, 'Small Box (15x10x5 cm)')" class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer transition-all">
-                            <div class="h-7 w-7 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xs flex-shrink-0">S</div>
+                        <div onclick="applyBoxPreset(15, 10, 5, 'Small Box (15x10x5 cm)')" class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
+                            <div class="h-7 w-7 rounded-md bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs flex-shrink-0">S</div>
                             <div>
-                                <p class="text-xs font-black font-outfit">Small Box</p>
-                                <p class="text-[9px] text-slate-400 font-mono-code">15 x 10 x 5 cm</p>
+                                <p class="text-xs font-bold">Small Box</p>
+                                <p class="text-[9px] text-slate-400 font-medium">15 x 10 x 5 cm</p>
                             </div>
                         </div>
-                        <div onclick="applyBoxPreset(20, 15, 10, 'Medium Box (20x15x10 cm)')" class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer transition-all">
-                            <div class="h-7 w-7 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-xs flex-shrink-0">M</div>
+                        <div onclick="applyBoxPreset(20, 15, 10, 'Medium Box (20x15x10 cm)')" class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
+                            <div class="h-7 w-7 rounded-md bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs flex-shrink-0">M</div>
                             <div>
-                                <p class="text-xs font-black font-outfit">Medium Box</p>
-                                <p class="text-[9px] text-slate-400 font-mono-code">20 x 15 x 10 cm</p>
+                                <p class="text-xs font-bold">Medium Box</p>
+                                <p class="text-[9px] text-slate-400 font-medium">20 x 15 x 10 cm</p>
                             </div>
                         </div>
-                        <div onclick="applyBoxPreset(30, 20, 15, 'Large Box (30x20x15 cm)')" class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer transition-all">
-                            <div class="h-7 w-7 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-xs flex-shrink-0">L</div>
+                        <div onclick="applyBoxPreset(30, 20, 15, 'Large Box (30x20x15 cm)')" class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
+                            <div class="h-7 w-7 rounded-md bg-amber-100 flex items-center justify-center text-amber-600 font-bold text-xs flex-shrink-0">L</div>
                             <div>
-                                <p class="text-xs font-black font-outfit">Large Box</p>
-                                <p class="text-[9px] text-slate-400 font-mono-code">30 x 20 x 15 cm</p>
+                                <p class="text-xs font-bold">Large Box</p>
+                                <p class="text-[9px] text-slate-400 font-medium">30 x 20 x 15 cm</p>
                             </div>
                         </div>
                     `;
@@ -573,7 +553,7 @@
             counter.innerText = `Total Entries: ${localEntries.length}`;
 
             if (localEntries.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-slate-400 dark:text-slate-500 font-normal"><i class="fa-solid fa-inbox text-3xl block mb-2 text-slate-300 dark:text-slate-700"></i>No entries added in this session yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 font-normal">No entries added in this session yet.</td></tr>`;
                 return;
             }
 
@@ -597,23 +577,21 @@
                 }
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
-                        <td class="py-3 px-3 font-mono-code font-bold text-slate-400 text-center">${item.originalIndex}</td>
-                        <td class="py-3 px-4 font-mono-code font-black text-slate-900 dark:text-white">${item.tracking || 'N/A'}</td>
-                        <td class="py-3 px-4 uppercase font-bold text-emerald-700 dark:text-emerald-400">${item.name || 'N/A'}</td>
-                        <td class="py-3 px-4 font-mono-code font-semibold text-slate-700 dark:text-slate-300">${item.mobile || 'N/A'}</td>
+                    <tr class="hover:bg-slate-50/50">
+                        <td class="py-3 px-3 font-mono font-bold text-slate-400">${item.originalIndex}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-slate-900">${item.tracking || 'N/A'}</td>
+                        <td class="py-3 px-4 uppercase font-bold text-emerald-700">${item.name || 'N/A'}</td>
+                        <td class="py-3 px-4 font-mono font-semibold">${item.mobile || 'N/A'}</td>
                         <td class="py-3 px-4">
-                            <div class="font-mono-code font-black text-emerald-600 dark:text-emerald-400">${item.pincode || 'N/A'}</div>
-                            <div class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">${cityStateText}</div>
+                            <div class="font-mono font-bold text-emerald-600">${item.pincode || 'N/A'}</div>
+                            <div class="text-[10px] uppercase font-bold text-slate-400">${cityStateText}</div>
                         </td>
                         <td class="py-3 px-4">
-                            <div class="font-bold text-slate-800 dark:text-slate-200">${weightDisplay}</div>
-                            <div class="font-mono-code text-[10px] text-slate-400 dark:text-slate-500 font-medium">${dimText}</div>
+                            <div class="font-bold text-slate-800">${weightDisplay}</div>
+                            <div class="font-mono text-[10px] text-slate-400 font-medium">${dimText}</div>
                         </td>
                         <td class="py-3 px-4 text-center">
-                            <button type="button" onclick="deleteItem(${item.id})" class="text-rose-500 hover:text-rose-600 dark:text-rose-400 font-black cursor-pointer inline-flex items-center gap-1">
-                                <i class="fa-solid fa-trash text-xs"></i> Delete
-                            </button>
+                            <button type="button" onclick="deleteItem(${item.id})" class="text-rose-500 hover:text-rose-600 font-bold cursor-pointer"><i class="fa-solid fa-trash"></i> Delete</button>
                         </td>
                     </tr>
                 `;

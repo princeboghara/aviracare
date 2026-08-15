@@ -2,62 +2,56 @@
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('../partials/head_meta') %>
-    <title>Order Master Repository - Avira Control Hub</title>
+    <title>Order Master Repository - Avira Control</title>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden block selection:bg-emerald-500 selection:text-white">
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden block">
 
     <%- include('../partials/admin_navbar') %>
 
     <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between box-border min-w-0">
 
-        <header class="glass-panel-header px-4 sm:px-8 py-3 flex justify-between items-center sticky top-0 z-40 shadow-xs w-full">
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
             <div class="flex items-center gap-2 min-w-0">
-                <i class="fa-solid fa-file-invoice text-emerald-500 flex-shrink-0 text-sm"></i>
-                <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider truncate">Orders / Order Master Repository</span>
+                <i class="fa-solid fa-file-invoice text-emerald-500 flex-shrink-0"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Orders / Order Master Repository</span>
             </div>
             <div class="flex items-center gap-3 flex-shrink-0 ml-2">
                 <div class="text-right hidden sm:block">
-                    <p class="text-xs font-black text-slate-800 dark:text-slate-200">Avira Root</p>
-                    <p class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest font-mono-code">Master Archives</p>
+                    <p class="text-xs font-bold text-slate-800">Avira Admin</p>
+                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
                 </div>
-                <div class="h-8 w-8 bg-emerald-50 dark:bg-emerald-950/60 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800 font-black text-xs shadow-xs">
-                    <i class="fa-solid fa-layer-group text-xs"></i>
-                </div>
+                <div class="h-8 w-8 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 border border-emerald-100 font-bold text-xs">A</div>
             </div>
         </header>
 
         <main class="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 box-border">
 
-            <!-- Hero Banner: Excel Importer -->
-            <div class="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 p-4 sm:p-6 rounded-3xl shadow-lg text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full relative overflow-hidden">
-                <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-                
-                <div class="flex items-start gap-3.5 relative z-10">
-                    <div class="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl flex-shrink-0 border border-white/25 shadow-inner">
+            <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-4 sm:p-6 rounded-2xl shadow-lg text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full">
+                <div class="flex items-start gap-3.5">
+                    <div class="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl flex-shrink-0 border border-white/20">
                         <i class="fa-solid fa-file-excel text-amber-300"></i>
                     </div>
                     <div>
-                        <h2 class="text-sm sm:text-base font-black uppercase tracking-wide font-outfit">Upload Order Excel File</h2>
-                        <p class="text-[11px] sm:text-xs text-emerald-100 mt-0.5 max-w-xl font-medium leading-relaxed">Upload order Excel spreadsheet to automatically extract Date, Member ID, Name, PV, & Amount details while preventing duplicate records.</p>
+                        <h2 class="text-sm sm:text-base font-black uppercase tracking-wide">Upload Order Excel File</h2>
+                        <p class="text-[11px] sm:text-xs text-emerald-100 mt-0.5">Upload order Excel spreadsheet to automatically extract Date, Member ID, Name, PV, & Amount details while preventing duplicate records.</p>
                     </div>
                 </div>
-                <form id="uploadOrdersForm" class="flex items-center gap-2 bg-slate-950/30 backdrop-blur-md p-1.5 sm:p-2 rounded-2xl border border-white/20 w-full md:w-auto relative z-10">
-                    <input type="file" id="orderExcelFile" accept=".xlsx, .xls" required class="text-xs text-white file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-amber-400 file:text-slate-950 hover:file:bg-amber-500 cursor-pointer w-full min-w-0">
-                    <button type="submit" id="btnUploadOrders" class="bg-white hover:bg-slate-100 text-slate-950 font-black text-xs px-5 py-2 rounded-xl shadow-md uppercase flex-shrink-0 transition-all cursor-pointer font-outfit">Upload</button>
+                <form id="uploadOrdersForm" class="flex items-center gap-2 bg-white/10 p-2 rounded-xl border border-white/20 w-full md:w-auto">
+                    <input type="file" id="orderExcelFile" accept=".xlsx, .xls" required class="text-xs text-white file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-400 file:text-slate-950 hover:file:bg-amber-500 cursor-pointer w-full min-w-0">
+                    <button type="submit" id="btnUploadOrders" class="bg-white hover:bg-slate-100 text-slate-900 font-black text-xs px-5 py-2.5 rounded-lg shadow uppercase flex-shrink-0 transition-all cursor-pointer">Upload</button>
                 </form>
             </div>
 
-            <!-- Main Order Records Table Card -->
-            <div class="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden w-full">
-                <div class="px-4 sm:px-6 py-3.5 bg-slate-50 dark:bg-[#0d1322] border-b border-slate-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-3">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden w-full">
+                <div class="px-4 sm:px-6 py-3.5 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
                     <div class="flex items-center gap-3">
-                        <h2 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase font-outfit tracking-wide flex items-center gap-2">
+                        <h2 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
                             <i class="fa-solid fa-list text-emerald-500"></i> Permanent Order Repository
                         </h2>
-                        <span id="ordersCounter" class="bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[11px] font-black px-3 py-0.5 rounded-full font-mono-code"><%= orders.length %> Records Saved</span>
+                        <span id="ordersCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-0.5 rounded-full"><%= orders.length %> Records Saved</span>
                     </div>
 
-                    <button id="btnBulkDelete" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider items-center gap-1.5">
+                    <button id="btnBulkDelete" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
                         <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedCount">0</span>)
                     </button>
                 </div>
@@ -65,11 +59,11 @@
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[650px]">
                         <thead>
-                            <tr class="bg-slate-100/70 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-black uppercase text-[10px] tracking-wider">
+                            <tr class="bg-slate-100/80 border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
                                 <th class="py-3 px-3 text-center w-10">
                                     <input type="checkbox" id="selectAllCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                                 </th>
-                                <th class="py-3 px-3 w-12 text-center">#</th>
+                                <th class="py-3 px-3 w-12">#</th>
                                 <th class="py-3 px-4">Ordered Date</th>
                                 <th class="py-3 px-4">Member ID</th>
                                 <th class="py-3 px-4">Customer Name</th>
@@ -78,26 +72,23 @@
                                 <th class="py-3 px-4 text-center w-36">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="ordersTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-semibold text-slate-700 dark:text-slate-300">
+                        <tbody id="ordersTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
                             <% if(!orders || orders.length === 0) { %>
                                 <tr>
-                                    <td colspan="8" class="py-12 text-center text-slate-400 dark:text-slate-500 font-normal">
-                                        <i class="fa-solid fa-file-invoice text-3xl block mb-2 text-slate-300 dark:text-slate-700"></i>
-                                        No order excel imported yet. Upload an order file above!
-                                    </td>
+                                    <td colspan="8" class="py-8 text-center text-slate-400 font-normal">No order excel imported yet. Upload an order file above!</td>
                                 </tr>
                             <% } else { %>
                                 <% orders.forEach((item, index) => { %>
-                                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors" id="order-row-<%= item.id %>">
+                                    <tr class="hover:bg-slate-50/70 transition-colors" id="order-row-<%= item.id %>">
                                         <td class="py-2.5 px-3 text-center">
                                             <input type="checkbox" value="<%= item.id %>" class="row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                                         </td>
-                                        <td class="py-2.5 px-3 text-slate-400 font-mono-code text-center"><%= index + 1 %></td>
-                                        <td class="py-2.5 px-4 font-bold text-slate-800 dark:text-slate-200 row-date"><%= item.order_date %></td>
-                                        <td class="py-2.5 px-4 font-mono-code font-black text-emerald-600 dark:text-emerald-400 row-memberid"><%= item.member_id %></td>
-                                        <td class="py-2.5 px-4 uppercase font-bold text-slate-900 dark:text-white row-name"><%= item.name %></td>
-                                        <td class="py-2.5 px-4 font-mono-code font-bold text-slate-700 dark:text-slate-300 row-pv"><%= item.pv %> PV</td>
-                                        <td class="py-2.5 px-4 font-mono-code font-black text-slate-900 dark:text-white row-amount">₹<%= item.amount %></td>
+                                        <td class="py-2.5 px-3 text-slate-400 font-mono"><%= index + 1 %></td>
+                                        <td class="py-2.5 px-4 font-semibold text-slate-800 row-date"><%= item.order_date %></td>
+                                        <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 row-memberid"><%= item.member_id %></td>
+                                        <td class="py-2.5 px-4 uppercase font-semibold text-slate-900 row-name"><%= item.name %></td>
+                                        <td class="py-2.5 px-4 font-mono font-bold text-slate-700 row-pv"><%= item.pv %></td>
+                                        <td class="py-2.5 px-4 font-mono font-bold text-slate-900 row-amount">₹<%= item.amount %></td>
                                         <td class="py-2.5 px-4 text-center space-x-2">
                                             <button type="button" 
                                                     data-id="<%= item.id %>"
@@ -106,10 +97,10 @@
                                                     data-name="<%= item.name %>"
                                                     data-pv="<%= item.pv %>"
                                                     data-amount="<%= item.amount %>"
-                                                    class="btn-edit-order text-amber-500 hover:text-amber-600 font-black cursor-pointer text-xs transition-colors inline-flex items-center gap-1">
+                                                    class="btn-edit-order text-amber-500 hover:text-amber-700 font-bold cursor-pointer text-xs transition-colors">
                                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                                             </button>
-                                            <button type="button" data-order-id="<%= item.id %>" class="btn-delete-order text-rose-500 hover:text-rose-600 font-black cursor-pointer text-xs transition-colors inline-flex items-center gap-1">
+                                            <button type="button" data-order-id="<%= item.id %>" class="btn-delete-order text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-xs transition-colors">
                                                 <i class="fa-solid fa-trash"></i> Delete
                                             </button>
                                         </td>
@@ -123,16 +114,15 @@
 
         </main>
 
-        <footer class="bg-white dark:bg-[#0d1322] border-t border-slate-200/80 dark:border-slate-800 py-3.5 text-center text-xs font-medium text-slate-400 dark:text-slate-500 mt-6 w-full overflow-hidden">
-            &copy; 2026 Avira LifeCare System. All rights reserved.
+        <footer class="bg-white border-t border-slate-100 py-3 text-center text-xs font-medium text-slate-400 mt-6 w-full overflow-hidden">
+            &copy; 2026 Avira LifeCare. All rights reserved.
         </footer>
     </div>
 
-    <!-- Edit Order Modal Dialog -->
-    <div id="editOrderModal" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-[#111827] rounded-3xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <div class="bg-slate-900 dark:bg-slate-950 px-5 py-3.5 text-white flex justify-between items-center border-b border-slate-800">
-                <h3 class="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-outfit">
+    <div id="editOrderModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md border border-slate-100 overflow-hidden">
+            <div class="bg-slate-900 px-5 py-3.5 text-white flex justify-between items-center">
+                <h3 class="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Order Record
                 </h3>
                 <button type="button" id="btnCloseOrderModal" class="text-slate-400 hover:text-white font-bold text-lg cursor-pointer">&times;</button>
@@ -143,34 +133,34 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 tracking-wider">Order Date</label>
-                        <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Order Date</label>
+                        <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-800 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 tracking-wider">Member ID (AV + 5 Digits)</label>
-                        <input type="text" id="editMemberId" required maxlength="7" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-mono-code uppercase font-bold text-emerald-700 dark:text-emerald-400 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Member ID (AV + 5 Digits)</label>
+                        <input type="text" id="editMemberId" required maxlength="7" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 tracking-wider">Customer Full Name</label>
-                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold uppercase text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Customer Full Name</label>
+                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold uppercase text-slate-900 focus:outline-none focus:border-emerald-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 tracking-wider">Total PV</label>
-                        <input type="text" id="editPv" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-mono-code font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Total PV</label>
+                        <input type="text" id="editPv" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-slate-700 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 tracking-wider">Amount (₹)</label>
-                        <input type="text" id="editAmount" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-mono-code font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Amount (₹)</label>
+                        <input type="text" id="editAmount" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <button type="button" id="btnCancelOrderModal" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold cursor-pointer transition-all">Cancel</button>
-                    <button type="submit" id="btnSaveOrderEdit" class="px-5 py-2 btn-emerald-3d text-white rounded-xl font-black uppercase tracking-wider shadow-md cursor-pointer transition-all">Save Changes</button>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" id="btnCancelOrderModal" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold cursor-pointer transition-all">Cancel</button>
+                    <button type="submit" id="btnSaveOrderEdit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black uppercase tracking-wider shadow cursor-pointer transition-all">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -393,23 +383,23 @@
             updateBulkDeleteButton();
 
             if (!orders || orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-slate-400 dark:text-slate-500 font-normal"><i class="fa-solid fa-file-invoice text-3xl block mb-2 text-slate-300 dark:text-slate-700"></i>No order excel imported yet. Upload an order file above!</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400 font-normal">No order excel imported yet. Upload an order file above!</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
             orders.forEach((item, index) => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors" id="order-row-${item.id}">
+                    <tr class="hover:bg-slate-50/70 transition-colors" id="order-row-${item.id}">
                         <td class="py-2.5 px-3 text-center">
                             <input type="checkbox" value="${item.id}" class="row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                         </td>
-                        <td class="py-2.5 px-3 text-slate-400 font-mono-code text-center">${index + 1}</td>
-                        <td class="py-2.5 px-4 font-bold text-slate-800 dark:text-slate-200 row-date">${item.order_date}</td>
-                        <td class="py-2.5 px-4 font-mono-code font-black text-emerald-600 dark:text-emerald-400 row-memberid">${item.member_id}</td>
-                        <td class="py-2.5 px-4 uppercase font-bold text-slate-900 dark:text-white row-name">${item.name}</td>
-                        <td class="py-2.5 px-4 font-mono-code font-bold text-slate-700 dark:text-slate-300 row-pv">${item.pv} PV</td>
-                        <td class="py-2.5 px-4 font-mono-code font-black text-slate-900 dark:text-white row-amount">₹${item.amount}</td>
+                        <td class="py-2.5 px-3 text-slate-400 font-mono">${index + 1}</td>
+                        <td class="py-2.5 px-4 font-semibold text-slate-800 row-date">${item.order_date}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 row-memberid">${item.member_id}</td>
+                        <td class="py-2.5 px-4 uppercase font-semibold text-slate-900 row-name">${item.name}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-slate-700 row-pv">${item.pv}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-slate-900 row-amount">₹${item.amount}</td>
                         <td class="py-2.5 px-4 text-center space-x-2">
                             <button type="button" 
                                     data-id="${item.id}"
@@ -418,10 +408,10 @@
                                     data-name="${item.name}"
                                     data-pv="${item.pv}"
                                     data-amount="${item.amount}"
-                                    class="btn-edit-order text-amber-500 hover:text-amber-600 font-black cursor-pointer text-xs transition-colors inline-flex items-center gap-1">
+                                    class="btn-edit-order text-amber-500 hover:text-amber-700 font-bold cursor-pointer text-xs transition-colors">
                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                             </button>
-                            <button type="button" data-order-id="${item.id}" class="btn-delete-order text-rose-500 hover:text-rose-600 font-black cursor-pointer text-xs transition-colors inline-flex items-center gap-1">
+                            <button type="button" data-order-id="${item.id}" class="btn-delete-order text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-xs transition-colors">
                                 <i class="fa-solid fa-trash"></i> Delete
                             </button>
                         </td>

@@ -18,24 +18,24 @@
         background: rgba(255, 255, 255, 0.96);
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-right: 1px solid rgba(226, 232, 240, 0.9);
-        box-shadow: 4px 0 24px -2px rgba(15, 23, 42, 0.04);
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, border-color 0.3s ease;
+        border-right: 2px solid rgba(16, 185, 129, 0.4);
+        box-shadow: 8px 0 25px -5px rgba(16, 185, 129, 0.15), 0 0 15px -3px rgba(16, 185, 129, 0.2);
+        transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
     }
 
     /* 🟢 NEON HOVER & ACTIVE LINK EFFECTS */
     .cyber-link {
         position: relative;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 0.2s ease;
         border: 1px solid transparent;
-        color: #475569;
-        font-weight: 700;
+        color: #334155;
     }
     .cyber-link:hover {
         background: rgba(16, 185, 129, 0.08);
-        border-color: rgba(16, 185, 129, 0.3);
+        border-color: rgba(16, 185, 129, 0.4);
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
         color: #059669;
-        transform: translateX(3px);
+        transform: translateX(2px);
     }
     .cyber-link:hover i {
         color: #10b981;
@@ -71,13 +71,13 @@
         background: #f8fafc;
         border: 1px solid #e2e8f0;
         color: #64748b;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
     }
     .cyber-exit:hover {
         background: #e11d48;
         border-color: #e11d48;
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35);
+        box-shadow: 0 0 12px rgba(225, 29, 72, 0.35);
     }
 
     /* Custom Scrollbar */
@@ -88,6 +88,18 @@
     /* ====================================================
        🌑 PRO CLEAN DARK MODE ENGINE (Executive UI)
        ==================================================== */
+    html.dark {
+        color-scheme: dark;
+    }
+
+    html.dark body {
+        background-color: #0b0f19 !important;
+        background-image: radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.05) 0px, transparent 40%),
+                          radial-gradient(at 100% 100%, rgba(15, 118, 110, 0.05) 0px, transparent 40%) !important;
+        color: #e2e8f0 !important;
+    }
+
+    /* Sidebar in Dark Mode */
     html.dark .neon-sidebar {
         background: #0d1322 !important;
         border-right: 1px solid #1e293b !important;
@@ -140,6 +152,127 @@
         color: #ffffff !important;
     }
 
+    /* Cards, Panels & Sections */
+    html.dark .bg-white,
+    html.dark .glass-panel,
+    html.dark .admin-menu-card,
+    html.dark .premium-3d-card {
+        background-color: #111827 !important;
+        border-color: #1f293d !important;
+        color: #f1f5f9 !important;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    html.dark .bg-slate-50,
+    html.dark .bg-slate-50\/50,
+    html.dark .bg-slate-50\/60,
+    html.dark .bg-slate-50\/70,
+    html.dark .bg-slate-50\/80,
+    html.dark .bg-slate-100,
+    html.dark .bg-slate-100\/50,
+    html.dark .bg-slate-100\/70,
+    html.dark .bg-slate-100\/80 {
+        background-color: #0d1322 !important;
+        border-color: #1e293b !important;
+        color: #cbd5e1 !important;
+    }
+
+    /* Header & Footers */
+    html.dark header,
+    html.dark footer {
+        background-color: #0d1322 !important;
+        border-color: #1e293b !important;
+        color: #94a3b8 !important;
+    }
+
+    /* Dividers & Borders */
+    html.dark .border-slate-100,
+    html.dark .border-slate-200,
+    html.dark .border-slate-200\/60,
+    html.dark .border-slate-200\/80,
+    html.dark .divide-slate-50 > :not([hidden]) ~ :not([hidden]),
+    html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+    html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+        border-color: #1e293b !important;
+    }
+
+    /* Typography Hierarchy */
+    html.dark .text-slate-900,
+    html.dark .text-slate-800,
+    html.dark .text-slate-700 {
+        color: #f8fafc !important;
+    }
+
+    html.dark .text-slate-600,
+    html.dark .text-slate-500 {
+        color: #94a3b8 !important;
+    }
+
+    html.dark .text-slate-400 {
+        color: #64748b !important;
+    }
+
+    /* Form Fields & Controls */
+    html.dark input[type="text"],
+    html.dark input[type="password"],
+    html.dark input[type="number"],
+    html.dark input[type="date"],
+    html.dark select,
+    html.dark textarea,
+    html.dark .manual-field,
+    html.dark .confirm-input,
+    html.dark .preview-input,
+    html.dark .cyber-input {
+        background-color: #0b0f19 !important;
+        border: 1px solid #334155 !important;
+        color: #f8fafc !important;
+    }
+
+    html.dark input:focus,
+    html.dark select:focus,
+    html.dark textarea:focus,
+    html.dark .manual-field:focus,
+    html.dark .confirm-input:focus,
+    html.dark .preview-input:focus {
+        border-color: #10b981 !important;
+        background-color: #0f172a !important;
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
+    }
+
+    /* Tables */
+    html.dark table {
+        color: #e2e8f0 !important;
+    }
+
+    html.dark thead tr,
+    html.dark th {
+        background-color: #0d1322 !important;
+        color: #94a3b8 !important;
+        border-color: #1e293b !important;
+    }
+
+    html.dark tbody tr {
+        border-color: #1e293b !important;
+    }
+
+    html.dark tbody tr:hover,
+    html.dark tr.hover\:bg-slate-50:hover,
+    html.dark tr.hover\:bg-slate-50\/50:hover,
+    html.dark tr.hover\:bg-slate-50\/60:hover,
+    html.dark tr.hover\:bg-slate-50\/70:hover {
+        background-color: rgba(16, 185, 129, 0.06) !important;
+    }
+
+    /* Modals & Backdrop */
+    html.dark #editOrderModal > div,
+    html.dark #editMasterModal > div,
+    html.dark #editModal > div {
+        background-color: #111827 !important;
+        border: 1px solid #334155 !important;
+        color: #f8fafc !important;
+    }
+
     /* 🌗 Pro Theme Switch Button */
     .pro-theme-toggle {
         display: inline-flex;
@@ -172,17 +305,17 @@
 </style>
 
 <!-- Mobile Top Navbar -->
-<div class="lg:hidden bg-white/95 dark:bg-[#0d1322]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm w-full">
+<div class="lg:hidden bg-white/95 dark:bg-[#0d1322]/95 backdrop-blur-md border-b border-emerald-500/30 px-4 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm w-full">
     <div class="flex items-center gap-2.5">
-        <div class="h-8 w-8 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow border border-slate-200 dark:border-slate-700 flex-shrink-0">
+        <div class="h-8 w-8 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow border border-slate-200 flex-shrink-0">
             <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover">
         </div>
-        <span class="text-xs font-black tracking-wider text-slate-900 dark:text-slate-100 uppercase">Avira <span class="text-emerald-500 font-bold">Control Hub</span></span>
+        <span class="text-xs font-black tracking-wider text-slate-900 dark:text-slate-100 uppercase">Avira <span class="text-emerald-500">Global</span></span>
     </div>
     <div class="flex items-center gap-2">
         <button type="button" onclick="toggleAdminTheme()" class="pro-theme-toggle" title="Toggle Dark/Light Mode">
-            <i class="fa-solid fa-moon dark:hidden text-slate-700 text-xs"></i>
-            <i class="fa-solid fa-sun hidden dark:inline text-amber-400 text-xs"></i>
+            <i class="fa-solid fa-moon dark:hidden text-slate-700"></i>
+            <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
             <span class="dark:hidden text-[10px] font-black">DARK</span>
             <span class="hidden dark:inline text-[10px] font-black text-amber-300">LIGHT</span>
         </button>
@@ -199,17 +332,17 @@
         
         <div class="hidden lg:flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-3 pt-1 mb-2">
             <div class="flex items-center gap-3">
-                <div class="h-9 w-9 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-md border border-emerald-100 dark:border-emerald-950 flex-shrink-0">
+                <div class="h-9 w-9 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-md border border-emerald-100 flex-shrink-0">
                     <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover">
                 </div>
                 <div class="leading-none">
-                    <span class="text-xs font-black tracking-widest text-slate-900 dark:text-slate-100 uppercase block font-outfit">Avira Global</span>
-                    <span class="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mt-1 px-1.5 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20 inline-block font-mono-code">Control Center</span>
+                    <span class="text-xs font-black tracking-widest text-slate-900 dark:text-slate-100 uppercase block">Avira Global</span>
+                    <span class="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mt-1 px-1.5 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20 inline-block">Control Center</span>
                 </div>
             </div>
         </div>
 
-        <nav class="space-y-1.5 text-[11px] font-bold tracking-wide">
+        <nav class="space-y-2 text-[11px] font-black uppercase tracking-wider">
             
             <a href="/admin/home" class="cyber-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all">
                 <i class="fa-solid fa-gauge-high text-sm w-5 text-slate-400 transition-colors"></i> Admin Home
@@ -220,19 +353,19 @@
             </a>
 
             <div class="nav-accordion-item">
-                <button type="button" onclick="toggleSidebarAccordion(this)" class="cyber-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all text-left focus:outline-none cursor-pointer font-bold text-[11px]">
+                <button type="button" onclick="toggleSidebarAccordion(this)" class="cyber-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all text-left focus:outline-none cursor-pointer font-black text-[11px]">
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-truck-fast text-sm w-5 text-slate-400 transition-colors"></i> 2. Tracking Manager
                     </span>
                     <i class="fa-solid fa-chevron-down text-[9px] text-slate-400 transition-transform duration-300 nav-chevron"></i>
                 </button>
                 
-                <div class="nav-sub-content bg-slate-100/70 dark:bg-slate-900/60 rounded-xl mt-1 ml-3 pl-2 border-l-2 border-emerald-500/60 space-y-0.5 py-1">
-                    <a href="/admin/tracking" class="block px-3 py-1.5 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 uppercase transition-colors">↳ Upload Master Data</a>
-                    <a href="/admin/orders-master" class="block px-3 py-1.5 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 uppercase transition-colors">↳ Order Excel Master</a>
-                    <a href="/admin/manual-entry" class="block px-3 py-1.5 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 uppercase transition-colors">↳ Manual Entry Portal</a>
-                    <a href="/admin/confirm-member" class="block px-3 py-1.5 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 uppercase transition-colors">↳ Confirm Members</a>
-                    <a href="/admin/master-database" class="block px-3 py-1.5 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 uppercase transition-colors">↳ Main Master DB</a>
+                <div class="nav-sub-content bg-slate-100/70 rounded-xl mt-1 ml-3 pl-2 border-l-2 border-emerald-500/60 space-y-0.5 py-1">
+                    <a href="/admin/tracking" class="block px-3 py-1.5 text-[10px] font-bold text-slate-600 hover:text-emerald-600 uppercase transition-colors">↳ Upload Master Data</a>
+                    <a href="/admin/orders-master" class="block px-3 py-1.5 text-[10px] font-bold text-slate-600 hover:text-emerald-600 uppercase transition-colors">↳ Order Excel Master</a>
+                    <a href="/admin/manual-entry" class="block px-3 py-1.5 text-[10px] font-bold text-slate-600 hover:text-emerald-600 uppercase transition-colors">↳ Manual Entry Portal</a>
+                    <a href="/admin/confirm-member" class="block px-3 py-1.5 text-[10px] font-bold text-slate-600 hover:text-emerald-600 uppercase transition-colors">↳ Confirm Members</a>
+                    <a href="/admin/master-database" class="block px-3 py-1.5 text-[10px] font-bold text-slate-600 hover:text-emerald-600 uppercase transition-colors">↳ Main Master DB</a>
                 </div>
             </div>
 
@@ -241,16 +374,16 @@
             </a>
 
             <div class="nav-accordion-item">
-                <button type="button" onclick="toggleSidebarAccordion(this)" class="cyber-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all text-left focus:outline-none cursor-pointer font-bold text-[11px]">
+                <button type="button" onclick="toggleSidebarAccordion(this)" class="cyber-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all text-left focus:outline-none cursor-pointer font-black text-[11px]">
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-basket-shopping text-sm w-5 text-slate-400 transition-colors"></i> 4. Product Manager
                     </span>
                     <i class="fa-solid fa-chevron-down text-[9px] text-slate-400 transition-transform duration-300 nav-chevron"></i>
                 </button>
                 
-                <div class="nav-sub-content bg-slate-100/70 dark:bg-slate-900/60 rounded-xl mt-1 ml-3 pl-2 border-l-2 border-emerald-500/60 space-y-0.5 py-1">
-                    <a href="/admin/add-product" class="block px-3 py-1.5 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 uppercase transition-colors">↳ Add Products</a>
-                    <a href="/admin/view-products" class="block px-3 py-1.5 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 uppercase transition-colors">↳ View/Edit Products</a>
+                <div class="nav-sub-content bg-slate-100/70 rounded-xl mt-1 ml-3 pl-2 border-l-2 border-emerald-500/60 space-y-0.5 py-1">
+                    <a href="/admin/add-product" class="block px-3 py-1.5 text-[10px] font-bold text-slate-600 hover:text-emerald-600 uppercase transition-colors">↳ Add Products</a>
+                    <a href="/admin/view-products" class="block px-3 py-1.5 text-[10px] font-bold text-slate-600 hover:text-emerald-600 uppercase transition-colors">↳ View/Edit Products</a>
                 </div>
             </div>
 
@@ -262,7 +395,7 @@
     </div>
 
     <!-- Sidebar Bottom Profile & Controls -->
-    <div class="p-3 bg-slate-50 dark:bg-[#0d1322] border-t border-slate-200/80 dark:border-slate-800 flex flex-col gap-2.5">
+    <div class="p-3 bg-slate-50 dark:bg-[#0d1322] border-t border-slate-200 dark:border-slate-800 flex flex-col gap-2.5">
         <div class="flex items-center justify-between px-1">
             <div class="leading-tight">
                 <p class="text-[11px] font-black text-slate-800 dark:text-slate-200 tracking-wide uppercase">Root Admin</p>
@@ -284,7 +417,7 @@
     </div>
 </aside>
 
-<div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-slate-950/50 backdrop-blur-xs z-40 lg:hidden"></div>
+<div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-40 lg:hidden"></div>
 
 <script>
     function toggleSidebarAccordion(element) {
@@ -324,8 +457,8 @@
         
         subLinks.forEach(link => {
             if(link.getAttribute("href") === currentPath) {
-                link.classList.remove("text-slate-600", "dark:text-slate-400");
-                link.classList.add("text-emerald-600", "dark:text-emerald-400", "font-black");
+                link.classList.remove("text-slate-600");
+                link.classList.add("text-emerald-600", "font-black");
                 link.innerHTML = link.innerHTML.replace("↳", "🔹");
                 
                 const parentAccordion = link.closest(".nav-accordion-item");
@@ -338,7 +471,7 @@
         const mainLinks = document.querySelectorAll("nav > a");
         mainLinks.forEach(link => {
             if(link.getAttribute("href") === currentPath) {
-                link.classList.add("text-emerald-600", "dark:text-emerald-400", "bg-emerald-500/10", "border-emerald-500/40");
+                link.classList.add("text-emerald-600", "bg-emerald-500/10", "border-emerald-500/40");
             }
         });
     });

@@ -5,85 +5,76 @@
     <title>Admin Gateway - Avira Control Hub</title>
     <style>
         .glass-box {
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), 0 0 30px rgba(16, 185, 129, 0.1);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
         .animated-blob {
-            filter: blur(100px);
-            opacity: 0.3;
-            animation: floatBlob 14s infinite alternate ease-in-out;
+            filter: blur(90px);
+            opacity: 0.25;
+            animation: floatBlob 12s infinite alternate ease-in-out;
             will-change: transform;
         }
         @keyframes floatBlob {
             0% { transform: translate(0px, 0px) scale(1); }
-            100% { transform: translate(30px, 30px) scale(1.1); }
+            100% { transform: translate(20px, 20px) scale(1.05); }
         }
     </style>
 </head>
 <body class="bg-slate-950 flex flex-col justify-between min-h-screen font-sans antialiased text-white relative w-full overflow-x-hidden selection:bg-emerald-500 selection:text-white">
 
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div class="absolute -top-16 -left-16 w-80 h-80 sm:w-96 sm:h-96 bg-emerald-500/25 rounded-full animated-blob"></div>
-        <div class="absolute -bottom-16 -right-16 w-80 h-80 sm:w-96 sm:h-96 bg-teal-500/25 rounded-full animated-blob" style="animation-delay: -5s;"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute -top-10 -left-10 w-72 h-72 sm:w-96 sm:h-96 bg-emerald-500 rounded-full animated-blob"></div>
+        <div class="absolute -bottom-10 -right-10 w-72 h-72 sm:w-96 sm:h-96 bg-teal-500 rounded-full animated-blob" style="animation-delay: -4s;"></div>
     </div>
 
-    <main class="flex-grow flex items-center justify-center p-4 sm:p-6 relative z-10 w-full box-border">
-        <div class="glass-box p-6 sm:p-10 rounded-3xl w-full max-w-sm text-center relative overflow-hidden transition-all">
+    <main class="flex-grow flex items-center justify-center p-4 relative z-10 w-full box-border">
+        <div class="glass-box p-6 sm:p-8 rounded-3xl w-full max-w-sm text-center relative overflow-hidden">
             
-            <!-- Top Subtle Accent Glow -->
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500"></div>
-
-            <div class="h-14 w-14 rounded-2xl overflow-hidden bg-white mx-auto mb-4 flex items-center justify-center shadow-lg border border-slate-700/50 p-1">
-                <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-xl">
+            <div class="h-12 w-12 rounded-2xl overflow-hidden bg-white mx-auto mb-4 flex items-center justify-center shadow-lg border border-slate-700/50">
+                <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover">
             </div>
 
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 mb-2 font-mono-code">
-                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> TLS Encrypted Hub
-            </span>
+            <h1 class="text-lg sm:text-xl font-black uppercase mb-1 tracking-wider text-white">Admin Gateway</h1>
+            <p class="text-[10px] sm:text-[11px] font-semibold text-slate-400 mb-6 uppercase tracking-widest">Avira Control Hub</p>
 
-            <h1 class="text-xl sm:text-2xl font-black uppercase mb-1 tracking-wider text-white font-outfit">Admin Gateway</h1>
-            <p class="text-[10px] sm:text-[11px] font-semibold text-slate-400 mb-6 uppercase tracking-widest">Avira Enterprise Control</p>
-
-            <form action="/admin/login" method="POST" class="space-y-4 text-left">
-                <div class="relative">
-                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1.5 tracking-wider">Username</label>
+            <form action="/admin/login" method="POST" class="space-y-4">
+                <div class="relative text-left">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Username</label>
                     <div class="relative">
-                        <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs transition-colors"></i>
-                        <input type="text" name="username" placeholder="Enter root username" required autocomplete="username"
-                               class="w-full pl-9 pr-4 py-3 bg-slate-900/90 border border-slate-700/80 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-600">
+                        <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" name="username" placeholder="Enter admin username" required 
+                               class="w-full pl-9 pr-4 py-3 bg-slate-900/80 border border-slate-700/80 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-500 transition-all">
                     </div>
                 </div>
 
-                <div class="relative">
-                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1.5 tracking-wider">Password</label>
+                <div class="relative text-left">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Password</label>
                     <div class="relative">
-                        <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs transition-colors"></i>
-                        <input type="password" name="password" placeholder="Enter secure password" required autocomplete="current-password"
-                               class="w-full pl-9 pr-4 py-3 bg-slate-900/90 border border-slate-700/80 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-600">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="password" name="password" placeholder="Enter password" required 
+                               class="w-full pl-9 pr-4 py-3 bg-slate-900/80 border border-slate-700/80 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-emerald-500 transition-all">
                     </div>
                 </div>
 
                 <button type="submit" 
-                        class="w-full btn-emerald-3d text-white font-black py-3.5 rounded-xl uppercase tracking-wider text-xs transition-all shadow-lg cursor-pointer mt-2 flex items-center justify-center gap-2">
-                    <span>Authenticate & Access</span>
-                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                        class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3.5 rounded-xl uppercase tracking-wider text-xs transition-all shadow-lg shadow-emerald-500/20 cursor-pointer mt-3">
+                    Sign In &rarr;
                 </button>
             </form>
             
-            <div class="mt-6 pt-4 border-t border-slate-800/80">
-                <a href="/" class="text-[11px] font-bold text-slate-400 hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-                    <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Member Portal
+            <div class="mt-6 pt-4 border-t border-slate-800">
+                <a href="/" class="text-[11px] font-bold text-slate-400 hover:text-emerald-400 transition-colors">
+                    &larr; Back to Member Portal
                 </a>
             </div>
         </div>
     </main>
 
     <footer class="py-4 text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest relative z-10 w-full overflow-hidden">
-        &copy; 2026 Avira LifeCare System. Restricted Administrator Access.
+        &copy; 2026 Avira Lifecare. Secure Access Controlled.
     </footer>
 
 </body>
