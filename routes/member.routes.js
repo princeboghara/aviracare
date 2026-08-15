@@ -88,20 +88,32 @@ router.get('/member/queries', (req, res) => {
 // 📝 Create New Support Ticket API
 router.post('/api/queries/create', async (req, res) => {
     try {
-        const { memberId, name, subject, description, contactNo } = req.body;
+        let { memberId, name, subject, description, contactNo } = req.body;
         if (!memberId || !name || !subject || !description || !contactNo) {
             return res.json({ success: false, msg: "All fields (Name, Mobile, Subject, Description) are required." });
         }
+
+        const cleanMemberId = memberId.toString().toUpperCase().trim();
+        const cleanMobile = contactNo.toString().replace(/[^0-9]/g, '').trim();
+
+        if (!/^AV\d{5}$/.test(cleanMemberId)) {
+            return res.json({ success: false, msg: "Member ID must be in the format AV followed by exactly 5 digits (e.g. AV12345)." });
+        }
+
+        if (cleanMobile.length !== 10) {
+            return res.json({ success: false, msg: "Mobile number must be exactly 10 digits." });
+        }
+
         const insertQuery = `
             INSERT INTO query_tickets (member_id, name, subject, description, contact_no)
             VALUES ($1, $2, $3, $4, $5) RETURNING *
         `;
         await db.query(insertQuery, [
-            memberId.toUpperCase().trim(), 
+            cleanMemberId, 
             name.toUpperCase().trim(), 
             subject.trim(), 
             description.trim(), 
-            contactNo.trim()
+            cleanMobile
         ]);
         res.json({ success: true, msg: "Ticket logged successfully" });
     } catch (error) {

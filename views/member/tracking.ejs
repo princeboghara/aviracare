@@ -31,15 +31,17 @@
         <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl max-w-xl mx-auto border-emerald-200/90 shadow-md">
             <form onsubmit="handleTrack(event)" class="space-y-4">
                 <div class="relative">
-                    <label for="memberIdInput" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-2">
-                        Member Identification (ID)
+                    <label for="memberIdInput" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+                        <span>Member Identification (ID)</span>
+                        <span class="text-[9px] text-emerald-600 font-mono font-bold">AV + 5 Digits</span>
                     </label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
                             <i class="fa-solid fa-id-card text-emerald-600 text-sm"></i>
                         </span>
-                        <input type="text" id="memberIdInput" placeholder="e.g. AVI123456" required
-                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all uppercase placeholder:normal-case placeholder:font-medium placeholder:text-slate-400">
+                        <input type="text" id="memberIdInput" placeholder="e.g. AV12345" required maxlength="7"
+                            oninput="formatMemberIdInput(this)"
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all uppercase placeholder:normal-case placeholder:font-medium placeholder:text-slate-400">
                     </div>
                 </div>
 
@@ -62,6 +64,29 @@
     <%- include('../partials/member_footer') %>
 
     <script>
+        function formatMemberIdInput(el) {
+            let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (!raw) {
+                el.value = '';
+                return;
+            }
+            if (raw === 'A' || raw === 'AV') {
+                el.value = raw;
+                return;
+            }
+            if (raw.startsWith('AV')) {
+                let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 5);
+                el.value = 'AV' + num;
+            } else {
+                let num = raw.replace(/[^0-9]/g, '').slice(0, 5);
+                if (num.length > 0) {
+                    el.value = 'AV' + num;
+                } else {
+                    el.value = '';
+                }
+            }
+        }
+
         async function handleTrack(e) {
             e.preventDefault();
             const memberId = document.getElementById('memberIdInput').value.trim().toUpperCase();
@@ -69,6 +94,12 @@
             const results = document.getElementById('resultsContainer');
 
             if (!memberId) return;
+
+            if (!/^AV\d{5}$/.test(memberId)) {
+                alert("Please enter a valid Member ID in the format AV followed by 5 digits (e.g. AV12345).");
+                document.getElementById('memberIdInput').focus();
+                return;
+            }
 
             // Loading state
             btn.disabled = true;

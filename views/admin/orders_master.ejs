@@ -137,8 +137,8 @@
                         <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-800 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Member ID</label>
-                        <input type="text" id="editMemberId" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Member ID (AV + 5 Digits)</label>
+                        <input type="text" id="editMemberId" required maxlength="7" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
@@ -167,6 +167,29 @@
     </div>
 
     <script>
+        function formatMemberIdInput(el) {
+            let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (!raw) {
+                el.value = '';
+                return;
+            }
+            if (raw === 'A' || raw === 'AV') {
+                el.value = raw;
+                return;
+            }
+            if (raw.startsWith('AV')) {
+                let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 5);
+                el.value = 'AV' + num;
+            } else {
+                let num = raw.replace(/[^0-9]/g, '').slice(0, 5);
+                if (num.length > 0) {
+                    el.value = 'AV' + num;
+                } else {
+                    el.value = '';
+                }
+            }
+        }
+
         const editModal = document.getElementById('editOrderModal');
 
         document.getElementById('uploadOrdersForm').addEventListener('submit', async function(e) {

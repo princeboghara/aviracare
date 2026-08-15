@@ -58,7 +58,7 @@
                                             <div class="font-mono text-[10px] font-bold text-emerald-600 uppercase"><%= ticket.member_id %></div>
                                         </td>
                                         <td class="py-3 px-4">
-                                            <div class="font-bold text-slate-900 uppercase"><%= ticket.subject %></div>
+                                            <div class="font-bold text-slate-900 uppercase cursor-pointer hover:text-emerald-600 transition-colors" onclick="openReplyModal('<%= ticket.id %>', '<%= escape(ticket.name || '') %>', '<%= ticket.member_id %>', '<%= escape(ticket.subject || '') %>', '<%= escape(ticket.description || '') %>', '<%= escape(ticket.admin_reply || '') %>', '<%= ticket.status %>')"><%= ticket.subject %></div>
                                             <div class="text-[10px] text-slate-400 mt-0.5"><i class="fa-solid fa-phone"></i> <%= ticket.contact_no %></div>
                                         </td>
                                         <td class="py-3 px-4 space-y-2">

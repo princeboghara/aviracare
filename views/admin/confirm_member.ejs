@@ -68,7 +68,7 @@
                                             <div class="text-[9px] text-slate-400 uppercase truncate max-w-[120px]"><%= item.city %>, <%= item.state %></div>
                                         </td>
                                         <td class="py-1.5 px-1">
-                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="MEMBER ID" class="confirm-input font-mono uppercase text-slate-700 w-[100px]">
+                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="AV12345" maxlength="7" oninput="formatMemberIdInput(this)" class="confirm-input font-mono uppercase text-slate-700 w-[100px]">
                                         </td>
                                         <td class="py-1.5 px-1">
                                             <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-700 font-semibold w-[115px]">
@@ -103,6 +103,29 @@
     </div>
 
     <script>
+        function formatMemberIdInput(el) {
+            let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (!raw) {
+                el.value = '';
+                return;
+            }
+            if (raw === 'A' || raw === 'AV') {
+                el.value = raw;
+                return;
+            }
+            if (raw.startsWith('AV')) {
+                let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 5);
+                el.value = 'AV' + num;
+            } else {
+                let num = raw.replace(/[^0-9]/g, '').slice(0, 5);
+                if (num.length > 0) {
+                    el.value = 'AV' + num;
+                } else {
+                    el.value = '';
+                }
+            }
+        }
+
         window.onload = () => {
             document.querySelectorAll('.date-picker-field').forEach(picker => { convertAndSetInputDate(picker); });
         };

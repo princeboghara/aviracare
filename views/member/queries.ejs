@@ -46,11 +46,13 @@
                 <!-- Member ID & Full Name -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="memberId" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Member ID *
+                        <label for="memberId" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                            <span>Member ID *</span>
+                            <span class="text-[9px] text-emerald-600 font-mono font-bold">AV + 5 Digits</span>
                         </label>
-                        <input type="text" id="memberId" required placeholder="e.g. AVI1002"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 uppercase transition-all">
+                        <input type="text" id="memberId" required placeholder="e.g. AV12345" maxlength="7"
+                            oninput="formatMemberIdInput(this)"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 uppercase transition-all">
                     </div>
                     <div>
                         <label for="memberName" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
@@ -63,11 +65,13 @@
 
                 <!-- Contact Mobile Number -->
                 <div>
-                    <label for="contactNo" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                        WhatsApp / Contact Mobile No *
+                    <label for="contactNo" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span>WhatsApp / Contact Mobile No *</span>
+                        <span class="text-[9px] text-slate-400 font-mono">10 Digits Only</span>
                     </label>
-                    <input type="tel" id="contactNo" required placeholder="10-digit mobile number" maxlength="10"
-                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all">
+                    <input type="tel" id="contactNo" required placeholder="10-digit mobile number" maxlength="10" inputmode="numeric"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all">
                 </div>
 
                 <!-- Query Subject Category Selector -->
@@ -75,23 +79,23 @@
                     <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-2">
                         Query Category *
                     </label>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        <button type="button" onclick="selectSubject('Parcel Dispatch Inquiry')" class="subject-pill px-3 py-2 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="subjectPillsContainer">
+                        <button type="button" onclick="selectSubject(this, 'Parcel Dispatch Inquiry')" data-subject="Parcel Dispatch Inquiry" class="subject-pill px-3 py-2.5 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all cursor-pointer">
                             📦 Parcel Dispatch
                         </button>
-                        <button type="button" onclick="selectSubject('PV Points Verification')" class="subject-pill px-3 py-2 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all">
+                        <button type="button" onclick="selectSubject(this, 'PV Points Verification')" data-subject="PV Points Verification" class="subject-pill px-3 py-2.5 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all cursor-pointer">
                             📊 PV Points
                         </button>
-                        <button type="button" onclick="selectSubject('Damaged Item / Replacement')" class="subject-pill px-3 py-2 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all">
+                        <button type="button" onclick="selectSubject(this, 'Damaged Item / Replacement')" data-subject="Damaged Item / Replacement" class="subject-pill px-3 py-2.5 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all cursor-pointer">
                             🔄 Replacement
                         </button>
-                        <button type="button" onclick="selectSubject('Payout / Commission Query')" class="subject-pill px-3 py-2 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all">
+                        <button type="button" onclick="selectSubject(this, 'Payout / Commission Query')" data-subject="Payout / Commission Query" class="subject-pill px-3 py-2.5 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all cursor-pointer">
                             💰 Payout Query
                         </button>
-                        <button type="button" onclick="selectSubject('Product Information')" class="subject-pill px-3 py-2 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all">
+                        <button type="button" onclick="selectSubject(this, 'Product Information')" data-subject="Product Information" class="subject-pill px-3 py-2.5 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all cursor-pointer">
                             🌿 Product Info
                         </button>
-                        <button type="button" onclick="selectSubject('Other Query')" class="subject-pill px-3 py-2 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all">
+                        <button type="button" onclick="selectSubject(this, 'Other Query')" data-subject="Other Query" class="subject-pill px-3 py-2.5 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all cursor-pointer">
                             💬 Other
                         </button>
                     </div>
@@ -131,8 +135,9 @@
         <div id="historyPanel" class="hidden glass-emerald-card p-6 sm:p-8 rounded-3xl max-w-2xl mx-auto shadow-md space-y-6">
             <div class="flex flex-col sm:flex-row items-center gap-3">
                 <div class="relative w-full">
-                    <input type="text" id="historyMemberId" placeholder="Enter Member ID to view tickets..."
-                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 uppercase">
+                    <input type="text" id="historyMemberId" placeholder="Enter Member ID (e.g. AV12345)..." maxlength="7"
+                        oninput="formatMemberIdInput(this)"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 uppercase">
                 </div>
                 <button type="button" onclick="fetchTicketHistory()" class="btn-emerald-3d w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                     View History
@@ -153,6 +158,29 @@
     <%- include('../partials/member_footer') %>
 
     <script>
+        function formatMemberIdInput(el) {
+            let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (!raw) {
+                el.value = '';
+                return;
+            }
+            if (raw === 'A' || raw === 'AV') {
+                el.value = raw;
+                return;
+            }
+            if (raw.startsWith('AV')) {
+                let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 5);
+                el.value = 'AV' + num;
+            } else {
+                let num = raw.replace(/[^0-9]/g, '').slice(0, 5);
+                if (num.length > 0) {
+                    el.value = 'AV' + num;
+                } else {
+                    el.value = '';
+                }
+            }
+        }
+
         function switchTab(tab) {
             const createBtn = document.getElementById('tabCreateBtn');
             const historyBtn = document.getElementById('tabHistoryBtn');
@@ -176,14 +204,15 @@
             }
         }
 
-        function selectSubject(subject) {
+        function selectSubject(target, subject) {
             document.getElementById('ticketSubject').value = subject;
             const pills = document.querySelectorAll('.subject-pill');
             pills.forEach(p => {
-                if (p.innerText.includes(subject.substring(0, 5))) {
-                    p.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-800');
+                const btnSub = p.getAttribute('data-subject') || '';
+                if (p === target || btnSub === subject) {
+                    p.className = 'subject-pill px-3 py-2.5 rounded-xl text-[11px] font-black border-2 border-emerald-500 bg-emerald-50 text-emerald-900 ring-2 ring-emerald-500/20 shadow-xs text-left transition-all cursor-pointer';
                 } else {
-                    p.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-800');
+                    p.className = 'subject-pill px-3 py-2.5 rounded-xl text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-500 text-left transition-all cursor-pointer';
                 }
             });
         }
@@ -194,13 +223,25 @@
             const form = document.getElementById('ticketForm');
             const successBox = document.getElementById('ticketSuccessBox');
 
-            const payload = {
-                memberId: document.getElementById('memberId').value.trim(),
-                name: document.getElementById('memberName').value.trim(),
-                contactNo: document.getElementById('contactNo').value.trim(),
-                subject: document.getElementById('ticketSubject').value.trim(),
-                description: document.getElementById('ticketDesc').value.trim()
-            };
+            const memberId = document.getElementById('memberId').value.trim().toUpperCase();
+            const name = document.getElementById('memberName').value.trim();
+            const contactNo = document.getElementById('contactNo').value.trim().replace(/[^0-9]/g, '');
+            const subject = document.getElementById('ticketSubject').value.trim();
+            const description = document.getElementById('ticketDesc').value.trim();
+
+            if (!/^AV\d{5}$/.test(memberId)) {
+                alert("Please enter a valid Member ID starting with AV followed by exactly 5 digits (e.g. AV12345).");
+                document.getElementById('memberId').focus();
+                return;
+            }
+
+            if (contactNo.length !== 10) {
+                alert("Please enter a valid 10-digit mobile number.");
+                document.getElementById('contactNo').focus();
+                return;
+            }
+
+            const payload = { memberId, name, contactNo, subject, description };
 
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Logging Ticket...</span>`;
@@ -232,15 +273,19 @@
 
         function resetForm() {
             document.getElementById('ticketForm').reset();
+            selectSubject(null, 'Parcel Dispatch Inquiry');
             document.getElementById('ticketForm').classList.remove('hidden');
             document.getElementById('ticketSuccessBox').classList.add('hidden');
         }
 
         async function fetchTicketHistory() {
-            const memberId = document.getElementById('historyMemberId').value.trim();
+            const memberId = document.getElementById('historyMemberId').value.trim().toUpperCase();
             const container = document.getElementById('historyResults');
 
-            if (!memberId) return;
+            if (!memberId) {
+                alert("Please enter your Member ID.");
+                return;
+            }
 
             container.innerHTML = `
                 <div class="text-center py-8 text-xs font-bold text-slate-500">
@@ -332,8 +377,10 @@
             });
         }
 
-        // Initialize first subject pill active
-        selectSubject('Parcel Dispatch Inquiry');
+        // Initialize first subject pill active on load
+        window.addEventListener('DOMContentLoaded', () => {
+            selectSubject(null, 'Parcel Dispatch Inquiry');
+        });
     </script>
 </body>
 </html>
