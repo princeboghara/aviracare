@@ -6,71 +6,24 @@ const ExcelJS = require('exceljs');
 const db = require('../db');
 const { checkAdmin } = require('../middleware/auth');
 const { upload, uploadPdf, memoryUpload } = require('../config/multer');
-const { getModel } = require('../config/ai');
+const { getModel, scanParcelLabel } = require('../config/ai');
 
 // Protect all admin APIs with checkAdmin
 router.use(checkAdmin);
 
-// 🔍 1. AI Parcel Label Scanner
+// 🔍 1. AI Parcel Label Scanner with Multi-Model & Multi-Key Cascade
 router.post('/scan-ai-label', memoryUpload.single('labelImage'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ success: false, msg: 'No image uploaded' });
 
-        const model = getModel('gemini-3.6-flash', {
-            generationConfig: { responseMimeType: 'application/json' }
-        });
-        
-        const imagePart = {
-            inlineData: {
-                data: req.file.buffer.toString("base64"),
-                mimeType: req.file.mimetype
-            }
-        };
-
-        const prompt = `Analyze this shipping parcel label sticker carefully and extract details into strict JSON format with these exact keys:
-        {
-            "tracking": "Tracking/Barcode number (e.g. CG135962112IN)",
-            "name": "Exact Full Name directly under DELIVER TO (include full bold name across lines if present, but DO NOT include address lines, city, state, or dates)",
-            "mobile": "10-digit mobile number explicitly written next to Mob: (ignore any seller Ph: numbers)",
-            "pincode": "6-digit delivery pincode (e.g., 400074)"
-        }
-        Return ONLY valid JSON.`;
-
-        let result;
-        let lastErr = null;
-        for (let attempt = 1; attempt <= 3; attempt++) {
-            try {
-                result = await model.generateContent([prompt, imagePart]);
-                if (result && result.response) break;
-            } catch (apiErr) {
-                lastErr = apiErr;
-                console.warn(`Gemini 3.6 Scan Attempt ${attempt} failed:`, apiErr.message);
-                if (attempt < 3) {
-                    await new Promise(r => setTimeout(r, 1200 * attempt));
-                }
-            }
-        }
-
-        if (!result || !result.response) {
-            throw lastErr || new Error("Gemini AI did not return a response");
-        }
-
-        const responseText = result.response.text();
-        
-        try {
-            const data = JSON.parse(responseText.trim());
-            return res.json({ success: true, data });
-        } catch (parseErr) {
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                const data = JSON.parse(jsonMatch[0]);
-                return res.json({ success: true, data });
-            }
-            return res.json({ success: false, msg: 'AI could not parse label details' });
-        }
+        const result = await scanParcelLabel(req.file.buffer, req.file.mimetype);
+        return res.json(result);
     } catch (err) {
         console.error("AI Scan API Error:", err);
-        return res.json({ success: false, msg: err.message || 'AI scanning error' });
+        return res.json({ 
+            success: false, 
+            msg: err.message || 'AI scanning error. Please try again.' 
+        });
     }
 });
 

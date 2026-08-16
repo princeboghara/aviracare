@@ -500,14 +500,13 @@
             e.preventDefault();
             
             const weightGrams = parseFloat(document.getElementById('mWeight').value || 0);
-            const weightInKg = (weightGrams >= 10) ? (weightGrams / 1000) : weightGrams;
 
             const payload = {
                 tracking: document.getElementById('mTracking').value.toUpperCase().trim(),
                 name: document.getElementById('mReceiverName').value.toUpperCase().trim(),
                 mobile: document.getElementById('mMobile').value.trim(),
                 pincode: document.getElementById('mPincode').value.trim(),
-                weight: weightInKg,
+                weight: weightGrams,
                 rawGrams: weightGrams,
                 length: document.getElementById('mLength').value,
                 breadth: document.getElementById('mBreadth').value,
@@ -569,11 +568,10 @@
                 const dimText = (item.length && item.breadth && item.height) ? `${item.length}x${item.breadth}x${item.height} cm` : 'N/A';
                 
                 let weightDisplay = 'N/A';
-                if (item.rawGrams) {
+                if (item.weight !== undefined && item.weight !== null && item.weight !== '') {
+                    weightDisplay = `${item.weight} g`;
+                } else if (item.rawGrams) {
                     weightDisplay = `${item.rawGrams} g`;
-                } else if (item.weight) {
-                    const numW = parseFloat(item.weight);
-                    weightDisplay = (numW < 5) ? `${numW * 1000} g` : `${numW} kg`;
                 }
 
                 tbody.innerHTML += `
