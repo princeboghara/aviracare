@@ -5,86 +5,212 @@
     <title>Confirm Member Workspace - Avira Control</title>
     <style>
         .confirm-input {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 4px 8px;
-            border-radius: 8px;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            padding: 6px 10px;
+            border-radius: 10px;
             font-size: 11px;
             font-weight: 700;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #1e293b;
         }
         .confirm-input:focus {
             outline: none;
-            border-color: #10b981;
-            background: #ffffff;
+            border-color: #10b981 !important;
+            background: #ffffff !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+        }
+        html.dark .confirm-input {
+            background: #080c14 !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+        html.dark .confirm-input:focus {
+            background: #0f172a !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35) !important;
+        }
+        .row-matched {
+            background: rgba(16, 185, 129, 0.12) !important;
+            border-left: 3px solid #10b981 !important;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-amber-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
+<body class="bg-mesh-emerald min-h-screen flex flex-col font-sans antialiased text-slate-800 dark:text-slate-200 w-full overflow-x-hidden">
 
     <%- include('../partials/admin_navbar') %>
 
     <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen w-full box-border">
         
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-3 sm:px-6 py-2.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
-            <div class="flex items-center gap-2 min-w-0">
-                <i class="fa-solid fa-user-check text-emerald-500 flex-shrink-0"></i>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Tracking Manager / Confirm Members</span>
+        <!-- 🧭 Top Header Bar -->
+        <header class="bg-white/80 dark:bg-[#0d1322]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-xs w-full">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center text-base flex-shrink-0 shadow-xs">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div class="leading-none min-w-0">
+                    <h1 class="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wide truncate">Confirm Members</h1>
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mt-0.5">Verify Dispatch Data with Member IDs</span>
+                </div>
             </div>
             
-            <button id="btnRunMatches" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
-                <i class="fa-solid fa-bolt text-amber-300"></i> Run Matches
-            </button>
+            <div class="flex items-center gap-2.5 flex-shrink-0">
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-black bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    <i class="fa-solid fa-layer-group text-emerald-500"></i>
+                    <span><%= entries.length %> Pending</span>
+                </span>
+
+                <button id="btnRunMatches" type="button" class="btn-emerald-3d text-white font-black text-xs px-4 py-2 rounded-xl transition-all cursor-pointer uppercase tracking-wider flex items-center gap-2 flex-shrink-0">
+                    <i class="fa-solid fa-bolt text-amber-300"></i>
+                    <span>Run Matches</span>
+                </button>
+            </div>
         </header>
 
-        <main class="flex-grow w-full px-2 sm:px-4 py-3 space-y-3 box-border">
-            <div class="bg-white rounded-xl border border-slate-100 shadow-md overflow-hidden w-full">
+        <!-- 📊 Main Workspace Area -->
+        <main class="flex-grow w-full max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 box-border">
+            
+            <!-- Quick Stats & Search Toolbar -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                
+                <!-- Card 1: Total Pending -->
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block">Pending Verifications</span>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <span id="statPendingCount" class="text-2xl font-black text-slate-900 dark:text-slate-100"><%= entries.length %></span>
+                            <span class="text-xs font-bold text-slate-400">parcels</span>
+                        </div>
+                    </div>
+                    <div class="h-11 w-11 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-boxes-packing"></i>
+                    </div>
+                </div>
+
+                <!-- Card 2: Auto-Match Helper -->
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block">Auto-Fill Engine</span>
+                        <p class="text-xs font-bold text-slate-700 dark:text-slate-300 mt-1">Click "Run Matches" to pull details from Orders Master</p>
+                    </div>
+                    <div class="h-11 w-11 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                </div>
+
+                <!-- Card 3: Instant Filter Search -->
+                <div class="bg-white dark:bg-[#0f172a] p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center gap-2.5">
+                    <div class="h-10 w-10 rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-sm flex-shrink-0">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <input type="text" id="tableFilterInput" onkeyup="filterConfirmTable()" placeholder="Search Name, Tracking, Pincode..."
+                            class="w-full bg-transparent border-none text-xs font-bold text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none">
+                        <span class="text-[9px] font-semibold text-slate-400 block">Real-time instant filter</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📋 Table Container Card -->
+            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden w-full">
+                
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
                         <thead>
-                            <tr class="bg-slate-100/80 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px] tracking-tight">
-                                <th class="py-2 px-2.5">Tracking / Name</th>
-                                <th class="py-2 px-2">Pincode & Place</th>
-                                <th class="py-2 px-1">Member ID</th>
-                                <th class="py-2 px-1">Order Date</th>
-                                <th class="py-2 px-1">PV</th>
-                                <th class="py-2 px-1">Amount</th>
-                                <th class="py-2 px-2 text-center">Action</th>
+                            <tr class="bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
+                                <th class="py-3 px-3.5">
+                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-barcode text-emerald-500"></i> Tracking & Recipient</div>
+                                </th>
+                                <th class="py-3 px-3">
+                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-emerald-500"></i> Pincode & City</div>
+                                </th>
+                                <th class="py-3 px-2">
+                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-id-card text-teal-500"></i> Member ID</div>
+                                </th>
+                                <th class="py-3 px-2">
+                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-calendar-day text-cyan-500"></i> Order Date</div>
+                                </th>
+                                <th class="py-3 px-2">
+                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-gem text-amber-500"></i> PV</div>
+                                </th>
+                                <th class="py-3 px-2">
+                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-indian-rupee-sign text-emerald-500"></i> Amount</div>
+                                </th>
+                                <th class="py-3 px-3 text-center">
+                                    <div class="flex items-center justify-center gap-1.5"><i class="fa-solid fa-sliders text-slate-400"></i> Action</div>
+                                </th>
                             </tr>
                         </thead>
-                        <tbody id="confirmTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                        <tbody id="confirmTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/80 font-medium text-slate-700 dark:text-slate-300">
                             <% if(entries.length === 0) { %>
                                 <tr id="empty-row">
-                                    <td colspan="7" class="py-12 text-center text-slate-400 font-normal">All entries verified!</td>
+                                    <td colspan="7" class="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
+                                        <div class="h-16 w-16 rounded-2xl bg-emerald-50 text-emerald-500 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-3 shadow-xs">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                        </div>
+                                        <p class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide">All Entries Verified!</p>
+                                        <p class="text-xs text-slate-400 font-normal mt-1">No pending parcel dispatches waiting for member confirmation.</p>
+                                    </td>
                                 </tr>
                             <% } else { %>
                                 <% entries.forEach((item, index) => { %>
-                                    <tr class="hover:bg-slate-50/60 transition-colors" id="row-<%= index %>">
-                                        <td class="py-1.5 px-2.5">
-                                            <div class="font-mono font-bold text-slate-900 tracking-number-text text-[11px]"><%= item.tracking %></div>
-                                            <div class="text-[9px] text-slate-400 uppercase font-semibold name-text truncate max-w-[140px]"><%= item.name %></div>
+                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors" id="row-<%= index %>">
+                                        
+                                        <!-- Tracking & Name -->
+                                        <td class="py-2.5 px-3.5">
+                                            <div class="flex items-center gap-2">
+                                                <div class="font-mono font-black text-slate-900 dark:text-slate-100 tracking-number-text text-xs bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-lg border border-slate-200/80 dark:border-slate-700">
+                                                    <%= item.tracking %>
+                                                </div>
+                                                <button type="button" onclick="navigator.clipboard.writeText('<%= item.tracking %>')" class="text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer" title="Copy Tracking Number">
+                                                    <i class="fa-regular fa-copy text-[10px]"></i>
+                                                </button>
+                                            </div>
+                                            <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-extrabold name-text truncate max-w-[170px] mt-1">
+                                                <i class="fa-regular fa-user text-[9px] mr-1 opacity-70"></i><%= item.name %>
+                                            </div>
                                         </td>
-                                        <td class="py-1.5 px-2">
-                                            <div class="font-mono font-bold text-emerald-600 text-[11px]"><%= item.pincode %></div>
-                                            <div class="text-[9px] text-slate-400 uppercase truncate max-w-[120px]"><%= item.city %>, <%= item.state %></div>
+
+                                        <!-- Pincode & City -->
+                                        <td class="py-2.5 px-3">
+                                            <div class="font-mono font-black text-emerald-600 dark:text-emerald-400 text-xs">
+                                                <%= item.pincode %>
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 uppercase font-semibold truncate max-w-[140px] mt-0.5">
+                                                <%= item.city %>, <%= item.state %>
+                                            </div>
                                         </td>
-                                        <td class="py-1.5 px-1">
-                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="AV12345" maxlength="7" oninput="formatMemberIdInput(this)" class="confirm-input font-mono uppercase text-slate-700 w-[100px]">
+
+                                        <!-- Member ID Input -->
+                                        <td class="py-2.5 px-2">
+                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="AV12345" maxlength="7" oninput="formatMemberIdInput(this)" class="confirm-input font-mono uppercase text-slate-800 dark:text-slate-200 w-[95px]" title="Enter AV Member ID">
                                         </td>
-                                        <td class="py-1.5 px-1">
-                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-700 font-semibold w-[115px]">
+
+                                        <!-- Order Date Input -->
+                                        <td class="py-2.5 px-2">
+                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-800 dark:text-slate-200 font-semibold w-[125px]">
                                             <input type="hidden" id="formatted-date-<%= index %>" value="<%= item.order_date %>">
                                         </td>
-                                        <td class="py-1.5 px-1">
-                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" class="confirm-input font-mono text-emerald-600 w-[50px]">
+
+                                        <!-- PV Input -->
+                                        <td class="py-2.5 px-2">
+                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" class="confirm-input font-mono font-bold text-emerald-600 dark:text-emerald-400 w-[60px]" title="Enter PV">
                                         </td>
-                                        <td class="py-1.5 px-1">
-                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-bold text-slate-900 w-[65px]">
+
+                                        <!-- Amount Input -->
+                                        <td class="py-2.5 px-2">
+                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-black text-slate-900 dark:text-slate-100 w-[80px]" title="Enter Amount">
                                         </td>
-                                        <td class="py-1.5 px-2 text-center">
+
+                                        <!-- Actions -->
+                                        <td class="py-2.5 px-3 text-center">
                                             <div class="flex items-center justify-center gap-1.5">
-                                                <button type="button" data-idx="<%= index %>" class="approve-btn bg-emerald-500 hover:bg-emerald-600 text-white font-black px-2.5 py-1 rounded transition-all text-[10px] tracking-wider uppercase cursor-pointer shadow-sm">OK</button>
-                                                <button type="button" onclick="deletePendingMember('<%= item.id %>', '<%= index %>')" class="bg-rose-500 hover:bg-rose-600 text-white font-black px-2 py-1 rounded transition-all text-[10px] tracking-wider uppercase cursor-pointer shadow-sm" title="Delete Entry">
-                                                    <i class="fa-solid fa-trash text-[9px]"></i>
+                                                <button type="button" data-idx="<%= index %>" class="approve-btn bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black px-3 py-1.5 rounded-xl transition-all text-[11px] tracking-wider uppercase cursor-pointer shadow-xs flex items-center gap-1">
+                                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                                    <span>OK</span>
+                                                </button>
+                                                <button type="button" onclick="deletePendingMember('<%= item.id %>', '<%= index %>')" class="bg-rose-50 hover:bg-rose-500 text-rose-600 hover:text-white dark:bg-rose-950/40 dark:text-rose-400 dark:hover:bg-rose-600 dark:hover:text-white font-black px-2.5 py-1.5 rounded-xl transition-all text-[11px] tracking-wider uppercase cursor-pointer border border-rose-200 dark:border-rose-800 shadow-xs" title="Delete Entry">
+                                                    <i class="fa-solid fa-trash text-[10px]"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -97,8 +223,9 @@
             </div>
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-2.5 text-center text-[10px] font-medium text-slate-400 mt-2 w-full overflow-hidden">
-            &copy; 2026 Avira Control Center. All rights reserved.
+        <!-- Footer -->
+        <footer class="bg-white/80 dark:bg-[#0d1322]/80 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 py-3 text-center text-[10px] font-bold text-slate-400 mt-4 w-full overflow-hidden">
+            &copy; 2026 Avira Control Center &bull; High Precision Member Verification Workspace
         </footer>
     </div>
 
@@ -163,6 +290,21 @@
             return str.toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
         }
 
+        // 🔍 Instant Client-Side Live Filter Search
+        function filterConfirmTable() {
+            const filterValue = document.getElementById('tableFilterInput').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#confirmTableBody tr:not(#empty-row)');
+            
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (!filterValue || text.includes(filterValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
         document.querySelectorAll('.approve-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const index = this.getAttribute('data-idx');
@@ -179,7 +321,8 @@
                     return;
                 }
 
-                this.innerText = "SAVING...";
+                const originalHTML = this.innerHTML;
+                this.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> SAVING...`;
                 this.disabled = true;
 
                 const formattedDate = formatCustomDate(rawDate);
@@ -203,13 +346,13 @@
                         checkEmptyTableState();
                     } else {
                         alert("Error: " + data.msg);
-                        this.innerText = "OK";
+                        this.innerHTML = originalHTML;
                         this.disabled = false;
                     }
                 } catch(err) { 
                     console.error(err); 
                     alert("Server sync error occurred!");
-                    this.innerText = "OK";
+                    this.innerHTML = originalHTML;
                     this.disabled = false;
                 }
             });
@@ -240,10 +383,19 @@
 
         function checkEmptyTableState() {
             const remainingRows = document.querySelectorAll('#confirmTableBody tr:not(#empty-row)');
+            const statPendingCount = document.getElementById('statPendingCount');
+            if (statPendingCount) statPendingCount.innerText = remainingRows.length;
+
             if (remainingRows.length === 0) {
                 document.getElementById('confirmTableBody').innerHTML = `
                     <tr id="empty-row">
-                        <td colspan="7" class="py-12 text-center text-slate-400 font-normal">All entries verified!</td>
+                        <td colspan="7" class="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
+                            <div class="h-16 w-16 rounded-2xl bg-emerald-50 text-emerald-500 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-3 shadow-xs">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <p class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide">All Entries Verified!</p>
+                            <p class="text-xs text-slate-400 font-normal mt-1">No pending parcel dispatches waiting for member confirmation.</p>
+                        </td>
                     </tr>
                 `;
             }
@@ -281,7 +433,7 @@
                                 convertAndSetInputDate(picker);
                             }
 
-                            row.classList.add('bg-emerald-50/80');
+                            row.classList.add('row-matched');
                             matchCount++;
                         }
                     }

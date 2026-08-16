@@ -10,12 +10,12 @@
     <%- include('../partials/member_navbar') %>
 
     <!-- Main Content -->
-    <main class="flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-14 space-y-10 relative z-10 box-border">
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-14 space-y-8 relative z-10 box-border">
         
         <!-- Header -->
-        <div class="text-center space-y-3 max-w-xl mx-auto">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-widest shadow-xs">
-                <i class="fa-solid fa-folder-open text-emerald-600"></i> Corporate Digital Library
+        <div class="text-center space-y-3 max-w-2xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-widest shadow-xs">
+                <i class="fa-solid fa-folder-open text-emerald-600"></i> Official Document Library
             </div>
             
             <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-slate-950 uppercase">
@@ -23,8 +23,41 @@
             </h1>
             
             <p class="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
-                Official PDF documents, compensation plans, catalogs, and marketing collaterals available for direct download.
+                Access official business plans, full-range product catalogs, quality certificates, brochures, and announcements.
             </p>
+        </div>
+
+        <!-- Filter & Search Control Bar -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-3.5 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 shadow-xs">
+            
+            <!-- Category Filter Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 text-xs font-bold scrollbar-none">
+                <button type="button" onclick="setDocCategory('ALL', this)" class="doc-filter-btn px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white shadow-xs transition-all cursor-pointer whitespace-nowrap">
+                    All (<%= pdfs.length %>)
+                </button>
+                <button type="button" onclick="setDocCategory('BUSINESS_PLAN', this)" class="doc-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer whitespace-nowrap">
+                    📊 Business Plans
+                </button>
+                <button type="button" onclick="setDocCategory('PRODUCT_CATALOG', this)" class="doc-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer whitespace-nowrap">
+                    🛍️ Catalogs
+                </button>
+                <button type="button" onclick="setDocCategory('LEGAL_CERTIFICATE', this)" class="doc-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer whitespace-nowrap">
+                    📜 Certificates
+                </button>
+                <button type="button" onclick="setDocCategory('BROCHURE_FLYER', this)" class="doc-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer whitespace-nowrap">
+                    📑 Brochures
+                </button>
+                <button type="button" onclick="setDocCategory('CIRCULAR_NOTICE', this)" class="doc-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer whitespace-nowrap">
+                    📢 Circulars
+                </button>
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative w-full md:w-64 flex-shrink-0">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="memberDocSearch" onkeyup="filterMemberDocs()" placeholder="Search documents..."
+                       class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500">
+            </div>
         </div>
 
         <!-- Documents Container -->
@@ -32,50 +65,92 @@
             
             <!-- List Header with count -->
             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2.5">
                     <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold">
                         <i class="fa-solid fa-file-pdf"></i>
                     </span>
                     <div>
                         <h2 class="text-xs sm:text-sm font-black uppercase text-slate-900">Available Files</h2>
-                        <p class="text-[10px] font-bold text-slate-400">Total <%= pdfs.length %> document(s) uploaded</p>
+                        <p class="text-[10px] font-bold text-slate-400">Direct Download & Instant Preview</p>
                     </div>
                 </div>
-                <span class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 uppercase tracking-wider">
-                    Verified PDFs
+                <span id="docCountBadge" class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 uppercase tracking-wider">
+                    <%= pdfs.length %> Verified Files
                 </span>
             </div>
 
             <!-- Documents Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div id="memberDocGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <% if(!pdfs || pdfs.length === 0) { %>
-                    <div class="col-span-full py-16 text-center space-y-3">
+                    <div id="noDocsState" class="col-span-full py-16 text-center space-y-3">
                         <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center text-3xl mx-auto border border-slate-100">
                             <i class="fa-solid fa-folder-open"></i>
                         </div>
-                        <h3 class="text-sm font-black text-slate-700">No documents uploaded yet</h3>
-                        <p class="text-xs text-slate-400 font-medium max-w-xs mx-auto">Please check back soon or contact your team leader for official copies.</p>
+                        <h3 class="text-sm font-black text-slate-700 uppercase tracking-wide">No Documents Uploaded Yet</h3>
+                        <p class="text-xs text-slate-400 font-medium max-w-xs mx-auto">Please check back soon for newly published corporate materials.</p>
                     </div>
                 <% } else { %>
                     <% pdfs.forEach(item => { %>
-                        <div class="p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-500/50 hover:shadow-md transition-all flex items-center justify-between gap-4 group">
-                            <div class="flex items-center gap-3.5 min-w-0">
-                                <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <% 
+                            let catLabel = 'Document';
+                            let catColor = 'bg-slate-100 text-slate-600 border-slate-200';
+                            if (item.category === 'BUSINESS_PLAN') {
+                                catLabel = 'Business Plan';
+                                catColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                            } else if (item.category === 'PRODUCT_CATALOG') {
+                                catLabel = 'Catalog';
+                                catColor = 'bg-teal-50 text-teal-700 border-teal-200';
+                            } else if (item.category === 'LEGAL_CERTIFICATE') {
+                                catLabel = 'Certificate';
+                                catColor = 'bg-cyan-50 text-cyan-700 border-cyan-200';
+                            } else if (item.category === 'BROCHURE_FLYER') {
+                                catLabel = 'Brochure';
+                                catColor = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+                            } else if (item.category === 'CIRCULAR_NOTICE') {
+                                catLabel = 'Circular';
+                                catColor = 'bg-amber-50 text-amber-700 border-amber-200';
+                            }
+                        %>
+                        <div class="doc-card p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-500/50 hover:shadow-md transition-all flex flex-col justify-between gap-3 group"
+                             data-category="<%= item.category || 'OTHER' %>"
+                             data-title="<%= item.title.toLowerCase() %>">
+                            
+                            <div class="flex items-start gap-3.5 min-w-0">
+                                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform border border-rose-100/60 shadow-xs">
                                     <i class="fa-solid fa-file-pdf"></i>
                                 </div>
-                                <div class="truncate">
-                                    <h4 class="text-xs font-black text-slate-900 uppercase truncate leading-tight"><%= item.title %></h4>
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-1">
-                                        <i class="fa-solid fa-calendar-days text-[9px] mr-1"></i> <%= item.uploadDate || 'Recent' %>
+                                <div class="min-w-0 flex-grow">
+                                    <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md border <%= catColor %>">
+                                            <%= catLabel %>
+                                        </span>
+                                        <span class="text-[9px] font-mono text-slate-400 font-bold">
+                                            <%= item.fileSize || 'PDF' %>
+                                        </span>
+                                    </div>
+                                    <h4 class="text-xs sm:text-sm font-black text-slate-900 uppercase truncate leading-tight" title="<%= item.title %>">
+                                        <%= item.title %>
+                                    </h4>
+                                    <span class="text-[10px] font-semibold text-slate-400 block mt-1">
+                                        <i class="fa-regular fa-calendar-days text-[9px] mr-1"></i> <%= item.uploadDate || 'Recent' %>
                                     </span>
                                 </div>
                             </div>
                             
-                            <a href="/uploads/<%= item.filename %>" download="<%= item.title %>.pdf"
-                                class="btn-emerald-3d text-[11px] font-black uppercase tracking-wider px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 flex-shrink-0 shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-download text-[10px]"></i>
-                                <span class="hidden sm:inline">Download</span>
-                            </a>
+                            <!-- Action Buttons -->
+                            <% const memberDocUrl = item.fileUrl || (item.filename && item.filename.startsWith('http') ? item.filename : ('/uploads/' + item.filename)); %>
+                            <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                                <a href="<%= memberDocUrl %>" target="_blank" 
+                                   class="flex-1 text-center py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-eye text-[10px] text-emerald-600"></i>
+                                    <span>Preview</span>
+                                </a>
+                                <a href="<%= memberDocUrl %>" download="<%= item.title %>.pdf"
+                                   class="flex-1 text-center py-2 px-3 rounded-xl btn-emerald-3d text-white text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
+                                    <i class="fa-solid fa-download text-[10px]"></i>
+                                    <span>Download</span>
+                                </a>
+                            </div>
                         </div>
                     <% }) %>
                 <% } %>
@@ -87,6 +162,46 @@
 
     <!-- Footer -->
     <%- include('../partials/member_footer') %>
+
+    <script>
+        let currentCategory = 'ALL';
+
+        function setDocCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.doc-filter-btn').forEach(b => {
+                b.className = 'doc-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer whitespace-nowrap';
+            });
+            btn.className = 'doc-filter-btn px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white shadow-xs transition-all cursor-pointer whitespace-nowrap';
+            filterMemberDocs();
+        }
+
+        function filterMemberDocs() {
+            const query = document.getElementById('memberDocSearch').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.doc-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const cardCat = card.getAttribute('data-category');
+                const cardTitle = card.getAttribute('data-title');
+                const cardText = card.innerText.toLowerCase();
+
+                const matchesCat = (currentCategory === 'ALL' || cardCat === currentCategory);
+                const matchesQuery = (!query || cardTitle.includes(query) || cardText.includes(query));
+
+                if (matchesCat && matchesQuery) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            const countBadge = document.getElementById('docCountBadge');
+            if (countBadge) {
+                countBadge.innerText = `${visibleCount} Files Shown`;
+            }
+        }
+    </script>
 
 </body>
 </html>

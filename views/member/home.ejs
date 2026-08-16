@@ -82,10 +82,17 @@
                     </p>
                 </div>
 
-                <a href="<%= businessPlan %>" download class="btn-dark-3d w-full text-center text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer">
-                    <span>Download Plan</span>
-                    <i class="fa-solid fa-file-arrow-download text-emerald-400 text-xs"></i>
-                </a>
+                <% if (typeof hasBusinessPlan !== 'undefined' && hasBusinessPlan) { %>
+                    <a href="<%= businessPlan %>" download="<%= businessPlanTitle %>.pdf" class="btn-dark-3d w-full text-center text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer">
+                        <span>Download Plan</span>
+                        <i class="fa-solid fa-file-arrow-download text-emerald-400 text-xs"></i>
+                    </a>
+                <% } else { %>
+                    <a href="/member/downloads" class="btn-dark-3d w-full text-center text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer">
+                        <span>View Library</span>
+                        <i class="fa-solid fa-folder-open text-emerald-400 text-xs"></i>
+                    </a>
+                <% } %>
             </div>
 
             <!-- 2. Product Catalog Card -->
@@ -103,10 +110,17 @@
                     </p>
                 </div>
 
-                <a href="<%= catalog %>" download class="btn-dark-3d w-full text-center text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer">
-                    <span>Download PDF</span>
-                    <i class="fa-solid fa-file-arrow-download text-teal-400 text-xs"></i>
-                </a>
+                <% if (typeof hasCatalog !== 'undefined' && hasCatalog) { %>
+                    <a href="<%= catalog %>" download="<%= catalogTitle %>.pdf" class="btn-dark-3d w-full text-center text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer">
+                        <span>Download Catalog</span>
+                        <i class="fa-solid fa-file-arrow-download text-teal-400 text-xs"></i>
+                    </a>
+                <% } else { %>
+                    <a href="/member/downloads" class="btn-dark-3d w-full text-center text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer">
+                        <span>View Library</span>
+                        <i class="fa-solid fa-folder-open text-teal-400 text-xs"></i>
+                    </a>
+                <% } %>
             </div>
 
             <!-- 3. Product Showcase Card -->

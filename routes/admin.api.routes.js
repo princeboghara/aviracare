@@ -7,6 +7,7 @@ const db = require('../db');
 const { checkAdmin } = require('../middleware/auth');
 const { upload, uploadPdf, memoryUpload } = require('../config/multer');
 const { getModel, scanParcelLabel } = require('../config/ai');
+const { uploadFile, deleteCloudinaryFile } = require('../config/cloudinary');
 
 // Protect all admin APIs with checkAdmin
 router.use(checkAdmin);
@@ -653,11 +654,19 @@ router.post('/save-bulk-master', async (req, res) => {
 // 📑 19. Upload Content PDF
 router.post('/upload-pdf', uploadPdf.single('pdfFile'), async (req, res) => {
     try {
-        if (!req.file) return res.json({ success: false, msg: "No file uploaded!" });
+        if (!req.file) {
+            return res.status(400).json({ success: false, msg: "Please select a valid PDF file to upload!" });
+        }
         
-        const title = req.body.pdfTitle.toUpperCase().trim();
-        const category = req.body.pdfCategory; 
-        const filename = req.file.filename;
+        // Ensure file is actually a PDF
+        if (path.extname(req.file.originalname).toLowerCase() !== '.pdf' && req.file.mimetype !== 'application/pdf') {
+            const tempPath = req.file.path;
+            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+            return res.status(400).json({ success: false, msg: "Only PDF (.pdf) files are supported!" });
+        }
+
+        const title = (req.body.pdfTitle || 'OFFICIAL DOCUMENT').toUpperCase().trim();
+        const category = (req.body.pdfCategory || 'BUSINESS_PLAN').toUpperCase().trim(); 
         const id = 'PDF-' + Date.now();
         
         const day = new Date().getDate();
@@ -668,13 +677,32 @@ router.post('/upload-pdf', uploadPdf.single('pdfFile'), async (req, res) => {
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const uploadDate = `${day}${suffix} ${months[new Date().getMonth()]} ${new Date().getFullYear()}`;
 
-        const queryText = 'INSERT INTO content_pdf (id, title, filename, category, upload_date) VALUES ($1, $2, $3, $4, $5)';
-        await db.query(queryText, [id, title, filename, category, uploadDate]);
+        // ☁️ Upload to Cloudinary Permanent Cloud Storage
+        let storedFileRef = req.file.filename;
+        try {
+            const cloudUpload = await uploadFile(req.file.path, {
+                folder: 'aviracare/pdfs',
+                resource_type: 'auto',
+                public_id: `pdf_${Date.now()}_${path.parse(req.file.originalname).name.replace(/[^a-zA-Z0-9]/g, '_')}`
+            });
+            if (cloudUpload && cloudUpload.url) {
+                storedFileRef = cloudUpload.url;
+            }
+        } catch (cloudErr) {
+            console.error("Cloudinary PDF upload error, keeping local:", cloudErr);
+        }
 
-        res.json({ success: true, msg: "PDF document uploaded successfully" });
+        const queryText = 'INSERT INTO content_pdf (id, title, filename, category, upload_date) VALUES ($1, $2, $3, $4, $5)';
+        await db.query(queryText, [id, title, storedFileRef, category, uploadDate]);
+
+        res.json({ 
+            success: true, 
+            msg: `PDF document "${title}" uploaded and synced permanently to cloud storage!`,
+            document: { id, title, filename: storedFileRef, category, uploadDate }
+        });
     } catch (err) {
         console.error("Upload PDF Error:", err);
-        res.json({ success: false, msg: "Server error during PDF upload." });
+        res.status(500).json({ success: false, msg: "Server error during PDF upload: " + err.message });
     }
 });
 
@@ -682,22 +710,28 @@ router.post('/upload-pdf', uploadPdf.single('pdfFile'), async (req, res) => {
 router.delete('/delete-pdf/:id', async (req, res) => {
     try {
         const pdfId = req.params.id;
-        const result = await db.query('SELECT filename FROM content_pdf WHERE id = $1', [pdfId]);
+        const result = await db.query('SELECT filename, title FROM content_pdf WHERE id = $1', [pdfId]);
         
         if (result.rows.length > 0) {
-            const filenameToDelete = result.rows[0].filename;
+            const { filename, title } = result.rows[0];
             await db.query('DELETE FROM content_pdf WHERE id = $1', [pdfId]);
 
-            const filePath = path.join(__dirname, '..', 'public/uploads/', filenameToDelete);
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
+            // ☁️ Remove from Cloudinary if stored there
+            if (filename && filename.startsWith('http')) {
+                await deleteCloudinaryFile(filename, { resource_type: 'raw' });
+                await deleteCloudinaryFile(filename, { resource_type: 'image' });
+            } else if (filename) {
+                const filePath = path.join(__dirname, '..', 'public/uploads/', filename);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
             }
-            return res.json({ success: true, msg: "PDF deleted successfully" });
+            return res.json({ success: true, msg: `Document "${title || 'PDF'}" deleted successfully.` });
         }
-        res.json({ success: false, msg: "PDF file not found!" });
+        res.status(404).json({ success: false, msg: "PDF record not found in database!" });
     } catch (err) {
         console.error("Delete PDF Error:", err);
-        res.json({ success: false, msg: "Error deleting PDF file." });
+        res.status(500).json({ success: false, msg: "Error deleting PDF document: " + err.message });
     }
 });
 
@@ -752,7 +786,20 @@ router.post('/add-product', upload.array('productImages', 5), async (req, res) =
             return res.json({ success: false, msg: "કૃપા કરીને ઓછામાં ઓછો ૧ ફોટો અપલોડ કરો!" });
         }
 
-        const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
+        // ☁️ Upload all images to Cloudinary
+        const imagePaths = [];
+        for (const file of req.files) {
+            try {
+                const cloudRes = await uploadFile(file.path, {
+                    folder: 'aviracare/products',
+                    resource_type: 'image'
+                });
+                imagePaths.push(cloudRes.url);
+            } catch (imgErr) {
+                console.error("Cloudinary product image upload error:", imgErr);
+                imagePaths.push(`/uploads/${file.filename}`);
+            }
+        }
 
         const queryText = `
             INSERT INTO avira_products (name, amount, pv, info, benefits, how_to_use, image_url, all_images) 
@@ -767,12 +814,12 @@ router.post('/add-product', upload.array('productImages', 5), async (req, res) =
             (info || '').trim(),
             (benefits || '').trim(),
             (how_to_use || '').trim(),
-            imagePaths[0],
+            imagePaths[0] || '/images/logo.jpg',
             JSON.stringify(imagePaths)
         ];
 
         await db.query(queryText, values);
-        res.json({ success: true, msg: "પ્રોડક્ટ સફળતાપૂર્વક પબ્લિશ થઈ ગઈ છે! 🎉" });
+        res.json({ success: true, msg: "પ્રોડક્ટ સફળતાપૂર્વક પબ્લિશ થઈ ગઈ છે અને ક્લાઉડમાં સેવ થઈ ગઈ છે! 🎉" });
 
     } catch (error) {
         console.error("Add Product Error:", error);
@@ -784,6 +831,29 @@ router.post('/add-product', upload.array('productImages', 5), async (req, res) =
 router.delete('/delete-product/:id', async (req, res) => {
     try {
         const productId = req.params.id;
+        const result = await db.query('SELECT image_url, all_images FROM avira_products WHERE id = $1', [productId]);
+        
+        if (result.rows.length > 0) {
+            const row = result.rows[0];
+            let imagesToDelete = [];
+            if (row.all_images) {
+                try {
+                    const parsed = typeof row.all_images === 'string' ? JSON.parse(row.all_images) : row.all_images;
+                    if (Array.isArray(parsed)) imagesToDelete = parsed;
+                } catch(e) {}
+            }
+            if (row.image_url && !imagesToDelete.includes(row.image_url)) {
+                imagesToDelete.push(row.image_url);
+            }
+
+            // Delete from Cloudinary
+            for (const imgUrl of imagesToDelete) {
+                if (imgUrl && imgUrl.startsWith('http')) {
+                    await deleteCloudinaryFile(imgUrl, { resource_type: 'image' });
+                }
+            }
+        }
+
         await db.query('DELETE FROM avira_products WHERE id = $1', [productId]);
         res.json({ success: true, msg: "પ્રોડક્ટ સફળતાપૂર્વક ડીલીટ થઈ ગઈ છે! 🗑️" });
     } catch (error) {
@@ -804,9 +874,18 @@ router.post('/update-product/:id', upload.array('productImages', 5), async (req,
         }
 
         if (req.files && req.files.length > 0) {
-            req.files.forEach(file => {
-                finalImages.push(`/uploads/${file.filename}`);
-            });
+            for (const file of req.files) {
+                try {
+                    const cloudRes = await uploadFile(file.path, {
+                        folder: 'aviracare/products',
+                        resource_type: 'image'
+                    });
+                    finalImages.push(cloudRes.url);
+                } catch (imgErr) {
+                    console.error("Cloudinary product update image error:", imgErr);
+                    finalImages.push(`/uploads/${file.filename}`);
+                }
+            }
         }
 
         if (finalImages.length === 0) {

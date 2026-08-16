@@ -1,23 +1,44 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 const db = require('../db');
 
 // 🏠 Homepage / Member Portal Hub
 router.get('/', async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM content_pdf');
+        const result = await db.query('SELECT * FROM content_pdf ORDER BY id DESC');
         const pdfList = result.rows;
         
-        const latestBusinessPlan = pdfList.filter(p => p.category === 'BUSINESS_PLAN').pop();
-        const latestCatalog = pdfList.filter(p => p.category === 'PRODUCT_CATALOG').pop();
+        const latestBusinessPlan = pdfList.find(p => p.category === 'BUSINESS_PLAN');
+        const latestCatalog = pdfList.find(p => p.category === 'PRODUCT_CATALOG');
+
+        const planUrl = latestBusinessPlan 
+            ? (latestBusinessPlan.filename.startsWith('http') ? latestBusinessPlan.filename : `/uploads/${latestBusinessPlan.filename}`)
+            : '/member/downloads';
+
+        const catalogUrl = latestCatalog
+            ? (latestCatalog.filename.startsWith('http') ? latestCatalog.filename : `/uploads/${latestCatalog.filename}`)
+            : '/member/downloads';
 
         res.render('member/home', { 
-            businessPlan: latestBusinessPlan ? `/uploads/${latestBusinessPlan.filename}` : '#',
-            catalog: latestCatalog ? `/uploads/${latestCatalog.filename}` : '#'
+            businessPlan: planUrl,
+            businessPlanTitle: latestBusinessPlan ? latestBusinessPlan.title : 'Official Business Plan',
+            hasBusinessPlan: !!latestBusinessPlan,
+            catalog: catalogUrl,
+            catalogTitle: latestCatalog ? latestCatalog.title : 'Official Product Catalog',
+            hasCatalog: !!latestCatalog
         });
     } catch (err) {
         console.error("Home route error:", err);
-        res.render('member/home', { businessPlan: '#', catalog: '#' });
+        res.render('member/home', { 
+            businessPlan: '/member/downloads', 
+            businessPlanTitle: 'Official Business Plan',
+            hasBusinessPlan: false,
+            catalog: '/member/downloads', 
+            catalogTitle: 'Official Product Catalog',
+            hasCatalog: false
+        });
     }
 });
 
@@ -139,10 +160,35 @@ router.get('/api/queries/history', async (req, res) => {
 router.get('/member/downloads', async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM content_pdf ORDER BY id DESC');
-        const formattedPdfs = result.rows.map(row => ({
-            ...row,
-            uploadDate: row.upload_date
-        }));
+        const formattedPdfs = result.rows.map(row => {
+            let fileSizeStr = 'PDF';
+            try {
+                if (row.filename) {
+                    const fullPath = path.join(__dirname, '..', 'public', 'uploads', row.filename);
+                    if (fs.existsSync(fullPath)) {
+                        const stats = fs.statSync(fullPath);
+                        const bytes = stats.size;
+                        if (bytes >= 1048576) {
+                            fileSizeStr = (bytes / 1048576).toFixed(2) + ' MB';
+                        } else {
+                            fileSizeStr = (bytes / 1024).toFixed(1) + ' KB';
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            const fileUrl = row.filename 
+                ? (row.filename.startsWith('http') ? row.filename : `/uploads/${row.filename}`)
+                : '#';
+
+            return {
+                ...row,
+                fileUrl,
+                fileSize: fileSizeStr,
+                uploadDate: row.upload_date || 'Recent'
+            };
+        });
+
         res.render('member/downloads', { pdfs: formattedPdfs });
     } catch (err) {
         console.error("Downloads error:", err);

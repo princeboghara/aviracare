@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 const db = require('../db');
 const { checkAdmin } = require('../middleware/auth');
 
@@ -109,14 +111,50 @@ router.get('/master-database', checkAdmin, async (req, res) => {
 router.get('/content-manager', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM content_pdf ORDER BY id DESC');
-        const formattedPdfs = result.rows.map(row => ({
-            ...row,
-            uploadDate: row.upload_date
-        }));
-        res.render('admin/content_manager', { pdfs: formattedPdfs });
+        const formattedPdfs = result.rows.map(row => {
+            let fileSizeStr = 'PDF File';
+            try {
+                if (row.filename) {
+                    const fullPath = path.join(__dirname, '..', 'public', 'uploads', row.filename);
+                    if (fs.existsSync(fullPath)) {
+                        const stats = fs.statSync(fullPath);
+                        const bytes = stats.size;
+                        if (bytes >= 1048576) {
+                            fileSizeStr = (bytes / 1048576).toFixed(2) + ' MB';
+                        } else {
+                            fileSizeStr = (bytes / 1024).toFixed(1) + ' KB';
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            const fileUrl = row.filename 
+                ? (row.filename.startsWith('http') ? row.filename : `/uploads/${row.filename}`)
+                : '#';
+
+            return {
+                ...row,
+                fileUrl,
+                isCloud: row.filename && row.filename.startsWith('http'),
+                fileSize: fileSizeStr,
+                uploadDate: row.upload_date || 'N/A'
+            };
+        });
+
+        const stats = {
+            total: formattedPdfs.length,
+            plans: formattedPdfs.filter(p => p.category === 'BUSINESS_PLAN').length,
+            catalogs: formattedPdfs.filter(p => p.category === 'PRODUCT_CATALOG').length,
+            others: formattedPdfs.filter(p => p.category !== 'BUSINESS_PLAN' && p.category !== 'PRODUCT_CATALOG').length
+        };
+
+        res.render('admin/content_manager', { pdfs: formattedPdfs, stats });
     } catch (error) {
         console.error("Fetch Content PDFs Error:", error);
-        res.render('admin/content_manager', { pdfs: [] });
+        res.render('admin/content_manager', { 
+            pdfs: [], 
+            stats: { total: 0, plans: 0, catalogs: 0, others: 0 } 
+        });
     }
 });
 

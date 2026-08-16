@@ -17,6 +17,27 @@
             transform: translateY(0) scale(1);
         }
 
+        /* 📦 Quick Preset Chips Styling */
+        .preset-chip {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .preset-chip:hover {
+            transform: translateY(-1px);
+        }
+        .preset-chip.active {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+            color: #ffffff !important;
+            border-color: #059669 !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+        }
+        .preset-chip.active .preset-dim {
+            color: #d1fae5 !important;
+        }
+        .preset-chip.active .preset-badge {
+            background-color: rgba(255, 255, 255, 0.25) !important;
+            color: #ffffff !important;
+        }
+
         /* 🌟 HIGHLIGHT ENGINE FOR QUICK VERIFICATION */
         .field-highlight {
             border-color: #10b981 !important;
@@ -136,40 +157,61 @@
                     </div>
 
                     <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100 space-y-3">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200/60 pb-2">
-                            <label class="font-bold text-slate-700 flex items-center gap-1.5 text-xs">
-                                <i class="fa-solid fa-boxes-packing text-emerald-500"></i> Box Dimensions
-                            </label>
+                        <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200/60 pb-2">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <label class="font-bold text-slate-700 flex items-center gap-1.5 text-xs">
+                                    <i class="fa-solid fa-boxes-packing text-emerald-500"></i> Box Dimensions & Presets
+                                </label>
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 hover:bg-emerald-100/70 transition-all select-none" title="Keeps the selected box dimensions pre-filled for consecutive parcel entries">
+                                    <input type="checkbox" id="chkKeepPreset" checked class="accent-emerald-600 rounded cursor-pointer h-3.5 w-3.5">
+                                    <span><i class="fa-solid fa-thumbtack text-emerald-600 text-[9px]"></i> Keep Box for Next Entry</span>
+                                </label>
+                            </div>
                             
-                            <div class="relative w-full sm:w-64">
-                                <button type="button" id="presetBtn" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 hover:border-emerald-400 focus:outline-none shadow-xs flex justify-between items-center cursor-pointer transition-all">
-                                    <span id="selectedPresetLabel" class="flex items-center gap-1.5 truncate">
-                                        <i class="fa-solid fa-bolt text-amber-400"></i> Select Box Preset...
-                                    </span>
-                                    <i id="presetChevron" class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-300"></i>
-                                </button>
+                            <div class="flex items-center gap-2">
+                                <a href="/admin/settings" target="_blank" class="text-[10px] font-bold text-slate-400 hover:text-emerald-600 flex items-center gap-1 transition-all">
+                                    <i class="fa-solid fa-gear"></i> Manage
+                                </a>
+                                <div class="relative w-40 sm:w-52">
+                                    <button type="button" id="presetBtn" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:border-emerald-400 focus:outline-none shadow-xs flex justify-between items-center cursor-pointer transition-all">
+                                        <span id="selectedPresetLabel" class="flex items-center gap-1.5 truncate">
+                                            <i class="fa-solid fa-bolt text-amber-400 text-[10px]"></i> More Presets...
+                                        </span>
+                                        <i id="presetChevron" class="fa-solid fa-chevron-down text-[9px] text-slate-400 transition-transform duration-300"></i>
+                                    </button>
 
-                                <div id="presetMenu" class="custom-preset-menu absolute right-0 left-0 sm:left-auto sm:w-72 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1.5 space-y-1">
-                                    <p class="p-2 text-center text-[10px] text-slate-400 font-semibold">Loading Presets...</p>
+                                    <div id="presetMenu" class="custom-preset-menu absolute right-0 top-full mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1.5 space-y-1">
+                                        <p class="p-2 text-center text-[10px] text-slate-400 font-semibold">Loading Presets...</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                        <!-- ⚡ 1-Click Quick Preset Chips Container -->
+                        <div id="presetChipsContainer" class="flex flex-wrap items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1">
+                                <i class="fa-solid fa-hand-pointer text-emerald-500"></i> 1-Click Box:
+                            </span>
+                            <div id="presetChipsList" class="flex flex-wrap items-center gap-1.5">
+                                <span class="text-[10px] text-slate-400 font-semibold">Loading quick boxes...</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-1">
                             <div>
-                                <label class="block font-semibold text-slate-400 mb-1">Weight (Grams / g)</label>
+                                <label class="block font-semibold text-slate-400 mb-1 text-xs">Weight (Grams / g)</label>
                                 <input type="number" id="mWeight" placeholder="e.g. 500" required class="manual-field w-full px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-bold text-xs transition-all">
                             </div>
                             <div>
-                                <label class="block font-semibold text-slate-400 mb-1">Length (cm)</label>
+                                <label class="block font-semibold text-slate-400 mb-1 text-xs">Length (cm)</label>
                                 <input type="number" id="mLength" required class="manual-field w-full px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-bold text-xs transition-all">
                             </div>
                             <div>
-                                <label class="block font-semibold text-slate-400 mb-1">Breadth (cm)</label>
+                                <label class="block font-semibold text-slate-400 mb-1 text-xs">Breadth (cm)</label>
                                 <input type="number" id="mBreadth" required class="manual-field w-full px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-bold text-xs transition-all">
                             </div>
                             <div>
-                                <label class="block font-semibold text-slate-400 mb-1">Height (cm)</label>
+                                <label class="block font-semibold text-slate-400 mb-1 text-xs">Height (cm)</label>
                                 <input type="number" id="mHeight" required class="manual-field w-full px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-bold text-xs transition-all">
                             </div>
                         </div>
@@ -286,51 +328,62 @@
             renderTable();
         }
 
+        let currentSelectedPreset = null;
+        let activeBoxPresets = [];
+
         async function loadPresetsFromDB() {
+            const chipsList = document.getElementById('presetChipsList');
             const menu = document.getElementById('presetMenu');
             try {
                 const res = await fetch('/admin/api/get-box-presets');
                 const data = await res.json();
                 
-                if (data.success && data.presets && data.presets.length > 0) {
-                    menu.innerHTML = '';
-                    data.presets.forEach(p => {
-                        const firstChar = p.name ? p.name.charAt(0).toUpperCase() : 'B';
-                        menu.innerHTML += `
-                            <div onclick="applyBoxPreset(${p.length}, ${p.breadth}, ${p.height}, '${p.name}')" class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
-                                <div class="h-7 w-7 rounded-md bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs flex-shrink-0">${firstChar}</div>
-                                <div>
-                                    <p class="text-xs font-bold uppercase">${p.name}</p>
+                let presets = (data.success && data.presets && data.presets.length > 0) ? data.presets : [
+                    { id: 1, name: 'SHAMPOO box', length: '21', breadth: '8', height: '8' },
+                    { id: 2, name: '2 SHAMPOO BOX', length: '21', breadth: '13', height: '7' },
+                    { id: 3, name: 'CHOCO SINGLE BOX', length: '15', breadth: '10', height: '10' },
+                    { id: 4, name: 'TWO CHOCO BOX', length: '21', breadth: '13', height: '10' },
+                    { id: 5, name: 'OFFER SMALL BOX', length: '21', breadth: '21', height: '10' },
+                    { id: 6, name: 'OFFER BIG', length: '23', breadth: '21', height: '21' }
+                ];
+
+                activeBoxPresets = presets;
+                chipsList.innerHTML = '';
+                menu.innerHTML = '';
+
+                presets.forEach((p, idx) => {
+                    const shortcutNum = idx + 1;
+                    const chipId = `preset-chip-${p.id || idx}`;
+                    const safeName = (p.name || `Box ${shortcutNum}`).replace(/'/g, "\\'");
+                    
+                    // ⚡ 1-Click Quick Chip Button
+                    chipsList.innerHTML += `
+                        <button type="button" id="${chipId}" onclick="selectBoxPreset(${p.length}, ${p.breadth}, ${p.height}, '${safeName}', '${chipId}')"
+                            class="preset-chip group flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer select-none"
+                            title="Shortcut: Alt+${shortcutNum} | Size: ${p.length}x${p.breadth}x${p.height} cm">
+                            <span class="preset-badge inline-flex items-center justify-center w-4 h-4 rounded bg-slate-100 text-slate-500 group-hover:bg-emerald-200 group-hover:text-emerald-800 text-[9px] font-mono font-black">${shortcutNum}</span>
+                            <span class="truncate max-w-[120px] sm:max-w-[150px] uppercase">${p.name}</span>
+                            <span class="preset-dim text-[10px] text-slate-400 font-mono font-normal">(${p.length}x${p.breadth}x${p.height})</span>
+                        </button>
+                    `;
+
+                    // Dropdown Menu Item
+                    const firstChar = p.name ? p.name.charAt(0).toUpperCase() : 'B';
+                    menu.innerHTML += `
+                        <div onclick="selectBoxPreset(${p.length}, ${p.breadth}, ${p.height}, '${safeName}', '${chipId}')" 
+                             class="flex items-center justify-between p-2 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
+                            <div class="flex items-center gap-2 truncate">
+                                <div class="h-6 w-6 rounded-md bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-[10px] flex-shrink-0">${firstChar}</div>
+                                <div class="truncate">
+                                    <p class="text-xs font-bold uppercase truncate">${p.name}</p>
                                     <p class="text-[9px] text-slate-400 font-medium">${p.length} x ${p.breadth} x ${p.height} cm</p>
                                 </div>
                             </div>
-                        `;
-                    });
-                } else {
-                    menu.innerHTML = `
-                        <div onclick="applyBoxPreset(15, 10, 5, 'Small Box (15x10x5 cm)')" class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
-                            <div class="h-7 w-7 rounded-md bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs flex-shrink-0">S</div>
-                            <div>
-                                <p class="text-xs font-bold">Small Box</p>
-                                <p class="text-[9px] text-slate-400 font-medium">15 x 10 x 5 cm</p>
-                            </div>
-                        </div>
-                        <div onclick="applyBoxPreset(20, 15, 10, 'Medium Box (20x15x10 cm)')" class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
-                            <div class="h-7 w-7 rounded-md bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs flex-shrink-0">M</div>
-                            <div>
-                                <p class="text-xs font-bold">Medium Box</p>
-                                <p class="text-[9px] text-slate-400 font-medium">20 x 15 x 10 cm</p>
-                            </div>
-                        </div>
-                        <div onclick="applyBoxPreset(30, 20, 15, 'Large Box (30x20x15 cm)')" class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 cursor-pointer transition-all">
-                            <div class="h-7 w-7 rounded-md bg-amber-100 flex items-center justify-center text-amber-600 font-bold text-xs flex-shrink-0">L</div>
-                            <div>
-                                <p class="text-xs font-bold">Large Box</p>
-                                <p class="text-[9px] text-slate-400 font-medium">30 x 20 x 15 cm</p>
-                            </div>
+                            <span class="text-[9px] font-mono text-slate-400 font-bold bg-slate-100 px-1.5 py-0.5 rounded flex-shrink-0">Alt+${shortcutNum}</span>
                         </div>
                     `;
-                }
+                });
+
             } catch (err) {
                 console.error("Fetch Presets Error:", err);
             }
@@ -362,7 +415,10 @@
             presetChevron.classList.remove('rotate-180');
         }
 
-        function applyBoxPreset(l, b, h, label) {
+        // 📦 Direct 1-Click Box Preset Selection
+        function selectBoxPreset(l, b, h, label, chipId) {
+            currentSelectedPreset = { length: l, breadth: b, height: h, label: label, chipId: chipId };
+
             document.getElementById('mLength').value = l;
             document.getElementById('mBreadth').value = b;
             document.getElementById('mHeight').value = h;
@@ -371,9 +427,35 @@
             triggerFieldHighlight('mBreadth');
             triggerFieldHighlight('mHeight');
 
-            document.getElementById('selectedPresetLabel').innerHTML = `<i class="fa-solid fa-check text-emerald-500"></i> ${label}`;
+            document.getElementById('selectedPresetLabel').innerHTML = `<i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> <span class="truncate">${label}</span>`;
+
+            // Active visual toggle on chips
+            document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+            if (chipId) {
+                const activeChip = document.getElementById(chipId);
+                if (activeChip) activeChip.classList.add('active');
+            }
+
             closePresetDropdown();
+
+            // Auto-focus weight if empty
+            const weightInput = document.getElementById('mWeight');
+            if (!weightInput.value) {
+                weightInput.focus();
+            }
         }
+
+        // ⌨️ Fast Keyboard Shortcuts: Alt + 1, Alt + 2 ... Alt + 9 for Instant Preset Selection
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey && e.key >= '1' && e.key <= '9') {
+                const idx = parseInt(e.key) - 1;
+                if (activeBoxPresets && activeBoxPresets[idx]) {
+                    e.preventDefault();
+                    const p = activeBoxPresets[idx];
+                    selectBoxPreset(p.length, p.breadth, p.height, p.name, `preset-chip-${p.id || idx}`);
+                }
+            }
+        });
 
         document.getElementById('cameraInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
@@ -528,6 +610,8 @@
                     localEntries = result.entries;
                     renderTable();
                     
+                    const keepPreset = document.getElementById('chkKeepPreset')?.checked;
+
                     document.getElementById('manualEntryForm').reset();
                     document.querySelectorAll('.manual-field').forEach(field => {
                         field.classList.remove('field-highlight', 'ai-scanned-glow');
@@ -537,7 +621,22 @@
                     document.getElementById('txtCity').value = '';
                     document.getElementById('txtState').value = '';
                     document.getElementById('txtAddress').value = '';
-                    document.getElementById('selectedPresetLabel').innerHTML = `<i class="fa-solid fa-bolt text-amber-400"></i> Select Box Preset...`;
+
+                    // 📌 Sticky Preset: If enabled, retain last selected box dimensions
+                    if (keepPreset && currentSelectedPreset) {
+                        document.getElementById('mLength').value = currentSelectedPreset.length;
+                        document.getElementById('mBreadth').value = currentSelectedPreset.breadth;
+                        document.getElementById('mHeight').value = currentSelectedPreset.height;
+                        document.getElementById('selectedPresetLabel').innerHTML = `<i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> <span class="truncate">${currentSelectedPreset.label}</span>`;
+                        if (currentSelectedPreset.chipId) {
+                            const chip = document.getElementById(currentSelectedPreset.chipId);
+                            if (chip) chip.classList.add('active');
+                        }
+                    } else {
+                        currentSelectedPreset = null;
+                        document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+                        document.getElementById('selectedPresetLabel').innerHTML = `<i class="fa-solid fa-bolt text-amber-400 text-[10px]"></i> More Presets...`;
+                    }
                     
                     document.getElementById('mTracking').focus();
                 }

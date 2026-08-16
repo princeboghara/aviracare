@@ -2,163 +2,321 @@
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('../partials/head_meta') %>
-    <title>Content Manager - Avira Control</title>
-    <style>
-        .admin-menu-card { 
-            background: white; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        .admin-menu-card:hover { 
-            transform: translateY(-6px); 
-            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.12); 
-        }
-    </style>
+    <title>Content & PDF Manager - Avira Control</title>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden">
+<body class="bg-mesh-emerald min-h-screen flex flex-col font-sans antialiased text-slate-800 dark:text-slate-200 w-full overflow-x-hidden">
 
     <%- include('../partials/admin_navbar') %>
 
     <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen overflow-y-auto box-border w-full">
         
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
-            <div class="flex items-center gap-2 min-w-0">
-                <i class="fa-solid fa-file-pdf text-emerald-500 flex-shrink-0"></i>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Dashboard / Content Manager</span>
-            </div>
-            <div class="flex items-center gap-3 flex-shrink-0 ml-2">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs font-bold text-slate-800">Avira Admin</p>
-                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
+        <!-- 🧭 Top Header Bar -->
+        <header class="bg-white/80 dark:bg-[#0d1322]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-xs w-full">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="h-9 w-9 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 flex items-center justify-center text-base flex-shrink-0 shadow-xs">
+                    <i class="fa-solid fa-file-pdf"></i>
                 </div>
-                <div class="h-8 w-8 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 border border-emerald-100 font-bold text-xs">A</div>
+                <div class="leading-none min-w-0">
+                    <h1 class="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wide truncate">PDF & Content Manager</h1>
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mt-0.5">Manage Business Plans, Catalogs & Documents</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2.5 flex-shrink-0">
+                <a href="/member/downloads" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-emerald-500"></i>
+                    <span>Member View</span>
+                </a>
             </div>
         </header>
 
-        <main class="flex-grow w-full max-w-4xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-6 sm:space-y-10 box-border">
+        <!-- 📊 Main Workspace Area -->
+        <main class="flex-grow w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-6 box-border">
             
-            <div class="space-y-2 text-center max-w-xl mx-auto mb-4 sm:mb-6">
-                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-950">Content Management</h1>
-                <p class="text-slate-500 text-xs md:text-sm">Upload business models, product flyers, or catalog resources. All PDF documents automatically sync with the Member Portal.</p>
-            </div>
-
-            <div class="max-w-2xl mx-auto w-full">
-                <div class="admin-menu-card p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-md shadow-slate-100/50">
-                    <div class="text-center mb-6">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-lg sm:text-xl mx-auto mb-3 sm:mb-4 border border-emerald-100/50">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                        </div>
-                        <h2 class="text-sm sm:text-base font-bold text-slate-900 mb-1.5">Upload New PDF Resource</h2>
-                        <p class="text-slate-400 text-xs leading-relaxed">Enter a document title and upload the official PDF file to sync with the database.</p>
-                    </div>
-
-                    <form id="pdfUploadForm" class="space-y-4 text-xs">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
-                            <div>
-                                <label class="block font-bold text-slate-500 mb-1">Document Title</label>
-                                <input type="text" id="pdfTitle" required placeholder="E.G. NEW BUSINESS PLAN 2026" 
-                                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold uppercase focus:outline-none focus:border-emerald-500 text-slate-700">
-                            </div>
-                            
-                            <div>
-                                <label class="block font-bold text-slate-500 mb-1">Display Category</label>
-                                <select id="pdfCategory" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold focus:outline-none focus:border-emerald-500 text-slate-700">
-                                    <option value="BUSINESS_PLAN">Business Plan Card</option>
-                                    <option value="PRODUCT_CATALOG">Product Catalog Card</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block font-bold text-slate-500 mb-1">Select PDF File</label>
-                                <input type="file" id="pdfFile" accept=".pdf" required 
-                                       class="w-full text-[10px] text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm uppercase tracking-wider">
-                            Upload Document <i class="fa-solid fa-circle-check ml-1"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="w-full bg-white p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-lg mt-8 sm:mt-12 space-y-4">
-                <div class="flex justify-between items-center border-b pb-3 flex-wrap gap-2">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
                     <div>
-                        <h2 class="text-sm sm:text-base font-bold text-slate-900"><i class="fa-solid fa-list-check text-emerald-500 mr-1"></i> Active PDF Resources</h2>
-                        <p class="text-slate-400 text-[11px] sm:text-xs mt-0.5">Below records represent active documents synced with the database.</p>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block">Total Files</span>
+                        <span class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5 block"><%= (typeof stats !== 'undefined' && stats.total) || pdfs.length %></span>
                     </div>
-                    <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-xl">Total Items: <%= pdfs.length %></span>
+                    <div class="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
                 </div>
 
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block">Business Plans</span>
+                        <span class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 block"><%= (typeof stats !== 'undefined' && stats.plans) || pdfs.filter(p => p.category === 'BUSINESS_PLAN').length %></span>
+                    </div>
+                    <div class="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block">Catalogs</span>
+                        <span class="text-xl sm:text-2xl font-black text-teal-600 dark:text-teal-400 mt-0.5 block"><%= (typeof stats !== 'undefined' && stats.catalogs) || pdfs.filter(p => p.category === 'PRODUCT_CATALOG').length %></span>
+                    </div>
+                    <div class="h-10 w-10 rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-950/60 dark:text-teal-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block">Other Resources</span>
+                        <span class="text-xl sm:text-2xl font-black text-cyan-600 dark:text-cyan-400 mt-0.5 block"><%= (typeof stats !== 'undefined' && stats.others) || pdfs.filter(p => p.category !== 'BUSINESS_PLAN' && p.category !== 'PRODUCT_CATALOG').length %></span>
+                    </div>
+                    <div class="h-10 w-10 rounded-xl bg-cyan-50 text-cyan-600 dark:bg-cyan-950/60 dark:text-cyan-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-file-lines"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload New Resource Card -->
+            <div class="bg-white dark:bg-[#0f172a] p-5 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-5">
+                <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                    <div class="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-lg shadow-md shadow-emerald-500/20 flex-shrink-0">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 uppercase">Upload PDF Document</h2>
+                        <p class="text-[11px] font-semibold text-slate-400">Add compensation blueprints, product catalogs, brochures, or legal certificates.</p>
+                    </div>
+                </div>
+
+                <form id="pdfUploadForm" class="space-y-4 text-xs font-bold">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        
+                        <!-- Title -->
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1.5">Document Title</label>
+                            <input type="text" id="pdfTitle" required placeholder="E.G. AVIRA BUSINESS PLAN 2026" 
+                                   class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#080c14] border border-slate-200 dark:border-slate-700 rounded-xl font-bold uppercase focus:outline-none focus:border-emerald-500 text-slate-800 dark:text-slate-200">
+                        </div>
+                        
+                        <!-- Category -->
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1.5">Display Category</label>
+                            <select id="pdfCategory" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#080c14] border border-slate-200 dark:border-slate-700 rounded-xl font-bold focus:outline-none focus:border-emerald-500 text-slate-800 dark:text-slate-200 cursor-pointer">
+                                <option value="BUSINESS_PLAN">📊 Business Opportunity Plan</option>
+                                <option value="PRODUCT_CATALOG">🛍️ Official Product Catalog</option>
+                                <option value="LEGAL_CERTIFICATE">📜 Legal & Quality Certificate</option>
+                                <option value="BROCHURE_FLYER">📑 Marketing Brochure / Flyer</option>
+                                <option value="CIRCULAR_NOTICE">📢 Official Circular / Notice</option>
+                            </select>
+                        </div>
+
+                        <!-- File Input -->
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1.5">Select PDF File (Max 50MB)</label>
+                            <input type="file" id="pdfFile" accept=".pdf,application/pdf" required 
+                                   class="w-full p-1.5 bg-slate-50 dark:bg-[#080c14] border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] text-slate-600 dark:text-slate-300 font-semibold file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:bg-emerald-500 file:text-white hover:file:bg-emerald-600 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSubmitPdf" class="btn-emerald-3d w-full py-3 text-white font-black text-xs rounded-xl transition-all cursor-pointer shadow-md uppercase tracking-wider flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                        <span>Upload & Sync Resource</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Active Documents Table Card -->
+            <div class="bg-white dark:bg-[#0f172a] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden space-y-4 p-4 sm:p-6">
+                
+                <!-- Table Header & Search Filter -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                    <div>
+                        <h3 class="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wide flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-emerald-500"></i>
+                            <span>Active PDF Documents Library</span>
+                        </h3>
+                        <p class="text-[10px] font-semibold text-slate-400 mt-0.5">Documents synced in real-time with the Member Portal.</p>
+                    </div>
+
+                    <!-- Instant Search -->
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="pdfSearchInput" onkeyup="filterPdfTable()" placeholder="Search documents..."
+                               class="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-[#080c14] border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Table -->
                 <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap sm:whitespace-normal">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
                         <thead>
-                            <tr class="bg-slate-50 border-b text-slate-400 font-bold uppercase">
-                                <th class="py-3 px-3 w-12">SR</th>
-                                <th class="py-3 px-3">Document Title</th>
-                                <th class="py-3 px-3">File Storage Path</th>
-                                <th class="py-3 px-3">Upload Date</th>
-                                <th class="py-3 px-3 text-center w-36">Actions</th>
+                            <tr class="bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
+                                <th class="py-3 px-3 w-12 text-center">#</th>
+                                <th class="py-3 px-3.5">Document Details</th>
+                                <th class="py-3 px-3">Category</th>
+                                <th class="py-3 px-3">Size & Date</th>
+                                <th class="py-3 px-3 text-center w-48">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tbody id="pdfTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/80 font-medium text-slate-700 dark:text-slate-300">
                             <% if(pdfs.length === 0) { %>
-                                <tr>
-                                    <td colspan="5" class="py-12 text-center text-slate-400 font-normal">
-                                        <i class="fa-solid fa-file-pdf text-2xl block mb-2 text-slate-200"></i>
-                                        No active documents found in system repository.
+                                <tr id="empty-pdf-row">
+                                    <td colspan="5" class="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
+                                        <div class="h-14 w-14 rounded-2xl bg-indigo-50 text-indigo-500 dark:bg-indigo-950/60 dark:text-indigo-400 flex items-center justify-center text-2xl mx-auto mb-2.5 shadow-xs">
+                                            <i class="fa-solid fa-folder-open"></i>
+                                        </div>
+                                        <p class="text-xs font-black uppercase text-slate-700 dark:text-slate-300">No Documents Uploaded</p>
+                                        <p class="text-[10px] text-slate-400 font-normal mt-0.5">Upload a PDF file using the form above to display it on the member portal.</p>
                                     </td>
                                 </tr>
                             <% } else { %>
                                 <% pdfs.forEach((item, index) => { %>
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="py-3 px-3 font-mono text-slate-400"><%= index + 1 %></td>
-                                    <td class="py-3 px-3 font-bold text-slate-900 uppercase tracking-wide"><%= item.title %></td>
-                                    <td class="py-3 px-3 text-slate-400 font-mono text-[10px] max-w-[150px] truncate"><%= item.filename %></td>
-                                    <td class="py-3 px-3 text-slate-500"><%= item.uploadDate %></td>
-                                    <td class="py-3 px-3 text-center">
-                                        <div class="flex items-center justify-center gap-3">
-                                            <a href="/uploads/<%= item.filename %>" target="_blank" class="text-blue-500 hover:text-blue-700 font-bold transition-colors">
-                                                <i class="fa-solid fa-eye mr-0.5"></i> View
-                                            </a>
-                                            <button type="button" data-id="<%= item.id %>" class="delete-pdf-btn text-rose-500 hover:text-rose-700 font-bold transition-colors cursor-pointer">
-                                                <i class="fa-solid fa-trash mr-0.5"></i> Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                    <% 
+                                        let categoryBadge = 'bg-slate-100 text-slate-700 border-slate-200';
+                                        let categoryLabel = item.category || 'General Document';
+                                        if (item.category === 'BUSINESS_PLAN') {
+                                            categoryBadge = 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
+                                            categoryLabel = '📊 Business Plan';
+                                        } else if (item.category === 'PRODUCT_CATALOG') {
+                                            categoryBadge = 'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border-teal-200 dark:border-teal-800';
+                                            categoryLabel = '🛍️ Product Catalog';
+                                        } else if (item.category === 'LEGAL_CERTIFICATE') {
+                                            categoryBadge = 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950/60 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800';
+                                            categoryLabel = '📜 Legal Certificate';
+                                        } else if (item.category === 'BROCHURE_FLYER') {
+                                            categoryBadge = 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800';
+                                            categoryLabel = '📑 Brochure';
+                                        } else if (item.category === 'CIRCULAR_NOTICE') {
+                                            categoryBadge = 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800';
+                                            categoryLabel = '📢 Circular';
+                                        }
+                                    %>
+                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors pdf-row" id="pdf-row-<%= item.id %>">
+                                        <td class="py-3 px-3 text-center font-mono font-bold text-slate-400"><%= index + 1 %></td>
+                                        
+                                        <!-- Document Title -->
+                                        <td class="py-3 px-3.5">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="h-8 w-8 rounded-lg bg-rose-50 text-rose-500 dark:bg-rose-950/60 dark:text-rose-400 flex items-center justify-center text-sm flex-shrink-0">
+                                                    <i class="fa-solid fa-file-pdf"></i>
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide truncate max-w-[240px] sm:max-w-sm"><%= item.title %></p>
+                                                    <span class="text-[9px] font-mono text-slate-400 truncate max-w-[200px] block"><%= item.filename %></span>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Category -->
+                                        <td class="py-3 px-3">
+                                            <span class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border <%= categoryBadge %>">
+                                                <%= categoryLabel %>
+                                            </span>
+                                        </td>
+
+                                        <!-- Size & Upload Date -->
+                                        <td class="py-3 px-3">
+                                            <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200 block"><%= item.fileSize || 'PDF' %></span>
+                                            <span class="text-[9px] font-semibold text-slate-400"><%= item.uploadDate %></span>
+                                        </td>
+
+                                        <!-- Actions -->
+                                        <td class="py-3 px-3 text-center">
+                                            <% const targetDocUrl = item.fileUrl || (item.filename && item.filename.startsWith('http') ? item.filename : ('/uploads/' + item.filename)); %>
+                                            <div class="flex items-center justify-center gap-1.5">
+                                                <!-- Preview -->
+                                                <a href="<%= targetDocUrl %>" target="_blank" 
+                                                   class="h-7 w-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white dark:bg-blue-950/50 dark:text-blue-400 dark:hover:bg-blue-600 dark:hover:text-white transition-all flex items-center justify-center text-xs" title="Preview in New Tab">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                                <!-- Download -->
+                                                <a href="<%= targetDocUrl %>" download="<%= item.title %>.pdf" 
+                                                   class="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white transition-all flex items-center justify-center text-xs" title="Download PDF">
+                                                    <i class="fa-solid fa-download"></i>
+                                                </a>
+                                                <!-- Copy Link -->
+                                                <button type="button" onclick="copyDocumentLink('<%= targetDocUrl %>')" 
+                                                        class="h-7 w-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-700 hover:text-white dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-600 transition-all flex items-center justify-center text-xs cursor-pointer" title="Copy Direct URL">
+                                                    <i class="fa-solid fa-link"></i>
+                                                </button>
+                                                <!-- Delete -->
+                                                <button type="button" onclick="deleteDocument('<%= item.id %>', '<%= escape(item.title) %>')" 
+                                                        class="h-7 w-7 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white dark:bg-rose-950/50 dark:text-rose-400 dark:hover:bg-rose-600 dark:hover:text-white transition-all flex items-center justify-center text-xs cursor-pointer" title="Delete Document">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 <% }) %>
                             <% } %>
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400 mt-12 w-full overflow-hidden">
-            &copy; 2026 Avira Control Center. Secure Admin Workspace.
+        <!-- Footer -->
+        <footer class="bg-white/80 dark:bg-[#0d1322]/80 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 py-3 text-center text-[10px] font-bold text-slate-400 mt-6 w-full overflow-hidden">
+            &copy; 2026 Avira Control Center &bull; Document Management Engine
         </footer>
     </div>
 
     <script>
+        // 🔍 Real-time Table Filter
+        function filterPdfTable() {
+            const query = document.getElementById('pdfSearchInput').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#pdfTableBody tr.pdf-row');
+            
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (!query || text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // 📋 Copy Direct Document Link
+        function copyDocumentLink(pathOrUrl) {
+            const url = pathOrUrl.startsWith('http') 
+                ? pathOrUrl 
+                : (window.location.origin + (pathOrUrl.startsWith('/') ? '' : '/uploads/') + pathOrUrl);
+
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Direct Link Copied: ' + url);
+            }).catch(() => {
+                prompt('Copy this document URL:', url);
+            });
+        }
+
+        // 📤 Form Upload Handler
         document.getElementById('pdfUploadForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const fileInput = document.getElementById('pdfFile');
             const titleInput = document.getElementById('pdfTitle');
+            const categoryInput = document.getElementById('pdfCategory');
+            const btn = document.getElementById('btnSubmitPdf');
             
             if(fileInput.files.length === 0) {
                 alert("Please select a valid PDF file first.");
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('pdfFile', fileInput.files[0]);
-            formData.append('pdfTitle', titleInput.value);
-            formData.append('pdfCategory', document.getElementById('pdfCategory').value);
+            const file = fileInput.files[0];
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                alert("Only PDF files (.pdf) are allowed!");
+                return;
+            }
 
-            const btn = this.querySelector('button[type="submit"]');
-            btn.innerText = "Uploading to Cloud Server...";
+            const formData = new FormData();
+            formData.append('pdfFile', file);
+            formData.append('pdfTitle', titleInput.value.trim());
+            formData.append('pdfCategory', categoryInput.value);
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-sm"></i> <span>Uploading & Syncing...</span>`;
             btn.disabled = true;
 
             try {
@@ -173,35 +331,41 @@
                     location.reload();
                 } else {
                     alert("Upload Error: " + data.msg);
-                    btn.innerHTML = `Upload Document <i class="fa-solid fa-circle-check ml-1"></i>`;
+                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-sm"></i> <span>Upload & Sync Resource</span>`;
                     btn.disabled = false;
                 }
             } catch(err) {
                 console.error(err);
                 alert("Server connection failed. Please try again.");
-                btn.innerHTML = `Upload Document <i class="fa-solid fa-circle-check ml-1"></i>`;
+                btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-sm"></i> <span>Upload & Sync Resource</span>`;
                 btn.disabled = false;
             }
         });
 
-        document.querySelectorAll('.delete-pdf-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const pdfId = this.getAttribute('data-id');
-                if(confirm("Are you sure you want to delete this document permanently?")) {
-                    fetch(`/admin/api/delete-pdf/${pdfId}`, { method: 'DELETE' })
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.success) {
-                            alert(data.msg);
+        // 🗑️ Delete Document Handler
+        async function deleteDocument(pdfId, title) {
+            const decodedTitle = unescape(title || 'this PDF');
+            if (confirm(`Are you sure you want to delete "${decodedTitle}" permanently?`)) {
+                try {
+                    const res = await fetch(`/admin/api/delete-pdf/${pdfId}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if(data.success) {
+                        const row = document.getElementById(`pdf-row-${pdfId}`);
+                        if (row) row.remove();
+                        
+                        const remaining = document.querySelectorAll('#pdfTableBody tr.pdf-row');
+                        if (remaining.length === 0) {
                             location.reload();
-                        } else {
-                            alert("Delete Failed: " + data.msg);
                         }
-                    })
-                    .catch(err => console.error(err));
+                    } else {
+                        alert("Delete Failed: " + data.msg);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Communication error while deleting.");
                 }
-            });
-        });
+            }
+        }
     </script>
 </body>
 </html>
