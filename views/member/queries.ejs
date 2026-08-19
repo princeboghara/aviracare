@@ -321,9 +321,9 @@
                     if (t.admin_reply) {
                         replySection = `
                             <div class="mt-3 p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 shadow-xs space-y-1.5">
-                                <div class="flex items-center gap-1.5 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-                                    <i class="fa-solid fa-headset text-emerald-600 text-xs"></i>
-                                    <span>Avira Support Team Resolution / Reply:</span>
+                                <div class="flex items-center justify-between gap-1 text-emerald-800 text-[10px] font-black uppercase tracking-wider flex-wrap">
+                                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-headset text-emerald-600 text-xs"></i> Support Team Resolution / Reply:</span>
+                                    ${t.formattedRepliedAt ? `<span class="text-[9px] font-semibold text-emerald-700/80 lowercase"><i class="fa-regular fa-clock text-[8px]"></i> ${t.formattedRepliedAt}</span>` : ''}
                                 </div>
                                 <p class="text-xs text-emerald-950 font-semibold leading-relaxed pl-1">${escapeHTML(t.admin_reply)}</p>
                             </div>
@@ -339,8 +339,11 @@
 
                     html += `
                         <div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2.5 transition-all hover:border-emerald-200">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="text-[10px] font-black text-slate-400 font-mono tracking-wider">TICKET #${t.id}</span>
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-black text-slate-400 font-mono tracking-wider">TICKET #${t.id}</span>
+                                    ${t.formattedCreatedAt ? `<span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md"><i class="fa-regular fa-calendar text-[9px] mr-1 text-emerald-600"></i>${t.formattedCreatedAt}</span>` : ''}
+                                </div>
                                 <span class="px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${badgeClass}">
                                     ${statusStr}
                                 </span>

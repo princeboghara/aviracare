@@ -138,15 +138,18 @@
                             </div>
                             
                             <!-- Action Buttons -->
-                            <% const memberDocUrl = item.fileUrl || (item.filename && item.filename.startsWith('http') ? item.filename : ('/uploads/' + item.filename)); %>
+                            <% 
+                                const viewUrl = item.viewUrl || ('/api/documents/view/' + item.id);
+                                const downloadUrl = item.downloadUrl || ('/api/documents/download/' + item.id);
+                            %>
                             <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
-                                <a href="<%= memberDocUrl %>" target="_blank" 
-                                   class="flex-1 text-center py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                                <a href="<%= viewUrl %>" target="_blank" 
+                                   class="flex-1 text-center py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                                     <i class="fa-solid fa-eye text-[10px] text-emerald-600"></i>
                                     <span>Preview</span>
                                 </a>
-                                <a href="<%= memberDocUrl %>" download="<%= item.title %>.pdf"
-                                   class="flex-1 text-center py-2 px-3 rounded-xl btn-emerald-3d text-white text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
+                                <a href="<%= downloadUrl %>"
+                                   class="flex-1 text-center py-2.5 px-3 rounded-xl btn-emerald-3d text-white text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
                                     <i class="fa-solid fa-download text-[10px]"></i>
                                     <span>Download</span>
                                 </a>

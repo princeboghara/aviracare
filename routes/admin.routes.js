@@ -10,7 +10,8 @@ router.get('/login', (req, res) => {
     if (req.session && req.session.isAdmin) {
         return res.redirect('/admin/home');
     }
-    res.render('admin/login');
+    const error = req.query.error || null;
+    res.render('admin/login', { error });
 });
 
 // 🔑 Admin Login Authentication Handler
@@ -19,11 +20,22 @@ router.post('/login', (req, res) => {
     const adminUser = process.env.ADMIN_USERNAME || 'admin';
     const adminPass = process.env.ADMIN_PASSWORD || 'Avira@123';
     
+    const isAjax = req.xhr || 
+                   req.headers['x-requested-with'] === 'XMLHttpRequest' ||
+                   (req.headers.accept && req.headers.accept.includes('application/json')) ||
+                   (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
+    
     if (username === adminUser && password === adminPass) {
         req.session.isAdmin = true;
+        if (isAjax) {
+            return res.json({ success: true, redirectUrl: '/admin/home' });
+        }
         res.redirect('/admin/home');
     } else {
-        res.send('Invalid Credentials! <a href="/admin/login">Try Again</a>');
+        if (isAjax) {
+            return res.status(401).json({ success: false, message: 'Invalid Admin Credentials! Access Denied.' });
+        }
+        res.render('admin/login', { error: 'Invalid Credentials! Please try again.' });
     }
 });
 
@@ -80,7 +92,49 @@ router.get('/confirm-member', checkAdmin, async (req, res) => {
 router.get('/queries', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM query_tickets ORDER BY id DESC');
-        res.render('admin/queries', { tickets: result.rows });
+        
+        const formattedTickets = result.rows.map(ticket => {
+            let formattedCreatedAt = '';
+            let formattedRepliedAt = '';
+
+            if (ticket.created_at) {
+                const d = new Date(ticket.created_at);
+                if (!isNaN(d.getTime())) {
+                    formattedCreatedAt = d.toLocaleString('en-IN', {
+                        timeZone: 'Asia/Kolkata',
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                }
+            }
+
+            if (ticket.replied_at) {
+                const rd = new Date(ticket.replied_at);
+                if (!isNaN(rd.getTime())) {
+                    formattedRepliedAt = rd.toLocaleString('en-IN', {
+                        timeZone: 'Asia/Kolkata',
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                }
+            }
+
+            return {
+                ...ticket,
+                formattedCreatedAt: formattedCreatedAt || 'N/A',
+                formattedRepliedAt
+            };
+        });
+
+        res.render('admin/queries', { tickets: formattedTickets });
     } catch (error) {
         console.error("Fetch Admin Queries Error:", error);
         res.render('admin/queries', { tickets: [] });
@@ -114,27 +168,31 @@ router.get('/content-manager', checkAdmin, async (req, res) => {
         const formattedPdfs = result.rows.map(row => {
             let fileSizeStr = 'PDF File';
             try {
-                if (row.filename) {
-                    const fullPath = path.join(__dirname, '..', 'public', 'uploads', row.filename);
-                    if (fs.existsSync(fullPath)) {
-                        const stats = fs.statSync(fullPath);
-                        const bytes = stats.size;
-                        if (bytes >= 1048576) {
-                            fileSizeStr = (bytes / 1048576).toFixed(2) + ' MB';
-                        } else {
-                            fileSizeStr = (bytes / 1024).toFixed(1) + ' KB';
-                        }
+                let candidateLocalName = row.filename || '';
+                if (candidateLocalName.startsWith('http')) {
+                    const parts = candidateLocalName.split('/');
+                    candidateLocalName = parts[parts.length - 1];
+                } else if (candidateLocalName.startsWith('/uploads/')) {
+                    candidateLocalName = candidateLocalName.replace('/uploads/', '');
+                }
+
+                const fullPath = path.join(__dirname, '..', 'public', 'uploads', candidateLocalName);
+                if (fs.existsSync(fullPath)) {
+                    const stats = fs.statSync(fullPath);
+                    const bytes = stats.size;
+                    if (bytes >= 1048576) {
+                        fileSizeStr = (bytes / 1048576).toFixed(2) + ' MB';
+                    } else {
+                        fileSizeStr = (bytes / 1024).toFixed(1) + ' KB';
                     }
                 }
             } catch (e) {}
 
-            const fileUrl = row.filename 
-                ? (row.filename.startsWith('http') ? row.filename : `/uploads/${row.filename}`)
-                : '#';
-
             return {
                 ...row,
-                fileUrl,
+                viewUrl: `/api/documents/view/${row.id}`,
+                downloadUrl: `/api/documents/download/${row.id}`,
+                fileUrl: `/api/documents/view/${row.id}`,
                 isCloud: row.filename && row.filename.startsWith('http'),
                 fileSize: fileSizeStr,
                 uploadDate: row.upload_date || 'N/A'

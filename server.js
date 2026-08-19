@@ -58,6 +58,12 @@ app.use(session({
     }
 }));
 
+// 🗄️ Active Database Information Engine (Available across all EJS Views)
+app.use((req, res, next) => {
+    res.locals.dbInfo = db.getDbInfo();
+    next();
+});
+
 // 🚀 Register Modular Route Handlers
 app.use('/', memberRoutes);
 app.use('/admin', adminRoutes);

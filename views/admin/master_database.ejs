@@ -10,17 +10,30 @@
 
     <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen box-border">
         
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-database text-emerald-500"></i>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tracking Manager / Live Database Records</span>
-            </div>
+        <header class="bg-white/80 dark:bg-[#0d1322]/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm">
             <div class="flex items-center gap-3">
-                <div class="text-right">
-                    <p class="text-xs font-bold text-slate-800">Avira Admin</p>
+                <div class="h-8 w-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 shadow-xs">
+                    <i class="fa-solid fa-database text-xs"></i>
+                </div>
+                <div>
+                    <h1 class="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">Live Master Database</h1>
+                    <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:block">Permanent History & Member Tracking Records</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- 🗄️ Active Database Source Badge -->
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border <%= dbInfo.badgeBg %> text-[11px] font-bold shadow-xs">
+                    <i class="<%= dbInfo.icon %>"></i>
+                    <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-semibold">Active Database:</span>
+                    <span class="font-extrabold uppercase tracking-wide"><%= dbInfo.provider %></span>
+                    <span class="h-2 w-2 rounded-full <%= dbInfo.dotColor %> animate-pulse"></span>
+                </div>
+
+                <div class="text-right hidden sm:block">
+                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200">Avira Admin</p>
                     <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
                 </div>
-                <div class="h-8 w-8 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 border border-emerald-100 font-bold text-xs">A</div>
             </div>
         </header>
 
@@ -34,15 +47,28 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-lg overflow-hidden">
-                <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg overflow-hidden">
+                <!-- 🛠️ Table Header Bar with Page Size, Counter & Bulk Actions -->
+                <div class="px-6 py-4 bg-slate-50 dark:bg-[#0d1322] border-b border-slate-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-4">
                     <div>
-                        <h2 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-table text-emerald-500 mr-1"></i> Permanent Master Database History</h2>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Click "Order Date" column header to sort ascending or descending.</p>
+                        <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-table text-emerald-500"></i> Permanent Master Database History
+                        </h2>
+                        <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Click column headers (SR, Member ID, Name, Order Date) to sort ascending or descending.</p>
                     </div>
 
-                    <div class="flex items-center gap-3">
-                        <span id="masterCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-0.5 rounded-full"><%= entries.length %> Records Saved</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <!-- 🔢 Page Size Selector Buttons (10, 25, 50, 100, ALL) -->
+                        <div class="flex items-center gap-2 bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                            <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 dark:text-slate-500 px-1.5">Show:</span>
+                            <button type="button" data-size="10" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer">10</button>
+                            <button type="button" data-size="25" class="page-size-btn active-page-size px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs cursor-pointer">25</button>
+                            <button type="button" data-size="50" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer">50</button>
+                            <button type="button" data-size="100" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer">100</button>
+                            <button type="button" data-size="ALL" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer">ALL</button>
+                        </div>
+
+                        <span id="masterCounter" class="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[11px] font-black px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800"><%= entries.length %> Records Saved</span>
                         <button id="btnBulkDeleteMaster" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
                             <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedMasterCount">0</span>)
                         </button>
@@ -52,15 +78,33 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left border-collapse" id="masterDbTable">
                         <thead>
-                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase select-none">
+                            <tr class="bg-slate-100/70 dark:bg-slate-800/70 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold uppercase select-none">
                                 <th class="p-4 w-10 text-center select-none">
                                     <input type="checkbox" id="selectAllMasterCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                                 </th>
-                                <th class="p-4 w-12">SR</th>
-                                <th class="p-4">Member ID</th>
-                                <th class="p-4">Full Name</th>
-                                <th class="p-4 cursor-pointer hover:text-emerald-600 transition-colors" id="colOrderDate">
-                                    Order Date <i class="fa-solid fa-sort ml-1 text-slate-300" id="sortIcon"></i>
+                                <th class="p-4 w-20 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors select-none group" id="colSrNo" title="Click to sort by Series Number">
+                                    <div class="flex items-center gap-1">
+                                        <span>SR</span>
+                                        <i class="fa-solid fa-sort-up ml-1 text-emerald-500 text-[10px]" id="sortSrIcon"></i>
+                                    </div>
+                                </th>
+                                <th class="p-4 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors select-none group" id="colMemberId" title="Click to sort by Member ID">
+                                    <div class="flex items-center gap-1">
+                                        <span>Member ID</span>
+                                        <i class="fa-solid fa-sort ml-1 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortMemberIcon"></i>
+                                    </div>
+                                </th>
+                                <th class="p-4 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors select-none group" id="colName" title="Click to sort by Full Name">
+                                    <div class="flex items-center gap-1">
+                                        <span>Full Name</span>
+                                        <i class="fa-solid fa-sort ml-1 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortNameIcon"></i>
+                                    </div>
+                                </th>
+                                <th class="p-4 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors select-none group" id="colOrderDate" title="Click to sort by Order Date">
+                                    <div class="flex items-center gap-1">
+                                        <span>Order Date</span>
+                                        <i class="fa-solid fa-sort ml-1 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortDateIcon"></i>
+                                    </div>
                                 </th>
                                 <th class="p-4">PV Status</th>
                                 <th class="p-4">Amount</th>
@@ -68,7 +112,7 @@
                                 <th class="p-4 text-center w-36">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50 font-medium text-slate-700" id="masterTableBody">
+                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300" id="masterTableBody">
                             <% if(entries.length === 0) { %>
                                 <tr id="no-records-row">
                                     <td colspan="9" class="py-12 text-center text-slate-400 font-normal">
@@ -78,17 +122,17 @@
                                 </tr>
                             <% } else { %>
                                 <% entries.forEach((item, index) => { %>
-                                <tr class="hover:bg-slate-50 transition-colors table-row-item" id="row-master-<%= item.srNo %>">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors table-row-item" id="row-master-<%= item.srNo %>" data-initial-index="<%= index + 1 %>">
                                     <td class="p-4 text-center">
                                         <input type="checkbox" value="<%= item.srNo %>" class="master-row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                                     </td>
-                                    <td class="p-4 font-mono text-slate-400 sr-number-cell"><%= index + 1 %></td>
-                                    <td class="p-4 font-bold font-mono text-emerald-700 member-id-cell"><%= item.memberId %></td>
-                                    <td class="p-4 uppercase text-slate-800 font-semibold name-cell"><%= item.name %></td>
-                                    <td class="p-4 text-slate-500 date-cell" data-raw-date="<%= item.orderDate %>"><%= item.orderDate %></td>
-                                    <td class="p-4 font-mono text-slate-600 pv-cell"><%= item.pv %> PV</td>
-                                    <td class="p-4 font-bold font-mono text-slate-900 amount-cell">₹<%= item.amount %></td>
-                                    <td class="p-4 font-mono font-bold tracking-wide text-slate-800 tracking-cell"><%= item.tracking %></td>
+                                    <td class="p-4 font-mono text-slate-400 dark:text-slate-500 sr-number-cell"><%= index + 1 %></td>
+                                    <td class="p-4 font-bold font-mono text-emerald-700 dark:text-emerald-400 member-id-cell"><%= item.memberId %></td>
+                                    <td class="p-4 uppercase text-slate-800 dark:text-slate-200 font-semibold name-cell"><%= item.name %></td>
+                                    <td class="p-4 text-slate-500 dark:text-slate-400 date-cell" data-raw-date="<%= item.orderDate %>"><%= item.orderDate %></td>
+                                    <td class="p-4 font-mono text-slate-600 dark:text-slate-400 pv-cell"><%= item.pv %> PV</td>
+                                    <td class="p-4 font-bold font-mono text-slate-900 dark:text-slate-100 amount-cell">₹<%= item.amount %></td>
+                                    <td class="p-4 font-mono font-bold tracking-wide text-slate-800 dark:text-slate-200 tracking-cell"><%= item.tracking %></td>
                                     <td class="p-4 text-center space-x-2">
                                         <button type="button" 
                                                 data-srno="<%= item.srNo %>"
@@ -111,16 +155,38 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- 📄 Bottom Pagination Controls & Info Bar -->
+                <div class="px-6 py-4 bg-slate-50 dark:bg-[#0d1322] border-t border-slate-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-3">
+                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400" id="paginationInfo">
+                        Showing <span class="text-slate-800 dark:text-slate-100 font-extrabold" id="pageStart">1</span> to <span class="text-slate-800 dark:text-slate-100 font-extrabold" id="pageEnd">25</span> of <span class="text-emerald-600 dark:text-emerald-400 font-extrabold" id="pageTotal"><%= entries.length %></span> entries
+                    </div>
+
+                    <div class="flex items-center gap-1.5" id="paginationControls">
+                        <button type="button" id="btnPrevPage" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs">
+                            <i class="fa-solid fa-chevron-left mr-1"></i> Prev
+                        </button>
+                        
+                        <div id="pageNumberButtons" class="flex items-center gap-1">
+                            <!-- Page number buttons generated via JS -->
+                        </div>
+
+                        <button type="button" id="btnNextPage" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs">
+                            Next <i class="fa-solid fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400">
+        <footer class="bg-white dark:bg-[#0d1322] border-t border-slate-100 dark:border-slate-800 py-4 text-center text-xs font-medium text-slate-400 dark:text-slate-500">
             &copy; 2026 Avira Control Center. Secure Master Workspace.
         </footer>
     </div>
 
+    <!-- ✏️ Edit Master Database Modal -->
     <div id="editMasterModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg border border-slate-100 overflow-hidden">
+        <div class="bg-white dark:bg-[#111827] rounded-2xl shadow-xl w-full max-w-lg border border-slate-100 dark:border-slate-800 overflow-hidden">
             <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
                 <h3 class="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Master Database Record
@@ -134,42 +200,43 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Member ID (AV + 5 Digits)</label>
-                        <input type="text" id="editMemberId" required maxlength="7" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editMemberId" required maxlength="7" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono uppercase font-bold text-emerald-700 dark:text-emerald-400 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Tracking Number</label>
-                        <input type="text" id="editTracking" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editTracking" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono uppercase font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Full Name</label>
-                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold uppercase text-slate-900 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold uppercase text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
                 </div>
 
                 <div class="grid grid-cols-3 gap-3">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Order Date</label>
-                        <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">PV</label>
-                        <input type="number" id="editPv" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-700 focus:outline-none focus:border-emerald-500">
+                        <input type="number" id="editPv" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Amount (₹)</label>
-                        <input type="number" id="editAmount" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+                        <input type="number" id="editAmount" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button type="button" id="btnCancelModal" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold cursor-pointer transition-all">Cancel</button>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" id="btnCancelModal" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold cursor-pointer transition-all">Cancel</button>
                     <button type="submit" id="btnSaveEdit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black uppercase tracking-wider shadow cursor-pointer transition-all">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- ⚡ Comprehensive Client-Side Reactive Pagination, Search & Sorting Engine -->
     <script>
         function formatMemberIdInput(el) {
             let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -194,17 +261,284 @@
             }
         }
 
-        const modal = document.getElementById('editMasterModal');
+        function parseCustomDate(dateStr) {
+            if (!dateStr) return new Date(0);
+            const cleanStr = dateStr.replace(/(\d+)(st|nd|rd|th)/, "$1");
+            const d = new Date(cleanStr);
+            return isNaN(d.getTime()) ? new Date(0) : d;
+        }
 
-        function reindexTableSrNumbers() {
-            const visibleRows = document.querySelectorAll('.table-row-item');
-            let count = 1;
-            visibleRows.forEach(row => {
-                if (row.style.display !== 'none') {
+        // 🧠 Master In-Memory Data Store from DOM
+        const rawRowElements = Array.from(document.querySelectorAll('.table-row-item'));
+        const masterRows = rawRowElements.map((row, idx) => {
+            const dateStr = row.querySelector('.date-cell')?.getAttribute('data-raw-date') || '';
+            return {
+                element: row,
+                initialIndex: idx + 1,
+                srNo: parseInt(row.querySelector('.master-row-checkbox')?.value || (idx + 1), 10),
+                memberId: (row.querySelector('.member-id-cell')?.innerText || '').trim().toUpperCase(),
+                name: (row.querySelector('.name-cell')?.innerText || '').trim().toUpperCase(),
+                orderDateRaw: dateStr,
+                orderDateObj: parseCustomDate(dateStr),
+                pv: parseFloat(row.querySelector('.pv-cell')?.innerText) || 0,
+                amount: parseFloat(row.querySelector('.amount-cell')?.innerText.replace(/[^0-9.]/g, '')) || 0,
+                tracking: (row.querySelector('.tracking-cell')?.innerText || '').trim().toUpperCase()
+            };
+        });
+
+        // State variables
+        let currentPage = 1;
+        let pageSize = 25; // 10, 25, 50, 100, or 'ALL'
+        let currentSearch = '';
+        let currentSort = { column: 'srNo', direction: 'asc' }; // 'asc' or 'desc'
+
+        const tbody = document.getElementById('masterTableBody');
+        const searchInput = document.getElementById('dbSearchInput');
+        const masterCounter = document.getElementById('masterCounter');
+
+        // 🔄 Master Render Engine
+        function renderMasterTable() {
+            // 1. Filter
+            let filtered = masterRows.filter(item => {
+                if (!currentSearch) return true;
+                return item.name.includes(currentSearch) ||
+                       item.memberId.includes(currentSearch) ||
+                       item.tracking.includes(currentSearch);
+            });
+
+            // 2. Sort
+            filtered.sort((a, b) => {
+                let res = 0;
+                if (currentSort.column === 'srNo') {
+                    res = a.initialIndex - b.initialIndex;
+                } else if (currentSort.column === 'memberId') {
+                    res = a.memberId.localeCompare(b.memberId);
+                } else if (currentSort.column === 'name') {
+                    res = a.name.localeCompare(b.name);
+                } else if (currentSort.column === 'orderDate') {
+                    res = a.orderDateObj - b.orderDateObj;
+                }
+
+                return currentSort.direction === 'asc' ? res : -res;
+            });
+
+            const totalRecords = filtered.length;
+            const effectivePageSize = pageSize === 'ALL' ? (totalRecords || 1) : pageSize;
+            const totalPages = Math.max(1, Math.ceil(totalRecords / effectivePageSize));
+
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = pageSize === 'ALL' ? 0 : (currentPage - 1) * pageSize;
+            const endIndex = pageSize === 'ALL' ? totalRecords : Math.min(startIndex + pageSize, totalRecords);
+
+            // 3. Clear and append paginated slice
+            tbody.innerHTML = '';
+
+            if (totalRecords === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.id = 'no-match-row';
+                emptyRow.innerHTML = `
+                    <td colspan="9" class="py-12 text-center text-slate-400 font-normal">
+                        <i class="fa-solid fa-magnifying-glass-minus text-2xl block mb-2 text-slate-200"></i>
+                        No matching records found for "${currentSearch}"
+                    </td>
+                `;
+                tbody.appendChild(emptyRow);
+            } else {
+                const slice = filtered.slice(startIndex, endIndex);
+                slice.forEach((item, sliceIdx) => {
+                    const row = item.element;
+                    // Update the visible SR Number on the page
                     const srCell = row.querySelector('.sr-number-cell');
-                    if (srCell) srCell.innerText = count++;
+                    if (srCell) {
+                        srCell.innerText = startIndex + sliceIdx + 1;
+                    }
+                    tbody.appendChild(row);
+                });
+            }
+
+            // 4. Update Pagination Info Text
+            const pageStartEl = document.getElementById('pageStart');
+            const pageEndEl = document.getElementById('pageEnd');
+            const pageTotalEl = document.getElementById('pageTotal');
+
+            if (pageStartEl) pageStartEl.innerText = totalRecords === 0 ? 0 : startIndex + 1;
+            if (pageEndEl) pageEndEl.innerText = endIndex;
+            if (pageTotalEl) pageTotalEl.innerText = totalRecords;
+
+            if (masterCounter) {
+                masterCounter.innerText = `${totalRecords} Records ${currentSearch ? 'Found' : 'Saved'}`;
+            }
+
+            // 5. Update Prev/Next Buttons
+            const btnPrev = document.getElementById('btnPrevPage');
+            const btnNext = document.getElementById('btnNextPage');
+            if (btnPrev) btnPrev.disabled = currentPage <= 1;
+            if (btnNext) btnNext.disabled = currentPage >= totalPages || pageSize === 'ALL';
+
+            // 6. Generate Page Number Buttons
+            renderPageNumbers(totalPages);
+
+            // 7. Update Sort Icons in Table Header
+            updateSortHeaderIcons();
+
+            // 8. Update Select All state for current page
+            updateSelectAllState();
+            updateBulkDeleteMasterButton();
+        }
+
+        // 🔢 Render Smart Pagination Numbers
+        function renderPageNumbers(totalPages) {
+            const container = document.getElementById('pageNumberButtons');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (pageSize === 'ALL' || totalPages <= 1) {
+                return;
+            }
+
+            let startP = Math.max(1, currentPage - 2);
+            let endP = Math.min(totalPages, currentPage + 2);
+
+            if (currentPage <= 3) {
+                endP = Math.min(totalPages, 5);
+            }
+            if (currentPage >= totalPages - 2) {
+                startP = Math.max(1, totalPages - 4);
+            }
+
+            if (startP > 1) {
+                addPageBtn(1, container);
+                if (startP > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1.5 text-slate-400 font-bold text-xs';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+            }
+
+            for (let i = startP; i <= endP; i++) {
+                addPageBtn(i, container);
+            }
+
+            if (endP < totalPages) {
+                if (endP < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1.5 text-slate-400 font-bold text-xs';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+                addPageBtn(totalPages, container);
+            }
+        }
+
+        function addPageBtn(num, container) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.innerText = num;
+            const isActive = num === currentPage;
+            btn.className = isActive
+                ? 'h-7 w-7 rounded-xl font-black text-xs bg-emerald-600 text-white shadow-xs flex items-center justify-center cursor-pointer'
+                : 'h-7 w-7 rounded-xl font-bold text-xs bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-slate-700 flex items-center justify-center transition-all cursor-pointer';
+
+            btn.addEventListener('click', () => {
+                currentPage = num;
+                renderMasterTable();
+                window.scrollTo({ top: document.getElementById('masterDbTable').offsetTop - 120, behavior: 'smooth' });
+            });
+            container.appendChild(btn);
+        }
+
+        // 🔼🔽 Update Sorting Icons
+        function updateSortHeaderIcons() {
+            const iconMap = {
+                srNo: 'sortSrIcon',
+                memberId: 'sortMemberIcon',
+                name: 'sortNameIcon',
+                orderDate: 'sortDateIcon'
+            };
+
+            Object.keys(iconMap).forEach(col => {
+                const el = document.getElementById(iconMap[col]);
+                if (!el) return;
+                if (currentSort.column === col) {
+                    el.className = currentSort.direction === 'asc'
+                        ? 'fa-solid fa-sort-up ml-1 text-emerald-500 text-[10px]'
+                        : 'fa-solid fa-sort-down ml-1 text-emerald-500 text-[10px]';
+                } else {
+                    el.className = 'fa-solid fa-sort ml-1 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors text-[10px]';
                 }
             });
+        }
+
+        // 🎛️ Sort Header Click Handler
+        function handleSortClick(columnName) {
+            if (currentSort.column === columnName) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = columnName;
+                currentSort.direction = 'asc';
+            }
+            currentPage = 1;
+            renderMasterTable();
+        }
+
+        document.getElementById('colSrNo')?.addEventListener('click', () => handleSortClick('srNo'));
+        document.getElementById('colMemberId')?.addEventListener('click', () => handleSortClick('memberId'));
+        document.getElementById('colName')?.addEventListener('click', () => handleSortClick('name'));
+        document.getElementById('colOrderDate')?.addEventListener('click', () => handleSortClick('orderDate'));
+
+        // 🔘 Page Size Selector Click
+        document.querySelectorAll('.page-size-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.page-size-btn').forEach(b => {
+                    b.classList.remove('active-page-size', 'bg-white', 'dark:bg-slate-900', 'text-emerald-600', 'dark:text-emerald-400', 'shadow-xs');
+                    b.classList.add('text-slate-600', 'dark:text-slate-300');
+                });
+                this.classList.add('active-page-size', 'bg-white', 'dark:bg-slate-900', 'text-emerald-600', 'dark:text-emerald-400', 'shadow-xs');
+                this.classList.remove('text-slate-600', 'dark:text-slate-300');
+
+                const sizeVal = this.getAttribute('data-size');
+                pageSize = sizeVal === 'ALL' ? 'ALL' : parseInt(sizeVal, 10);
+                currentPage = 1;
+                renderMasterTable();
+            });
+        });
+
+        // 🔍 Search Listener
+        searchInput?.addEventListener('input', function() {
+            currentSearch = this.value.toUpperCase().trim();
+            currentPage = 1;
+            renderMasterTable();
+        });
+
+        // ◀️ Prev / Next Buttons
+        document.getElementById('btnPrevPage')?.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderMasterTable();
+                window.scrollTo({ top: document.getElementById('masterDbTable').offsetTop - 120, behavior: 'smooth' });
+            }
+        });
+
+        document.getElementById('btnNextPage')?.addEventListener('click', () => {
+            currentPage++;
+            renderMasterTable();
+            window.scrollTo({ top: document.getElementById('masterDbTable').offsetTop - 120, behavior: 'smooth' });
+        });
+
+        // ✅ Checkbox & Bulk Actions
+        function updateSelectAllState() {
+            const visibleCheckboxes = document.querySelectorAll('.master-row-checkbox');
+            const selectAll = document.getElementById('selectAllMasterCheckbox');
+            if (!selectAll) return;
+            if (visibleCheckboxes.length === 0) {
+                selectAll.checked = false;
+                return;
+            }
+            const allChecked = Array.from(visibleCheckboxes).every(cb => cb.checked);
+            selectAll.checked = allChecked;
         }
 
         function updateBulkDeleteMasterButton() {
@@ -223,29 +557,26 @@
             } else {
                 bulkBtn.classList.add('hidden');
                 bulkBtn.classList.remove('flex');
-                const selectAll = document.getElementById('selectAllMasterCheckbox');
-                if (selectAll) selectAll.checked = false;
             }
         }
 
-        document.getElementById('selectAllMasterCheckbox').addEventListener('change', function() {
+        document.getElementById('selectAllMasterCheckbox')?.addEventListener('change', function() {
             const isChecked = this.checked;
-            document.querySelectorAll('.table-row-item').forEach(row => {
-                if (row.style.display !== 'none') {
-                    const cb = row.querySelector('.master-row-checkbox');
-                    if (cb) cb.checked = isChecked;
-                }
+            document.querySelectorAll('.master-row-checkbox').forEach(cb => {
+                cb.checked = isChecked;
             });
             updateBulkDeleteMasterButton();
         });
 
         document.addEventListener('change', function(e) {
             if (e.target.classList.contains('master-row-checkbox')) {
+                updateSelectAllState();
                 updateBulkDeleteMasterButton();
             }
         });
 
-        document.getElementById('btnBulkDeleteMaster').addEventListener('click', async function() {
+        // 🗑️ Bulk Delete Handler
+        document.getElementById('btnBulkDeleteMaster')?.addEventListener('click', async function() {
             const selectedCheckboxes = document.querySelectorAll('.master-row-checkbox:checked');
             const selectedSrNos = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value)).filter(n => !isNaN(n));
 
@@ -279,6 +610,9 @@
             }
         });
 
+        // ✏️ Modal Edit Handling
+        const modal = document.getElementById('editMasterModal');
+
         document.addEventListener('click', function(e) {
             const editBtn = e.target.closest('.edit-btn');
             if (editBtn) {
@@ -295,15 +629,15 @@
             }
         });
 
-        document.getElementById('btnCloseModal').addEventListener('click', closeModal);
-        document.getElementById('btnCancelModal').addEventListener('click', closeModal);
+        document.getElementById('btnCloseModal')?.addEventListener('click', closeModal);
+        document.getElementById('btnCancelModal')?.addEventListener('click', closeModal);
 
         function closeModal() {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
 
-        document.getElementById('editMasterForm').addEventListener('submit', async function(e) {
+        document.getElementById('editMasterForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             const srNo = document.getElementById('editSrNo').value;
             const btn = document.getElementById('btnSaveEdit');
@@ -342,16 +676,17 @@
             }
         });
 
+        // 🗑️ Single Row Delete
         document.addEventListener('click', function(e) {
             const delBtn = e.target.closest('.delete-btn');
             if (delBtn) {
                 const realSrNo = delBtn.getAttribute('data-srno');
                 
-                if(confirm("Warning! Do you want to delete this permanent record from database?")) {
+                if (confirm("Warning! Do you want to delete this permanent record from database?")) {
                     fetch(`/admin/api/delete-master/${realSrNo}`, { method: 'DELETE' })
                     .then(res => res.json())
                     .then(data => { 
-                        if(data.success) { 
+                        if (data.success) { 
                             location.reload(); 
                         } else {
                             alert("Error: " + data.msg);
@@ -362,85 +697,8 @@
             }
         });
 
-        document.getElementById('dbSearchInput').addEventListener('input', function() {
-            const query = this.value.toUpperCase().trim();
-            const rows = document.querySelectorAll('.table-row-item');
-            let visibleCount = 0;
-
-            rows.forEach(row => {
-                const name = row.querySelector('.name-cell').innerText.toUpperCase();
-                const memberId = row.querySelector('.member-id-cell').innerText.toUpperCase();
-                const tracking = row.querySelector('.tracking-cell').innerText.toUpperCase();
-
-                if (name.includes(query) || memberId.includes(query) || tracking.includes(query)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                    const cb = row.querySelector('.master-row-checkbox');
-                    if (cb) cb.checked = false;
-                }
-            });
-
-            updateBulkDeleteMasterButton();
-
-            const existingNoMatchRow = document.getElementById('no-match-row');
-            if (visibleCount === 0) {
-                if (!existingNoMatchRow) {
-                    const tbody = document.getElementById('masterTableBody');
-                    const noMatch = document.createElement('tr');
-                    noMatch.id = 'no-match-row';
-                    noMatch.innerHTML = `
-                        <td colspan="9" class="py-12 text-center text-slate-400 font-normal">
-                            <i class="fa-solid fa-magnifying-glass-minus text-2xl block mb-2 text-slate-200"></i>
-                            No matching records found for "${query}"
-                        </td>
-                    `;
-                    tbody.appendChild(noMatch);
-                }
-            } else {
-                if (existingNoMatchRow) {
-                    existingNoMatchRow.remove();
-                }
-            }
-
-            reindexTableSrNumbers();
-        });
-
-        function parseCustomDate(dateStr) {
-            if (!dateStr) return new Date(0);
-            const cleanStr = dateStr.replace(/(\d+)(st|nd|rd|th)/, "$1");
-            const d = new Date(cleanStr);
-            return isNaN(d.getTime()) ? new Date(0) : d;
-        }
-
-        let isAscending = true;
-        document.getElementById('colOrderDate').addEventListener('click', function() {
-            const tbody = document.getElementById('masterTableBody');
-            const rows = Array.from(document.querySelectorAll('.table-row-item'));
-            const sortIcon = document.getElementById('sortIcon');
-
-            rows.sort((a, b) => {
-                const dateAStr = a.querySelector('.date-cell').getAttribute('data-raw-date');
-                const dateBStr = b.querySelector('.date-cell').getAttribute('data-raw-date');
-
-                const dateA = parseCustomDate(dateAStr);
-                const dateB = parseCustomDate(dateBStr);
-
-                return isAscending ? dateA - dateB : dateB - dateA;
-            });
-
-            rows.forEach(row => tbody.appendChild(row));
-
-            if (isAscending) {
-                sortIcon.className = "fa-solid fa-sort-up ml-1 text-emerald-500";
-            } else {
-                sortIcon.className = "fa-solid fa-sort-down ml-1 text-emerald-500";
-            }
-
-            isAscending = !isAscending;
-            reindexTableSrNumbers();
-        });
+        // 🚀 Initial Render on Page Load
+        renderMasterTable();
     </script>
 </body>
 </html>

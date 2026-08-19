@@ -222,20 +222,23 @@
 
                                         <!-- Actions -->
                                         <td class="py-3 px-3 text-center">
-                                            <% const targetDocUrl = item.fileUrl || (item.filename && item.filename.startsWith('http') ? item.filename : ('/uploads/' + item.filename)); %>
+                                            <% 
+                                                const adminViewUrl = item.viewUrl || ('/api/documents/view/' + item.id);
+                                                const adminDownloadUrl = item.downloadUrl || ('/api/documents/download/' + item.id);
+                                            %>
                                             <div class="flex items-center justify-center gap-1.5">
                                                 <!-- Preview -->
-                                                <a href="<%= targetDocUrl %>" target="_blank" 
+                                                <a href="<%= adminViewUrl %>" target="_blank" 
                                                    class="h-7 w-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white dark:bg-blue-950/50 dark:text-blue-400 dark:hover:bg-blue-600 dark:hover:text-white transition-all flex items-center justify-center text-xs" title="Preview in New Tab">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
                                                 <!-- Download -->
-                                                <a href="<%= targetDocUrl %>" download="<%= item.title %>.pdf" 
+                                                <a href="<%= adminDownloadUrl %>"
                                                    class="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white transition-all flex items-center justify-center text-xs" title="Download PDF">
                                                     <i class="fa-solid fa-download"></i>
                                                 </a>
                                                 <!-- Copy Link -->
-                                                <button type="button" onclick="copyDocumentLink('<%= targetDocUrl %>')" 
+                                                <button type="button" onclick="copyDocumentLink('<%= adminDownloadUrl %>')" 
                                                         class="h-7 w-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-700 hover:text-white dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-600 transition-all flex items-center justify-center text-xs cursor-pointer" title="Copy Direct URL">
                                                     <i class="fa-solid fa-link"></i>
                                                 </button>

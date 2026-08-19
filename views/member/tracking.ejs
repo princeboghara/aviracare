@@ -2,7 +2,35 @@
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('../partials/head_meta') %>
-    <title>Track Your Consignment - Avira Lifecare</title>
+    <title>Live Parcel Tracking - India Post Status | Avira Lifecare</title>
+    <style>
+        /* Custom Styles for India Post Visual Tracker */
+        .step-completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            border-color: #059669;
+        }
+        .step-active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+            animation: pulse-ring 2s infinite;
+        }
+        .step-pending {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border-color: #cbd5e1;
+        }
+        @keyframes pulse-ring {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+        .barcode-font {
+            letter-spacing: 2px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+    </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between bg-mesh-emerald font-sans antialiased text-slate-800 relative w-full overflow-x-hidden selection:bg-emerald-500 selection:text-white">
 
@@ -10,124 +38,244 @@
     <%- include('../partials/member_navbar') %>
 
     <!-- Main Content -->
-    <main class="flex-grow max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 relative z-10 box-border">
+    <main class="flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-14 space-y-8 relative z-10 box-border">
         
         <!-- Header / Intro -->
-        <div class="text-center space-y-3 max-w-xl mx-auto">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-widest shadow-xs">
-                <i class="fa-solid fa-shield-halved text-emerald-600"></i> Real-time Live Tracking Engine
+        <div class="text-center space-y-3 max-w-2xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-widest shadow-xs">
+                <i class="fa-solid fa-truck-fast text-emerald-600"></i> India Post Live Speed Post Tracking
             </div>
             
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-950 uppercase">
-                Track Your <span class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Shipment</span>
+            <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-950 uppercase">
+                Track Live <span class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Parcel Status</span>
             </h1>
             
             <p class="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
-                Enter your Avira Member ID below to view instant dispatch consignment details, barcodes, and live India Post status.
+                Enter your <strong class="text-slate-900 font-bold">Avira Member ID</strong> or <strong class="text-slate-900 font-bold">India Post Consignment Number</strong> below to view complete real-time dispatch milestones, journey events, and live status.
             </p>
         </div>
 
         <!-- Search Input Box Card -->
-        <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl max-w-xl mx-auto border-emerald-200/90 shadow-md">
-            <form onsubmit="handleTrack(event)" class="space-y-4">
+        <div class="glass-emerald-card p-5 sm:p-7 rounded-3xl max-w-2xl mx-auto border-emerald-200/90 shadow-md space-y-4">
+            
+            <!-- Search Type Switcher Tabs -->
+            <div class="flex items-center justify-center gap-2 p-1 bg-slate-100/90 rounded-2xl max-w-md mx-auto text-xs font-bold">
+                <button type="button" id="tabMemberId" onclick="setSearchType('MEMBER_ID')" 
+                        class="flex-1 py-2 px-3 rounded-xl bg-white text-emerald-700 shadow-xs transition-all cursor-pointer text-center">
+                    <i class="fa-solid fa-id-card text-[11px] mr-1"></i> Member ID
+                </button>
+                <button type="button" id="tabConsignment" onclick="setSearchType('CONSIGNMENT')" 
+                        class="flex-1 py-2 px-3 rounded-xl text-slate-500 hover:text-slate-800 transition-all cursor-pointer text-center">
+                    <i class="fa-solid fa-barcode text-[11px] mr-1"></i> Consignment No.
+                </button>
+            </div>
+
+            <!-- Search Form -->
+            <form onsubmit="handleTrack(event)" class="space-y-3.5">
                 <div class="relative">
-                    <label for="memberIdInput" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-2 flex items-center justify-between">
-                        <span>Member Identification (ID)</span>
-                        <span class="text-[9px] text-emerald-600 font-mono font-bold">AV + 5 Digits</span>
+                    <label id="inputLabel" for="trackInput" class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span>Enter Identification</span>
+                        <span id="formatBadge" class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">AV + 5 Digits</span>
                     </label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
-                            <i class="fa-solid fa-id-card text-emerald-600 text-sm"></i>
+                            <i id="inputIcon" class="fa-solid fa-id-card text-emerald-600 text-sm"></i>
                         </span>
-                        <input type="text" id="memberIdInput" placeholder="e.g. AV12345" required maxlength="7"
-                            oninput="formatMemberIdInput(this)"
+                        <input type="text" id="trackInput" placeholder="e.g. AV12345 or EK123456789IN" required
+                            oninput="handleInputChange(this)"
                             class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all uppercase placeholder:normal-case placeholder:font-medium placeholder:text-slate-400">
                     </div>
                 </div>
 
-                <button type="submit" id="trackBtn"
-                    class="btn-emerald-3d w-full text-center font-black text-xs py-3.5 px-6 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg">
-                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                    <span>Track Consignment</span>
-                </button>
+                <div class="flex flex-col sm:flex-row gap-2.5">
+                    <button type="submit" id="trackBtn"
+                        class="btn-emerald-3d flex-1 text-center font-black text-xs py-3.5 px-6 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        <span>Track Live Parcel Status</span>
+                    </button>
+                    <button type="button" onclick="clearTrackSearch()" 
+                        class="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer">
+                        Reset
+                    </button>
+                </div>
             </form>
         </div>
 
         <!-- Results Area -->
-        <div id="resultsContainer" class="max-w-2xl mx-auto w-full space-y-6">
-            <!-- Dynamic Content loaded by JS -->
+        <div id="resultsContainer" class="max-w-3xl mx-auto w-full space-y-6">
+            <!-- Initial Tip Banner -->
+            <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl text-center space-y-3 border-slate-200/80 bg-white/70">
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl mx-auto border border-emerald-100">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </div>
+                <h3 class="text-sm font-black text-slate-900 uppercase">Real-Time India Post Integration</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                    All dispatches are shipped through <strong>India Post Speed Post</strong>. Enter your details above to inspect live parcel journey milestones, sorting hub logs, and expected delivery status.
+                </p>
+            </div>
         </div>
 
     </main>
+
+    <!-- 🌐 Live Tracking Embed Modal -->
+    <div id="liveTrackerModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase">Live Speed Post Tracker</h3>
+                        <p id="modalTrackingNumber" class="text-[10px] font-mono text-slate-400 font-bold">Tracking #</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLiveModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="flex-grow overflow-y-auto space-y-3 text-xs">
+                <div class="bg-emerald-50 p-3.5 rounded-2xl border border-emerald-100 flex items-center justify-between gap-2">
+                    <div>
+                        <span class="text-[9px] font-black text-emerald-700 uppercase tracking-wider block">India Post Official Tracking</span>
+                        <p class="text-xs font-bold text-slate-800">Direct portal tracking ready with your consignment barcode.</p>
+                    </div>
+                    <a id="modalIndiaPostBtn" href="https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx" target="_blank"
+                       class="px-3.5 py-2 rounded-xl btn-emerald-3d text-white font-black text-[11px] uppercase tracking-wider whitespace-nowrap shadow-xs">
+                        Open Portal &rarr;
+                    </a>
+                </div>
+
+                <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50 min-h-[340px] flex flex-col items-center justify-center p-6 text-center space-y-3">
+                    <div class="w-14 h-14 rounded-2xl bg-white shadow-xs flex items-center justify-center text-2xl text-emerald-600 border border-slate-100">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-900 uppercase" id="modalConsignmentDisplay">Consignment Barcode</h4>
+                        <p class="text-xs text-slate-500 mt-1 max-w-sm font-medium">Click below to open the live tracking interface or copy your tracking number directly.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+                        <button type="button" id="modalCopyBtn" onclick="copyCurrentModalBarcode()" 
+                                class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Copy Number</span>
+                        </button>
+                        <a id="modalDirectLiveBtn" href="#" target="_blank" 
+                           class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs">
+                            <i class="fa-solid fa-globe"></i>
+                            <span>Open Live Tracker</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 text-right">
+                <button type="button" onclick="closeLiveModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase cursor-pointer">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <%- include('../partials/member_footer') %>
 
     <script>
-        function formatMemberIdInput(el) {
-            let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            if (!raw) {
-                el.value = '';
-                return;
-            }
-            if (raw === 'A' || raw === 'AV') {
-                el.value = raw;
-                return;
-            }
-            if (raw.startsWith('AV')) {
-                let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 5);
-                el.value = 'AV' + num;
+        let currentSearchMode = 'MEMBER_ID';
+        let activeModalBarcode = '';
+
+        function setSearchType(mode) {
+            currentSearchMode = mode;
+            const tabMember = document.getElementById('tabMemberId');
+            const tabConsignment = document.getElementById('tabConsignment');
+            const input = document.getElementById('trackInput');
+            const label = document.getElementById('inputLabel').querySelector('span');
+            const badge = document.getElementById('formatBadge');
+            const icon = document.getElementById('inputIcon');
+
+            if (mode === 'MEMBER_ID') {
+                tabMember.className = 'flex-1 py-2 px-3 rounded-xl bg-white text-emerald-700 shadow-xs transition-all cursor-pointer text-center';
+                tabConsignment.className = 'flex-1 py-2 px-3 rounded-xl text-slate-500 hover:text-slate-800 transition-all cursor-pointer text-center';
+                label.innerText = 'Member Identification (ID)';
+                badge.innerText = 'AV + 5 Digits';
+                icon.className = 'fa-solid fa-id-card text-emerald-600 text-sm';
+                input.placeholder = 'e.g. AV12345';
+                input.maxLength = 7;
             } else {
-                let num = raw.replace(/[^0-9]/g, '').slice(0, 5);
-                if (num.length > 0) {
-                    el.value = 'AV' + num;
-                } else {
-                    el.value = '';
-                }
+                tabConsignment.className = 'flex-1 py-2 px-3 rounded-xl bg-white text-emerald-700 shadow-xs transition-all cursor-pointer text-center';
+                tabMember.className = 'flex-1 py-2 px-3 rounded-xl text-slate-500 hover:text-slate-800 transition-all cursor-pointer text-center';
+                label.innerText = 'India Post Consignment Barcode';
+                badge.innerText = 'e.g. EK123456789IN';
+                icon.className = 'fa-solid fa-barcode text-emerald-600 text-sm';
+                input.placeholder = 'e.g. EK892341235IN';
+                input.maxLength = 20;
             }
+            input.focus();
+        }
+
+        function handleInputChange(el) {
+            let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (currentSearchMode === 'MEMBER_ID') {
+                if (raw.startsWith('AV')) {
+                    let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 5);
+                    el.value = 'AV' + num;
+                } else if (/^\d+$/.test(raw)) {
+                    el.value = 'AV' + raw.slice(0, 5);
+                } else {
+                    el.value = raw.slice(0, 7);
+                }
+            } else {
+                el.value = raw;
+            }
+        }
+
+        function clearTrackSearch() {
+            document.getElementById('trackInput').value = '';
+            document.getElementById('trackInput').focus();
         }
 
         async function handleTrack(e) {
             e.preventDefault();
-            const memberId = document.getElementById('memberIdInput').value.trim().toUpperCase();
+            const query = document.getElementById('trackInput').value.trim().toUpperCase();
             const btn = document.getElementById('trackBtn');
             const results = document.getElementById('resultsContainer');
 
-            if (!memberId) return;
-
-            if (!/^AV\d{5}$/.test(memberId)) {
-                alert("Please enter a valid Member ID in the format AV followed by 5 digits (e.g. AV12345).");
-                document.getElementById('memberIdInput').focus();
-                return;
-            }
+            if (!query) return;
 
             // Loading state
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Searching Records...</span>`;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Connecting to Tracking Engine...</span>`;
             results.innerHTML = `
                 <div class="glass-emerald-card p-10 rounded-3xl text-center space-y-3">
                     <i class="fa-solid fa-spinner fa-spin text-3xl text-emerald-500"></i>
-                    <p class="text-xs font-bold text-slate-500">Fetching records for ${memberId}...</p>
+                    <p class="text-xs font-bold text-slate-700 uppercase tracking-wide">Fetching Live India Post Status for ${query}...</p>
+                    <p class="text-[11px] text-slate-400">Verifying consignment booking, dispatch logs, and delivery milestones.</p>
                 </div>
             `;
 
             try {
-                const response = await fetch(`/api/track?memberId=${encodeURIComponent(memberId)}`);
+                const response = await fetch(`/api/track?query=${encodeURIComponent(query)}`);
                 const data = await response.json();
 
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-magnifying-glass text-xs"></i> <span>Track Consignment</span>`;
+                btn.innerHTML = `<i class="fa-solid fa-magnifying-glass text-xs"></i> <span>Track Live Parcel Status</span>`;
 
                 if (!data || data.length === 0) {
                     results.innerHTML = `
-                        <div class="glass-emerald-card p-10 rounded-3xl text-center space-y-3 border-amber-200 bg-amber-50/20">
-                            <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl mx-auto">
+                        <div class="glass-emerald-card p-10 rounded-3xl text-center space-y-3 border-amber-200 bg-amber-50/30">
+                            <div class="w-14 h-14 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center text-2xl mx-auto shadow-xs">
                                 <i class="fa-solid fa-box-archive"></i>
                             </div>
-                            <h3 class="text-base font-black text-slate-900">No Dispatches Found</h3>
-                            <p class="text-xs text-slate-500 max-w-md mx-auto font-medium">
-                                We could not find any active shipment records for Member ID <strong class="text-slate-900">${memberId}</strong>. Please confirm your ID or contact the support desk.
+                            <h3 class="text-base font-black text-slate-900 uppercase">No Shipment Record Found</h3>
+                            <p class="text-xs text-slate-600 max-w-md mx-auto font-medium leading-relaxed">
+                                We could not locate any active dispatch or consignment record matching <strong class="text-slate-900">${query}</strong>. Please verify the Member ID or Consignment Number and try again.
                             </p>
+                            <div class="pt-2">
+                                <a href="/member/queries" class="inline-flex items-center gap-1.5 text-xs font-black text-emerald-700 hover:text-emerald-800 bg-white px-4 py-2 rounded-xl border border-emerald-200 shadow-xs">
+                                    <i class="fa-solid fa-headset"></i> Contact Support Desk
+                                </a>
+                            </div>
                         </div>
                     `;
                     return;
@@ -135,74 +283,211 @@
 
                 let html = `
                     <div class="flex items-center justify-between px-2">
-                        <span class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Found ${data.length} Consignment(s)</span>
-                        <span class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 uppercase tracking-wider">Verified Records</span>
+                        <span class="text-xs font-black text-slate-600 uppercase tracking-wider">Found ${data.length} Consignment Record(s)</span>
+                        <span class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 uppercase tracking-wider">
+                            <i class="fa-solid fa-check-double mr-1"></i> Verified Speed Post
+                        </span>
                     </div>
                 `;
 
                 data.forEach((item, index) => {
                     const trackingNumber = item.tracking ? item.tracking.trim() : '';
-                    const hasTracking = trackingNumber.length > 0 && trackingNumber !== 'PENDING';
+                    const hasTracking = item.isDispatched && trackingNumber.length > 0;
+
+                    // Step statuses
+                    const step1 = item.currentStep >= 1 ? 'step-completed' : 'step-pending';
+                    const step2 = item.currentStep >= 2 ? (item.currentStep === 2 ? 'step-active' : 'step-completed') : 'step-pending';
+                    const step3 = item.currentStep >= 3 ? (item.currentStep === 3 ? 'step-active' : 'step-completed') : 'step-pending';
+                    const step4 = item.currentStep >= 4 ? (item.currentStep === 4 ? 'step-active' : 'step-completed') : 'step-pending';
+                    const step5 = item.currentStep >= 5 ? 'step-completed' : 'step-pending';
 
                     html += `
-                        <div class="glass-emerald-card p-6 sm:p-7 rounded-3xl space-y-5 border-emerald-200/90 shadow-sm">
+                        <div class="glass-emerald-card p-6 sm:p-8 rounded-3xl space-y-6 border-emerald-200/90 shadow-md bg-white/95">
                             
-                            <!-- Header Row: Name & Status -->
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+                            <!-- 🏷️ Top Consignment Header -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
                                 <div>
-                                    <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest block">Recipient Name</span>
-                                    <h3 class="text-base font-black text-slate-900 uppercase">${item.name || 'Member Consignment'}</h3>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 tracking-wider">
+                                            ${item.articleType || 'India Post Speed Post'}
+                                        </span>
+                                        <span class="text-[10px] font-mono text-slate-400 font-bold">ID: ${item.memberId || '-'}</span>
+                                    </div>
+                                    <h2 class="text-base sm:text-lg font-black text-slate-950 uppercase">${item.name || 'Member Consignment'}</h2>
                                 </div>
-                                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${hasTracking ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'} text-[10px] font-extrabold uppercase tracking-wider self-start sm:self-auto">
-                                    <span class="h-1.5 w-1.5 rounded-full ${hasTracking ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}"></span>
-                                    ${hasTracking ? 'Dispatched' : 'Processing in Warehouse'}
+
+                                <!-- Status Badge -->
+                                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full ${hasTracking ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xs' : 'bg-amber-50 text-amber-800 border border-amber-200'} text-[11px] font-black uppercase tracking-wider self-start sm:self-auto">
+                                    <span class="h-2 w-2 rounded-full ${hasTracking ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}"></span>
+                                    <span>${hasTracking ? 'In Transit / Dispatched' : 'Warehouse Processing'}</span>
                                 </div>
                             </div>
 
-                            <!-- Metrics Grid -->
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/80 p-4 rounded-2xl border border-slate-100 text-xs">
-                                <div>
-                                    <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Member ID</span>
-                                    <span class="font-black text-slate-900">${item.memberId || '-'}</span>
-                                </div>
-                                <div>
-                                    <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Order Date</span>
-                                    <span class="font-bold text-slate-700">${item.orderDate || '-'}</span>
-                                </div>
-                                <div>
-                                    <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">PV Score</span>
-                                    <span class="font-black text-emerald-600">${item.pv || '0'} PV</span>
-                                </div>
-                                <div>
-                                    <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Invoice Amount</span>
-                                    <span class="font-black text-slate-900">₹${parseFloat(item.amount || 0).toLocaleString('en-IN')}</span>
-                                </div>
-                            </div>
-
-                            <!-- Tracking & India Post Action -->
-                            <% if (true) { %>
-                                <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-                                    <div class="w-full sm:w-auto">
-                                        <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Consignment Barcode</span>
-                                        <div class="flex items-center gap-2 mt-0.5">
-                                            <span class="font-mono font-black text-sm text-slate-900 tracking-wider">${hasTracking ? trackingNumber : 'Awaiting Barcode Generation'}</span>
+                            <!-- 📦 Consignment Barcode Hero Box -->
+                            <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 text-white shadow-lg space-y-3">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div>
+                                        <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest block">India Post Consignment Number</span>
+                                        <div class="flex items-center gap-3 mt-1">
+                                            <span class="barcode-font font-black text-base sm:text-xl text-white tracking-widest">${hasTracking ? trackingNumber : 'AWAITING DISPATCH SCAN'}</span>
                                             ${hasTracking ? `
-                                                <button type="button" onclick="copyText('${trackingNumber}')" class="text-[10px] text-slate-400 hover:text-emerald-600 transition-colors p-1" title="Copy Barcode">
-                                                    <i class="fa-solid fa-copy"></i>
+                                                <button type="button" onclick="copyBarcode('${trackingNumber}')" 
+                                                        class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-emerald-500 text-slate-200 hover:text-white transition-all text-xs cursor-pointer font-bold" title="Copy Barcode">
+                                                    <i class="fa-solid fa-copy mr-1"></i> Copy
                                                 </button>
                                             ` : ''}
                                         </div>
                                     </div>
 
                                     ${hasTracking ? `
-                                        <a href="https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx" target="_blank" rel="noopener noreferrer"
-                                            class="btn-emerald-3d w-full sm:w-auto text-center font-extrabold text-xs py-2.5 px-4 rounded-xl uppercase tracking-wider flex items-center justify-center gap-2">
-                                            <span>India Post Status</span>
-                                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                                        </a>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="openLiveModal('${trackingNumber}', '${item.parcelsAppUrl}')" 
+                                                    class="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                                <i class="fa-solid fa-satellite-dish text-[11px]"></i>
+                                                <span>Live Status</span>
+                                            </button>
+                                            <a href="https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx" target="_blank"
+                                               class="px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-slate-100 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer">
+                                                <span>India Post</span>
+                                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                            </a>
+                                        </div>
                                     ` : ''}
                                 </div>
-                            <% } %>
+
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-slate-800 text-[11px] font-bold text-slate-300">
+                                    <div><span class="text-slate-500 font-semibold block text-[9px] uppercase">Booking Office</span> ${item.bookingOffice || 'Surat RMS'}</div>
+                                    <div><span class="text-slate-500 font-semibold block text-[9px] uppercase">Order Date</span> ${item.orderDate || '-'}</div>
+                                    <div><span class="text-slate-500 font-semibold block text-[9px] uppercase">PV Score</span> <span class="text-emerald-400">${item.pv || '0'} PV</span></div>
+                                    <div><span class="text-slate-500 font-semibold block text-[9px] uppercase">Invoice Value</span> ₹${parseFloat(item.amount || 0).toLocaleString('en-IN')}</div>
+                                </div>
+                            </div>
+
+                            <!-- 🚚 5-Step Visual Shipment Journey Timeline -->
+                            <div class="space-y-3 pt-2">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Live Shipment Journey Progress</span>
+                                
+                                <div class="relative flex items-center justify-between w-full px-2 py-4">
+                                    <!-- Background connecting line -->
+                                    <div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1.5 bg-slate-200 rounded-full z-0"></div>
+                                    <div class="absolute left-6 ${hasTracking ? 'w-3/4' : 'w-1/4'} top-1/2 -translate-y-1/2 h-1.5 bg-emerald-500 rounded-full z-0 transition-all duration-500"></div>
+
+                                    <!-- Step 1 -->
+                                    <div class="relative z-10 flex flex-col items-center text-center">
+                                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ${step1} flex items-center justify-center text-xs font-bold shadow-xs border-2">
+                                            <i class="fa-solid fa-file-invoice"></i>
+                                        </div>
+                                        <span class="text-[10px] font-black text-slate-800 mt-1.5 uppercase">Order Manifest</span>
+                                    </div>
+
+                                    <!-- Step 2 -->
+                                    <div class="relative z-10 flex flex-col items-center text-center">
+                                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ${hasTracking ? 'step-completed' : 'step-pending'} flex items-center justify-center text-xs font-bold shadow-xs border-2">
+                                            <i class="fa-solid fa-barcode"></i>
+                                        </div>
+                                        <span class="text-[10px] font-black text-slate-800 mt-1.5 uppercase">Item Booked</span>
+                                    </div>
+
+                                    <!-- Step 3 -->
+                                    <div class="relative z-10 flex flex-col items-center text-center">
+                                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ${hasTracking ? 'step-active' : 'step-pending'} flex items-center justify-center text-xs font-bold shadow-xs border-2">
+                                            <i class="fa-solid fa-truck"></i>
+                                        </div>
+                                        <span class="text-[10px] font-black text-slate-800 mt-1.5 uppercase">In Transit</span>
+                                    </div>
+
+                                    <!-- Step 4 -->
+                                    <div class="relative z-10 flex flex-col items-center text-center">
+                                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ${step4} flex items-center justify-center text-xs font-bold shadow-xs border-2">
+                                            <i class="fa-solid fa-motorcycle"></i>
+                                        </div>
+                                        <span class="text-[10px] font-black text-slate-800 mt-1.5 uppercase">Out for Delivery</span>
+                                    </div>
+
+                                    <!-- Step 5 -->
+                                    <div class="relative z-10 flex flex-col items-center text-center">
+                                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ${step5} flex items-center justify-center text-xs font-bold shadow-xs border-2">
+                                            <i class="fa-solid fa-house-chimney-check"></i>
+                                        </div>
+                                        <span class="text-[10px] font-black text-slate-800 mt-1.5 uppercase">Delivered</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 📜 India Post Event Activity History Table (100% Real Live Logs) -->
+                            <div class="space-y-2 pt-2">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
+                                        <i class="fa-solid fa-list-check text-emerald-600"></i>
+                                        <span>India Post Live Event Log</span>
+                                    </h3>
+                                    <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${item.isLive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'}">
+                                        ${item.isLive ? '● Live Server Sync' : 'Official Speed Post'}
+                                    </span>
+                                </div>
+
+                                ${item.events && item.events.length > 0 ? `
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left text-xs border-collapse">
+                                            <thead>
+                                                <tr class="bg-slate-50 text-slate-500 font-black text-[10px] uppercase tracking-wider border-b border-slate-200/80">
+                                                    <th class="py-2.5 px-3">Date & Time</th>
+                                                    <th class="py-2.5 px-3">Location / Post Office</th>
+                                                    <th class="py-2.5 px-3">Activity / Event Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                                ${item.events.map(ev => `
+                                                    <tr class="hover:bg-slate-50/80 transition-colors">
+                                                        <td class="py-2.5 px-3 font-mono font-bold text-[11px] text-slate-800 whitespace-nowrap">
+                                                            <div>${ev.date || 'Recent'}</div>
+                                                            <div class="text-[10px] text-slate-400 font-normal">${ev.time || ''}</div>
+                                                        </td>
+                                                        <td class="py-2.5 px-3 font-bold text-slate-900 whitespace-nowrap">
+                                                            <i class="fa-solid fa-location-dot text-emerald-500 text-[10px] mr-1"></i>
+                                                            ${ev.location || 'India Post Facility'}
+                                                        </td>
+                                                        <td class="py-2.5 px-3">
+                                                            <div class="font-bold text-slate-900">${ev.event}</div>
+                                                            ${ev.detail ? `<div class="text-[11px] text-slate-500 mt-0.5">${ev.detail}</div>` : ''}
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ` : `
+                                    <div class="p-6 text-center space-y-2 bg-slate-50/80 rounded-2xl border border-slate-100">
+                                        <i class="fa-solid fa-satellite-dish text-slate-400 text-2xl"></i>
+                                        <h4 class="text-xs font-black text-slate-800 uppercase">Consignment Manifested & In Fulfillment</h4>
+                                        <p class="text-[11px] text-slate-500 max-w-md mx-auto">
+                                            Article is registered with barcode <strong class="text-slate-800">${trackingNumber || 'Pending'}</strong>. Detailed milestone scans update automatically once processed through the origin sorting hub.
+                                        </p>
+                                    </div>
+                                `}
+                            </div>
+
+                            <!-- ⚡ Bottom Action Bar (WhatsApp Share & Direct Track) -->
+                            <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="shareOnWhatsApp('${item.memberId}', '${item.name}', '${trackingNumber}', '${item.orderDate}')"
+                                            class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                                        <span>Share on WhatsApp</span>
+                                    </button>
+                                    ${hasTracking ? `
+                                        <button type="button" onclick="copyBarcode('${trackingNumber}')"
+                                                class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer">
+                                            <i class="fa-solid fa-copy"></i>
+                                            <span>Copy Barcode</span>
+                                        </button>
+                                    ` : ''}
+                                </div>
+
+                                <span class="text-[10px] font-semibold text-slate-400">
+                                    Central Fulfillment &bull; Avira Lifecare
+                                </span>
+                            </div>
 
                         </div>
                     `;
@@ -213,24 +498,63 @@
             } catch (err) {
                 console.error(err);
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-magnifying-glass text-xs"></i> <span>Track Consignment</span>`;
+                btn.innerHTML = `<i class="fa-solid fa-magnifying-glass text-xs"></i> <span>Track Live Parcel Status</span>`;
                 results.innerHTML = `
                     <div class="glass-emerald-card p-8 rounded-3xl text-center space-y-2 border-rose-200 bg-rose-50/20">
                         <i class="fa-solid fa-circle-xmark text-2xl text-rose-500"></i>
                         <h4 class="text-sm font-black text-slate-900">Communication Error</h4>
-                        <p class="text-xs text-slate-500 font-medium">Unable to connect to tracking server. Please check your network and try again.</p>
+                        <p class="text-xs text-slate-500 font-medium">Unable to communicate with the tracking service. Please verify your connection and try again.</p>
                     </div>
                 `;
             }
         }
 
-        function copyText(text) {
+        function copyBarcode(text) {
+            if (!text || text === 'PENDING') return;
             navigator.clipboard.writeText(text).then(() => {
-                alert("Tracking Barcode copied to clipboard: " + text);
+                alert("India Post Consignment Barcode copied: " + text);
             }).catch(() => {
-                prompt("Copy Barcode:", text);
+                prompt("Copy Consignment Barcode:", text);
             });
         }
+
+        function openLiveModal(barcode, liveUrl) {
+            activeModalBarcode = barcode;
+            document.getElementById('modalTrackingNumber').innerText = 'Consignment: ' + barcode;
+            document.getElementById('modalConsignmentDisplay').innerText = barcode;
+            document.getElementById('modalDirectLiveBtn').href = liveUrl || `https://parcelsapp.com/en/tracking/${encodeURIComponent(barcode)}`;
+            document.getElementById('liveTrackerModal').classList.remove('hidden');
+        }
+
+        function closeLiveModal() {
+            document.getElementById('liveTrackerModal').classList.add('hidden');
+        }
+
+        function copyCurrentModalBarcode() {
+            if (activeModalBarcode) {
+                copyBarcode(activeModalBarcode);
+            }
+        }
+
+        function shareOnWhatsApp(memberId, name, tracking, orderDate) {
+            const message = `📦 *Avira Lifecare Consignment Tracking Details*\n\n👤 *Recipient:* ${name}\n🆔 *Member ID:* ${memberId}\n📅 *Order Date:* ${orderDate}\n🏷️ *India Post Barcode:* ${tracking || 'In Fulfillment'}\n\n🚚 *Track Live on Portal:* ${window.location.origin}/track-parcel?query=${encodeURIComponent(memberId)}`;
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Auto-trigger if URL has ?query= or ?memberId=
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const queryParam = params.get('query') || params.get('memberId') || params.get('tracking');
+            if (queryParam) {
+                const input = document.getElementById('trackInput');
+                if (input) {
+                    input.value = queryParam.toUpperCase().trim();
+                    handleTrack(new Event('submit'));
+                }
+            }
+        });
     </script>
 </body>
 </html>
+

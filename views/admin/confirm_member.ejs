@@ -54,10 +54,16 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-2.5 flex-shrink-0">
+            <div class="flex items-center gap-2.5 flex-shrink-0 flex-wrap">
+                <!-- 🚀 Bulk OK Confirm Button (Header) -->
+                <button id="btnBulkApproveHeader" type="button" class="hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider items-center gap-2 flex-shrink-0">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Confirm Selected (<span class="selected-count-span">0</span> OK)</span>
+                </button>
+
                 <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-black bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                     <i class="fa-solid fa-layer-group text-emerald-500"></i>
-                    <span><%= entries.length %> Pending</span>
+                    <span id="headerPendingCount"><%= entries.length %> Pending</span>
                 </span>
 
                 <button id="btnRunMatches" type="button" class="btn-emerald-3d text-white font-black text-xs px-4 py-2 rounded-xl transition-all cursor-pointer uppercase tracking-wider flex items-center gap-2 flex-shrink-0">
@@ -114,10 +120,35 @@
             <!-- 📋 Table Container Card -->
             <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden w-full">
                 
+                <!-- 🛠️ Bulk Actions Bar -->
+                <div class="px-4 sm:px-6 py-3 bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 flex justify-between items-center flex-wrap gap-3">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button type="button" id="btnSelectAllFilled" class="text-xs font-black text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check"></i>
+                            <span>Select All Filled Rows</span>
+                        </button>
+                        
+                        <button type="button" id="btnSelectAll" class="text-xs font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer">
+                            Select All
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <!-- 🟢 Confirm Selected (Bulk OK) Button -->
+                        <button id="btnBulkApprove" type="button" class="hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs px-4 py-1.5 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider items-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Confirm Selected (<span class="selected-count-span">0</span> OK)</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
                         <thead>
                             <tr class="bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
+                                <th class="py-3 px-3 w-10 text-center select-none">
+                                    <input type="checkbox" id="selectAllPendingCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer" title="Select All">
+                                </th>
                                 <th class="py-3 px-3.5">
                                     <div class="flex items-center gap-1.5"><i class="fa-solid fa-barcode text-emerald-500"></i> Tracking & Recipient</div>
                                 </th>
@@ -144,7 +175,7 @@
                         <tbody id="confirmTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/80 font-medium text-slate-700 dark:text-slate-300">
                             <% if(entries.length === 0) { %>
                                 <tr id="empty-row">
-                                    <td colspan="7" class="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
+                                    <td colspan="8" class="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
                                         <div class="h-16 w-16 rounded-2xl bg-emerald-50 text-emerald-500 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-3 shadow-xs">
                                             <i class="fa-solid fa-circle-check"></i>
                                         </div>
@@ -154,8 +185,13 @@
                                 </tr>
                             <% } else { %>
                                 <% entries.forEach((item, index) => { %>
-                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors" id="row-<%= index %>">
+                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors pending-row-item" id="row-<%= index %>">
                                         
+                                        <!-- Selection Checkbox -->
+                                        <td class="py-2.5 px-3 text-center">
+                                            <input type="checkbox" value="<%= index %>" data-id="<%= item.id %>" class="pending-row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                                        </td>
+
                                         <!-- Tracking & Name -->
                                         <td class="py-2.5 px-3.5">
                                             <div class="flex items-center gap-2">
@@ -183,23 +219,23 @@
 
                                         <!-- Member ID Input -->
                                         <td class="py-2.5 px-2">
-                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="AV12345" maxlength="7" oninput="formatMemberIdInput(this)" class="confirm-input font-mono uppercase text-slate-800 dark:text-slate-200 w-[95px]" title="Enter AV Member ID">
+                                            <input type="text" id="member-<%= index %>" data-idx="<%= index %>" value="<%= item.member_id || '' %>" placeholder="AV12345" maxlength="7" oninput="formatMemberIdInput(this); checkInputsFilled(<%= index %>);" class="confirm-input font-mono uppercase text-slate-800 dark:text-slate-200 w-[95px]" title="Enter AV Member ID">
                                         </td>
 
                                         <!-- Order Date Input -->
                                         <td class="py-2.5 px-2">
-                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" class="confirm-input date-picker-field text-slate-800 dark:text-slate-200 font-semibold w-[125px]">
+                                            <input type="date" id="date-<%= index %>" data-idx="<%= index %>" data-saved-date="<%= item.order_date %>" onchange="checkInputsFilled(<%= index %>);" class="confirm-input date-picker-field text-slate-800 dark:text-slate-200 font-semibold w-[125px]">
                                             <input type="hidden" id="formatted-date-<%= index %>" value="<%= item.order_date %>">
                                         </td>
 
                                         <!-- PV Input -->
                                         <td class="py-2.5 px-2">
-                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" class="confirm-input font-mono font-bold text-emerald-600 dark:text-emerald-400 w-[60px]" title="Enter PV">
+                                            <input type="number" id="pv-<%= index %>" data-idx="<%= index %>" value="<%= item.pv || '' %>" placeholder="PV" oninput="checkInputsFilled(<%= index %>);" class="confirm-input font-mono font-bold text-emerald-600 dark:text-emerald-400 w-[60px]" title="Enter PV">
                                         </td>
 
                                         <!-- Amount Input -->
                                         <td class="py-2.5 px-2">
-                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" class="confirm-input font-mono font-black text-slate-900 dark:text-slate-100 w-[80px]" title="Enter Amount">
+                                            <input type="number" id="amount-<%= index %>" data-idx="<%= index %>" value="<%= item.amount || '' %>" placeholder="AMOUNT" oninput="checkInputsFilled(<%= index %>);" class="confirm-input font-mono font-black text-slate-900 dark:text-slate-100 w-[80px]" title="Enter Amount">
                                         </td>
 
                                         <!-- Actions -->
@@ -255,6 +291,7 @@
 
         window.onload = () => {
             document.querySelectorAll('.date-picker-field').forEach(picker => { convertAndSetInputDate(picker); });
+            updateBulkButtons();
         };
 
         function convertAndSetInputDate(picker) {
@@ -301,10 +338,230 @@
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
+                    const cb = row.querySelector('.pending-row-checkbox');
+                    if (cb) cb.checked = false;
                 }
             });
+            updateBulkButtons();
         }
 
+        // 🔘 Checkbox Selection Management
+        function updateBulkButtons() {
+            const checkedBoxes = document.querySelectorAll('.pending-row-checkbox:checked');
+            const count = checkedBoxes.length;
+
+            const btnHeader = document.getElementById('btnBulkApproveHeader');
+            const btnTable = document.getElementById('btnBulkApprove');
+            const countSpans = document.querySelectorAll('.selected-count-span');
+
+            countSpans.forEach(span => span.innerText = count);
+
+            if (count > 0) {
+                if (btnHeader) {
+                    btnHeader.classList.remove('hidden');
+                    btnHeader.classList.add('inline-flex');
+                }
+                if (btnTable) {
+                    btnTable.classList.remove('hidden');
+                    btnTable.classList.add('inline-flex');
+                }
+            } else {
+                if (btnHeader) {
+                    btnHeader.classList.add('hidden');
+                    btnHeader.classList.remove('inline-flex');
+                }
+                if (btnTable) {
+                    btnTable.classList.add('hidden');
+                    btnTable.classList.remove('inline-flex');
+                }
+            }
+
+            const visibleBoxes = Array.from(document.querySelectorAll('.pending-row-checkbox')).filter(cb => {
+                const row = cb.closest('tr');
+                return row && row.style.display !== 'none';
+            });
+            const selectAllCb = document.getElementById('selectAllPendingCheckbox');
+            if (selectAllCb) {
+                selectAllCb.checked = visibleBoxes.length > 0 && visibleBoxes.every(cb => cb.checked);
+            }
+        }
+
+        // Select All Checkbox
+        document.getElementById('selectAllPendingCheckbox')?.addEventListener('change', function() {
+            const isChecked = this.checked;
+            document.querySelectorAll('#confirmTableBody tr:not(#empty-row)').forEach(row => {
+                if (row.style.display !== 'none') {
+                    const cb = row.querySelector('.pending-row-checkbox');
+                    if (cb) cb.checked = isChecked;
+                }
+            });
+            updateBulkButtons();
+        });
+
+        // "Select All" button
+        document.getElementById('btnSelectAll')?.addEventListener('click', function() {
+            const visibleRows = document.querySelectorAll('#confirmTableBody tr:not(#empty-row)');
+            const anyUnchecked = Array.from(visibleRows).some(row => {
+                const cb = row.querySelector('.pending-row-checkbox');
+                return cb && !cb.checked;
+            });
+
+            visibleRows.forEach(row => {
+                if (row.style.display !== 'none') {
+                    const cb = row.querySelector('.pending-row-checkbox');
+                    if (cb) cb.checked = anyUnchecked;
+                }
+            });
+            this.innerText = anyUnchecked ? 'Deselect All' : 'Select All';
+            updateBulkButtons();
+        });
+
+        // 🌟 "Select All Filled" Helper Button
+        document.getElementById('btnSelectAllFilled')?.addEventListener('click', function() {
+            let filledCount = 0;
+            document.querySelectorAll('#confirmTableBody tr:not(#empty-row)').forEach(row => {
+                if (row.style.display !== 'none') {
+                    const index = row.id.replace('row-', '');
+                    const memberId = document.getElementById(`member-${index}`)?.value.trim();
+                    const dateVal = document.getElementById(`date-${index}`)?.value;
+                    const pv = document.getElementById(`pv-${index}`)?.value.trim();
+                    const amount = document.getElementById(`amount-${index}`)?.value.trim();
+                    const cb = row.querySelector('.pending-row-checkbox');
+
+                    if (memberId && dateVal && pv && amount && cb) {
+                        cb.checked = true;
+                        filledCount++;
+                    } else if (cb) {
+                        cb.checked = false;
+                    }
+                }
+            });
+            updateBulkButtons();
+            if (filledCount === 0) {
+                alert("No fully filled rows found. Please enter details or click 'Run Matches' first!");
+            }
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('pending-row-checkbox')) {
+                updateBulkButtons();
+            }
+        });
+
+        function checkInputsFilled(index) {
+            // Optional live feedback
+        }
+
+        // 🚀 BULK APPROVE / BULK OK ENGINE
+        async function executeBulkApproval() {
+            const checkedBoxes = Array.from(document.querySelectorAll('.pending-row-checkbox:checked'));
+            if (checkedBoxes.length === 0) {
+                alert("Please select at least one entry to confirm.");
+                return;
+            }
+
+            const entriesToApprove = [];
+            const invalidRows = [];
+
+            checkedBoxes.forEach(cb => {
+                const index = cb.value;
+                const row = document.getElementById(`row-${index}`);
+                if (!row) return;
+
+                const memberId = document.getElementById(`member-${index}`)?.value.trim() || '';
+                const rawDate = document.getElementById(`date-${index}`)?.value || '';
+                const pv = document.getElementById(`pv-${index}`)?.value.trim() || '';
+                const amount = document.getElementById(`amount-${index}`)?.value.trim() || '';
+                const tracking = row.querySelector('.tracking-number-text')?.innerText.trim() || '';
+                const name = row.querySelector('.name-text')?.innerText.trim() || '';
+                const id = cb.getAttribute('data-id');
+
+                if (!memberId || !rawDate || !pv || !amount) {
+                    invalidRows.push({ index, tracking, name });
+                    // Highlight missing fields
+                    if (!memberId) document.getElementById(`member-${index}`)?.classList.add('border-rose-500');
+                    if (!rawDate) document.getElementById(`date-${index}`)?.classList.add('border-rose-500');
+                    if (!pv) document.getElementById(`pv-${index}`)?.classList.add('border-rose-500');
+                    if (!amount) document.getElementById(`amount-${index}`)?.classList.add('border-rose-500');
+                } else {
+                    const formattedDate = formatCustomDate(rawDate);
+                    entriesToApprove.push({
+                        id,
+                        index,
+                        tracking,
+                        memberId,
+                        orderDate: formattedDate,
+                        pv,
+                        amount,
+                        name
+                    });
+                }
+            });
+
+            if (invalidRows.length > 0) {
+                alert(`⚠️ Warning! ${invalidRows.length} of your selected rows are missing required fields (Member ID, Date, PV, or Amount).\n\nPlease fill the missing fields or uncheck those rows before confirming.`);
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to approve and confirm ${entriesToApprove.length} selected records to Master Database?`)) {
+                return;
+            }
+
+            const btnHeader = document.getElementById('btnBulkApproveHeader');
+            const btnTable = document.getElementById('btnBulkApprove');
+            const originalHeaderHTML = btnHeader ? btnHeader.innerHTML : '';
+            const originalTableHTML = btnTable ? btnTable.innerHTML : '';
+
+            if (btnHeader) {
+                btnHeader.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Confirming ${entriesToApprove.length}...`;
+                btnHeader.disabled = true;
+            }
+            if (btnTable) {
+                btnTable.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Confirming ${entriesToApprove.length}...`;
+                btnTable.disabled = true;
+            }
+
+            try {
+                const response = await fetch('/admin/api/approve-multiple-entries', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ entries: entriesToApprove })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    // Remove confirmed rows with animation
+                    entriesToApprove.forEach(item => {
+                        const row = document.getElementById(`row-${item.index}`);
+                        if (row) row.remove();
+                    });
+
+                    checkEmptyTableState();
+                    updateBulkButtons();
+                    alert(`🎉 Success! ${result.count || entriesToApprove.length} records confirmed and saved to Master Database!`);
+                } else {
+                    alert("Error confirming entries: " + (result.msg || "Server failed"));
+                }
+            } catch (err) {
+                console.error("Bulk approve error:", err);
+                alert("Server error during bulk confirmation. Please try again.");
+            } finally {
+                if (btnHeader) {
+                    btnHeader.innerHTML = originalHeaderHTML;
+                    btnHeader.disabled = false;
+                }
+                if (btnTable) {
+                    btnTable.innerHTML = originalTableHTML;
+                    btnTable.disabled = false;
+                }
+                updateBulkButtons();
+            }
+        }
+
+        document.getElementById('btnBulkApprove')?.addEventListener('click', executeBulkApproval);
+        document.getElementById('btnBulkApproveHeader')?.addEventListener('click', executeBulkApproval);
+
+        // Single OK button handler
         document.querySelectorAll('.approve-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const index = this.getAttribute('data-idx');
@@ -344,6 +601,7 @@
                     if(data.success) { 
                         row.remove(); 
                         checkEmptyTableState();
+                        updateBulkButtons();
                     } else {
                         alert("Error: " + data.msg);
                         this.innerHTML = originalHTML;
@@ -371,6 +629,7 @@
                         const row = document.getElementById(`row-${index}`);
                         if (row) row.remove();
                         checkEmptyTableState();
+                        updateBulkButtons();
                     } else {
                         alert("Error: " + (data.msg || "Failed to delete"));
                     }
@@ -384,12 +643,14 @@
         function checkEmptyTableState() {
             const remainingRows = document.querySelectorAll('#confirmTableBody tr:not(#empty-row)');
             const statPendingCount = document.getElementById('statPendingCount');
+            const headerPendingCount = document.getElementById('headerPendingCount');
             if (statPendingCount) statPendingCount.innerText = remainingRows.length;
+            if (headerPendingCount) headerPendingCount.innerText = `${remainingRows.length} Pending`;
 
             if (remainingRows.length === 0) {
                 document.getElementById('confirmTableBody').innerHTML = `
                     <tr id="empty-row">
-                        <td colspan="7" class="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
+                        <td colspan="8" class="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
                             <div class="h-16 w-16 rounded-2xl bg-emerald-50 text-emerald-500 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-3 shadow-xs">
                                 <i class="fa-solid fa-circle-check"></i>
                             </div>
@@ -437,7 +698,7 @@
                             matchCount++;
                         }
                     }
-                    alert(`Success! Auto-filled ${matchCount} matching entries from orders_master. Please review and click 'OK' to save.`);
+                    alert(`Success! Auto-filled ${matchCount} matching entries from orders_master.\n\nYou can now click 'Select All Filled Rows' and confirm them in 1 click!`);
                 } else {
                     alert(result.msg || "No match data found in database.");
                 }

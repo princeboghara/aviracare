@@ -4,36 +4,157 @@
     <%- include('../partials/head_meta') %>
     <title>Query Manager - Avira Control</title>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-amber-50/30 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden block">
+<body class="bg-mesh-emerald min-h-screen flex flex-col font-sans antialiased text-slate-800 dark:text-slate-200 w-full overflow-x-hidden">
 
     <%- include('../partials/admin_navbar') %>
 
-    <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between box-border">
+    <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen w-full box-border">
         
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
-            <div class="flex items-center gap-2 min-w-0">
-                <i class="fa-solid fa-headset text-amber-500 flex-shrink-0"></i>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Control Panel / Query Support Workspace</span>
+        <!-- 🧭 Top Header Bar -->
+        <header class="bg-white/80 dark:bg-[#0d1322]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-xs w-full">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="h-9 w-9 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 flex items-center justify-center text-base flex-shrink-0 shadow-xs">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <div class="leading-none min-w-0">
+                    <h1 class="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wide truncate">Query Support Desk</h1>
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 block mt-0.5">Manage Member Tickets & Resolutions</span>
+                </div>
             </div>
-            <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-xl flex-shrink-0 ml-2">Total Tickets: <%= tickets.length %></span>
+            
+            <div class="flex items-center gap-2.5 flex-shrink-0">
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-black bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    <i class="fa-solid fa-layer-group text-emerald-500"></i>
+                    <span><%= tickets.length %> Total Tickets</span>
+                </span>
+            </div>
         </header>
 
-        <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-6 box-border">
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden w-full">
-                <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+        <!-- 📊 Main Workspace Area -->
+        <main class="flex-grow w-full max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 box-border">
+            
+            <% 
+                const pendingTickets = tickets.filter(t => t.status === 'PENDING'); 
+                const acceptedTickets = tickets.filter(t => t.status === 'ACCEPTED'); 
+                const solvedTickets = tickets.filter(t => t.status === 'SOLVED'); 
+            %>
+
+            <!-- Quick Stats Metrics -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                
+                <!-- Card 1: Pending -->
+                <div onclick="setFilterStatus('PENDING')" class="metric-card cursor-pointer bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-amber-400 dark:hover:border-amber-500 transition-all flex items-center justify-between group" id="metric-PENDING">
                     <div>
-                        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                            <i class="fa-solid fa-ticket text-emerald-500"></i> Member Support Tickets & Resolutions
+                        <span class="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 block">Pending Queries</span>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <span class="text-2xl font-black text-slate-900 dark:text-slate-100"><%= pendingTickets.length %></span>
+                            <span class="text-xs font-bold text-slate-400">awaiting response</span>
+                        </div>
+                    </div>
+                    <div class="h-11 w-11 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                </div>
+
+                <!-- Card 2: Accepted -->
+                <div onclick="setFilterStatus('ACCEPTED')" class="metric-card cursor-pointer bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-blue-400 dark:hover:border-blue-500 transition-all flex items-center justify-between group" id="metric-ACCEPTED">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-blue-600 dark:text-blue-400 block">In Progress</span>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <span class="text-2xl font-black text-slate-900 dark:text-slate-100"><%= acceptedTickets.length %></span>
+                            <span class="text-xs font-bold text-slate-400">under review</span>
+                        </div>
+                    </div>
+                    <div class="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-spinner"></i>
+                    </div>
+                </div>
+
+                <!-- Card 3: Solved -->
+                <div onclick="setFilterStatus('SOLVED')" class="metric-card cursor-pointer bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-emerald-400 dark:hover:border-emerald-500 transition-all flex items-center justify-between group" id="metric-SOLVED">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">Solved Resolutions</span>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <span class="text-2xl font-black text-slate-900 dark:text-slate-100"><%= solvedTickets.length %></span>
+                            <span class="text-xs font-bold text-slate-400">resolved</span>
+                        </div>
+                    </div>
+                    <div class="h-11 w-11 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📋 Table Container Card -->
+            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden w-full">
+                
+                <!-- 🛠️ Header Bar with Filter Buttons & Search -->
+                <div class="px-4 sm:px-6 py-3.5 bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 flex justify-between items-center flex-wrap gap-3">
+                    
+                    <!-- Left: Title & Subtitle -->
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-ticket text-emerald-500"></i> Support Tickets
                         </h2>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Click "Reply" to respond directly to member queries so they can see the solution in their portal.</p>
+                        <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Filter by status or click "Reply" to resolve member inquiries.</p>
+                    </div>
+
+                    <!-- Right Controls: Status Pill Selector + Search Bar -->
+                    <div class="flex items-center gap-3 flex-wrap">
+                        
+                        <!-- 🔘 Theme-Matched Status Selector Pills (Desktop & Tablet) -->
+                        <div class="hidden sm:flex items-center gap-1.5 bg-slate-100/90 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                            <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 dark:text-slate-500 px-2 flex items-center gap-1">
+                                <i class="fa-solid fa-filter text-emerald-500 text-[10px]"></i> View:
+                            </span>
+                            <button type="button" onclick="setFilterStatus('PENDING')" data-status="PENDING" class="status-tab-btn active-status-tab px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-xs cursor-pointer flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                <span>Pending (<%= pendingTickets.length %>)</span>
+                            </button>
+                            <button type="button" onclick="setFilterStatus('ACCEPTED')" data-status="ACCEPTED" class="status-tab-btn px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-blue-600 cursor-pointer flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+                                <span>Accepted (<%= acceptedTickets.length %>)</span>
+                            </button>
+                            <button type="button" onclick="setFilterStatus('SOLVED')" data-status="SOLVED" class="status-tab-btn px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                <span>Solved (<%= solvedTickets.length %>)</span>
+                            </button>
+                            <button type="button" onclick="setFilterStatus('ALL')" data-status="ALL" class="status-tab-btn px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 cursor-pointer">
+                                All (<%= tickets.length %>)
+                            </button>
+                        </div>
+
+                        <!-- 📱 Theme-Matched Dropdown for Mobile -->
+                        <div class="sm:hidden flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                            <i class="fa-solid fa-filter text-emerald-500 text-xs"></i>
+                            <select id="statusFilterDropdown" onchange="setFilterStatus(this.value)" class="bg-transparent text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer">
+                                <option value="PENDING" selected>⏳ Pending (<%= pendingTickets.length %>)</option>
+                                <option value="ACCEPTED">🔄 Accepted (<%= acceptedTickets.length %>)</option>
+                                <option value="SOLVED">✅ Solved (<%= solvedTickets.length %>)</option>
+                                <option value="ALL">📁 All (<%= tickets.length %>)</option>
+                            </select>
+                        </div>
+
+                        <!-- 🔍 Instant Search Input -->
+                        <div class="relative w-44 sm:w-56">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="querySearchInput" onkeyup="filterTickets()" placeholder="Search Name, ID, Subject..."
+                                   class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500 text-slate-700 dark:text-slate-200 shadow-xs">
+                        </div>
+
+                        <!-- Counter Badge -->
+                        <span id="filteredCounterBadge" class="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[11px] font-black px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                            <%= pendingTickets.length %> Tickets
+                        </span>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap sm:whitespace-normal">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap sm:whitespace-normal" id="queriesTable">
                         <thead>
-                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
+                            <tr class="bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
                                 <th class="py-3 px-4 w-12">ID</th>
+                                <th class="py-3 px-4 w-44">Date & Time</th>
                                 <th class="py-3 px-4 w-36">Member Info</th>
                                 <th class="py-3 px-4 w-44">Subject / Contact</th>
                                 <th class="py-3 px-4 min-w-[220px]">Member Query & Admin Reply</th>
@@ -41,65 +162,105 @@
                                 <th class="py-3 px-4 text-center w-48">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 font-medium text-slate-700 dark:text-slate-300" id="queriesTableBody">
                             <% if(!tickets || tickets.length === 0) { %>
-                                <tr>
-                                    <td colspan="6" class="py-12 text-center text-slate-400 font-bold">
-                                        <i class="fa-solid fa-circle-check text-2xl block mb-2 text-emerald-300"></i>
-                                        ALL QUERIES ARE SOLVED & UP TO DATE
+                                <tr id="no-tickets-row">
+                                    <td colspan="7" class="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
+                                        <div class="h-16 w-16 rounded-2xl bg-emerald-50 text-emerald-500 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-3 shadow-xs">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                        </div>
+                                        <p class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide">All Caught Up!</p>
+                                        <p class="text-xs text-slate-400 font-normal mt-1">No support queries found in database.</p>
                                     </td>
                                 </tr>
                             <% } else { %>
                                 <% tickets.forEach((ticket) => { %>
-                                    <tr class="hover:bg-slate-50/40 transition-colors" id="ticket-row-<%= ticket.id %>">
-                                        <td class="py-3 px-4 font-mono font-bold text-slate-900">#<%= ticket.id %></td>
+                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors query-row-item" 
+                                        id="ticket-row-<%= ticket.id %>"
+                                        data-id="<%= ticket.id %>"
+                                        data-status="<%= ticket.status || 'PENDING' %>"
+                                        data-name="<%= ticket.name || '' %>"
+                                        data-memberid="<%= ticket.member_id %>"
+                                        data-subject="<%= ticket.subject || '' %>"
+                                        data-description="<%= ticket.description || '' %>"
+                                        data-reply="<%= ticket.admin_reply || '' %>"
+                                        data-contact="<%= ticket.contact_no || '' %>">
+                                        
+                                        <!-- ID -->
+                                        <td class="py-3 px-4 font-mono font-bold text-slate-900 dark:text-slate-100">#<%= ticket.id %></td>
+                                        
+                                        <!-- Date & Time -->
                                         <td class="py-3 px-4">
-                                            <div class="font-bold text-slate-900 uppercase"><%= ticket.name || 'N/A' %></div>
-                                            <div class="font-mono text-[10px] font-bold text-emerald-600 uppercase"><%= ticket.member_id %></div>
+                                            <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-200/80 dark:border-slate-700">
+                                                <i class="fa-regular fa-clock text-emerald-500"></i>
+                                                <span><%= ticket.formattedCreatedAt %></span>
+                                            </div>
                                         </td>
+
+                                        <!-- Member Info -->
                                         <td class="py-3 px-4">
-                                            <div class="font-bold text-slate-900 uppercase cursor-pointer hover:text-emerald-600 transition-colors" onclick="openReplyModal('<%= ticket.id %>', '<%= escape(ticket.name || '') %>', '<%= ticket.member_id %>', '<%= escape(ticket.subject || '') %>', '<%= escape(ticket.description || '') %>', '<%= escape(ticket.admin_reply || '') %>', '<%= ticket.status %>')"><%= ticket.subject %></div>
-                                            <div class="text-[10px] text-slate-400 mt-0.5"><i class="fa-solid fa-phone"></i> <%= ticket.contact_no %></div>
+                                            <div class="font-bold text-slate-900 dark:text-slate-100 uppercase member-name-cell"><%= ticket.name || 'N/A' %></div>
+                                            <div class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase member-id-cell"><%= ticket.member_id %></div>
                                         </td>
+
+                                        <!-- Subject & Phone -->
+                                        <td class="py-3 px-4">
+                                            <div class="font-bold text-slate-900 dark:text-slate-100 uppercase cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors subject-cell open-reply-trigger">
+                                                <%= ticket.subject %>
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 mt-0.5 contact-cell">
+                                                <i class="fa-solid fa-phone text-[9px] mr-0.5"></i> <%= ticket.contact_no %>
+                                            </div>
+                                        </td>
+
+                                        <!-- Query Description & Reply -->
                                         <td class="py-3 px-4 space-y-2">
-                                            <div class="text-slate-700 font-normal pr-4 max-w-sm break-words bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
-                                                <span class="text-[9px] font-bold text-slate-400 block uppercase mb-0.5">Query Description:</span>
-                                                <%= ticket.description %>
+                                            <div class="text-slate-700 dark:text-slate-300 font-normal pr-4 max-w-sm break-words bg-slate-50/80 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                                                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 block uppercase mb-0.5">Query Description:</span>
+                                                <span class="query-desc-text"><%= ticket.description %></span>
                                             </div>
 
                                             <% if(ticket.admin_reply) { %>
-                                                <div class="bg-emerald-50 border border-emerald-200/80 rounded-xl p-2.5 max-w-sm space-y-0.5">
-                                                    <div class="flex items-center justify-between text-[9px] font-bold text-emerald-800 uppercase">
+                                                <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800 rounded-xl p-2.5 max-w-sm space-y-0.5">
+                                                    <div class="flex items-center justify-between text-[9px] font-bold text-emerald-800 dark:text-emerald-300 uppercase">
                                                         <span><i class="fa-solid fa-reply text-emerald-600 mr-1"></i> Admin Reply:</span>
+                                                        <% if (ticket.formattedRepliedAt) { %>
+                                                            <span class="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 lowercase">
+                                                                <i class="fa-regular fa-clock text-[8px] mr-0.5"></i> <%= ticket.formattedRepliedAt %>
+                                                            </span>
+                                                        <% } %>
                                                     </div>
-                                                    <p class="text-[11px] font-semibold text-emerald-950 break-words leading-relaxed"><%= ticket.admin_reply %></p>
+                                                    <p class="text-[11px] font-semibold text-emerald-950 dark:text-emerald-200 break-words leading-relaxed"><%= ticket.admin_reply %></p>
                                                 </div>
                                             <% } else { %>
-                                                <div class="text-[10px] text-amber-600 font-semibold flex items-center gap-1">
+                                                <div class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
                                                     <i class="fa-solid fa-clock text-amber-500"></i> No reply sent yet
                                                 </div>
                                             <% } %>
                                         </td>
+
+                                        <!-- Status Badge -->
                                         <td class="py-3 px-4 text-center">
                                             <% if(ticket.status === 'PENDING') { %>
-                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">PENDING</span>
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">PENDING</span>
                                             <% } else if(ticket.status === 'ACCEPTED') { %>
-                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-700 border border-blue-200">ACCEPTED</span>
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">ACCEPTED</span>
                                             <% } else { %>
-                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">SOLVED</span>
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">SOLVED</span>
                                             <% } %>
                                         </td>
+
+                                        <!-- Action Buttons -->
                                         <td class="py-3 px-4 text-center">
                                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                                 <button type="button" 
-                                                        onclick="openReplyModal('<%= ticket.id %>', '<%= escape(ticket.name || '') %>', '<%= ticket.member_id %>', '<%= escape(ticket.subject || '') %>', '<%= escape(ticket.description || '') %>', '<%= escape(ticket.admin_reply || '') %>', '<%= ticket.status %>')"
-                                                        class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all uppercase cursor-pointer shadow-xs flex items-center gap-1">
+                                                        class="open-reply-btn bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all uppercase cursor-pointer shadow-xs flex items-center gap-1">
                                                     <i class="fa-solid fa-reply"></i> <%= ticket.admin_reply ? 'Edit Reply' : 'Reply' %>
                                                 </button>
-                                                <button type="button" onclick="updateStatus('<%= ticket.id %>', 'SOLVED')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-1.5 rounded-lg transition-all uppercase cursor-pointer" title="Mark as Solved">
+                                                <button type="button" onclick="updateStatus('<%= ticket.id %>', 'SOLVED')" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold px-2 py-1.5 rounded-lg transition-all uppercase cursor-pointer" title="Mark as Solved">
                                                     <i class="fa-solid fa-check text-emerald-600"></i>
                                                 </button>
-                                                <button type="button" onclick="deleteTicket('<%= ticket.id %>')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold px-2 py-1.5 rounded-lg transition-all uppercase cursor-pointer" title="Delete Ticket">
+                                                <button type="button" onclick="deleteTicket('<%= ticket.id %>')" class="bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-500 hover:text-white text-rose-600 dark:text-rose-400 text-[10px] font-bold px-2 py-1.5 rounded-lg transition-all uppercase cursor-pointer border border-rose-200 dark:border-rose-800" title="Delete Ticket">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
                                             </div>
@@ -110,18 +271,27 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Empty filter state notice -->
+                <div id="filterEmptyNotice" class="hidden py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
+                    <div class="h-14 w-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-2xl mx-auto mb-3 shadow-xs">
+                        <i class="fa-solid fa-filter"></i>
+                    </div>
+                    <p class="text-sm text-slate-700 dark:text-slate-300 font-black uppercase">No Queries In This Filter</p>
+                    <p class="text-xs text-slate-400 font-normal mt-1">Try selecting a different status pill above or clear your search.</p>
+                </div>
             </div>
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs font-medium text-slate-400 mt-8 w-full overflow-hidden">
-            &copy; 2026 Avira Control Center. Secure Support Workspace.
+        <footer class="bg-white/80 dark:bg-[#0d1322]/80 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 py-3 text-center text-[10px] font-bold text-slate-400 mt-4 w-full overflow-hidden">
+            &copy; 2026 Avira Control Center &bull; Helpdesk Query & Resolution Management
         </footer>
     </div>
 
     <!-- 💬 Reply to Query Modal -->
-    <div id="replyModal" class="hidden fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-lg overflow-hidden border border-slate-200 shadow-2xl space-y-4">
-            <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
+    <div id="replyModal" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#0f172a] rounded-3xl w-full max-w-lg overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-2xl space-y-4">
+            <div class="bg-slate-900 dark:bg-black px-6 py-4 text-white flex justify-between items-center">
                 <h3 class="text-sm font-black uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-reply text-emerald-400"></i> Send Query Resolution Reply
                 </h3>
@@ -131,35 +301,35 @@
             <form id="replyQueryForm" class="p-6 space-y-4 text-xs">
                 <input type="hidden" id="replyTicketId">
 
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/70 space-y-1">
+                <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-700 space-y-1">
                     <div class="flex justify-between items-center">
-                        <span id="replyMemberInfo" class="font-bold text-slate-800"></span>
-                        <span id="replyTicketNumber" class="font-mono font-bold text-emerald-600"></span>
+                        <span id="replyMemberInfo" class="font-bold text-slate-800 dark:text-slate-200"></span>
+                        <span id="replyTicketNumber" class="font-mono font-bold text-emerald-600 dark:text-emerald-400"></span>
                     </div>
-                    <p id="replySubject" class="font-bold text-slate-700"></p>
-                    <p id="replyDesc" class="text-slate-500 text-[11px] pt-1 border-t border-slate-200/50"></p>
+                    <p id="replySubject" class="font-bold text-slate-700 dark:text-slate-300"></p>
+                    <p id="replyDesc" class="text-slate-500 dark:text-slate-400 text-[11px] pt-1 border-t border-slate-200/50 dark:border-slate-700"></p>
                 </div>
 
                 <div>
-                    <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                         Admin Reply / Solution Message <span class="text-rose-500">*</span>
                     </label>
                     <textarea id="replyMessage" rows="4" required placeholder="Type your response/solution to the member here..."
-                              class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-800"></textarea>
+                              class="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-800 dark:text-slate-200"></textarea>
                     <p class="text-[10px] text-slate-400 mt-1">This reply will be visible to the member when they check their ticket history.</p>
                 </div>
 
                 <div>
-                    <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Ticket Status</label>
-                    <select id="replyStatus" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xs text-slate-800 focus:outline-none focus:border-emerald-500">
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Ticket Status</label>
+                    <select id="replyStatus" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500">
                         <option value="SOLVED" selected>SOLVED (Issue Resolved)</option>
                         <option value="ACCEPTED">ACCEPTED (In Progress)</option>
                         <option value="PENDING">PENDING (Awaiting More Info)</option>
                     </select>
                 </div>
 
-                <div class="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
-                    <button type="button" onclick="closeReplyModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold cursor-pointer transition-all">Cancel</button>
+                <div class="flex justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="closeReplyModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold cursor-pointer transition-all">Cancel</button>
                     <button type="submit" id="btnSubmitReply" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black uppercase tracking-wider shadow cursor-pointer transition-all flex items-center gap-1.5">
                         <i class="fa-solid fa-paper-plane"></i> Send Reply
                     </button>
@@ -169,23 +339,124 @@
     </div>
 
     <script>
-        function openReplyModal(id, rawName, memberId, rawSubject, rawDesc, rawReply, currentStatus) {
+        let currentFilterStatus = 'PENDING';
+
+        // 🌟 Open Reply Modal cleanly from dataset
+        function openReplyModalFromRow(row) {
+            if (!row) return;
+            const id = row.dataset.id;
+            const name = row.dataset.name;
+            const memberId = row.dataset.memberid;
+            const subject = row.dataset.subject;
+            const desc = row.dataset.description;
+            const reply = row.dataset.reply;
+            const status = row.dataset.status;
+
             document.getElementById('replyTicketId').value = id;
             document.getElementById('replyTicketNumber').innerText = '#' + id;
-            document.getElementById('replyMemberInfo').innerText = unescape(rawName) + ' (' + memberId + ')';
-            document.getElementById('replySubject').innerText = 'Subject: ' + unescape(rawSubject);
-            document.getElementById('replyDesc').innerText = 'Query: ' + unescape(rawDesc);
-            document.getElementById('replyMessage').value = rawReply ? unescape(rawReply) : '';
-            document.getElementById('replyStatus').value = currentStatus || 'SOLVED';
+            document.getElementById('replyMemberInfo').innerText = (name ? name : 'N/A') + ' (' + memberId + ')';
+            document.getElementById('replySubject').innerText = 'Subject: ' + subject;
+            document.getElementById('replyDesc').innerText = 'Query: ' + desc;
+            document.getElementById('replyMessage').value = reply || '';
+            document.getElementById('replyStatus').value = status || 'SOLVED';
 
             document.getElementById('replyModal').classList.remove('hidden');
         }
+
+        // Delegate click handler for reply buttons & subject click
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.open-reply-btn') || e.target.closest('.open-reply-trigger');
+            if (btn) {
+                const row = btn.closest('.query-row-item');
+                if (row) openReplyModalFromRow(row);
+            }
+        });
 
         function closeReplyModal() {
             document.getElementById('replyModal').classList.add('hidden');
             document.getElementById('replyQueryForm').reset();
         }
 
+        // 🔘 Filter by Status from Pills or Metrics
+        function setFilterStatus(status) {
+            currentFilterStatus = status;
+
+            // Sync Mobile dropdown if present
+            const mobileDropdown = document.getElementById('statusFilterDropdown');
+            if (mobileDropdown) mobileDropdown.value = status;
+
+            // Update Pill Buttons Active State
+            document.querySelectorAll('.status-tab-btn').forEach(btn => {
+                const btnStatus = btn.getAttribute('data-status');
+                if (btnStatus === status) {
+                    btn.classList.add('active-status-tab', 'bg-white', 'dark:bg-slate-900', 'shadow-xs');
+                    if (status === 'PENDING') btn.classList.add('text-amber-600', 'dark:text-amber-400');
+                    else if (status === 'ACCEPTED') btn.classList.add('text-blue-600', 'dark:text-blue-400');
+                    else if (status === 'SOLVED') btn.classList.add('text-emerald-600', 'dark:text-emerald-400');
+                    else btn.classList.add('text-slate-900', 'dark:text-slate-100');
+                } else {
+                    btn.classList.remove('active-status-tab', 'bg-white', 'dark:bg-slate-900', 'shadow-xs', 'text-amber-600', 'dark:text-amber-400', 'text-blue-600', 'dark:text-blue-400', 'text-emerald-600', 'dark:text-emerald-400', 'text-slate-900', 'dark:text-slate-100');
+                }
+            });
+
+            // Update Top Metric Cards Active State
+            ['PENDING', 'ACCEPTED', 'SOLVED'].forEach(s => {
+                const card = document.getElementById('metric-' + s);
+                if (card) {
+                    if (status === s) {
+                        card.classList.add('ring-2', 'ring-emerald-500', 'dark:ring-emerald-400');
+                    } else {
+                        card.classList.remove('ring-2', 'ring-emerald-500', 'dark:ring-emerald-400');
+                    }
+                }
+            });
+
+            filterTickets();
+        }
+
+        function filterTickets() {
+            const searchQuery = (document.getElementById('querySearchInput').value || '').toLowerCase().trim();
+            const rows = document.querySelectorAll('.query-row-item');
+            
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const rowStatus = row.dataset.status || 'PENDING';
+                const rowText = row.innerText.toLowerCase();
+
+                const matchesStatus = (currentFilterStatus === 'ALL') || (rowStatus === currentFilterStatus);
+                const matchesSearch = !searchQuery || rowText.includes(searchQuery);
+
+                if (matchesStatus && matchesSearch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            const badge = document.getElementById('filteredCounterBadge');
+            if (badge) {
+                badge.innerText = visibleCount + ' Tickets';
+            }
+
+            const emptyNotice = document.getElementById('filterEmptyNotice');
+            const table = document.getElementById('queriesTable');
+            if (visibleCount === 0 && rows.length > 0) {
+                if (emptyNotice) emptyNotice.classList.remove('hidden');
+                if (table) table.classList.add('hidden');
+            } else {
+                if (emptyNotice) emptyNotice.classList.add('hidden');
+                if (table) table.classList.remove('hidden');
+            }
+        }
+
+        // Initialize default view to PENDING on load
+        window.addEventListener('DOMContentLoaded', () => {
+            setFilterStatus('PENDING');
+        });
+
+        // 📨 Reply Form Submit
         document.getElementById('replyQueryForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const ticketId = document.getElementById('replyTicketId').value;
@@ -233,9 +504,14 @@
                     body: JSON.stringify({ ticketId, status })
                 });
                 const data = await res.json();
-                if(data.success) { location.reload(); }
-                else { alert("Error: " + (data.msg || "Failed to update")); }
-            } catch(err) { console.error(err); }
+                if(data.success) { 
+                    location.reload(); 
+                } else { 
+                    alert("Error: " + (data.msg || "Failed to update")); 
+                }
+            } catch(err) { 
+                console.error(err); 
+            }
         }
 
         async function deleteTicket(ticketId) {
@@ -246,10 +522,13 @@
                     if(data.success) { 
                         const row = document.getElementById(`ticket-row-${ticketId}`);
                         if (row) row.remove();
+                        filterTickets();
                     } else {
                         alert("Error: " + (data.msg || "Failed to delete"));
                     }
-                } catch(err) { console.error(err); }
+                } catch(err) { 
+                    console.error(err); 
+                }
             }
         }
     </script>

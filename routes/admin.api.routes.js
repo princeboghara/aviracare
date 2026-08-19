@@ -499,6 +499,76 @@ router.post('/approve-entry-by-tracking', async (req, res) => {
     }
 });
 
+// ✅ 14.2 Bulk Approve Selected Entries to Master DB
+router.post('/approve-multiple-entries', async (req, res) => {
+    const { entries } = req.body;
+    if (!Array.isArray(entries) || entries.length === 0) {
+        return res.status(400).json({ success: false, msg: "No entries selected for confirmation" });
+    }
+
+    const client = await db.pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        let approvedCount = 0;
+        for (const item of entries) {
+            const tracking = (item.tracking || '').trim().toUpperCase();
+            if (!tracking) continue;
+
+            const memberId = (item.memberId || '').trim().toUpperCase();
+            const orderDate = item.orderDate || '';
+            const pv = item.pv || '0';
+            const amount = item.amount || '0';
+
+            // Get pending details for name & id
+            const pendingRes = await client.query('SELECT * FROM pending_entries WHERE UPPER(tracking) = $1', [tracking]);
+            let name = item.name || '';
+            let pendingId = null;
+
+            if (pendingRes.rows.length > 0) {
+                name = pendingRes.rows[0].name || name;
+                pendingId = pendingRes.rows[0].id;
+            }
+
+            // Insert into main_database
+            const insertQuery = `
+                INSERT INTO main_database (member_id, name, order_date, pv, amount, tracking)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            `;
+            await client.query(insertQuery, [
+                memberId,
+                name ? name.toUpperCase().trim() : '',
+                orderDate,
+                pv,
+                amount,
+                tracking
+            ]);
+
+            // Remove from pending_entries
+            if (pendingId) {
+                await client.query('DELETE FROM pending_entries WHERE id = $1', [pendingId]);
+            } else {
+                await client.query('DELETE FROM pending_entries WHERE UPPER(tracking) = $1', [tracking]);
+            }
+
+            approvedCount++;
+        }
+
+        await client.query('COMMIT');
+        res.json({ 
+            success: true, 
+            count: approvedCount, 
+            msg: `${approvedCount} entries confirmed and saved to Master Database successfully!` 
+        });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error("Bulk Approve Error:", err);
+        res.status(500).json({ success: false, msg: "Bulk approval failed: " + err.message });
+    } finally {
+        client.release();
+    }
+});
+
 // 🗑️ 15. Delete from Master Database
 router.delete('/delete-master/:srNo', async (req, res) => {
     try {
@@ -677,13 +747,14 @@ router.post('/upload-pdf', uploadPdf.single('pdfFile'), async (req, res) => {
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const uploadDate = `${day}${suffix} ${months[new Date().getMonth()]} ${new Date().getFullYear()}`;
 
-        // ☁️ Upload to Cloudinary Permanent Cloud Storage
+        // ☁️ Upload to Cloudinary Permanent Cloud Storage (and retain local backup for zero-delay delivery)
         let storedFileRef = req.file.filename;
         try {
             const cloudUpload = await uploadFile(req.file.path, {
                 folder: 'aviracare/pdfs',
-                resource_type: 'auto',
-                public_id: `pdf_${Date.now()}_${path.parse(req.file.originalname).name.replace(/[^a-zA-Z0-9]/g, '_')}`
+                resource_type: 'raw',
+                public_id: `pdf_${Date.now()}_${path.parse(req.file.originalname).name.replace(/[^a-zA-Z0-9]/g, '_')}`,
+                removeLocalAfterUpload: false
             });
             if (cloudUpload && cloudUpload.url) {
                 storedFileRef = cloudUpload.url;
