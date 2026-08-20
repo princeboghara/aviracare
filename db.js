@@ -1,14 +1,16 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+const isServerless = Boolean(process.env.VERCEL);
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
-    max: parseInt(process.env.DB_POOL_MAX || '20', 10),
-    min: 1,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 30000,
-    keepAlive: true
+    max: parseInt(process.env.DB_POOL_MAX || (isServerless ? '5' : '20'), 10),
+    min: 0,
+    idleTimeoutMillis: 10000,
+    connectionTimeoutMillis: 10000,
+    keepAlive: !isServerless
 });
 
 // 🛡️ Prevent crashes on unexpected idle connection loss
@@ -16,11 +18,17 @@ pool.on('error', (err) => {
     console.error('⚠️ PostgreSQL Pool Unexpected Client Error:', err.message);
 });
 
-pool.connect((err, client, release) => {
-    if (err) return console.error('❌ PostgreSQL કનેક્શનમાં ભૂલ છે:', err.stack);
-    console.log('✅ PostgreSQL Connected (Pool Active)');
-    release();
-});
+// Non-blocking initial connection probe
+if (process.env.DATABASE_URL) {
+    pool.connect((err, client, release) => {
+        if (err) {
+            console.error('⚠️ Initial PostgreSQL probe warning:', err.message);
+            return;
+        }
+        console.log('✅ PostgreSQL Connected (Pool Active)');
+        if (release) release();
+    });
+}
 
 // ⚡ Automatic Index Initialization for Lightning Fast Performance Under Load
 async function initIndexes() {

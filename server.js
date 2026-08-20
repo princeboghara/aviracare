@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const path = require('path');
+const fs = require('fs');
 const https = require('https');
 const session = require('express-session');
 require('dotenv').config();
@@ -28,16 +29,25 @@ app.use(compression({
     }
 }));
 
+// ⚡ Dynamic Safe Path Resolution for Views & Static Assets (Universal for Vercel & Container)
+const viewsDir = fs.existsSync(path.join(process.cwd(), 'views'))
+    ? path.join(process.cwd(), 'views')
+    : path.join(__dirname, 'views');
+
+const publicDir = fs.existsSync(path.join(process.cwd(), 'public'))
+    ? path.join(process.cwd(), 'public')
+    : path.join(__dirname, 'public');
+
 // ⚡ View Engine Configuration
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', viewsDir);
 
 // 📁 Static Assets Configuration with Cache Headers for High Speed
-app.use(express.static(path.join(__dirname, 'public'), {
+app.use(express.static(publicDir, {
     maxAge: '1d',
     etag: true
 }));
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), {
+app.use('/uploads', express.static(path.join(publicDir, 'uploads'), {
     maxAge: '7d',
     etag: true
 }));
