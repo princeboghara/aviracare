@@ -96,17 +96,28 @@ process.on('unhandledRejection', (reason) => {
 });
 
 // 🌐 Server Boot & Auto Index Optimization
-app.listen(PORT, async () => {
-    console.log(`✅ AviraCare High-Performance System running on port ${PORT}`);
-    // Auto-verify and create DB indexes on startup
-    await db.initIndexes();
-});
-
-// 🔄 Auto Keep-Alive Heartbeat for Cloud Deployments
-setInterval(() => {
-    https.get('https://aviracare.onrender.com/', () => {
-        // ping success
-    }).on('error', (err) => {
-        // quiet error logging
+if (!process.env.VERCEL) {
+    app.listen(PORT, async () => {
+        console.log(`✅ AviraCare High-Performance System running on port ${PORT}`);
+        // Auto-verify and create DB indexes on startup
+        try {
+            await db.initIndexes();
+        } catch (e) {
+            console.warn('DB index init error:', e.message);
+        }
     });
-}, 300000); // 5 minutes
+}
+
+// 🔄 Auto Keep-Alive Heartbeat for Cloud Deployments (optional)
+if (process.env.APP_URL) {
+    setInterval(() => {
+        https.get(process.env.APP_URL, () => {
+            // ping success
+        }).on('error', () => {
+            // quiet error logging
+        });
+    }, 300000); // 5 minutes
+}
+
+module.exports = app;
+
