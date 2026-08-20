@@ -109,31 +109,69 @@ router.post('/upload-orders-excel', upload.single('excelFile'), async (req, res)
         };
 
         if (worksheet) {
+            // Load existing orders to accurately filter duplicates without SQL constraint errors
+            const existingRes = await db.query('SELECT order_date, member_id, name, pv, amount FROM orders_master');
+            const existingSet = new Set(
+                existingRes.rows.map(r => 
+                    `${String(r.order_date || '').trim()}|${String(r.member_id || '').trim().toUpperCase()}|${String(r.name || '').trim().toUpperCase()}|${String(r.pv || '0').trim()}|${String(r.amount || '0').trim()}`
+                )
+            );
+
+            const newRows = [];
+
             for (let rowNumber = 3; rowNumber <= worksheet.rowCount; rowNumber++) {
                 const row = worksheet.getRow(rowNumber);
 
                 const dateCell = row.getCell(2);
-                const memberId = row.getCell(5).text ? row.getCell(5).text.trim().toUpperCase() : '';
-                const name = row.getCell(6).text ? row.getCell(6).text.trim().toUpperCase() : '';
-                const pv = row.getCell(8).value ? row.getCell(8).value.toString().trim() : '0';
-                const amount = row.getCell(9).value ? row.getCell(9).value.toString().trim() : '0';
+                const memberId = row.getCell(5).text ? String(row.getCell(5).text).trim().toUpperCase() : '';
+                const name = row.getCell(6).text ? String(row.getCell(6).text).trim().toUpperCase() : '';
+                const pv = row.getCell(8).value !== null && row.getCell(8).value !== undefined ? String(row.getCell(8).value).trim() : '0';
+                const amount = row.getCell(9).value !== null && row.getCell(9).value !== undefined ? String(row.getCell(9).value).trim() : '0';
 
                 if (name && name !== 'NAME') {
                     const formattedDate = parseExcelDate(dateCell);
+                    const sig = `${formattedDate}|${memberId}|${name}|${pv}|${amount}`;
 
-                    const insertQuery = `
-                        INSERT INTO orders_master (order_date, member_id, name, pv, amount)
-                        VALUES ($1, $2, $3, $4, $5)
-                        ON CONFLICT (member_id, name, order_date, pv, amount) DO NOTHING
-                        RETURNING id;
-                    `;
-
-                    const result = await db.query(insertQuery, [formattedDate, memberId, name, pv, amount]);
-                    if (result.rows.length > 0) {
+                    if (!existingSet.has(sig)) {
+                        existingSet.add(sig);
+                        newRows.push({
+                            order_date: formattedDate,
+                            member_id: memberId,
+                            name: name,
+                            pv: pv,
+                            amount: amount
+                        });
                         addedCount++;
                     } else {
                         skippedCount++;
                     }
+                }
+            }
+
+            // Insert new rows inside transaction
+            if (newRows.length > 0) {
+                const client = await db.pool.connect();
+                try {
+                    await client.query('BEGIN');
+                    const insertSql = `
+                        INSERT INTO orders_master (order_date, member_id, name, pv, amount)
+                        VALUES ($1, $2, $3, $4, $5);
+                    `;
+                    for (const item of newRows) {
+                        await client.query(insertSql, [
+                            item.order_date,
+                            item.member_id,
+                            item.name,
+                            item.pv,
+                            item.amount
+                        ]);
+                    }
+                    await client.query('COMMIT');
+                } catch (insertErr) {
+                    await client.query('ROLLBACK');
+                    throw insertErr;
+                } finally {
+                    client.release();
                 }
             }
         }
@@ -851,7 +889,7 @@ router.post('/upload-pincode-excel', upload.single('excelFile'), async (req, res
 // 🛍️ 22. Add Product
 router.post('/add-product', upload.array('productImages', 5), async (req, res) => {
     try {
-        const { name, amount, pv, info, benefits, how_to_use } = req.body;
+        const { name, amount, pv, category, info, benefits, how_to_use } = req.body;
 
         if (!req.files || req.files.length === 0) {
             return res.json({ success: false, msg: "કૃપા કરીને ઓછામાં ઓછો ૧ ફોટો અપલોડ કરો!" });
@@ -873,8 +911,8 @@ router.post('/add-product', upload.array('productImages', 5), async (req, res) =
         }
 
         const queryText = `
-            INSERT INTO avira_products (name, amount, pv, info, benefits, how_to_use, image_url, all_images) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO avira_products (name, amount, pv, category, info, benefits, how_to_use, image_url, all_images) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING id
         `;
         
@@ -882,6 +920,7 @@ router.post('/add-product', upload.array('productImages', 5), async (req, res) =
             name.trim(),
             parseFloat(amount),
             parseInt(pv),
+            (category || 'Health & Wellness').trim(),
             (info || '').trim(),
             (benefits || '').trim(),
             (how_to_use || '').trim(),
@@ -937,7 +976,7 @@ router.delete('/delete-product/:id', async (req, res) => {
 router.post('/update-product/:id', upload.array('productImages', 5), async (req, res) => {
     try {
         const productId = req.params.id;
-        const { name, amount, pv, info, benefits, how_to_use, existingImages } = req.body;
+        const { name, amount, pv, category, info, benefits, how_to_use, existingImages } = req.body;
 
         let finalImages = [];
         if (existingImages) {
@@ -965,14 +1004,15 @@ router.post('/update-product/:id', upload.array('productImages', 5), async (req,
 
         const queryText = `
             UPDATE avira_products 
-            SET name = $1, amount = $2, pv = $3, info = $4, benefits = $5, how_to_use = $6, 
-                image_url = $7, all_images = $8
-            WHERE id = $9
+            SET name = $1, amount = $2, pv = $3, category = $4, info = $5, benefits = $6, how_to_use = $7, 
+                image_url = $8, all_images = $9
+            WHERE id = $10
         `;
         const values = [
             (name || '').trim(), 
             parseFloat(amount), 
             parseInt(pv), 
+            (category || 'Health & Wellness').trim(),
             (info || '').trim(), 
             (benefits || '').trim(), 
             (how_to_use || '').trim(),

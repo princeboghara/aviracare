@@ -159,7 +159,7 @@ router.get('/', async (req, res) => {
 // 📦 Product Showcase
 router.get('/products', async (req, res) => {
     try {
-        const result = await db.query('SELECT id, name, amount, pv, image_url FROM avira_products ORDER BY id DESC');
+        const result = await db.query('SELECT id, name, amount, pv, image_url, category FROM avira_products ORDER BY id DESC');
         res.render('member/products', { products: result.rows });
     } catch (err) {
         console.error("Products catalog error:", err);

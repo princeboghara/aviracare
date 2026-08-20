@@ -35,7 +35,8 @@ async function initIndexes() {
         `CREATE INDEX IF NOT EXISTS idx_query_tickets_member_id ON query_tickets ((UPPER(member_id)));`,
         `CREATE INDEX IF NOT EXISTS idx_query_tickets_status ON query_tickets (status);`,
         `CREATE INDEX IF NOT EXISTS idx_content_pdf_category ON content_pdf (category);`,
-        `CREATE INDEX IF NOT EXISTS idx_pincodes_pincode ON pincodes (pincode);`
+        `CREATE INDEX IF NOT EXISTS idx_pincodes_pincode ON pincodes (pincode);`,
+        `CREATE INDEX IF NOT EXISTS idx_avira_products_category ON avira_products (category);`
     ];
 
     try {

@@ -42,7 +42,10 @@
                             <div class="flex-grow flex flex-col justify-between space-y-2 min-w-0">
                                 <div>
                                     <div class="flex justify-between items-start gap-2">
-                                        <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide leading-tight truncate"><%= product.name %></h2>
+                                        <div class="min-w-0">
+                                            <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide leading-tight truncate"><%= product.name %></h2>
+                                            <span class="inline-block px-2 py-0.5 mt-1 rounded text-[8px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200"><%= product.category || 'Health & Wellness' %></span>
+                                        </div>
                                         <span class="text-[9px] font-black bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-md whitespace-nowrap flex-shrink-0"><%= product.pv %> PV</span>
                                     </div>
                                     <p class="text-[11px] font-bold text-slate-900 mt-1">Amount: <span class="text-emerald-600 font-black">₹<%= product.amount %></span></p>
@@ -56,6 +59,7 @@
                                             data-name="<%= product.name %>"
                                             data-amount="<%= product.amount %>"
                                             data-pv="<%= product.pv %>"
+                                            data-category="<%= product.category || 'Health & Wellness' %>"
                                             data-info="<%= product.info %>"
                                             data-benefits="<%= product.benefits %>"
                                             data-how-to-use="<%= product.how_to_use %>"
@@ -95,7 +99,7 @@
                         <label class="block text-slate-500 mb-1">Product Title Name</label>
                         <input type="text" id="editName" name="name" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-800 font-bold">
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
                             <label class="block text-slate-500 mb-1">Price (₹)</label>
                             <input type="number" step="0.01" id="editAmount" name="amount" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-800 font-bold">
@@ -105,6 +109,17 @@
                             <input type="number" id="editPv" name="pv" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-800 font-bold">
                         </div>
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-500 mb-1">Product Category</label>
+                    <select id="editCategory" name="category" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-slate-800 font-bold cursor-pointer">
+                        <option value="Health & Wellness">Health & Wellness</option>
+                        <option value="Skin Care">Skin Care</option>
+                        <option value="Bath Care">Bath Care</option>
+                        <option value="Hair Care">Hair Care</option>
+                        <option value="Agriculture">Agriculture</option>
+                    </select>
                 </div>
 
                 <div class="bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200/60 space-y-2">
@@ -155,6 +170,7 @@
                 document.getElementById('editName').value = this.getAttribute('data-name') || '';
                 document.getElementById('editAmount').value = this.getAttribute('data-amount') || '';
                 document.getElementById('editPv').value = this.getAttribute('data-pv') || '';
+                document.getElementById('editCategory').value = this.getAttribute('data-category') || 'Health & Wellness';
                 document.getElementById('editInfo').value = this.getAttribute('data-info') || '';
                 document.getElementById('editBenefits').value = this.getAttribute('data-benefits') || '';
                 document.getElementById('editHowToUse').value = this.getAttribute('data-how-to-use') || '';

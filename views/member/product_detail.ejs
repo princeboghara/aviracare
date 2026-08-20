@@ -122,8 +122,13 @@
                     
                     <!-- Header Info Box -->
                     <div class="glass-emerald-card rounded-3xl p-6 space-y-3">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold uppercase tracking-wider">
-                            <i class="fa-solid fa-certificate text-emerald-600"></i> Genuine Quality Certified
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold uppercase tracking-wider">
+                                <i class="fa-solid fa-certificate text-emerald-600"></i> Genuine Quality Certified
+                            </div>
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-xs">
+                                <i class="fa-solid fa-tag text-[9px] text-emerald-400"></i> <%= product.category || 'Health & Wellness' %>
+                            </div>
                         </div>
                         
                         <h1 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
@@ -155,7 +160,7 @@
                             <i class="fa-solid fa-chevron-down text-xs text-slate-400 chevron-icon transition-transform duration-300"></i>
                         </button>
                         <div class="accordion-wrapper">
-                            <div class="accordion-content pt-3 mt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed font-medium">
+                            <div class="accordion-content pt-3 mt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed font-medium whitespace-pre-line">
                                 <%= product.info || 'No specific description provided for this product formulation.' %>
                             </div>
                         </div>
@@ -173,7 +178,7 @@
                             <i class="fa-solid fa-chevron-down text-xs text-slate-400 chevron-icon transition-transform duration-300"></i>
                         </button>
                         <div class="accordion-wrapper">
-                            <div class="accordion-content pt-3 mt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed font-medium">
+                            <div class="accordion-content pt-3 mt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed font-medium whitespace-pre-line">
                                 <%= product.benefits || 'Formulated with authentic natural extracts to support physical stamina, vitality, and systemic wellness.' %>
                             </div>
                         </div>
@@ -191,7 +196,7 @@
                             <i class="fa-solid fa-chevron-down text-xs text-slate-400 chevron-icon transition-transform duration-300"></i>
                         </button>
                         <div class="accordion-wrapper">
-                            <div class="accordion-content pt-3 mt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed font-medium">
+                            <div class="accordion-content pt-3 mt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed font-medium whitespace-pre-line">
                                 <%= product.how_to_use || 'Take as advised by your healthcare consultant or according to printed package label directions with warm water.' %>
                             </div>
                         </div>
@@ -205,25 +210,25 @@
 
     </main>
 
-    <!-- Hidden Google Translate Element -->
-    <div id="google_translate_element" style="display:none;"></div>
+    <!-- Hidden Google Translate Element (styled offscreen to guarantee DOM initialization) -->
+    <div id="google_translate_element" style="position:absolute; top:-9999px; left:-9999px; opacity:0; pointer-events:none;"></div>
     <script type="text/javascript">
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
                 pageLanguage: 'en',
-                includedLanguages: 'gu,hi,en',
+                includedLanguages: 'en,gu,hi',
                 layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
                 autoDisplay: false
             }, 'google_translate_element');
         }
     </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
     <!-- Interactive Scripts -->
     <script>
         function toggleAccordion(id) {
             const item = document.getElementById(id);
-            item.classList.toggle('accordion-open');
+            if (item) item.classList.toggle('accordion-open');
         }
 
         function setMainImage(src) {
@@ -238,12 +243,32 @@
         }
 
         function changeLanguage(langCode) {
+            // Set cookie for current domain and root path
+            const host = window.location.hostname;
+            document.cookie = `googtrans=/en/${langCode}; path=/;`;
+            if (host) {
+                document.cookie = `googtrans=/en/${langCode}; domain=${host}; path=/;`;
+                document.cookie = `googtrans=/en/${langCode}; domain=.${host}; path=/;`;
+            }
+
+            // Attempt to trigger google combo change
             const selectEl = document.querySelector('.goog-te-combo');
             if (selectEl) {
                 selectEl.value = langCode;
                 selectEl.dispatchEvent(new Event('change'));
+            } else {
+                window.location.reload();
             }
         }
+
+        // Synchronize language dropdown with current active language cookie
+        document.addEventListener('DOMContentLoaded', function() {
+            const match = document.cookie.match(/googtrans=\/en\/([a-z]+)/i);
+            if (match && match[1]) {
+                const langSelect = document.getElementById('langSelect');
+                if (langSelect) langSelect.value = match[1];
+            }
+        });
     </script>
 
     <!-- Footer -->

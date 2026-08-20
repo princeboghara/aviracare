@@ -13,7 +13,7 @@
     <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10 box-border">
         
         <!-- Top Title & Search Filter Bar -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8 sm:mb-10 pb-6 border-b border-slate-200/80">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-6 sm:mb-8 pb-6 border-b border-slate-200/80">
             <div>
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-wider mb-2">
                     <i class="fa-solid fa-leaf text-emerald-500"></i> Pure & Certified Wellness
@@ -31,8 +31,32 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-xs">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </span>
-                <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="Search by product name..." 
+                <input type="text" id="productSearch" onkeyup="filterProducts()" placeholder="Search by product name..." 
                     class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-xs placeholder:text-slate-400">
+            </div>
+        </div>
+
+        <!-- 🏷️ Master Category Filter Tabs -->
+        <div class="mb-8">
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="categoryTabs">
+                <button type="button" onclick="selectCategory('ALL', this)" class="cat-pill active-cat px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-slate-900 text-white">
+                    <i class="fa-solid fa-layer-group text-[11px]"></i> All Products
+                </button>
+                <button type="button" onclick="selectCategory('Health & Wellness', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200">
+                    <i class="fa-solid fa-heart-pulse text-emerald-500 text-[11px]"></i> Health & Wellness
+                </button>
+                <button type="button" onclick="selectCategory('Skin Care', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-rose-50 hover:text-rose-700 border border-slate-200">
+                    <i class="fa-solid fa-wand-magic-sparkles text-rose-500 text-[11px]"></i> Skin Care
+                </button>
+                <button type="button" onclick="selectCategory('Bath Care', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 border border-slate-200">
+                    <i class="fa-solid fa-soap text-cyan-500 text-[11px]"></i> Bath Care
+                </button>
+                <button type="button" onclick="selectCategory('Hair Care', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700 border border-slate-200">
+                    <i class="fa-solid fa-scissors text-amber-500 text-[11px]"></i> Hair Care
+                </button>
+                <button type="button" onclick="selectCategory('Agriculture', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-lime-50 hover:text-lime-700 border border-slate-200">
+                    <i class="fa-solid fa-seedling text-lime-600 text-[11px]"></i> Agriculture
+                </button>
             </div>
         </div>
         
@@ -52,13 +76,21 @@
                         <i class="fa-solid fa-magnifying-glass-minus"></i>
                     </div>
                     <span class="text-slate-700 font-black text-sm block">No matching products found!</span>
-                    <span class="text-slate-400 font-medium text-xs mt-1 block">Try searching with a different keyword or spelling.</span>
+                    <span class="text-slate-400 font-medium text-xs mt-1 block">Try selecting another category or typing another keyword.</span>
                 </div>
             <% } %>
 
             <% if(products && products.length > 0) { %>
                 <% products.forEach(product => { %>
-                    <a href="/products/<%= product.id %>" class="product-card glass-emerald-card p-3 sm:p-4 rounded-3xl flex flex-col justify-between group cursor-pointer" data-name="<%= String(product.name).toUpperCase() %>">
+                    <% 
+                        const cat = product.category || 'Health & Wellness';
+                        let catBadgeStyle = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                        if (cat === 'Skin Care') catBadgeStyle = 'bg-rose-50 text-rose-700 border-rose-200';
+                        else if (cat === 'Bath Care') catBadgeStyle = 'bg-cyan-50 text-cyan-700 border-cyan-200';
+                        else if (cat === 'Hair Care') catBadgeStyle = 'bg-amber-50 text-amber-800 border-amber-200';
+                        else if (cat === 'Agriculture') catBadgeStyle = 'bg-lime-50 text-lime-800 border-lime-200';
+                    %>
+                    <a href="/products/<%= product.id %>" class="product-card glass-emerald-card p-3 sm:p-4 rounded-3xl flex flex-col justify-between group cursor-pointer" data-name="<%= String(product.name).toUpperCase() %>" data-category="<%= cat %>">
                         
                         <div class="w-full">
                             <!-- Image Container -->
@@ -67,6 +99,13 @@
                                 
                                 <span class="absolute top-2 right-2 bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded-lg text-[9px] shadow-xs tracking-wider uppercase">
                                     <%= product.pv %> PV
+                                </span>
+                            </div>
+
+                            <!-- Category Badge -->
+                            <div class="mb-1.5">
+                                <span class="inline-block px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border <%= catBadgeStyle %>">
+                                    <%= cat %>
                                 </span>
                             </div>
                             
@@ -97,20 +136,44 @@
     <%- include('../partials/member_footer') %>
 
     <script>
-        function searchProducts() {
+        let currentCategory = 'ALL';
+
+        function selectCategory(category, buttonEl) {
+            currentCategory = category;
+
+            // Update Tab styles
+            const pills = document.querySelectorAll('.cat-pill');
+            pills.forEach(p => {
+                p.classList.remove('bg-slate-900', 'text-white');
+                p.classList.add('bg-white', 'text-slate-700');
+            });
+
+            buttonEl.classList.remove('bg-white', 'text-slate-700');
+            buttonEl.classList.add('bg-slate-900', 'text-white');
+
+            filterProducts();
+        }
+
+        function filterProducts() {
             const rawInput = document.getElementById('productSearch').value;
-            const input = sanitizeString(rawInput).toUpperCase().trim();
+            const searchVal = rawInput.toUpperCase().trim();
             const cards = document.getElementsByClassName('product-card');
             const noMsg = document.getElementById('noProductsMsg');
             let visibleCount = 0;
 
             for (let i = 0; i < cards.length; i++) {
-                const productName = cards[i].getAttribute('data-name') || '';
-                if (productName.includes(input)) {
-                    cards[i].style.display = "";
+                const card = cards[i];
+                const productName = (card.getAttribute('data-name') || '').toUpperCase();
+                const productCat = card.getAttribute('data-category') || '';
+
+                const matchesSearch = productName.includes(searchVal);
+                const matchesCat = (currentCategory === 'ALL' || productCat === currentCategory);
+
+                if (matchesSearch && matchesCat) {
+                    card.style.display = "";
                     visibleCount++;
                 } else {
-                    cards[i].style.display = "none";
+                    card.style.display = "none";
                 }
             }
 
@@ -118,19 +181,6 @@
                 if (visibleCount === 0) noMsg.classList.remove('hidden');
                 else noMsg.classList.add('hidden');
             }
-        }
-
-        function sanitizeString(str) {
-            return str.replace(/[&<>"'/]/g, function (s) {
-                return {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#39;',
-                    '/': '&#x2F;'
-                }[s];
-            });
         }
     </script>
 </body>
