@@ -183,7 +183,7 @@ router.post('/upload-orders-excel', upload.single('excelFile'), async (req, res)
         const allOrders = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
         res.json({
             success: true,
-            msg: `🎉 ${addedCount} નવી એન્ટ્રી ઉમેરાઈ! (${skippedCount} ડુપ્લિકેટ એન્ટ્રી હટાવી દીધી)`,
+            msg: `🎉 ${addedCount} New Entries added(${skippedCount} Duplicate Entry Deleted)`,
             orders: allOrders.rows
         });
 
@@ -291,7 +291,7 @@ router.post('/delete-bulk-orders', async (req, res) => {
 
     } catch (err) {
         console.error("Bulk Delete Orders Error:", err);
-        res.json({ success: false, msg: "સર્વર એરર: " + err.message });
+        res.json({ success: false, msg: Server Eroor Found here: " + err.message });
     }
 });
 
