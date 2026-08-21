@@ -1,5 +1,5 @@
 -- AviraCare Database Schema DDL
--- Generated on: 2026-08-19T15:14:26.833Z
+-- Generated on: 2026-08-21T01:15:05.527Z
 
 CREATE TABLE IF NOT EXISTS "avira_products" (
   "id" SERIAL,
@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS "avira_products" (
   "benefits" TEXT NOT NULL,
   "how_to_use" TEXT NOT NULL,
   "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "all_images" TEXT
+  "all_images" TEXT,
+  "category" VARCHAR(100) DEFAULT 'Health & Wellness'::character varying
 );
 
 CREATE TABLE IF NOT EXISTS "bill_history" (
@@ -80,6 +81,19 @@ CREATE TABLE IF NOT EXISTS "orders_master" (
   "name" VARCHAR(255),
   "pv" VARCHAR(50),
   "amount" VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS "parcel_tracking_status" (
+  "id" SERIAL,
+  "article_number" VARCHAR(100) NOT NULL,
+  "article_type" VARCHAR(100),
+  "booked_at" VARCHAR(255),
+  "booked_on" VARCHAR(100),
+  "destination" VARCHAR(255),
+  "status" VARCHAR(100),
+  "last_event" TEXT,
+  "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "pending_entries" (

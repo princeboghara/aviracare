@@ -17,8 +17,8 @@ router.get('/login', (req, res) => {
 // 🔑 Admin Login Authentication Handler
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
-    const adminUser = process.env.ADMIN_USERNAME || 'admin';
-    const adminPass = process.env.ADMIN_PASSWORD || 'Avira@123';
+    const adminUser = process.env.ADMIN_USERNAME || process.env.ADMIN_USER || 'admin';
+    const adminPass = process.env.ADMIN_PASSWORD || process.env.ADMIN_PASS || 'Avira@123';
     
     const isAjax = req.xhr || 
                    req.headers['x-requested-with'] === 'XMLHttpRequest' ||

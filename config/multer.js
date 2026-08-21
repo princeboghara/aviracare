@@ -12,14 +12,17 @@ const sharedStorage = multer.diskStorage({
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
+        const cleanName = path.basename(file.originalname).replace(/[^a-zA-Z0-9._-]/g, '_');
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + '-' + file.originalname.replace(/\s+/g, '_'));
+        cb(null, `${uniqueSuffix}-${cleanName}`);
     }
 });
 
-const memoryUpload = multer({ storage: multer.memoryStorage() });
-const upload = multer({ storage: sharedStorage });
-const uploadPdf = multer({ storage: sharedStorage });
+const limits = { fileSize: 50 * 1024 * 1024 }; // 50MB Max File Size
+
+const memoryUpload = multer({ storage: multer.memoryStorage(), limits });
+const upload = multer({ storage: sharedStorage, limits });
+const uploadPdf = multer({ storage: sharedStorage, limits });
 
 module.exports = {
     upload,
