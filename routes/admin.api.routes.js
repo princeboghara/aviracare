@@ -291,7 +291,7 @@ router.post('/delete-bulk-orders', async (req, res) => {
 
     } catch (err) {
         console.error("Bulk Delete Orders Error:", err);
-        res.json({ success: false, msg: Server Eroor Found here: " + err.message });
+        res.json({ success: false, msg: "Server Error: " + err.message });
     }
 });
 
