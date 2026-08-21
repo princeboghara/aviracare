@@ -51,66 +51,95 @@
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-10 relative z-10 box-border">
         
-        <!-- 🌟 Hero Banner Section -->
-        <div class="relative rounded-3xl p-6 sm:p-10 mb-8 border border-white/80 bg-white/70 backdrop-blur-xl shadow-xl overflow-hidden hero-mesh">
-            <div class="absolute -top-24 -right-24 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-teal-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <!-- 🌟 Hero Banner Section with 3D Product Visuals -->
+        <div class="relative rounded-3xl p-6 sm:p-8 lg:p-10 mb-8 border border-white/90 bg-white/80 backdrop-blur-2xl shadow-xl overflow-hidden hero-mesh">
+            <div class="absolute -top-24 -right-24 w-80 h-80 bg-emerald-400/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-teal-400/25 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
-                <div class="max-w-2xl space-y-3">
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-black bg-emerald-100/80 text-emerald-900 border border-emerald-300/60 uppercase tracking-wider shadow-xs">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                
+                <!-- Left Side: Hero Info & Controls (7 cols) -->
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-black bg-emerald-100/90 text-emerald-950 border border-emerald-300/80 uppercase tracking-wider shadow-xs">
                         <i class="fa-solid fa-gem text-emerald-600 animate-pulse"></i> 100% Certified Ayurvedic Formulations
                     </div>
-                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-slate-900 leading-none">
+                    
+                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-slate-900 leading-tight">
                         Avira <span class="shimmer-text">Wellness</span> Showcase
                     </h1>
-                    <p class="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
-                        Discover authentic botanical nutrition, personal care, and high-performance agricultural boosters formulated for maximum results and rewarding PV volume points.
+                    
+                    <p class="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed max-w-xl">
+                        Explore authentic botanical nutrition, personal care, and high-performance agricultural boosters formulated for maximum wellness results and rewarding PV volume earnings.
                     </p>
 
                     <!-- Trust Stats Bar -->
-                    <div class="flex flex-wrap items-center gap-3 pt-2">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100/80 border border-slate-200/80 text-[10px] sm:text-xs font-bold text-slate-700">
+                    <div class="flex flex-wrap items-center gap-2.5 pt-1">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100/90 border border-slate-200/80 text-[10px] sm:text-xs font-bold text-slate-700">
                             <i class="fa-solid fa-leaf text-emerald-500"></i> Pure Herbs
                         </span>
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100/80 border border-slate-200/80 text-[10px] sm:text-xs font-bold text-slate-700">
-                            <i class="fa-solid fa-shield-halved text-blue-500"></i> Quality Tested
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100/90 border border-slate-200/80 text-[10px] sm:text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-shield-halved text-blue-500"></i> GMP Certified
                         </span>
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100/80 border border-slate-200/80 text-[10px] sm:text-xs font-bold text-slate-700">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100/90 border border-slate-200/80 text-[10px] sm:text-xs font-bold text-slate-700">
                             <i class="fa-solid fa-award text-amber-500"></i> Direct PV Rewards
                         </span>
                     </div>
+
+                    <!-- Live Search & Sort Controls -->
+                    <div class="pt-3 space-y-3 max-w-xl">
+                        <div class="relative w-full">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 text-sm">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="productSearch" oninput="filterAndSortProducts()" placeholder="Search products, formulations, ingredients... (Ctrl + K)" 
+                                class="w-full pl-11 pr-10 py-3.5 bg-white border border-slate-200/90 rounded-2xl text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-md placeholder:text-slate-400">
+                            <button type="button" id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer">
+                                <i class="fa-solid fa-circle-xmark text-sm"></i>
+                            </button>
+                        </div>
+
+                        <!-- Sort Dropdown & Item Count -->
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-1.5 text-[11px] font-black text-slate-600 uppercase tracking-wider">
+                                <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Showing: <span id="visibleCount" class="text-slate-950 font-black"><%= products ? products.length : 0 %></span> Active Items
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <select id="sortSelect" onchange="filterAndSortProducts()" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-[11px] font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-xs">
+                                    <option value="DEFAULT">Sort: Featured</option>
+                                    <option value="PRICE_LOW">Price: Low to High</option>
+                                    <option value="PRICE_HIGH">Price: High to Low</option>
+                                    <option value="PV_HIGH">PV: High to Low</option>
+                                    <option value="NAME_ASC">Name: A to Z</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Live Search & Sort Controls -->
-                <div class="w-full lg:max-w-sm space-y-3">
-                    <div class="relative w-full">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 text-sm">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </span>
-                        <input type="text" id="productSearch" oninput="filterAndSortProducts()" placeholder="Search products, herbs..." 
-                            class="w-full pl-11 pr-10 py-3.5 bg-white/95 border border-slate-200/90 rounded-2xl text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-md placeholder:text-slate-400">
-                        <button type="button" id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none">
-                            <i class="fa-solid fa-circle-xmark text-sm"></i>
-                        </button>
-                    </div>
-
-                    <!-- Sort Dropdown & Item Count -->
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-1.5 text-[11px] font-black text-slate-500 uppercase tracking-wider">
-                            <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Showing: <span id="visibleCount" class="text-slate-900 font-extrabold"><%= products ? products.length : 0 %></span> Items
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <select id="sortSelect" onchange="filterAndSortProducts()" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-[11px] font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-xs">
-                                <option value="DEFAULT">Sort: Featured</option>
-                                <option value="PRICE_LOW">Price: Low to High</option>
-                                <option value="PRICE_HIGH">Price: High to Low</option>
-                                <option value="PV_HIGH">PV: High to Low</option>
-                                <option value="NAME_ASC">Name: A to Z</option>
-                            </select>
+                <!-- Right Side: 3D Product Showcase Visuals (5 cols) -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="relative w-full max-w-md group">
+                        <!-- Ambient Glow Ring -->
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-emerald-500/30 via-teal-500/30 to-emerald-500/30 rounded-3xl blur-lg opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        <!-- Main Card Container -->
+                        <div class="relative bg-white/95 rounded-3xl p-3 sm:p-4 border border-white shadow-2xl overflow-hidden">
+                            <div class="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden bg-slate-950/5 flex items-center justify-center">
+                                <img src="/images/hero_banner_products.jpg" alt="Avira Wellness Products" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                
+                                <!-- Floating Pill on Image -->
+                                <div class="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-md text-white px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 border border-white/20 shadow-lg">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                    <span>41+ Active Products</span>
+                                </div>
+                                <div class="absolute top-3 right-3 bg-emerald-500/95 backdrop-blur-md text-white px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md">
+                                    <i class="fa-solid fa-sparkles mr-1"></i> New Stock
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
