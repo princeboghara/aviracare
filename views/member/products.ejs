@@ -2,7 +2,46 @@
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('../partials/head_meta') %>
-    <title>Wellness Products Showcase - Avira Lifecare</title>
+    <title>Premium Product Showcase - Avira Lifecare</title>
+    <style>
+        /* 🌟 Ultra-Luxury Custom Styles */
+        .glass-luxury-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.06);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-luxury-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.18), 0 0 0 1px rgba(16, 185, 129, 0.1);
+        }
+        .cat-pill {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cat-pill.active {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.25);
+            border-color: transparent;
+        }
+        .hero-mesh {
+            background: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.05) 0%, transparent 50%);
+        }
+        .pv-badge-glow {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, #059669 0%, #10b981 50%, #047857 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between bg-mesh-emerald font-sans antialiased text-slate-800 relative w-full overflow-x-hidden selection:bg-emerald-500 selection:text-white">
 
@@ -10,118 +49,184 @@
     <%- include('../partials/member_navbar') %>
 
     <!-- Main Container -->
-    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10 box-border">
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-10 relative z-10 box-border">
         
-        <!-- Top Title & Search Filter Bar -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-6 sm:mb-8 pb-6 border-b border-slate-200/80">
-            <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-wider mb-2">
-                    <i class="fa-solid fa-leaf text-emerald-500"></i> Pure & Certified Wellness
+        <!-- 🌟 Hero Banner Section -->
+        <div class="relative rounded-3xl p-6 sm:p-10 mb-8 border border-white/80 bg-white/70 backdrop-blur-xl shadow-xl overflow-hidden hero-mesh">
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-teal-400/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+                <div class="max-w-2xl space-y-3">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-black bg-emerald-100/80 text-emerald-900 border border-emerald-300/60 uppercase tracking-wider shadow-xs">
+                        <i class="fa-solid fa-gem text-emerald-600 animate-pulse"></i> 100% Certified Ayurvedic Formulations
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-slate-900 leading-none">
+                        Avira <span class="shimmer-text">Wellness</span> Showcase
+                    </h1>
+                    <p class="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
+                        Discover authentic botanical nutrition, personal care, and high-performance agricultural boosters formulated for maximum results and rewarding PV volume points.
+                    </p>
+
+                    <!-- Trust Stats Bar -->
+                    <div class="flex flex-wrap items-center gap-3 pt-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100/80 border border-slate-200/80 text-[10px] sm:text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-leaf text-emerald-500"></i> Pure Herbs
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100/80 border border-slate-200/80 text-[10px] sm:text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-shield-halved text-blue-500"></i> Quality Tested
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100/80 border border-slate-200/80 text-[10px] sm:text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-award text-amber-500"></i> Direct PV Rewards
+                        </span>
+                    </div>
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-slate-900">
-                    Product <span class="text-emerald-600">Showcase</span>
-                </h1>
-                <p class="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
-                    Explore high-grade herbal solutions with verified PV volume points and specialized benefits.
-                </p>
-            </div>
-            
-            <!-- Search Filter -->
-            <div class="relative w-full md:max-w-xs">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-xs">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
-                <input type="text" id="productSearch" onkeyup="filterProducts()" placeholder="Search by product name..." 
-                    class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-xs placeholder:text-slate-400">
+
+                <!-- Live Search & Sort Controls -->
+                <div class="w-full lg:max-w-sm space-y-3">
+                    <div class="relative w-full">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 text-sm">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="productSearch" oninput="filterAndSortProducts()" placeholder="Search products, herbs..." 
+                            class="w-full pl-11 pr-10 py-3.5 bg-white/95 border border-slate-200/90 rounded-2xl text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 transition-all shadow-md placeholder:text-slate-400">
+                        <button type="button" id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none">
+                            <i class="fa-solid fa-circle-xmark text-sm"></i>
+                        </button>
+                    </div>
+
+                    <!-- Sort Dropdown & Item Count -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5 text-[11px] font-black text-slate-500 uppercase tracking-wider">
+                            <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Showing: <span id="visibleCount" class="text-slate-900 font-extrabold"><%= products ? products.length : 0 %></span> Items
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <select id="sortSelect" onchange="filterAndSortProducts()" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-[11px] font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-xs">
+                                <option value="DEFAULT">Sort: Featured</option>
+                                <option value="PRICE_LOW">Price: Low to High</option>
+                                <option value="PRICE_HIGH">Price: High to Low</option>
+                                <option value="PV_HIGH">PV: High to Low</option>
+                                <option value="NAME_ASC">Name: A to Z</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- 🏷️ Master Category Filter Tabs -->
+        <% 
+            const healthCount = products.filter(p => (p.category || 'Health & Wellness') === 'Health & Wellness').length;
+            const skinCount = products.filter(p => p.category === 'Skin Care').length;
+            const bathCount = products.filter(p => p.category === 'Bath Care').length;
+            const hairCount = products.filter(p => p.category === 'Hair Care').length;
+            const agriCount = products.filter(p => p.category === 'Agriculture').length;
+        %>
         <div class="mb-8">
-            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="categoryTabs">
-                <button type="button" onclick="selectCategory('ALL', this)" class="cat-pill active-cat px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-slate-900 text-white">
-                    <i class="fa-solid fa-layer-group text-[11px]"></i> All Products
+            <div class="flex items-center gap-2.5 overflow-x-auto pb-3 scrollbar-none" id="categoryTabs">
+                <button type="button" onclick="selectCategory('ALL', this)" class="cat-pill active px-4 sm:px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-sm border border-slate-200 bg-white text-slate-700">
+                    <i class="fa-solid fa-layer-group text-[12px]"></i> All Items <span class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 text-white font-extrabold ml-1"><%= products.length %></span>
                 </button>
-                <button type="button" onclick="selectCategory('Health & Wellness', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200">
-                    <i class="fa-solid fa-heart-pulse text-emerald-500 text-[11px]"></i> Health & Wellness
+                <button type="button" onclick="selectCategory('Health & Wellness', this)" class="cat-pill px-4 sm:px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-sm border border-slate-200 bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700">
+                    <i class="fa-solid fa-heart-pulse text-emerald-500 text-[12px]"></i> Health & Wellness <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-extrabold ml-1"><%= healthCount %></span>
                 </button>
-                <button type="button" onclick="selectCategory('Skin Care', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-rose-50 hover:text-rose-700 border border-slate-200">
-                    <i class="fa-solid fa-wand-magic-sparkles text-rose-500 text-[11px]"></i> Skin Care
+                <button type="button" onclick="selectCategory('Skin Care', this)" class="cat-pill px-4 sm:px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-sm border border-slate-200 bg-white text-slate-700 hover:bg-rose-50 hover:text-rose-700">
+                    <i class="fa-solid fa-wand-magic-sparkles text-rose-500 text-[12px]"></i> Skin Care <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-extrabold ml-1"><%= skinCount %></span>
                 </button>
-                <button type="button" onclick="selectCategory('Bath Care', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 border border-slate-200">
-                    <i class="fa-solid fa-soap text-cyan-500 text-[11px]"></i> Bath Care
+                <button type="button" onclick="selectCategory('Bath Care', this)" class="cat-pill px-4 sm:px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-sm border border-slate-200 bg-white text-slate-700 hover:bg-cyan-50 hover:text-cyan-700">
+                    <i class="fa-solid fa-soap text-cyan-500 text-[12px]"></i> Bath Care <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-extrabold ml-1"><%= bathCount %></span>
                 </button>
-                <button type="button" onclick="selectCategory('Hair Care', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700 border border-slate-200">
-                    <i class="fa-solid fa-scissors text-amber-500 text-[11px]"></i> Hair Care
+                <button type="button" onclick="selectCategory('Hair Care', this)" class="cat-pill px-4 sm:px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-sm border border-slate-200 bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700">
+                    <i class="fa-solid fa-scissors text-amber-500 text-[12px]"></i> Hair Care <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-extrabold ml-1"><%= hairCount %></span>
                 </button>
-                <button type="button" onclick="selectCategory('Agriculture', this)" class="cat-pill px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-xs bg-white text-slate-700 hover:bg-lime-50 hover:text-lime-700 border border-slate-200">
-                    <i class="fa-solid fa-seedling text-lime-600 text-[11px]"></i> Agriculture
+                <button type="button" onclick="selectCategory('Agriculture', this)" class="cat-pill px-4 sm:px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer shadow-sm border border-slate-200 bg-white text-slate-700 hover:bg-lime-50 hover:text-lime-700">
+                    <i class="fa-solid fa-seedling text-lime-600 text-[12px]"></i> Agriculture <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-extrabold ml-1"><%= agriCount %></span>
                 </button>
             </div>
         </div>
         
-        <!-- Product Grid -->
+        <!-- 🛍️ Luxury Product Grid -->
         <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-            <% if(!products || products.length === 0) { %>
-                <div id="noProductsMsg" class="text-xs text-slate-400 col-span-full text-center py-20 font-bold glass-emerald-card rounded-3xl">
-                    <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <span class="text-slate-700 font-black text-sm block">No active products published yet.</span>
-                    <span class="text-slate-400 font-medium text-xs mt-1 block">Please check back shortly for updated inventory.</span>
+            
+            <div id="noProductsMsg" class="hidden text-xs text-slate-400 col-span-full text-center py-20 font-bold glass-luxury-card rounded-3xl">
+                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
+                    <i class="fa-solid fa-magnifying-glass-minus"></i>
                 </div>
-            <% } else { %>
-                <div id="noProductsMsg" class="hidden text-xs text-slate-400 col-span-full text-center py-20 font-bold glass-emerald-card rounded-3xl">
-                    <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3">
-                        <i class="fa-solid fa-magnifying-glass-minus"></i>
-                    </div>
-                    <span class="text-slate-700 font-black text-sm block">No matching products found!</span>
-                    <span class="text-slate-400 font-medium text-xs mt-1 block">Try selecting another category or typing another keyword.</span>
-                </div>
-            <% } %>
+                <span class="text-slate-800 font-black text-sm block uppercase tracking-wide">No Matching Products Found!</span>
+                <span class="text-slate-400 font-medium text-xs mt-1 block">Try clearing the search box or switching to another category.</span>
+                <button type="button" onclick="resetFilters()" class="mt-4 px-4 py-2 bg-emerald-500 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-emerald-600 transition-all shadow-sm">
+                    View All Products &rarr;
+                </button>
+            </div>
 
             <% if(products && products.length > 0) { %>
                 <% products.forEach(product => { %>
                     <% 
                         const cat = product.category || 'Health & Wellness';
-                        let catBadgeStyle = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                        if (cat === 'Skin Care') catBadgeStyle = 'bg-rose-50 text-rose-700 border-rose-200';
-                        else if (cat === 'Bath Care') catBadgeStyle = 'bg-cyan-50 text-cyan-700 border-cyan-200';
-                        else if (cat === 'Hair Care') catBadgeStyle = 'bg-amber-50 text-amber-800 border-amber-200';
-                        else if (cat === 'Agriculture') catBadgeStyle = 'bg-lime-50 text-lime-800 border-lime-200';
+                        let catBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                        let catIcon = 'fa-heart-pulse';
+
+                        if (cat === 'Skin Care') {
+                            catBadgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+                            catIcon = 'fa-wand-magic-sparkles';
+                        } else if (cat === 'Bath Care') {
+                            catBadgeClass = 'bg-cyan-50 text-cyan-700 border-cyan-200';
+                            catIcon = 'fa-soap';
+                        } else if (cat === 'Hair Care') {
+                            catBadgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
+                            catIcon = 'fa-scissors';
+                        } else if (cat === 'Agriculture') {
+                            catBadgeClass = 'bg-lime-50 text-lime-800 border-lime-200';
+                            catIcon = 'fa-seedling';
+                        }
                     %>
-                    <a href="/products/<%= product.id %>" class="product-card glass-emerald-card p-3 sm:p-4 rounded-3xl flex flex-col justify-between group cursor-pointer" data-name="<%= String(product.name).toUpperCase() %>" data-category="<%= cat %>">
+                    <a href="/products/<%= product.id %>" 
+                       class="product-card glass-luxury-card p-3.5 sm:p-4 rounded-3xl flex flex-col justify-between group cursor-pointer relative overflow-hidden" 
+                       data-name="<%= String(product.name).toUpperCase() %>" 
+                       data-category="<%= cat %>"
+                       data-price="<%= parseFloat(product.amount) %>"
+                       data-pv="<%= parseInt(product.pv) %>">
                         
+                        <!-- Top Floating Ribbon -->
                         <div class="w-full">
-                            <!-- Image Container -->
-                            <div class="w-full aspect-square bg-slate-50/80 rounded-2xl overflow-hidden mb-3 flex items-center justify-center relative border border-slate-100 p-2 group-hover:bg-emerald-50/30 transition-colors">
-                                <img src="<%= product.image_url %>" alt="<%= product.name %>" class="object-contain w-full h-full group-hover:scale-105 transition-transform duration-300">
+                            <!-- Image Frame with Interactive Zoom -->
+                            <div class="w-full aspect-square bg-gradient-to-b from-slate-50/90 to-slate-100/50 rounded-2xl overflow-hidden mb-3 flex items-center justify-center relative border border-slate-200/60 p-3 group-hover:border-emerald-200 transition-all">
+                                <img src="<%= product.image_url %>" alt="<%= product.name %>" loading="lazy" class="object-contain w-full h-full group-hover:scale-110 transition-transform duration-500">
                                 
-                                <span class="absolute top-2 right-2 bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded-lg text-[9px] shadow-xs tracking-wider uppercase">
-                                    <%= product.pv %> PV
-                                </span>
+                                <!-- Floating PV Badge -->
+                                <div class="absolute top-2.5 right-2.5 pv-badge-glow text-slate-950 font-black px-2.5 py-1 rounded-xl text-[10px] tracking-wider uppercase flex items-center gap-1 text-white">
+                                    <i class="fa-solid fa-bolt text-[9px] text-amber-300"></i> <%= product.pv %> PV
+                                </div>
+
+                                <!-- Instant Hover Action Preview -->
+                                <div class="absolute inset-0 bg-slate-950/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <span class="px-3 py-1.5 rounded-xl bg-white/95 text-slate-900 font-black text-[11px] shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                                        <i class="fa-solid fa-eye text-emerald-600"></i> View Specs
+                                    </span>
+                                </div>
                             </div>
 
                             <!-- Category Badge -->
-                            <div class="mb-1.5">
-                                <span class="inline-block px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border <%= catBadgeStyle %>">
-                                    <%= cat %>
+                            <div class="mb-1.5 flex items-center justify-between">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border <%= catBadgeClass %>">
+                                    <i class="fa-solid <%= catIcon %> text-[8px]"></i> <%= cat %>
                                 </span>
+                                <span class="text-[9px] font-bold text-slate-400">#<%= product.id %></span>
                             </div>
                             
                             <!-- Product Name -->
-                            <h2 class="font-extrabold text-xs sm:text-sm text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2 leading-snug min-h-[32px] sm:min-h-[36px]">
+                            <h2 class="font-black text-xs sm:text-sm text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2 leading-snug min-h-[34px] sm:min-h-[38px]">
                                 <%= product.name %>
                             </h2>
                         </div>
                         
-                        <!-- Price & Action Indicator -->
-                        <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                        <!-- Price & Action Button Footer -->
+                        <div class="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between">
                             <div>
-                                <span class="text-[9px] font-extrabold uppercase text-slate-400 tracking-wider block">Price</span>
+                                <span class="text-[9px] font-extrabold uppercase text-slate-400 tracking-wider block leading-none mb-1">MRP Price</span>
                                 <span class="text-sm sm:text-base font-black text-slate-950">₹<%= parseFloat(product.amount).toLocaleString('en-IN') %></span>
                             </div>
-                            <span class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-emerald-500 group-hover:text-white text-slate-700 flex items-center justify-center text-xs transition-all">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-emerald-500 group-hover:text-white text-slate-700 flex items-center justify-center text-xs transition-all shadow-xs group-hover:shadow-emerald-500/30">
                                 <i class="fa-solid fa-arrow-right"></i>
                             </span>
                         </div>
@@ -135,34 +240,42 @@
     <!-- Footer -->
     <%- include('../partials/member_footer') %>
 
+    <!-- ⚡ State of the Art Search & Multi-Sort Scripts -->
     <script>
         let currentCategory = 'ALL';
 
         function selectCategory(category, buttonEl) {
             currentCategory = category;
 
-            // Update Tab styles
             const pills = document.querySelectorAll('.cat-pill');
             pills.forEach(p => {
-                p.classList.remove('bg-slate-900', 'text-white');
-                p.classList.add('bg-white', 'text-slate-700');
+                p.classList.remove('active');
             });
+            buttonEl.classList.add('active');
 
-            buttonEl.classList.remove('bg-white', 'text-slate-700');
-            buttonEl.classList.add('bg-slate-900', 'text-white');
-
-            filterProducts();
+            filterAndSortProducts();
         }
 
-        function filterProducts() {
-            const rawInput = document.getElementById('productSearch').value;
-            const searchVal = rawInput.toUpperCase().trim();
-            const cards = document.getElementsByClassName('product-card');
+        function filterAndSortProducts() {
+            const rawSearch = document.getElementById('productSearch').value;
+            const searchVal = rawSearch.toUpperCase().trim();
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const sortMode = document.getElementById('sortSelect').value;
+            const grid = document.getElementById('productGrid');
+            const cards = Array.from(document.getElementsByClassName('product-card'));
             const noMsg = document.getElementById('noProductsMsg');
+            const visibleCountEl = document.getElementById('visibleCount');
+
+            // Show/Hide Clear search icon
+            if (searchVal.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
             let visibleCount = 0;
 
-            for (let i = 0; i < cards.length; i++) {
-                const card = cards[i];
+            cards.forEach(card => {
                 const productName = (card.getAttribute('data-name') || '').toUpperCase();
                 const productCat = card.getAttribute('data-category') || '';
 
@@ -175,13 +288,57 @@
                 } else {
                     card.style.display = "none";
                 }
+            });
+
+            // Sorting logic
+            if (sortMode !== 'DEFAULT') {
+                cards.sort((a, b) => {
+                    const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+                    const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+                    const pvA = parseInt(a.getAttribute('data-pv')) || 0;
+                    const pvB = parseInt(b.getAttribute('data-pv')) || 0;
+                    const nameA = a.getAttribute('data-name') || '';
+                    const nameB = b.getAttribute('data-name') || '';
+
+                    if (sortMode === 'PRICE_LOW') return priceA - priceB;
+                    if (sortMode === 'PRICE_HIGH') return priceB - priceA;
+                    if (sortMode === 'PV_HIGH') return pvB - pvA;
+                    if (sortMode === 'NAME_ASC') return nameA.localeCompare(nameB);
+                    return 0;
+                });
+
+                cards.forEach(card => grid.appendChild(card));
             }
+
+            if (visibleCountEl) visibleCountEl.innerText = visibleCount;
 
             if (noMsg) {
                 if (visibleCount === 0) noMsg.classList.remove('hidden');
                 else noMsg.classList.add('hidden');
             }
         }
+
+        function clearSearch() {
+            const input = document.getElementById('productSearch');
+            input.value = '';
+            input.focus();
+            filterAndSortProducts();
+        }
+
+        function resetFilters() {
+            const firstTab = document.querySelector('.cat-pill');
+            if (firstTab) selectCategory('ALL', firstTab);
+            clearSearch();
+        }
+
+        // Global Shortcut: Ctrl+K or / to Focus Search
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey && e.key === 'k') || (e.key === '/' && document.activeElement.tagName !== 'INPUT')) {
+                e.preventDefault();
+                const searchInput = document.getElementById('productSearch');
+                if (searchInput) searchInput.focus();
+            }
+        });
     </script>
 </body>
 </html>
