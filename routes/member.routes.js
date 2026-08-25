@@ -167,6 +167,21 @@ router.get('/products', async (req, res) => {
     }
 });
 
+// 📄 Download Product Price List PDF
+router.get('/products/price-list-pdf', async (req, res) => {
+    try {
+        const { generateAviraExactPriceList } = require('../scripts/generate_price_list_pdf');
+        
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename="AviraCare_Product_Price_List.pdf"');
+        
+        generateAviraExactPriceList(null, res);
+    } catch (err) {
+        console.error("Error generating price list PDF:", err);
+        res.status(500).send("Unable to generate price list PDF.");
+    }
+});
+
 // 🔍 Product Detail View
 router.get('/products/:id', async (req, res) => {
     try {

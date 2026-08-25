@@ -15,7 +15,12 @@
                 <i class="fa-solid fa-basket-shopping text-emerald-500 flex-shrink-0"></i>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Product Manager / View & Edit Products</span>
             </div>
-            <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-xl flex-shrink-0 ml-2">Total: <%= products.length %> Items</span>
+            <div class="flex items-center gap-2">
+                <a href="/products/price-list-pdf" target="_blank" download="AviraCare_Product_Price_List.pdf" class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-xs">
+                    <i class="fa-solid fa-file-pdf"></i> Download PDF
+                </a>
+                <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-xl flex-shrink-0 ml-2">Total: <%= products.length %> Items</span>
+            </div>
         </header>
 
         <main class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-8 space-y-6 box-border">

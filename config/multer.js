@@ -1,10 +1,21 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
-const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+// In serverless environments like Vercel, /var/task is read-only.
+// We must store temporary uploaded files in os.tmpdir() (e.g. /tmp)
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const uploadDir = isServerless 
+    ? path.join(os.tmpdir(), 'uploads') 
+    : path.join(__dirname, '..', 'public', 'uploads');
+
+try {
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
+} catch (err) {
+    console.warn('⚠️ Multer uploadDir creation note:', err.message);
 }
 
 const sharedStorage = multer.diskStorage({

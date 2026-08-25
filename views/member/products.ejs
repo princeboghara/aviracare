@@ -98,12 +98,15 @@
                             </button>
                         </div>
 
-                        <!-- Sort Dropdown & Item Count -->
+                        <!-- Sort Dropdown, Item Count & PDF Download -->
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div class="flex items-center gap-1.5 text-[11px] font-black text-slate-600 uppercase tracking-wider">
                                 <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Showing: <span id="visibleCount" class="text-slate-950 font-black"><%= products ? products.length : 0 %></span> Active Items
                             </div>
-                            <div class="flex items-center gap-1.5">
+                            <div class="flex items-center gap-2">
+                                <a href="/products/price-list-pdf" target="_blank" download="AviraCare_Product_Price_List.pdf" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shadow-xs hover:shadow-md cursor-pointer">
+                                    <i class="fa-solid fa-file-pdf"></i> Price List PDF
+                                </a>
                                 <select id="sortSelect" onchange="filterAndSortProducts()" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-[11px] font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-xs">
                                     <option value="DEFAULT">Sort: Featured</option>
                                     <option value="PRICE_LOW">Price: Low to High</option>
