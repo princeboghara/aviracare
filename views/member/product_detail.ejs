@@ -85,15 +85,46 @@
                         <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> Share
                     </button>
 
-                    <!-- Multi-Language Switcher Dropdown -->
+                    <!-- Multi-Language Switcher Dropdown (All Languages) -->
                     <div class="flex items-center gap-2 bg-white border border-slate-200/90 px-3.5 py-1.5 rounded-2xl shadow-xs">
                         <span class="text-[10px] font-black uppercase text-slate-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-language text-sm text-emerald-600"></i> Lang:
+                            <i class="fa-solid fa-language text-base text-emerald-600"></i> Lang:
                         </span>
-                        <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent text-xs font-black text-slate-900 focus:outline-none cursor-pointer">
-                            <option value="en">English</option>
-                            <option value="gu">ગુજરાતી</option>
-                            <option value="hi">हिन्दी</option>
+                        <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent text-xs font-black text-slate-900 focus:outline-none cursor-pointer max-w-[140px] sm:max-w-none">
+                            <optgroup label="🇮🇳 ભારતીય ભાષાઓ (Indian Languages)">
+                                <option value="en">English (Default)</option>
+                                <option value="gu">ગુજરાતી (Gujarati)</option>
+                                <option value="hi">हिन्दी (Hindi)</option>
+                                <option value="mr">मराठी (Marathi)</option>
+                                <option value="bn">বাংলা (Bengali)</option>
+                                <option value="ta">தமிழ் (Tamil)</option>
+                                <option value="te">తెలుగు (Telugu)</option>
+                                <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                                <option value="ml">മലയാളം (Malayalam)</option>
+                                <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                                <option value="ur">اردو (Urdu)</option>
+                                <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                                <option value="as">অসমীয়া (Assamese)</option>
+                                <option value="ne">नेपाली (Nepali)</option>
+                                <option value="sa">संस्कृतम् (Sanskrit)</option>
+                                <option value="sd">سنڌي (Sindhi)</option>
+                            </optgroup>
+                            <optgroup label="🌍 International Languages (વિશ્વ ભાષાઓ)">
+                                <option value="es">Español (Spanish)</option>
+                                <option value="fr">Français (French)</option>
+                                <option value="de">Deutsch (German)</option>
+                                <option value="ar">العربية (Arabic)</option>
+                                <option value="ru">Русский (Russian)</option>
+                                <option value="zh-CN">中文 (Chinese)</option>
+                                <option value="ja">日本語 (Japanese)</option>
+                                <option value="ko">한국어 (Korean)</option>
+                                <option value="pt">Português (Portuguese)</option>
+                                <option value="it">Italiano (Italian)</option>
+                                <option value="tr">Türkçe (Turkish)</option>
+                                <option value="id">Bahasa Indonesia</option>
+                                <option value="th">ไทย (Thai)</option>
+                                <option value="vi">Tiếng Việt (Vietnamese)</option>
+                            </optgroup>
                         </select>
                     </div>
                 </div>
@@ -252,7 +283,6 @@
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
                 pageLanguage: 'en',
-                includedLanguages: 'en,gu,hi',
                 layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
                 autoDisplay: false
             }, 'google_translate_element');
@@ -290,10 +320,20 @@
 
         function changeLanguage(langCode) {
             const host = window.location.hostname;
-            document.cookie = `googtrans=/en/${langCode}; path=/;`;
-            if (host) {
-                document.cookie = `googtrans=/en/${langCode}; domain=${host}; path=/;`;
-                document.cookie = `googtrans=/en/${langCode}; domain=.${host}; path=/;`;
+            
+            if (langCode === 'en') {
+                // Reset to default original language
+                document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                if (host) {
+                    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${host}; path=/;`;
+                    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.${host}; path=/;`;
+                }
+            } else {
+                document.cookie = `googtrans=/en/${langCode}; path=/;`;
+                if (host) {
+                    document.cookie = `googtrans=/en/${langCode}; domain=${host}; path=/;`;
+                    document.cookie = `googtrans=/en/${langCode}; domain=.${host}; path=/;`;
+                }
             }
 
             const selectEl = document.querySelector('.goog-te-combo');
@@ -306,7 +346,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const match = document.cookie.match(/googtrans=\/en\/([a-z]+)/i);
+            const match = document.cookie.match(/googtrans=\/en\/([a-zA-Z\-]+)/i);
             if (match && match[1]) {
                 const langSelect = document.getElementById('langSelect');
                 if (langSelect) langSelect.value = match[1];
