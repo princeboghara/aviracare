@@ -4,20 +4,20 @@
     <%- include('../partials/head_meta') %>
     <title>Master Database - Avira Care</title>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen flex flex-col font-sans antialiased text-slate-800">
+<body class="bg-mesh-emerald min-h-screen flex flex-col font-sans antialiased text-slate-800">
 
     <%- include('../partials/admin_navbar') %>
 
     <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen box-border">
         
-        <header class="bg-white/80 dark:bg-[#0d1322]/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+        <header class="bg-white/80 backdrop-blur-xl border-b border-black/5 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-xs w-full">
             <div class="flex items-center gap-3">
-                <div class="h-8 w-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 shadow-xs">
+                <div class="h-8 w-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100 shadow-xs">
                     <i class="fa-solid fa-database text-xs"></i>
                 </div>
                 <div>
-                    <h1 class="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">Live Master Database</h1>
-                    <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:block">Permanent History & Member Tracking Records</p>
+                    <h1 class="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wide">Live Master Database</h1>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">Permanent History & Member Tracking Records</p>
                 </div>
             </div>
 
@@ -25,13 +25,13 @@
                 <!-- 🗄️ Active Database Source Badge -->
                 <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border <%= dbInfo.badgeBg %> text-[11px] font-bold shadow-xs">
                     <i class="<%= dbInfo.icon %>"></i>
-                    <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-semibold">Active Database:</span>
+                    <span class="hidden md:inline text-slate-500 font-semibold">Active Database:</span>
                     <span class="font-extrabold uppercase tracking-wide"><%= dbInfo.provider %></span>
                     <span class="h-2 w-2 rounded-full <%= dbInfo.dotColor %> animate-pulse"></span>
                 </div>
 
                 <div class="text-right hidden sm:block">
-                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200">Avira Admin</p>
+                    <p class="text-xs font-bold text-slate-800">Avira Admin</p>
                     <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
                 </div>
             </div>
@@ -39,7 +39,7 @@
 
         <main class="flex-grow w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
             
-            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-md flex items-center gap-3">
+            <div class="glass-apple-card p-4 rounded-2xl border border-black/5 shadow-xs flex items-center gap-3">
                 <div class="relative flex-grow">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                     <input type="text" id="dbSearchInput" placeholder="Search by Name, Member ID, or Tracking Number..." 
@@ -47,28 +47,28 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg overflow-hidden">
+            <div class="glass-apple-card rounded-2xl border border-black/5 shadow-xs overflow-hidden">
                 <!-- 🛠️ Table Header Bar with Page Size, Counter & Bulk Actions -->
-                <div class="px-6 py-4 bg-slate-50 dark:bg-[#0d1322] border-b border-slate-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-4">
+                <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-4">
                     <div>
-                        <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
                             <i class="fa-solid fa-table text-emerald-500"></i> Permanent Master Database History
                         </h2>
-                        <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Click column headers (SR, Member ID, Name, Order Date) to sort ascending or descending.</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Click column headers (SR, Member ID, Name, Order Date) to sort ascending or descending.</p>
                     </div>
 
                     <div class="flex items-center gap-3 flex-wrap">
                         <!-- 🔢 Page Size Selector Buttons (10, 25, 50, 100, ALL) -->
-                        <div class="flex items-center gap-2 bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">
-                            <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 dark:text-slate-500 px-1.5">Show:</span>
-                            <button type="button" data-size="10" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer">10</button>
-                            <button type="button" data-size="25" class="page-size-btn active-page-size px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs cursor-pointer">25</button>
-                            <button type="button" data-size="50" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer">50</button>
-                            <button type="button" data-size="100" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer">100</button>
-                            <button type="button" data-size="ALL" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer">ALL</button>
+                        <div class="flex items-center gap-2 bg-slate-100/80 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+                            <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 px-1.5">Show:</span>
+                            <button type="button" data-size="10" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-emerald-600 cursor-pointer">10</button>
+                            <button type="button" data-size="25" class="page-size-btn active-page-size px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white text-emerald-600 shadow-xs cursor-pointer">25</button>
+                            <button type="button" data-size="50" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-emerald-600 cursor-pointer">50</button>
+                            <button type="button" data-size="100" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-emerald-600 cursor-pointer">100</button>
+                            <button type="button" data-size="ALL" class="page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-emerald-600 cursor-pointer">ALL</button>
                         </div>
 
-                        <span id="masterCounter" class="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[11px] font-black px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800"><%= entries.length %> Records Saved</span>
+                        <span id="masterCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-black px-3 py-1.5 rounded-xl border border-emerald-200"><%= entries.length %> Records Saved</span>
                         <button id="btnBulkDeleteMaster" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
                             <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedMasterCount">0</span>)
                         </button>
@@ -78,32 +78,32 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left border-collapse" id="masterDbTable">
                         <thead>
-                            <tr class="bg-slate-100/70 dark:bg-slate-800/70 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold uppercase select-none">
+                            <tr class="bg-slate-100/70 border-b border-slate-100 text-slate-400 font-bold uppercase select-none">
                                 <th class="p-4 w-10 text-center select-none">
                                     <input type="checkbox" id="selectAllMasterCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                                 </th>
-                                <th class="p-4 w-20 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors select-none group" id="colSrNo" title="Click to sort by Series Number">
+                                <th class="p-4 w-20 cursor-pointer hover:text-emerald-600:text-emerald-400 transition-colors select-none group" id="colSrNo" title="Click to sort by Series Number">
                                     <div class="flex items-center gap-1">
                                         <span>SR</span>
                                         <i class="fa-solid fa-sort-up ml-1 text-emerald-500 text-[10px]" id="sortSrIcon"></i>
                                     </div>
                                 </th>
-                                <th class="p-4 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors select-none group" id="colMemberId" title="Click to sort by Member ID">
+                                <th class="p-4 cursor-pointer hover:text-emerald-600:text-emerald-400 transition-colors select-none group" id="colMemberId" title="Click to sort by Member ID">
                                     <div class="flex items-center gap-1">
                                         <span>Member ID</span>
-                                        <i class="fa-solid fa-sort ml-1 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortMemberIcon"></i>
+                                        <i class="fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortMemberIcon"></i>
                                     </div>
                                 </th>
-                                <th class="p-4 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors select-none group" id="colName" title="Click to sort by Full Name">
+                                <th class="p-4 cursor-pointer hover:text-emerald-600:text-emerald-400 transition-colors select-none group" id="colName" title="Click to sort by Full Name">
                                     <div class="flex items-center gap-1">
                                         <span>Full Name</span>
-                                        <i class="fa-solid fa-sort ml-1 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortNameIcon"></i>
+                                        <i class="fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortNameIcon"></i>
                                     </div>
                                 </th>
-                                <th class="p-4 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors select-none group" id="colOrderDate" title="Click to sort by Order Date">
+                                <th class="p-4 cursor-pointer hover:text-emerald-600:text-emerald-400 transition-colors select-none group" id="colOrderDate" title="Click to sort by Order Date">
                                     <div class="flex items-center gap-1">
                                         <span>Order Date</span>
-                                        <i class="fa-solid fa-sort ml-1 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortDateIcon"></i>
+                                        <i class="fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortDateIcon"></i>
                                     </div>
                                 </th>
                                 <th class="p-4">PV Status</th>
@@ -112,7 +112,7 @@
                                 <th class="p-4 text-center w-36">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300" id="masterTableBody">
+                        <tbody class="divide-y divide-slate-50 font-medium text-slate-700" id="masterTableBody">
                             <% if(entries.length === 0) { %>
                                 <tr id="no-records-row">
                                     <td colspan="9" class="py-12 text-center text-slate-400 font-normal">
@@ -122,17 +122,17 @@
                                 </tr>
                             <% } else { %>
                                 <% entries.forEach((item, index) => { %>
-                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors table-row-item" id="row-master-<%= item.srNo %>" data-initial-index="<%= index + 1 %>">
+                                <tr class="hover:bg-slate-50:bg-slate-800/60 transition-colors table-row-item" id="row-master-<%= item.srNo %>" data-initial-index="<%= index + 1 %>">
                                     <td class="p-4 text-center">
                                         <input type="checkbox" value="<%= item.srNo %>" class="master-row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                                     </td>
-                                    <td class="p-4 font-mono text-slate-400 dark:text-slate-500 sr-number-cell"><%= index + 1 %></td>
-                                    <td class="p-4 font-bold font-mono text-emerald-700 dark:text-emerald-400 member-id-cell"><%= item.memberId %></td>
-                                    <td class="p-4 uppercase text-slate-800 dark:text-slate-200 font-semibold name-cell"><%= item.name %></td>
-                                    <td class="p-4 text-slate-500 dark:text-slate-400 date-cell" data-raw-date="<%= item.orderDate %>"><%= item.orderDate %></td>
-                                    <td class="p-4 font-mono text-slate-600 dark:text-slate-400 pv-cell"><%= item.pv %> PV</td>
-                                    <td class="p-4 font-bold font-mono text-slate-900 dark:text-slate-100 amount-cell">₹<%= item.amount %></td>
-                                    <td class="p-4 font-mono font-bold tracking-wide text-slate-800 dark:text-slate-200 tracking-cell"><%= item.tracking %></td>
+                                    <td class="p-4 font-mono text-slate-400 sr-number-cell"><%= index + 1 %></td>
+                                    <td class="p-4 font-bold font-mono text-emerald-700 member-id-cell"><%= item.memberId %></td>
+                                    <td class="p-4 uppercase text-slate-800 font-semibold name-cell"><%= item.name %></td>
+                                    <td class="p-4 text-slate-500 date-cell" data-raw-date="<%= item.orderDate %>"><%= item.orderDate %></td>
+                                    <td class="p-4 font-mono text-slate-600 pv-cell"><%= item.pv %> PV</td>
+                                    <td class="p-4 font-bold font-mono text-slate-900 amount-cell">₹<%= item.amount %></td>
+                                    <td class="p-4 font-mono font-bold tracking-wide text-slate-800 tracking-cell"><%= item.tracking %></td>
                                     <td class="p-4 text-center space-x-2">
                                         <button type="button" 
                                                 data-srno="<%= item.srNo %>"
@@ -157,13 +157,13 @@
                 </div>
 
                 <!-- 📄 Bottom Pagination Controls & Info Bar -->
-                <div class="px-6 py-4 bg-slate-50 dark:bg-[#0d1322] border-t border-slate-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-3">
-                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400" id="paginationInfo">
-                        Showing <span class="text-slate-800 dark:text-slate-100 font-extrabold" id="pageStart">1</span> to <span class="text-slate-800 dark:text-slate-100 font-extrabold" id="pageEnd">25</span> of <span class="text-emerald-600 dark:text-emerald-400 font-extrabold" id="pageTotal"><%= entries.length %></span> entries
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center flex-wrap gap-3">
+                    <div class="text-xs font-bold text-slate-500" id="paginationInfo">
+                        Showing <span class="text-slate-800 font-extrabold" id="pageStart">1</span> to <span class="text-slate-800 font-extrabold" id="pageEnd">25</span> of <span class="text-emerald-600 font-extrabold" id="pageTotal"><%= entries.length %></span> entries
                     </div>
 
                     <div class="flex items-center gap-1.5" id="paginationControls">
-                        <button type="button" id="btnPrevPage" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs">
+                        <button type="button" id="btnPrevPage" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-black hover:bg-emerald-50 hover:text-emerald-600:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs">
                             <i class="fa-solid fa-chevron-left mr-1"></i> Prev
                         </button>
                         
@@ -171,7 +171,7 @@
                             <!-- Page number buttons generated via JS -->
                         </div>
 
-                        <button type="button" id="btnNextPage" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs">
+                        <button type="button" id="btnNextPage" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-black hover:bg-emerald-50 hover:text-emerald-600:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs">
                             Next <i class="fa-solid fa-chevron-right ml-1"></i>
                         </button>
                     </div>
@@ -179,15 +179,15 @@
             </div>
         </main>
 
-        <footer class="bg-white dark:bg-[#0d1322] border-t border-slate-100 dark:border-slate-800 py-4 text-center text-xs font-medium text-slate-400 dark:text-slate-500">
+        <footer class="bg-white/80 backdrop-blur-md border-t border-black/5 py-4 text-center text-xs font-medium text-slate-400">
             &copy; 2026 Avira Control Center. Secure Master Workspace.
         </footer>
     </div>
 
     <!-- ✏️ Edit Master Database Modal -->
-    <div id="editMasterModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-[#111827] rounded-2xl shadow-xl w-full max-w-lg border border-slate-100 dark:border-slate-800 overflow-hidden">
-            <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
+    <div id="editMasterModal" class="fixed inset-0 bg-black/20 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+        <div class="apple-glass-modal w-full max-w-lg overflow-hidden">
+            <div class="apple-modal-header px-6 py-4 flex justify-between items-center text-slate-900">
                 <h3 class="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Master Database Record
                 </h3>
@@ -199,37 +199,37 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Member ID (AV + 5 Digits)</label>
-                        <input type="text" id="editMemberId" required maxlength="7" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono uppercase font-bold text-emerald-700 dark:text-emerald-400 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Member ID (AV + 5 or 6 Digits)</label>
+                        <input type="text" id="editMemberId" required maxlength="8" placeholder="AV12345 or AV123456" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Tracking Number</label>
-                        <input type="text" id="editTracking" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono uppercase font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editTracking" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Full Name</label>
-                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold uppercase text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold uppercase text-slate-900 focus:outline-none focus:border-emerald-500">
                 </div>
 
                 <div class="grid grid-cols-3 gap-3">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Order Date</label>
-                        <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">PV</label>
-                        <input type="number" id="editPv" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500">
+                        <input type="number" id="editPv" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-700 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Amount (₹)</label>
-                        <input type="number" id="editAmount" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
+                        <input type="number" id="editAmount" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <button type="button" id="btnCancelModal" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold cursor-pointer transition-all">Cancel</button>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" id="btnCancelModal" class="px-4 py-2 bg-slate-100 hover:bg-slate-200:bg-slate-700 text-slate-700 rounded-lg text-xs font-bold cursor-pointer transition-all">Cancel</button>
                     <button type="submit" id="btnSaveEdit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black uppercase tracking-wider shadow cursor-pointer transition-all">Save Changes</button>
                 </div>
             </form>
@@ -249,10 +249,10 @@
                 return;
             }
             if (raw.startsWith('AV')) {
-                let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 5);
+                let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 6);
                 el.value = 'AV' + num;
             } else {
-                let num = raw.replace(/[^0-9]/g, '').slice(0, 5);
+                let num = raw.replace(/[^0-9]/g, '').slice(0, 6);
                 if (num.length > 0) {
                     el.value = 'AV' + num;
                 } else {
@@ -440,7 +440,7 @@
             const isActive = num === currentPage;
             btn.className = isActive
                 ? 'h-7 w-7 rounded-xl font-black text-xs bg-emerald-600 text-white shadow-xs flex items-center justify-center cursor-pointer'
-                : 'h-7 w-7 rounded-xl font-bold text-xs bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-slate-700 flex items-center justify-center transition-all cursor-pointer';
+                : 'h-7 w-7 rounded-xl font-bold text-xs bg-white text-slate-700 border border-slate-200 hover:bg-emerald-50 hover:text-emerald-600:bg-slate-700 flex items-center justify-center transition-all cursor-pointer';
 
             btn.addEventListener('click', () => {
                 currentPage = num;
@@ -467,7 +467,7 @@
                         ? 'fa-solid fa-sort-up ml-1 text-emerald-500 text-[10px]'
                         : 'fa-solid fa-sort-down ml-1 text-emerald-500 text-[10px]';
                 } else {
-                    el.className = 'fa-solid fa-sort ml-1 text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 transition-colors text-[10px]';
+                    el.className = 'fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]';
                 }
             });
         }
@@ -493,11 +493,11 @@
         document.querySelectorAll('.page-size-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.page-size-btn').forEach(b => {
-                    b.classList.remove('active-page-size', 'bg-white', 'dark:bg-slate-900', 'text-emerald-600', 'dark:text-emerald-400', 'shadow-xs');
-                    b.classList.add('text-slate-600', 'dark:text-slate-300');
+                    b.classList.remove('active-page-size', 'bg-white', '', 'text-emerald-600', '', 'shadow-xs');
+                    b.classList.add('text-slate-600', '');
                 });
-                this.classList.add('active-page-size', 'bg-white', 'dark:bg-slate-900', 'text-emerald-600', 'dark:text-emerald-400', 'shadow-xs');
-                this.classList.remove('text-slate-600', 'dark:text-slate-300');
+                this.classList.add('active-page-size', 'bg-white', '', 'text-emerald-600', '', 'shadow-xs');
+                this.classList.remove('text-slate-600', '');
 
                 const sizeVal = this.getAttribute('data-size');
                 pageSize = sizeVal === 'ALL' ? 'ALL' : parseInt(sizeVal, 10);

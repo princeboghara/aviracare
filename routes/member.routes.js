@@ -204,9 +204,7 @@ router.get('/track-parcel', (req, res) => {
     res.render('member/tracking');
 });
 
-const { fetchIndiaPostLiveStatus } = require('../services/indiapost.service');
-
-// 📡 Live Tracking API Lookup (100% Real Live India Post Corporate / CEPT API Integration)
+// 📡 Order & Consignment Tracking API Lookup (Fast Direct Database Lookup)
 router.get('/api/track', async (req, res) => {
     const rawSearch = (req.query.memberId || req.query.query || req.query.tracking || '').toUpperCase().trim();
     try {
@@ -221,34 +219,9 @@ router.get('/api/track', async (req, res) => {
         `;
         const result = await db.query(queryText, [rawSearch, `%${rawSearch}%`]);
         
-        const formattedResults = await Promise.all(result.rows.map(async (row) => {
+        const formattedResults = result.rows.map((row) => {
             const trackingNum = (row.tracking || '').trim().toUpperCase();
             const isDispatched = trackingNum.length > 0 && trackingNum !== 'PENDING' && trackingNum !== '-';
-
-            let liveInfo = {
-                isLive: false,
-                statusBadge: isDispatched ? 'DISPATCHED' : 'PROCESSING',
-                statusText: isDispatched ? 'Dispatched via India Post Speed Post' : 'Processing at Central Fulfillment Warehouse',
-                currentStep: isDispatched ? 3 : 1,
-                articleType: 'India Post Speed Post (Domestic)',
-                bookingOffice: 'Surat RMS / Surat H.O.',
-                events: [] // ZERO FAKE EVENTS
-            };
-
-            if (isDispatched) {
-                try {
-                    const apiData = await fetchIndiaPostLiveStatus(trackingNum);
-                    if (apiData) {
-                        liveInfo = {
-                            ...liveInfo,
-                            ...apiData,
-                            events: apiData.events || []
-                        };
-                    }
-                } catch (apiErr) {
-                    console.error("Live India Post Query Error for", trackingNum, apiErr.message);
-                }
-            }
 
             return {
                 srNo: row.sr_no,
@@ -259,17 +232,17 @@ router.get('/api/track', async (req, res) => {
                 amount: row.amount,
                 tracking: trackingNum,
                 isDispatched,
-                isLive: liveInfo.isLive || false,
-                statusBadge: liveInfo.statusBadge || (isDispatched ? 'DISPATCHED' : 'PROCESSING'),
-                statusText: liveInfo.statusText || (isDispatched ? 'Dispatched via India Post' : 'Processing in Warehouse'),
-                currentStep: liveInfo.currentStep || (isDispatched ? 3 : 1),
-                articleType: liveInfo.articleType || 'India Post Speed Post (Domestic)',
-                bookingOffice: liveInfo.bookingOffice || 'Surat RMS',
+                isLive: false,
+                statusBadge: isDispatched ? 'DISPATCHED' : 'PROCESSING',
+                statusText: isDispatched ? 'Dispatched' : 'Processing in Warehouse',
+                currentStep: isDispatched ? 3 : 1,
+                articleType: 'Speed Post / Courier',
+                bookingOffice: 'Surat Fulfillment Center',
                 indiaPostUrl: 'https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx',
                 parcelsAppUrl: isDispatched ? `https://parcelsapp.com/en/tracking/${encodeURIComponent(trackingNum)}` : '#',
-                events: liveInfo.events || [] // Authentic live events only
+                events: []
             };
-        }));
+        });
 
         res.json(formattedResults);
     } catch (err) {
@@ -294,8 +267,8 @@ router.post('/api/queries/create', async (req, res) => {
         const cleanMemberId = memberId.toString().toUpperCase().trim();
         const cleanMobile = contactNo.toString().replace(/[^0-9]/g, '').trim();
 
-        if (!/^AV\d{5}$/.test(cleanMemberId)) {
-            return res.json({ success: false, msg: "Member ID must be in the format AV followed by exactly 5 digits (e.g. AV12345)." });
+        if (!/^AV\d{5,6}$/.test(cleanMemberId)) {
+            return res.json({ success: false, msg: "Member ID must be in the format AV followed by 5 or 6 digits (e.g. AV12345 or AV123456)." });
         }
 
         if (cleanMobile.length !== 10) {
@@ -415,6 +388,74 @@ router.get('/member/downloads', async (req, res) => {
     } catch (err) {
         console.error("Downloads error:", err);
         res.render('member/downloads', { pdfs: [] });
+    }
+});
+
+// =============================================================
+// 📦 PUBLIC TRACKING API FOR CRM / WHATSAPP CHATBOT
+// =============================================================
+// Compatible with: /v1/api/data/tracking/:id, /api/tracking/:id, /api/tracking
+router.all(['/v1/api/data/tracking/:id', '/api/tracking/:id', '/api/tracking', '/v1/api/data/tracking'], async (req, res) => {
+    try {
+        const rawId = req.params.id || req.query.id || req.body?.track || req.body?.trackingid || req.body?.member_id || req.body?.id || '';
+        const cleanRaw = String(rawId).replace(/[\s\-_]/g, '').trim().toUpperCase();
+
+        if (!cleanRaw) {
+            return res.status(400).json({ error: 'Please provide a valid Member ID or Tracking Number' });
+        }
+
+        // Generate smart search variants (e.g. 726340, AV726340, etc.)
+        let withAv = cleanRaw;
+        let withoutAv = cleanRaw;
+        if (cleanRaw.startsWith('AV')) {
+            withoutAv = cleanRaw.substring(2);
+        } else if (/^\d+$/.test(cleanRaw)) {
+            withAv = 'AV' + cleanRaw;
+        }
+
+        const querySql = `
+            SELECT m.sr_no, m.member_id, m.name, m.order_date, m.pv, m.amount, m.tracking,
+                   c.mobile, c.city, c.state, c.pincode
+            FROM main_database m
+            LEFT JOIN consignment_parcels c ON (m.tracking IS NOT NULL AND m.tracking != '' AND m.tracking = c.tracking)
+            WHERE UPPER(TRIM(m.member_id)) IN ($1, $2)
+               OR UPPER(TRIM(m.tracking)) IN ($1, $2)
+               OR (c.mobile IS NOT NULL AND TRIM(c.mobile) IN ($1, $2))
+            ORDER BY m.sr_no DESC
+        `;
+
+        const result = await db.query(querySql, [withAv, withoutAv]);
+
+        if (!result.rows || result.rows.length === 0) {
+            return res.status(404).json({ error: 'No tracking data found for this member' });
+        }
+
+        const first = result.rows[0];
+        const orders = result.rows.map(row => ({
+            order_date: row.order_date || '',
+            tracking: row.tracking || 'Pending Dispatch',
+            city: row.city || '',
+            state: row.state || '',
+            mobile: row.mobile || '',
+            tracking_url: row.tracking ? 'https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx' : ''
+        }));
+
+        return res.json({
+            success: true,
+            data: {
+                member_id: first.member_id,
+                name: first.name,
+                tracking: first.tracking || 'Pending Dispatch',
+                order_date: first.order_date || '',
+                city: first.city || '',
+                state: first.state || '',
+                tracking_url: first.tracking ? 'https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx' : '',
+                orders: orders
+            }
+        });
+    } catch (err) {
+        console.error('WhatsApp Bot Tracking API Error:', err);
+        return res.status(500).json({ error: 'Server error while fetching tracking: ' + err.message });
     }
 });
 
