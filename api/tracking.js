@@ -45,42 +45,72 @@ module.exports = async (req, res) => {
         }
 
         const first = result.rows[0];
-        const orders = result.rows.map(row => ({
-            order_date: row.order_date || '',
-            tracking: row.tracking || 'Pending Dispatch',
-            city: row.city || '',
-            state: row.state || '',
-            mobile: row.mobile || '',
-            tracking_url: row.tracking ? 'https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx' : ''
-        }));
-
-        const trackingNo = first.tracking || 'Pending Dispatch';
         const memberName = first.name || 'Valued Member';
-        const orderDateStr = first.order_date || '';
-        const indiapostUrl = trackingNo && trackingNo !== 'Pending Dispatch'
-            ? 'https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx'
-            : 'https://www.indiapost.gov.in/';
 
-        const readyMsg = `Hello ${memberName},\n\nYour order dispatch details:\n📦 Member ID: ${first.member_id}\n🚚 Tracking Number: ${trackingNo}\n📅 Order Date: ${orderDateStr}\n\nTrack your parcel on India Post:\n${indiapostUrl}`;
+        // Deduplicate and group unique parcels (by tracking and order_date)
+        const uniqueOrders = [];
+        const seen = new Set();
+        for (const row of result.rows) {
+            const tr = (row.tracking || '').trim().toUpperCase();
+            const od = (row.order_date || '').trim();
+            const key = `${tr}_${od}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueOrders.push({
+                    order_date: od || 'Recent',
+                    tracking: tr || 'Pending Dispatch',
+                    city: row.city || '',
+                    state: row.state || '',
+                    mobile: row.mobile || '',
+                    tracking_url: tr && tr !== 'Pending Dispatch' ? 'https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx' : ''
+                });
+            }
+        }
+
+        const latestOrder = uniqueOrders[0];
+        const trackingNo = latestOrder.tracking;
+        const allTrackingsStr = uniqueOrders.map(o => o.tracking).join(', ');
+
+        // Format parcel list text
+        let parcelDetailsText = '';
+        let readyMsg = '';
+        const indiapostUrl = 'https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx';
+
+        if (uniqueOrders.length === 1) {
+            parcelDetailsText = `🚚 Tracking Number: ${latestOrder.tracking}\n📅 Order Date: ${latestOrder.order_date}`;
+            readyMsg = `Hello ${memberName},\n\nYour parcel has been dispatched successfully! 📦\n\n${parcelDetailsText}\n\nYou can track your parcel using the India Post tracking portal:\n${indiapostUrl}\n\nIf you need any assistance, feel free to contact us.\n\nThank you,\n*AviraCare Team*`;
+        } else {
+            parcelDetailsText = uniqueOrders.map((o, idx) => {
+                return `📦 Parcel ${idx + 1}:\n🚚 Tracking: ${o.tracking}\n📅 Date: ${o.order_date}`;
+            }).join('\n\n');
+
+            readyMsg = `Hello ${memberName},\n\nWe found ${uniqueOrders.length} parcels for your account: 📦\n\n${parcelDetailsText}\n\nYou can track your parcels using the India Post tracking portal:\n${indiapostUrl}\n\nIf you need any assistance, feel free to contact us.\n\nThank you,\n*AviraCare Team*`;
+        }
 
         return res.json({
             success: true,
+            count: uniqueOrders.length,
             tracking: trackingNo,
             consignmentid: trackingNo,
+            all_trackings: allTrackingsStr,
+            parcel_info: parcelDetailsText,
             name: memberName,
             member_id: first.member_id,
             reply_text: readyMsg,
             message: readyMsg,
             data: {
+                count: uniqueOrders.length,
                 member_id: first.member_id,
                 name: memberName,
                 tracking: trackingNo,
                 consignmentid: trackingNo,
-                order_date: orderDateStr,
-                city: first.city || '',
-                state: first.state || '',
+                all_trackings: allTrackingsStr,
+                parcel_info: parcelDetailsText,
+                order_date: latestOrder.order_date,
+                city: latestOrder.city || '',
+                state: latestOrder.state || '',
                 tracking_url: indiapostUrl,
-                orders: orders
+                orders: uniqueOrders
             }
         });
     } catch (err) {
