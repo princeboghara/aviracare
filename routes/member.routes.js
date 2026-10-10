@@ -464,11 +464,11 @@ router.all(['/v1/api/data/tracking/:id', '/api/tracking/:id', '/api/tracking', '
         const amountVal = first.amount || '0';
 
         if (uniqueOrders.length === 1) {
-            parcelDetailsText = `🚚 Tracking Number: ${latestOrder.tracking}\n📅 Order Date: ${latestOrder.order_date}`;
+            parcelDetailsText = `🚚 Tracking Number (Tap to Copy):\n\`${latestOrder.tracking}\`\n📅 Order Date: ${latestOrder.order_date}`;
             readyMsg = `Hello ${memberName},\n\nYour Parcel has been dispatched Successfully! 📦\n\n🆔 Member ID: ${first.member_id}\n💎 PV: ${pvVal}\n💰 Amount: ₹${amountVal}\n\n${parcelDetailsText}\n\nYou can track your parcel using the India Post tracking portal:\n${indiapostUrl}\n\nIf you need any assistance, Please feel free to contact us.\nThank you,\n\n*AviraCare Team*`;
         } else {
             parcelDetailsText = uniqueOrders.map((o, idx) => {
-                return `📦 Parcel ${idx + 1}:\n🚚 Tracking: ${o.tracking}\n📅 Date: ${o.order_date}`;
+                return `📦 Parcel ${idx + 1} (Tap to Copy):\n🚚 \`${o.tracking}\`\n📅 Date: ${o.order_date}`;
             }).join('\n\n');
 
             readyMsg = `Hello ${memberName},\n\nWe found ${uniqueOrders.length} parcels for your account: 📦\n\n🆔 Member ID: ${first.member_id}\n💎 PV: ${pvVal}\n💰 Amount: ₹${amountVal}\n\n${parcelDetailsText}\n\nYou can track your parcels using the India Post tracking portal:\n${indiapostUrl}\n\nIf you need any assistance, Please feel free to contact us.\nThank you,\n\n*AviraCare Team*`;
