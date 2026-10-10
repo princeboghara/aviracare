@@ -18,8 +18,8 @@ pool.on('error', (err) => {
     console.error('⚠️ PostgreSQL Pool Unexpected Client Error:', err.message);
 });
 
-// Non-blocking initial connection probe
-if (process.env.DATABASE_URL) {
+// Non-blocking initial connection probe (skip on Serverless cold starts)
+if (process.env.DATABASE_URL && !isServerless) {
     pool.connect((err, client, release) => {
         if (err) {
             console.error('⚠️ Initial PostgreSQL probe warning:', err.message);

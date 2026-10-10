@@ -118,8 +118,8 @@ if (!process.env.VERCEL) {
     });
 }
 
-// 🔄 Auto Keep-Alive Heartbeat for Cloud Deployments (optional)
-if (process.env.APP_URL) {
+// 🔄 Auto Keep-Alive Heartbeat for Cloud Deployments (optional, disabled on Vercel)
+if (process.env.APP_URL && !process.env.VERCEL) {
     setInterval(() => {
         https.get(process.env.APP_URL, () => {
             // ping success

@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/tracking.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/index.js",
       "use": "@vercel/node",
       "config": {
@@ -14,8 +18,20 @@
   ],
   "routes": [
     {
+      "src": "/v1/api/data/tracking/(.*)",
+      "dest": "/api/tracking.js?id=$1"
+    },
+    {
+      "src": "/api/tracking/(.*)",
+      "dest": "/api/tracking.js?id=$1"
+    },
+    {
+      "src": "/api/tracking",
+      "dest": "/api/tracking.js"
+    },
+    {
       "src": "/(.*)",
-      "dest": "api/index.js"
+      "dest": "/api/index.js"
     }
   ]
 }
