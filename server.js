@@ -86,9 +86,9 @@ app.all(['/api/bot-logs', '/api/bot-logs/clear'], (req, res) => {
     return botLogsHandler(req, res);
 });
 
-app.use('/', memberRoutes);
-app.use('/admin', adminRoutes);
 app.use('/admin/api', adminApiRoutes);
+app.use('/admin', adminRoutes);
+app.use('/', memberRoutes);
 
 // 404 Handler for undefined routes
 app.use((req, res) => {
