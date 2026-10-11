@@ -76,14 +76,10 @@ app.use((req, res, next) => {
 
 // 🚀 Register Modular Route Handlers
 const trackingApiHandler = require('./api/tracking');
-const botLogsHandler = require('./api/bot-logs');
 
 app.all(['/api/tracking', '/api/tracking/:id', '/v1/api/data/tracking/:id'], (req, res) => {
     if (req.params.id) req.query.id = req.params.id;
     return trackingApiHandler(req, res);
-});
-app.all(['/api/bot-logs', '/api/bot-logs/clear'], (req, res) => {
-    return botLogsHandler(req, res);
 });
 
 app.use('/admin/api', adminApiRoutes);

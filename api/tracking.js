@@ -1,9 +1,6 @@
 const db = require('../db');
-const { logBotInteraction } = require('../services/botLogger.service');
 
 module.exports = async (req, res) => {
-    const startTime = Date.now();
-
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -13,34 +10,12 @@ module.exports = async (req, res) => {
         return res.status(200).end();
     }
 
-    const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
-    const userAgent = req.headers['user-agent'] || '';
-    const requestParams = {
-        query: req.query,
-        body: req.body
-    };
-
-    let rawId = '';
     try {
-        rawId = req.query.id || req.query.track || req.query.trackingid || req.body?.track || req.body?.trackingid || req.body?.id || '';
+        const rawId = req.query.id || req.query.track || req.query.trackingid || req.body?.track || req.body?.trackingid || req.body?.id || '';
         const cleanRaw = String(rawId).replace(/[\s\-_]/g, '').trim().toUpperCase();
 
         if (!cleanRaw) {
-            const errResp = { error: 'Please provide a valid Member ID or Tracking Number' };
-            logBotInteraction({
-                endpoint: req.url || '/api/tracking',
-                method: req.method,
-                client_ip: clientIp,
-                user_agent: userAgent,
-                searched_id: String(rawId),
-                request_params: requestParams,
-                status_code: 400,
-                success: false,
-                reply_message: errResp.error,
-                response_payload: errResp,
-                response_time_ms: Date.now() - startTime
-            }).catch(() => {});
-            return res.status(400).json(errResp);
+            return res.status(400).json({ error: 'Please provide a valid Member ID or Tracking Number' });
         }
 
         // Generate smart search variants (e.g. 726340, AV726340)
@@ -66,21 +41,7 @@ module.exports = async (req, res) => {
         const result = await db.query(querySql, [withAv, withoutAv]);
 
         if (!result.rows || result.rows.length === 0) {
-            const notFoundResp = { error: 'No tracking data found for this member' };
-            logBotInteraction({
-                endpoint: req.url || '/api/tracking',
-                method: req.method,
-                client_ip: clientIp,
-                user_agent: userAgent,
-                searched_id: cleanRaw,
-                request_params: requestParams,
-                status_code: 404,
-                success: false,
-                reply_message: notFoundResp.error,
-                response_payload: notFoundResp,
-                response_time_ms: Date.now() - startTime
-            }).catch(() => {});
-            return res.status(404).json(notFoundResp);
+            return res.status(404).json({ error: 'No tracking data found for this member' });
         }
 
         const first = result.rows[0];
@@ -131,7 +92,7 @@ module.exports = async (req, res) => {
             readyMsg = `Hello ${memberName},\n\nWe found ${uniqueOrders.length} parcels for your account: 📦\n\n🆔 Member ID: ${first.member_id}\n\n${parcelDetailsText}\n\nYou can track your parcels using the India Post tracking portal:\n${indiapostUrl}\n\nIf you need any assistance, Please feel free to contact us.\nThank you,\n\n*AviraCare Team*`;
         }
 
-        const successPayload = {
+        return res.json({
             success: true,
             count: uniqueOrders.length,
             tracking: trackingNo,
@@ -160,43 +121,9 @@ module.exports = async (req, res) => {
                 tracking_url: indiapostUrl,
                 orders: uniqueOrders
             }
-        };
-
-        logBotInteraction({
-            endpoint: req.url || '/api/tracking',
-            method: req.method,
-            client_ip: clientIp,
-            user_agent: userAgent,
-            searched_id: cleanRaw,
-            request_params: requestParams,
-            status_code: 200,
-            success: true,
-            member_id: first.member_id,
-            member_name: memberName,
-            parcels_count: uniqueOrders.length,
-            tracking_numbers: allTrackingsStr,
-            reply_message: readyMsg,
-            response_payload: successPayload,
-            response_time_ms: Date.now() - startTime
-        }).catch(() => {});
-
-        return res.json(successPayload);
+        });
     } catch (err) {
         console.error('Tracking API error:', err);
-        const errPayload = { error: 'Server error: ' + err.message };
-        logBotInteraction({
-            endpoint: req.url || '/api/tracking',
-            method: req.method,
-            client_ip: clientIp,
-            user_agent: userAgent,
-            searched_id: String(rawId),
-            request_params: requestParams,
-            status_code: 500,
-            success: false,
-            reply_message: errPayload.error,
-            response_payload: errPayload,
-            response_time_ms: Date.now() - startTime
-        }).catch(() => {});
-        return res.status(500).json(errPayload);
+        return res.status(500).json({ error: 'Server error: ' + err.message });
     }
 };

@@ -243,9 +243,4 @@ router.get('/settings', checkAdmin, async (req, res) => {
     }
 });
 
-// 🤖 WhatsApp Bot Logs & Live CRMbot Monitor
-router.get('/bot-logs', checkAdmin, (req, res) => {
-    res.render('admin/bot_logs');
-});
-
 module.exports = router;

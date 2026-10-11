@@ -10,10 +10,6 @@
       "use": "@vercel/node"
     },
     {
-      "src": "api/bot-logs.js",
-      "use": "@vercel/node"
-    },
-    {
       "src": "api/index.js",
       "use": "@vercel/node",
       "config": {
@@ -28,10 +24,6 @@
     {
       "src": "/api/ping",
       "dest": "/api/ping.js"
-    },
-    {
-      "src": "/api/bot-logs(.*)",
-      "dest": "/api/bot-logs.js"
     },
     {
       "src": "/v1/api/data/tracking/(.*)",
