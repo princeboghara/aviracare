@@ -30,7 +30,7 @@
       "dest": "/api/ping.js"
     },
     {
-      "src": "/api/bot-logs",
+      "src": "/api/bot-logs(.*)",
       "dest": "/api/bot-logs.js"
     },
     {
