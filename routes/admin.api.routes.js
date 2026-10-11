@@ -1105,4 +1105,28 @@ router.delete('/queries/delete/:id', async (req, res) => {
     }
 });
 
+// 🤖 31. Live WhatsApp Bot Logs API
+const { getBotLogs } = require('../services/botLogger.service');
+
+router.get('/bot-logs', async (req, res) => {
+    try {
+        const { limit, since_id, search, status } = req.query;
+        const result = await getBotLogs({ limit, since_id, search, status });
+        res.json({ success: true, ...result });
+    } catch (err) {
+        console.error("Fetch Bot Logs Error:", err);
+        res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
+router.delete('/bot-logs/clear', async (req, res) => {
+    try {
+        await db.query('TRUNCATE TABLE bot_logs');
+        res.json({ success: true, msg: "All bot logs cleared successfully!" });
+    } catch (err) {
+        console.error("Clear Bot Logs Error:", err);
+        res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
 module.exports = router;

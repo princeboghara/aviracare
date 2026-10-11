@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth overflow-x-hidden">
+<head>
+    <%- include('../partials/head_meta') %>
+    <title>WhatsApp Bot Logs & Live Monitor - Avira Control</title>
+    <style>
+        .neon-card {
+            background: white;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        html.dark .neon-card {
+            background: #111827;
+            border-color: #1f293d !important;
+        }
+
+        /* WhatsApp Bubble Simulation */
+        .wa-bubble {
+            background: #e7ffdb;
+            border-radius: 12px 12px 12px 0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+            position: relative;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        html.dark .wa-bubble {
+            background: #005c4b;
+            color: #e9edef;
+        }
+
+        /* Table row flash animation on new incoming request */
+        @keyframes highlightNew {
+            0% { background-color: rgba(16, 185, 129, 0.35); }
+            100% { background-color: transparent; }
+        }
+        .row-highlight {
+            animation: highlightNew 2.5s ease-out;
+        }
+
+        /* Monospace snippet */
+        .code-pill {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-emerald-50/20 dark:bg-[#0b0f19] min-h-screen flex flex-col font-sans antialiased text-slate-800 dark:text-slate-100 w-full overflow-x-hidden">
+
+    <%- include('../partials/admin_navbar') %>
+
+    <div class="lg:pl-64 flex-grow flex flex-col justify-between min-h-screen box-border w-full min-w-0">
+        
+        <!-- Header -->
+        <header class="bg-white/80 dark:bg-[#0d1322]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-xs w-full">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="truncate">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">CRMbot & WhatsApp Integration</span>
+                    <h1 class="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-none">Live Bot Request Logs</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <!-- Live Pulse Pill -->
+                <div id="livePill" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span class="hidden sm:inline">Live Stream Active</span>
+                    <span class="sm:hidden">Live</span>
+                </div>
+
+                <!-- Auto Refresh Switch -->
+                <button type="button" id="btnToggleAuto" onclick="toggleAutoRefresh()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 shadow-xs hover:border-emerald-500 transition-all cursor-pointer">
+                    <i class="fa-solid fa-arrows-rotate text-emerald-500" id="refreshIcon"></i>
+                    <span id="autoRefreshText">Auto (3s)</span>
+                </button>
+
+                <!-- Clear Logs -->
+                <button type="button" onclick="confirmClearLogs()" class="px-2.5 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer" title="Clear all logs">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Body -->
+        <main class="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 space-y-5 box-border">
+
+            <!-- Stats Overview Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                
+                <div class="neon-card p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Today's Queries</p>
+                        <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-0.5" id="statTotal">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                </div>
+
+                <div class="neon-card p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Dispatched (200)</p>
+                        <h3 class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5" id="statSuccess">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+
+                <div class="neon-card p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Not Found (404)</p>
+                        <h3 class="text-xl sm:text-2xl font-black text-amber-500 mt-0.5" id="statNotFound">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </div>
+                </div>
+
+                <div class="neon-card p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Avg Latency</p>
+                        <h3 class="text-xl sm:text-2xl font-black text-purple-600 dark:text-purple-400 mt-0.5" id="statLatency">0ms</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="neon-card p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
+                
+                <!-- Search Box -->
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchInput" oninput="debounceFetch()" placeholder="Search Member ID, Name or Tracking..." class="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500 dark:text-white">
+                </div>
+
+                <!-- Status Filter Badges -->
+                <div class="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                    <button type="button" onclick="setFilterStatus('all')" id="filterBtnAll" class="px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition-all bg-emerald-500 text-white shadow-xs cursor-pointer">
+                        All Requests
+                    </button>
+                    <button type="button" onclick="setFilterStatus('success')" id="filterBtnSuccess" class="px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition-all bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer">
+                        ✅ Success (200)
+                    </button>
+                    <button type="button" onclick="setFilterStatus('not_found')" id="filterBtnNotFound" class="px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition-all bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-600 cursor-pointer">
+                        ⚠️ Not Found (404)
+                    </button>
+                    <button type="button" onclick="setFilterStatus('error')" id="filterBtnError" class="px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition-all bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600 cursor-pointer">
+                        ❌ Errors
+                    </button>
+                </div>
+
+                <!-- Manual Trigger -->
+                <button type="button" onclick="fetchLogs(true)" class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold hover:opacity-90 transition-all cursor-pointer shadow-xs flex-shrink-0">
+                    <i class="fa-solid fa-arrows-rotate text-[11px]"></i> Fetch Now
+                </button>
+            </div>
+
+            <!-- Live Table -->
+            <div class="neon-card rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/90 dark:bg-[#0d1322] border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-black tracking-wider">
+                                <th class="py-3 px-4">Time</th>
+                                <th class="py-3 px-4">Queried ID</th>
+                                <th class="py-3 px-4">Member Matched</th>
+                                <th class="py-3 px-4">Parcels / Tracking</th>
+                                <th class="py-3 px-4 text-center">Status</th>
+                                <th class="py-3 px-4 text-center">Speed</th>
+                                <th class="py-3 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                            <tr>
+                                <td colspan="7" class="py-12 text-center text-slate-400">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-emerald-500 text-xl mb-2"></i>
+                                    <p class="text-xs font-bold">Connecting to Live CRMbot Logs...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white/80 dark:bg-[#0d1322]/80 border-t border-slate-200/80 dark:border-slate-800 py-3 text-center text-[11px] font-semibold text-slate-400 w-full">
+            Avira Live Bot Integration Monitor &bull; Connected to CRMbot webhook endpoints
+        </footer>
+    </div>
+
+    <!-- 🔍 Inspect Modal (WhatsApp Simulation + Raw Payload) -->
+    <div id="inspectModal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-[#111827] w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+            
+            <!-- Modal Header -->
+            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-[#0d1322]">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-sm font-bold shadow-xs">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-900 dark:text-white" id="modalTitle">Request & Response Details</h3>
+                        <p class="text-[10px] font-bold text-slate-400" id="modalSubtitle">ID: -</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeInspectModal()" class="w-7 h-7 rounded-xl bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 flex items-center justify-center transition-all cursor-pointer">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Modal Tab Navigation -->
+            <div class="flex border-b border-slate-100 dark:border-slate-800 px-5 pt-2 gap-4 text-xs font-bold">
+                <button type="button" onclick="switchModalTab('wa')" id="tabBtnWa" class="pb-2.5 text-emerald-600 border-b-2 border-emerald-500 flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-emerald-500"></i> WhatsApp Message Preview
+                </button>
+                <button type="button" onclick="switchModalTab('json')" id="tabBtnJson" class="pb-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 border-b-2 border-transparent flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-code"></i> Raw JSON Response
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-5 overflow-y-auto flex-grow space-y-4">
+                
+                <!-- Tab 1: WhatsApp Preview -->
+                <div id="tabContentWa" class="space-y-4">
+                    <div class="p-4 rounded-2xl bg-[#efeae2] dark:bg-[#0b141a] border border-slate-200/50 dark:border-slate-800 relative">
+                        <div class="flex items-start gap-2 max-w-lg">
+                            <div class="wa-bubble p-3.5 text-slate-800 text-xs leading-relaxed whitespace-pre-wrap select-text" id="waMessageText">
+                                <!-- Message injected here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs">
+                        <button type="button" onclick="copyReplyText()" class="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-100 transition-all flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-regular fa-copy"></i> Copy WhatsApp Text
+                        </button>
+                        <span class="text-[11px] text-slate-400 font-semibold" id="waTimestamp">Timestamp: -</span>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Raw JSON -->
+                <div id="tabContentJson" class="hidden space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Exact JSON Payload Returned:</span>
+                        <button type="button" onclick="copyRawJson()" class="text-xs text-emerald-600 font-bold hover:underline flex items-center gap-1 cursor-pointer">
+                            <i class="fa-regular fa-copy"></i> Copy JSON
+                        </button>
+                    </div>
+                    <pre id="rawJsonBlock" class="p-3.5 bg-slate-900 text-emerald-400 rounded-2xl text-[11px] font-mono overflow-x-auto max-h-72 cyber-scroll select-all"></pre>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#0d1322] flex justify-end">
+                <button type="button" onclick="closeInspectModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-300 transition-all cursor-pointer">
+                    Close Preview
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        let currentLogs = [];
+        let activeFilter = 'all';
+        let autoRefreshInterval = null;
+        let isAutoRefresh = true;
+        let selectedLog = null;
+        let debounceTimer = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchLogs();
+            startAutoRefresh();
+        });
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            autoRefreshInterval = setInterval(() => {
+                fetchLogs(false);
+            }, 3000); // 3 seconds live poll
+        }
+
+        function toggleAutoRefresh() {
+            isAutoRefresh = !isAutoRefresh;
+            const textEl = document.getElementById('autoRefreshText');
+            const pillEl = document.getElementById('livePill');
+            const iconEl = document.getElementById('refreshIcon');
+
+            if (isAutoRefresh) {
+                textEl.textContent = 'Auto (3s)';
+                pillEl.classList.remove('hidden');
+                iconEl.classList.add('fa-spin');
+                setTimeout(() => iconEl.classList.remove('fa-spin'), 600);
+                startAutoRefresh();
+            } else {
+                textEl.textContent = 'Paused';
+                pillEl.classList.add('hidden');
+                if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            }
+        }
+
+        function setFilterStatus(status) {
+            activeFilter = status;
+            ['all', 'success', 'not_found', 'error'].forEach(s => {
+                const btn = document.getElementById(`filterBtn${capitalize(s)}`);
+                if (btn) {
+                    if (s === status) {
+                        btn.className = 'px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition-all bg-emerald-500 text-white shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition-all bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 cursor-pointer';
+                    }
+                }
+            });
+            fetchLogs(true);
+        }
+
+        function capitalize(s) {
+            if (s === 'not_found') return 'NotFound';
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function debounceFetch() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                fetchLogs(true);
+            }, 350);
+        }
+
+        async function fetchLogs(showSpinner = false) {
+            const searchVal = document.getElementById('searchInput')?.value || '';
+            const tbody = document.getElementById('logsTableBody');
+            const iconEl = document.getElementById('refreshIcon');
+
+            if (showSpinner && iconEl) {
+                iconEl.classList.add('fa-spin');
+                setTimeout(() => iconEl.classList.remove('fa-spin'), 600);
+            }
+
+            try {
+                const params = new URLSearchParams({
+                    limit: '50',
+                    status: activeFilter,
+                    search: searchVal
+                });
+
+                // Try both admin api and root api route
+                let res = await fetch(`/admin/api/bot-logs?${params.toString()}`);
+                if (!res.ok) {
+                    res = await fetch(`/api/bot-logs?${params.toString()}`);
+                }
+                const data = await res.json();
+
+                if (data && data.success) {
+                    currentLogs = data.logs || [];
+                    renderStats(data.stats);
+                    renderTable(currentLogs);
+                }
+            } catch (err) {
+                console.warn('Live log poll error:', err);
+            }
+        }
+
+        function renderStats(stats) {
+            if (!stats) return;
+            document.getElementById('statTotal').textContent = stats.total_count || '0';
+            document.getElementById('statSuccess').textContent = stats.success_count || '0';
+            document.getElementById('statNotFound').textContent = stats.not_found_count || '0';
+            document.getElementById('statLatency').textContent = (stats.avg_latency_ms || '0') + 'ms';
+        }
+
+        function renderTable(logs) {
+            const tbody = document.getElementById('logsTableBody');
+            if (!logs || logs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-12 text-center text-slate-400">
+                            <i class="fa-solid fa-inbox text-2xl mb-2 opacity-50 block"></i>
+                            <p class="text-xs font-bold">No bot requests found yet.</p>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Send a WhatsApp query or test the tracking API to see live logs here!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            logs.forEach(log => {
+                const date = new Date(log.created_at);
+                const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const fullDateStr = date.toLocaleDateString();
+
+                let statusBadge = '';
+                if (log.status_code === 200) {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-extrabold text-[10px] tracking-wide inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 200 OK</span>`;
+                } else if (log.status_code === 404) {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 font-extrabold text-[10px] tracking-wide inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> 404 NOT FOUND</span>`;
+                } else {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-extrabold text-[10px] tracking-wide inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> ${log.status_code} ERR</span>`;
+                }
+
+                const searchedPill = log.searched_id ? `<span class="code-pill px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-800 dark:text-slate-200 font-bold text-[11px] border border-slate-200 dark:border-slate-700">${escapeHtml(log.searched_id)}</span>` : '<span class="text-slate-400">-</span>';
+                
+                const memberDisp = log.member_name ? `
+                    <div class="truncate max-w-[170px]">
+                        <span class="font-bold text-slate-800 dark:text-slate-100 block truncate">${escapeHtml(log.member_name)}</span>
+                        <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">${escapeHtml(log.member_id || '')}</span>
+                    </div>
+                ` : `<span class="text-slate-400 italic">Not Identified</span>`;
+
+                const trackingDisp = log.tracking_numbers ? `
+                    <div class="truncate max-w-[200px]">
+                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300 block truncate">${escapeHtml(log.tracking_numbers)}</span>
+                        <span class="text-[9px] text-slate-400 font-semibold">${log.parcels_count || 1} Parcel(s)</span>
+                    </div>
+                ` : `<span class="text-slate-400">-</span>`;
+
+                html += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                        <td class="py-3 px-4 whitespace-nowrap text-slate-500 dark:text-slate-400" title="${fullDateStr}">
+                            <span class="font-bold text-slate-800 dark:text-slate-200 block">${timeStr}</span>
+                            <span class="text-[9px] text-slate-400">${timeAgo(date)}</span>
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap">${searchedPill}</td>
+                        <td class="py-3 px-4">${memberDisp}</td>
+                        <td class="py-3 px-4">${trackingDisp}</td>
+                        <td class="py-3 px-4 text-center whitespace-nowrap">${statusBadge}</td>
+                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                            <span class="text-[10px] font-mono font-bold text-slate-500">${log.response_time_ms || 0}ms</span>
+                        </td>
+                        <td class="py-3 px-4 text-right whitespace-nowrap">
+                            <button type="button" onclick="inspectLog(${log.id})" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white text-slate-700 dark:text-slate-200 text-[11px] font-bold transition-all shadow-2xs flex items-center gap-1.5 ml-auto cursor-pointer">
+                                <i class="fa-solid fa-eye text-[10px]"></i> Inspect
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function inspectLog(id) {
+            selectedLog = currentLogs.find(l => l.id === id);
+            if (!selectedLog) return;
+
+            document.getElementById('modalTitle').textContent = `Request: ${selectedLog.searched_id || 'Empty Query'}`;
+            document.getElementById('modalSubtitle').textContent = `Log #${selectedLog.id} &bull; ${new Date(selectedLog.created_at).toLocaleString()}`;
+            document.getElementById('waMessageText').textContent = selectedLog.reply_message || '(No reply message recorded)';
+            document.getElementById('waTimestamp').textContent = `Response Latency: ${selectedLog.response_time_ms || 0}ms &bull; Status: ${selectedLog.status_code}`;
+
+            const jsonDisplay = selectedLog.response_payload || {
+                searched_id: selectedLog.searched_id,
+                status: selectedLog.status_code,
+                reply_message: selectedLog.reply_message,
+                member_id: selectedLog.member_id,
+                member_name: selectedLog.member_name
+            };
+
+            document.getElementById('rawJsonBlock').textContent = JSON.stringify(jsonDisplay, null, 2);
+
+            switchModalTab('wa');
+            const modal = document.getElementById('inspectModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeInspectModal() {
+            const modal = document.getElementById('inspectModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function switchModalTab(tab) {
+            const btnWa = document.getElementById('tabBtnWa');
+            const btnJson = document.getElementById('tabBtnJson');
+            const contentWa = document.getElementById('tabContentWa');
+            const contentJson = document.getElementById('tabContentJson');
+
+            if (tab === 'wa') {
+                btnWa.className = 'pb-2.5 text-emerald-600 border-b-2 border-emerald-500 flex items-center gap-1.5 cursor-pointer';
+                btnJson.className = 'pb-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 border-b-2 border-transparent flex items-center gap-1.5 cursor-pointer';
+                contentWa.classList.remove('hidden');
+                contentJson.classList.add('hidden');
+            } else {
+                btnJson.className = 'pb-2.5 text-emerald-600 border-b-2 border-emerald-500 flex items-center gap-1.5 cursor-pointer';
+                btnWa.className = 'pb-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 border-b-2 border-transparent flex items-center gap-1.5 cursor-pointer';
+                contentJson.classList.remove('hidden');
+                contentWa.classList.add('hidden');
+            }
+        }
+
+        function copyReplyText() {
+            const text = document.getElementById('waMessageText').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied WhatsApp message text!');
+            });
+        }
+
+        function copyRawJson() {
+            const text = document.getElementById('rawJsonBlock').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied JSON payload!');
+            });
+        }
+
+        async function confirmClearLogs() {
+            if (!confirm('Are you sure you want to clear all bot logs? This cannot be undone.')) return;
+            try {
+                let res = await fetch('/admin/api/bot-logs/clear', { method: 'DELETE' });
+                if (!res.ok) res = await fetch('/api/bot-logs', { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    fetchLogs(true);
+                } else {
+                    alert('Error clearing logs: ' + (data.msg || data.error));
+                }
+            } catch (err) {
+                alert('Request failed: ' + err.message);
+            }
+        }
+
+        function timeAgo(date) {
+            const sec = Math.floor((new Date() - date) / 1000);
+            if (sec < 5) return 'just now';
+            if (sec < 60) return `${sec}s ago`;
+            const min = Math.floor(sec / 60);
+            if (min < 60) return `${min}m ago`;
+            const hr = Math.floor(min / 60);
+            if (hr < 24) return `${hr}h ago`;
+            return `${Math.floor(hr / 24)}d ago`;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
