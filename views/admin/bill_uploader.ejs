@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth overflow-x-hidden">
+<head>
+    <%- include('../partials/head_meta') %>
+    <title>Bill Manager & Tax Invoice Converter - Avira Control</title>
+</head>
+<body class="bg-slate-50 dark:bg-[#0b0f19] min-h-screen font-sans text-slate-800 dark:text-slate-200 antialiased w-full overflow-x-hidden">
+
+    <%- include('../partials/admin_navbar') %>
+
+    <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between box-border min-w-0">
+        
+        <header class="bg-white/80 dark:bg-[#0d1322]/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
+            <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-file-invoice-dollar text-emerald-500 flex-shrink-0"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Billing / Smart Combo & Tax Invoice Converter</span>
+            </div>
+            <div class="flex items-center gap-2.5 flex-shrink-0">
+                <a href="/admin/manage-combos" class="bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold px-3.5 py-2 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-700 transition-all shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-emerald-400"></i>
+                    <span>Manage Combos</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+            <!-- 🚀 UPLOAD HERO CARD -->
+            <div class="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 p-6 sm:p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 relative z-10">
+                    <div class="space-y-2 max-w-xl">
+                        <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest inline-block">
+                            <i class="fa-solid fa-bolt mr-1"></i> AI Vision Invoice Converter
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight">Upload Bills For Automated Breakup</h2>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Upload original PDF or JPG tax invoices. Multiple files will get auto-incremented invoice numbers (e.g. 101, 102, 103...).
+                        </p>
+                    </div>
+
+                    <form id="uploadBillsForm" class="w-full lg:w-auto flex flex-col sm:flex-row gap-3 items-center">
+                        <div class="w-full sm:w-auto">
+                            <input type="number" id="customInvoiceNo" placeholder="Start Inv No (e.g. 101)" class="w-full sm:w-44 bg-white/10 border border-white/20 text-white placeholder-slate-300 text-xs font-bold px-4 py-3 rounded-2xl focus:outline-none focus:bg-white/20">
+                        </div>
+                        <div class="relative w-full sm:w-auto">
+                            <input type="file" id="billFiles" multiple required class="hidden" onchange="updateFileCount(this)">
+                            <label for="billFiles" class="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold px-5 py-3 rounded-2xl cursor-pointer transition-all w-full text-center">
+                                <i class="fa-solid fa-cloud-arrow-up text-emerald-400 text-sm"></i>
+                                <span id="fileLabelText">Choose / Drop Invoice Files</span>
+                            </label>
+                        </div>
+                        <button type="submit" id="btnUpload" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs px-8 py-3 rounded-2xl uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 cursor-pointer flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span id="btnText">Convert Bills</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 📋 CONVERTED BILLS REPOSITORY -->
+            <div class="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-md overflow-hidden">
+                <div class="p-5 bg-slate-50/80 dark:bg-[#0d1322] border-b border-slate-100 dark:border-slate-800 font-bold text-xs uppercase flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <span class="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+                        <i class="fa-solid fa-folder-closed text-emerald-600"></i> Converted Bills Repository
+                    </span>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button type="button" onclick="printSelectedBills()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-[11px] font-bold uppercase transition-all shadow-sm flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-print"></i> Print Selected PDFs
+                        </button>
+                        <button type="button" onclick="deleteSelectedBills()" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl text-[11px] font-bold uppercase transition-all shadow-sm flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-trash-can"></i> Delete Selected
+                        </button>
+                        <span class="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-3 py-1.5 rounded-full text-[11px] font-black border border-emerald-200 dark:border-emerald-800">
+                            <%= bills.length %> Saved
+                        </span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs whitespace-nowrap">
+                        <thead>
+                            <tr class="bg-slate-100/60 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 font-black uppercase text-[10px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+                                <th class="p-4 pl-6 text-center" width="40">
+                                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-slate-700">
+                                </th>
+                                <th class="p-4 cursor-pointer hover:text-emerald-500 transition-colors select-none" onclick="toggleSortInvoiceNo()" title="Click to toggle sorting">
+                                    Inv No <i id="sortIcon" class="fa-solid fa-arrow-down-1-9 text-emerald-500 ml-1"></i>
+                                </th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Buyer Name (Billing)</th>
+                                <th class="p-4">Consignee (Shipped To)</th>
+                                <th class="p-4 text-center">PV</th>
+                                <th class="p-4 text-right">Net Amount</th>
+                                <th class="p-4 text-center pr-6">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <% if(bills.length === 0) { %>
+                                <tr>
+                                    <td colspan="8" class="p-12 text-center text-slate-400 dark:text-slate-500">
+                                        <i class="fa-solid fa-file-invoice text-3xl mb-3 block text-slate-300 dark:text-slate-600"></i>
+                                        No bills converted yet. Upload bills above to convert automatically!
+                                    </td>
+                                </tr>
+                            <% } else { %>
+                                <% bills.forEach(item => { %>
+                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-all">
+                                        <td class="p-4 pl-6 text-center">
+                                            <input type="checkbox" class="bill-checkbox w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-slate-700" value="<%= item.id %>">
+                                        </td>
+                                        <td class="p-4 font-mono font-bold text-slate-900 dark:text-slate-100">
+                                            <span class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+                                                #<%= item.invoice_no %>
+                                            </span>
+                                        </td>
+                                        <td class="p-4 font-semibold text-slate-600 dark:text-slate-400"><%= item.invoice_date %></td>
+                                        <td class="p-4 font-bold text-slate-900 dark:text-slate-100 uppercase">
+                                            <%= item.buyer_name %>
+                                            <% if(item.buyer_id) { %>
+                                                <span class="text-[10px] text-slate-400 block font-normal">(ID: <%= item.buyer_id %>)</span>
+                                            <% } %>
+                                        </td>
+                                        <td class="p-4 font-semibold text-slate-600 dark:text-slate-400 uppercase"><%= item.consignee_name || item.buyer_name %></td>
+                                        <td class="p-4 text-center font-mono font-black text-emerald-600 dark:text-emerald-400"><%= item.total_pv %></td>
+                                        <td class="p-4 text-right font-mono font-black text-slate-900 dark:text-slate-100 text-sm">₹<%= item.total_amount %></td>
+                                        <td class="p-4 text-center pr-6 flex items-center justify-center gap-2">
+                                            <a href="/admin/api/print-bill/<%= item.id %>" target="_blank" class="inline-flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-[11px] uppercase transition-all shadow-sm">
+                                                <i class="fa-solid fa-eye"></i> Preview / Download
+                                            </a>
+                                            <button type="button" data-id="<%= item.id %>" onclick="deleteSingleBill(this.dataset.id)" class="inline-flex items-center justify-center h-8 w-8 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 rounded-xl transition-all border border-rose-200 dark:border-rose-900/50 cursor-pointer" title="Delete Bill">
+                                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // 📁 FILE SELECTION COUNTER
+        function updateFileCount(input) {
+            const label = document.getElementById('fileLabelText');
+            if (input.files.length > 0) {
+                label.innerHTML = `<span class="text-emerald-300 font-black">${input.files.length} File(s) Selected</span>`;
+            } else {
+                label.innerText = "Choose / Drop Invoice Files";
+            }
+        }
+
+        // 🔘 SELECT ALL CHECKBOXES
+        function toggleSelectAll(master) {
+            const checkboxes = document.querySelectorAll('.bill-checkbox');
+            checkboxes.forEach(cb => cb.checked = master.checked);
+        }
+
+        // 🖨️ PRINT ALL SELECTED BILLS IN ONE SINGLE PAGE / PDF
+        function printSelectedBills() {
+            const selected = document.querySelectorAll('.bill-checkbox:checked');
+            if (selected.length === 0) {
+                alert("કૃપા કરીને પ્રિન્ટ કરવા માટે ઓછામાં ઓછું ૧ બિલ સિલેક્ટ કરો!");
+                return;
+            }
+
+            const ids = Array.from(selected).map(cb => cb.value).join(',');
+            window.open(`/admin/api/print-multiple-bills?ids=${ids}`, '_blank');
+        }
+
+        // 🗑️ DELETE SINGLE BILL
+        async function deleteSingleBill(id) {
+            if (!confirm(`શું તમે ખરેખર આ બિલ ડિલીટ કરવા માંગો છો?`)) return;
+
+            try {
+                const res = await fetch(`/admin/api/delete-bill/${id}`, {
+                    method: 'DELETE'
+                });
+                const result = await res.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert(result.msg);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("ડિલીટ કરતી વખતે એરર આવી!");
+            }
+        }
+
+        // 🗑️ DELETE SELECTED BILLS
+        async function deleteSelectedBills() {
+            const selected = document.querySelectorAll('.bill-checkbox:checked');
+            if (selected.length === 0) {
+                alert("કૃપા કરીને ડીલીટ કરવા માટે બિલ સિલેક્ટ કરો!");
+                return;
+            }
+
+            if (!confirm(`શું તમે ખરેખર પસંદ કરેલા ${selected.length} બિલ ડિલીટ કરવા માંગો છો?`)) return;
+
+            const ids = Array.from(selected).map(cb => parseInt(cb.value));
+
+            try {
+                const res = await fetch('/admin/api/delete-bills', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert(result.msg);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("ડિલીટ કરતી વખતે એરર આવી!");
+            }
+        }
+
+        // 🚀 SUBMIT FORM WITH MANUAL INVOICE NO PASSING
+        document.getElementById('uploadBillsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const files = document.getElementById('billFiles').files;
+            const customInvoiceNo = document.getElementById('customInvoiceNo').value.trim();
+
+            if(files.length === 0) return;
+
+            const btn = document.getElementById('btnUpload');
+            const btnText = document.getElementById('btnText');
+            
+            btnText.innerText = "CONVERTING...";
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+
+            const formData = new FormData();
+            formData.append('customInvoiceNo', customInvoiceNo);
+
+            for(let i=0; i<files.length; i++) {
+                formData.append('billFiles', files[i]);
+            }
+
+            try {
+                const res = await fetch('/admin/api/process-bills', { method: 'POST', body: formData });
+                const result = await res.json();
+                if(result.success) { 
+                    location.reload(); 
+                } else { 
+                    alert(result.msg); 
+                }
+            } catch(e) { 
+                console.error(e); 
+                alert("સર્વર જોડે કનેક્ટ કરવામાં ભૂલ થઈ!");
+            } finally { 
+                btnText.innerText = "Convert Bills"; 
+                btn.disabled = false; 
+                btn.classList.remove('opacity-75');
+            }
+        });
+
+        // 🔀 SORT INVOICES ASCENDING / DESCENDING
+        let sortAsc = true;
+        function toggleSortInvoiceNo() {
+            sortAsc = !sortAsc;
+            const tbody = document.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.querySelector('.bill-checkbox'));
+            if (rows.length === 0) return;
+
+            rows.sort((a, b) => {
+                const invA = parseInt((a.querySelector('.font-mono')?.innerText || '').replace(/[^0-9]/g, '')) || 0;
+                const invB = parseInt((b.querySelector('.font-mono')?.innerText || '').replace(/[^0-9]/g, '')) || 0;
+                return sortAsc ? invA - invB : invB - invA;
+            });
+
+            rows.forEach(r => tbody.appendChild(r));
+            const icon = document.getElementById('sortIcon');
+            if (icon) {
+                icon.className = sortAsc ? 'fa-solid fa-arrow-down-1-9 text-emerald-500 ml-1' : 'fa-solid fa-arrow-down-9-1 text-emerald-500 ml-1';
+            }
+        }
+    </script>
+</body>
+</html>

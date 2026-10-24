@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <%- include('../partials/head_meta') %>
+    <title>Live Tracking & Delivery Status - Avira Control Center</title>
+</head>
+<body class="bg-slate-50 dark:bg-[#080c14] text-slate-800 dark:text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden">
+
+    <%- include('../partials/admin_navbar') %>
+
+    <div class="lg:pl-64 flex flex-col min-h-screen">
+        
+        <!-- 🧭 Top Header Bar -->
+        <header class="bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center sticky top-0 z-40 shadow-xs gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm shadow-xs border border-blue-500/20">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight flex items-center gap-2">
+                        Live Tracking Hub
+                        <span class="text-[9px] font-black bg-blue-500 text-white px-2 py-0.5 rounded-full tracking-widest shadow-xs">INDIA POST</span>
+                    </h1>
+                    <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500">Automated Consignment Transit & Delivery Verification</p>
+                </div>
+            </div>
+
+            <!-- Header Controls & Account Info -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <!-- Account Badge -->
+                <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="font-extrabold text-slate-700 dark:text-slate-200 text-[11px]"><%= (botStatus && botStatus.accountName) ? botStatus.accountName : 'AVIRA LIFE CARE BOGHARA' %></span>
+                    <span class="font-bold text-slate-400 text-[10px]">(ID: <%= (botStatus && botStatus.customerId) ? botStatus.customerId : '1613309268' %>)</span>
+                </div>
+
+                <!-- Wallet Balance -->
+                <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-black text-emerald-700 dark:text-emerald-300">
+                    <i class="fa-solid fa-wallet text-[11px]"></i>
+                    <span><%= (botStatus && botStatus.walletBalance) ? botStatus.walletBalance : '₹1,106.00' %></span>
+                </div>
+
+                <!-- Theme Toggle Button -->
+                <button type="button" onclick="toggleAdminTheme()" class="pro-theme-toggle" title="Toggle Dark/Light Mode">
+                    <i class="fa-solid fa-moon dark:hidden text-slate-700 text-xs"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400 text-xs"></i>
+                    <span class="dark:hidden text-[10px] font-black">DARK</span>
+                    <span class="hidden dark:inline text-[10px] font-black text-amber-300">LIGHT</span>
+                </button>
+
+                <!-- Sync Action Button -->
+                <button type="button" onclick="triggerLiveIndiaPostSync()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95">
+                    <i class="fa-solid fa-arrows-rotate animate-spin-hover text-xs"></i>
+                    <span>Sync India Post</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 📦 Main Page Content -->
+        <main class="flex-grow p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">
+
+            <!-- 📊 STATS CARDS ROW -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+                
+                <!-- 1. Total Consignments -->
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Tracked</span>
+                        <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-slate-900 dark:text-slate-100" id="statTotal"><%= stats.total || 0 %></div>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Active Database Parcels</p>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-500"></div>
+                </div>
+
+                <!-- 2. Delivered -->
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Delivered</span>
+                        <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400" id="statDelivered"><%= stats.delivered || 0 %></div>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Successfully Received</p>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500"></div>
+                </div>
+
+                <!-- 3. In Transit -->
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">In Transit</span>
+                        <div class="w-8 h-8 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-xs font-bold">
+                            <i class="fa-solid fa-truck-moving"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-cyan-600 dark:text-cyan-400" id="statInTransit"><%= stats.in_transit || 0 %></div>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Moving Towards Hub</p>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-cyan-500"></div>
+                </div>
+
+                <!-- 4. Item Dispatched -->
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400">Dispatched</span>
+                        <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs font-bold">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-amber-600 dark:text-amber-400" id="statDispatched"><%= stats.dispatched || 0 %></div>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Sent from Office</p>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500"></div>
+                </div>
+
+                <!-- 5. Pending Status -->
+                <div class="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs relative overflow-hidden group hover:shadow-md transition-all col-span-2 sm:col-span-1">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Pending Sync</span>
+                        <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center text-xs font-bold">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-slate-600 dark:text-slate-300" id="statPending"><%= stats.pending || 0 %></div>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Awaiting Postal Update</p>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-slate-400"></div>
+                </div>
+
+            </div>
+
+            <!-- 🤖 BOT STATUS & SCHEDULER BANNER -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-4 sm:p-5 shadow-lg border border-indigo-900/50 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-400 text-xl font-bold flex-shrink-0">
+                        <i class="fa-solid fa-robot animate-pulse"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black uppercase tracking-wider text-blue-300">India Post Automation Bot</span>
+                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active Daemon
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 font-medium mt-0.5">
+                            Auto-sync scheduled every 6 hours. Last synchronized: 
+                            <span id="lastSyncBanner" class="font-bold text-white"><%= (botStatus && botStatus.lastSyncTime) ? botStatus.lastSyncTime : 'Never' %></span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
+                    <button type="button" onclick="toggleScheduler()" id="btnSchedulerToggle" class="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-pause text-amber-400" id="schedulerIcon"></i>
+                        <span id="schedulerText">Pause Scheduler</span>
+                    </button>
+                    <a href="https://app.indiapost.gov.in/customer-selfservice/home" target="_blank" class="px-3.5 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border border-blue-500/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+                        <span>Open Portal</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 📋 CONSIGNMENTS DATA TABLE CARD -->
+            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+                
+                <!-- Table Controls Header -->
+                <div class="p-4 sm:p-5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-3">
+                    
+                    <!-- Search Input -->
+                    <div class="relative w-full md:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="liveSearchInput" oninput="handleSearch()" placeholder="Search Member ID, Name, Tracking..." class="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-blue-500">
+                    </div>
+
+                    <!-- Status Filter Tabs & Export Button -->
+                    <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                        <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl text-xs font-extrabold border border-slate-200 dark:border-slate-800">
+                            <button type="button" onclick="setFilter('ALL')" id="filter-ALL" class="px-3 py-1.5 rounded-lg transition-all bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs cursor-pointer">All</button>
+                            <button type="button" onclick="setFilter('Delivered')" id="filter-Delivered" class="px-3 py-1.5 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer">Delivered</button>
+                            <button type="button" onclick="setFilter('In Transit')" id="filter-In Transit" class="px-3 py-1.5 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer">In Transit</button>
+                            <button type="button" onclick="setFilter('Item Dispatched')" id="filter-Item Dispatched" class="px-3 py-1.5 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer">Dispatched</button>
+                        </div>
+
+                        <!-- Export Excel -->
+                        <button type="button" onclick="exportTableToCSV()" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer flex-shrink-0" title="Export Current List to Excel/CSV">
+                            <i class="fa-solid fa-file-excel text-emerald-600 text-xs"></i>
+                            <span class="hidden sm:inline">Export</span>
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Table Container -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/90 dark:bg-slate-900/90 text-slate-400 dark:text-slate-500 font-extrabold uppercase text-[10px] tracking-wider border-b border-slate-200/80 dark:border-slate-800">
+                                <th class="py-3 px-4 w-12 text-center">#</th>
+                                <th class="py-3 px-4">Member Info</th>
+                                <th class="py-3 px-4">Article / Tracking</th>
+                                <th class="py-3 px-4">Destination</th>
+                                <th class="py-3 px-4">Current Status</th>
+                                <th class="py-3 px-4">Booked Date</th>
+                                <th class="py-3 px-4">Delivery Date</th>
+                                <th class="py-3 px-4 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consignmentsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/80 font-medium">
+                            <!-- Populated via JavaScript Pagination -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 🔄 Pagination Bar -->
+                <div id="paginationBar" class="p-4 border-t border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400" id="paginationInfo">
+                        Showing 0 to 0 of 0 consignments
+                    </div>
+                    <div class="flex items-center gap-1.5" id="paginationControls">
+                        <!-- Pagination Buttons Inserted by JS -->
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <footer class="border-t border-slate-200/60 dark:border-slate-800/60 py-4 text-center text-xs font-semibold text-slate-400 dark:text-slate-500">
+            &copy; 2026 Avira Control Center &bull; High-Performance Logistics & Automated Postal Tracking
+        </footer>
+
+    </div>
+
+    <!-- ⚡ REAL-TIME INDIA POST SYNC PROGRESS MODAL -->
+    <div id="syncProgressModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white dark:bg-[#0f172a] rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6 transform scale-95 transition-transform duration-300" id="syncModalContent">
+            
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-lg font-bold shadow-xs">
+                        <i class="fa-solid fa-satellite-dish animate-pulse"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">India Post Live Sync</h3>
+                        <p class="text-xs font-bold text-slate-400" id="modalSubTitle">Headless Browser Automated Handshake</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeSyncModal()" id="btnModalClose" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Progress Meter -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs font-extrabold">
+                    <span id="syncStepTitle" class="text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Initializing...
+                    </span>
+                    <span id="syncPercentText" class="text-slate-700 dark:text-slate-300 font-mono">0%</span>
+                </div>
+                <div class="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden p-0.5 border border-slate-200 dark:border-slate-700">
+                    <div id="syncProgressBar" class="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500 transition-all duration-300 w-0"></div>
+                </div>
+            </div>
+
+            <!-- Bot Live Logs Box -->
+            <div class="bg-slate-950 text-slate-200 p-4 rounded-2xl text-[11px] font-mono space-y-1.5 max-h-48 overflow-y-auto border border-slate-800 cyber-scroll" id="syncLogBox">
+                <div class="text-blue-400">🚀 [Bot] Initializing India Post connection...</div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <button type="button" onclick="closeSyncModal()" id="btnFinishSync" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                    Close Window
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 📦 Raw Consignments Safe Data Carrier (Eliminates IDE Linter Syntax Errors) -->
+    <script id="consignmentsDataCarrier" type="application/json"><%- JSON.stringify(consignments || []) %></script>
+
+    <script>
+        // 📦 Master State & Pagination Config
+        const PAGE_SIZE = 50;
+        let currentPage = 1;
+        let rawConsignments = [];
+        try {
+            const dataElem = document.getElementById('consignmentsDataCarrier');
+            rawConsignments = dataElem ? JSON.parse(dataElem.textContent || '[]') : [];
+        } catch(e) {
+            console.error('Error parsing consignments JSON:', e);
+            rawConsignments = [];
+        }
+
+        let allConsignments = [...rawConsignments];
+        let currentFilter = 'ALL';
+        let searchQuery = '';
+        let filteredConsignments = [...allConsignments];
+
+        // 🔍 Search & Filter Engine
+        function handleSearch() {
+            searchQuery = (document.getElementById('liveSearchInput').value || '').toLowerCase().trim();
+            applyFilterAndSearch();
+        }
+
+        function setFilter(status) {
+            currentFilter = status;
+
+            // Highlight Active Filter Button
+            ['ALL', 'Delivered', 'In Transit', 'Item Dispatched'].forEach(s => {
+                const btn = document.getElementById(`filter-${s}`);
+                if (btn) {
+                    if (s === status) {
+                        btn.className = 'px-3 py-1.5 rounded-lg transition-all bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'px-3 py-1.5 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer';
+                    }
+                }
+            });
+
+            applyFilterAndSearch();
+        }
+
+        function applyFilterAndSearch() {
+            filteredConsignments = allConsignments.filter(item => {
+                // Status Filter
+                let matchesStatus = true;
+                const itemStatus = (item.delivery_status || 'Pending').toLowerCase();
+                if (currentFilter === 'Delivered') matchesStatus = itemStatus.includes('delivered');
+                else if (currentFilter === 'In Transit') matchesStatus = itemStatus.includes('transit');
+                else if (currentFilter === 'Item Dispatched') matchesStatus = itemStatus.includes('dispatch');
+
+                if (!matchesStatus) return false;
+
+                // Search Filter
+                if (!searchQuery) return true;
+                const mId = (item.member_id || '').toLowerCase();
+                const mName = (item.name || '').toLowerCase();
+                const mTrack = (item.tracking || '').toLowerCase();
+                const mDest = (item.destination || '').toLowerCase();
+
+                return mId.includes(searchQuery) || mName.includes(searchQuery) || mTrack.includes(searchQuery) || mDest.includes(searchQuery);
+            });
+
+            currentPage = 1;
+            renderPaginatedTable();
+        }
+
+        // 🔄 Render Paginated Table (50 Items Per Page)
+        function renderPaginatedTable() {
+            const tbody = document.getElementById('consignmentsTableBody');
+            const total = filteredConsignments.length;
+            const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * PAGE_SIZE;
+            const endIndex = Math.min(startIndex + PAGE_SIZE, total);
+            const pageItems = filteredConsignments.slice(startIndex, endIndex);
+
+            if (pageItems.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-12 text-slate-400 dark:text-slate-500 font-bold">
+                            <i class="fa-solid fa-box-open text-3xl mb-2 block opacity-40"></i>
+                            No consignments found matching your filter.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = pageItems.map((item, idx) => {
+                    const rowNum = startIndex + idx + 1;
+                    const trackingNo = item.tracking ? item.tracking.trim() : '-';
+                    const memberId = item.member_id ? item.member_id.trim() : '-';
+                    const name = item.name ? item.name.trim() : '-';
+                    const destination = item.destination ? item.destination.trim() : (item.city || '-');
+                    const bookedDate = item.booked_date || item.order_date || '-';
+                    const deliveryDate = item.delivery_date || '-';
+                    const status = (item.delivery_status || 'Pending').trim();
+
+                    // Status Badge Logic
+                    let badgeClass = 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-700';
+                    let pulseDot = '';
+                    if (status.toLowerCase().includes('delivered')) {
+                        badgeClass = 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800';
+                        pulseDot = '<span class="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block mr-1"></span>';
+                    } else if (status.toLowerCase().includes('transit')) {
+                        badgeClass = 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950/60 dark:text-cyan-300 border-cyan-300 dark:border-cyan-800';
+                        pulseDot = '<span class="h-1.5 w-1.5 rounded-full bg-cyan-500 animate-pulse inline-block mr-1"></span>';
+                    } else if (status.toLowerCase().includes('dispatch')) {
+                        badgeClass = 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800';
+                        pulseDot = '<span class="h-1.5 w-1.5 rounded-full bg-amber-500 inline-block mr-1"></span>';
+                    }
+
+                    return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400 text-[11px]">${rowNum}</td>
+                            <td class="py-3 px-4">
+                                <span class="font-extrabold text-slate-900 dark:text-slate-100 block text-xs">${name}</span>
+                                <span class="font-bold text-blue-600 dark:text-blue-400 text-[10px] uppercase font-mono">${memberId}</span>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-1.5 font-mono font-bold text-slate-800 dark:text-slate-200">
+                                    <span>${trackingNo}</span>
+                                    <button type="button" onclick="copyToClipboard('${trackingNo}')" class="text-slate-400 hover:text-blue-500 transition-colors cursor-pointer" title="Copy Article Number">
+                                        <i class="fa-regular fa-copy text-[11px]"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-600 dark:text-slate-300">
+                                <i class="fa-solid fa-location-dot text-[10px] text-rose-500 mr-1"></i>
+                                ${destination}
+                            </td>
+                            <td class="py-3 px-4">
+                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border ${badgeClass} inline-flex items-center">
+                                    ${pulseDot} ${status}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 font-bold text-slate-500 dark:text-slate-400 text-[11px]">${bookedDate}</td>
+                            <td class="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400 text-[11px]">${deliveryDate}</td>
+                            <td class="py-3 px-4 text-center">
+                                <a href="https://app.indiapost.gov.in/customer-selfservice/track" target="_blank" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/50 dark:hover:text-blue-400 transition-all inline-block" title="Track on India Post">
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // Update Pagination Numbers & Info Text
+            document.getElementById('paginationInfo').innerText = total === 0 
+                ? 'Showing 0 to 0 of 0 consignments'
+                : `Showing ${startIndex + 1} to ${endIndex} of ${total} consignments (Page ${currentPage} of ${totalPages})`;
+
+            renderPaginationControls(totalPages);
+        }
+
+        // 🎛️ Render Pagination Buttons
+        function renderPaginationControls(totalPages) {
+            const container = document.getElementById('paginationControls');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button type="button" onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-left text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                </button>
+            `;
+
+            let startP = Math.max(1, currentPage - 2);
+            let endP = Math.min(totalPages, currentPage + 2);
+
+            for (let p = startP; p <= endP; p++) {
+                if (p === currentPage) {
+                    html += `<button type="button" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-black shadow-xs">${p}</button>`;
+                } else {
+                    html += `<button type="button" onclick="goToPage(${p})" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">${p}</button>`;
+                }
+            }
+
+            html += `
+                <button type="button" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-right text-[10px]"></i>
+                </button>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function goToPage(p) {
+            currentPage = p;
+            renderPaginatedTable();
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        // 📋 Copy Tracking Number Utility
+        function copyToClipboard(text) {
+            if (!text || text === '-') return;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied tracking number: ' + text);
+            }).catch(() => {});
+        }
+
+        // 📊 Export to CSV Utility
+        function exportTableToCSV() {
+            if (!filteredConsignments.length) return alert('No data to export.');
+            let csv = 'Sr No,Member ID,Name,Tracking,Destination,Status,Booked Date,Delivery Date\n';
+            filteredConsignments.forEach((row, i) => {
+                csv += `"${i+1}","${row.member_id || ''}","${(row.name || '').replace(/"/g, '""')}","${row.tracking || ''}","${row.destination || ''}","${row.delivery_status || 'Pending'}","${row.booked_date || row.order_date || ''}","${row.delivery_date || ''}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Avira_IndiaPost_Tracking_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        // ⚡ REAL-TIME INDIA POST SYNC LOGIC
+        let activeEventSource = null;
+
+        function triggerLiveIndiaPostSync() {
+            const modal = document.getElementById('syncProgressModal');
+            const content = document.getElementById('syncModalContent');
+            const logBox = document.getElementById('syncLogBox');
+            const pBar = document.getElementById('syncProgressBar');
+            const pText = document.getElementById('syncPercentText');
+            const pTitle = document.getElementById('syncStepTitle');
+            const btnClose = document.getElementById('btnFinishSync');
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-95');
+            btnClose.disabled = true;
+
+            pBar.style.width = '5%';
+            pText.innerText = '5%';
+            pTitle.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initializing Headless Browser...';
+            logBox.innerHTML = '<div class="text-blue-400">🚀 [Bot] Initializing India Post connection...</div>';
+
+            if (activeEventSource) {
+                activeEventSource.close();
+            }
+
+            activeEventSource = new EventSource('/admin/api/indiapost-live-stream');
+
+            activeEventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.percent !== undefined) {
+                        pBar.style.width = `${data.percent}%`;
+                        pText.innerText = `${data.percent}%`;
+                    }
+
+                    if (data.message) {
+                        pTitle.innerHTML = `<i class="fa-solid fa-arrows-rotate fa-spin text-blue-500"></i> ${data.message}`;
+                        const logLine = document.createElement('div');
+                        logLine.className = 'text-slate-300';
+                        logLine.innerText = `➤ ${data.message}`;
+                        logBox.appendChild(logLine);
+                        logBox.scrollTop = logBox.scrollHeight;
+                    }
+
+                    if (data.step === 'complete') {
+                        activeEventSource.close();
+                        pBar.style.width = '100%';
+                        pText.innerText = '100%';
+                        pTitle.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500"></i> ' + (data.message || 'Sync Completed!');
+                        btnClose.disabled = false;
+
+                        // Refresh Stats and Reload Table
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2500);
+                    } else if (data.step === 'error') {
+                        activeEventSource.close();
+                        pTitle.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Error: ' + data.message;
+                        btnClose.disabled = false;
+                    }
+                } catch(e) {
+                    console.error('SSE Error:', e);
+                }
+            };
+
+            activeEventSource.onerror = function() {
+                if (activeEventSource) activeEventSource.close();
+                btnClose.disabled = false;
+            };
+        }
+
+        function closeSyncModal() {
+            const modal = document.getElementById('syncProgressModal');
+            const content = document.getElementById('syncModalContent');
+            if (activeEventSource) {
+                activeEventSource.close();
+                activeEventSource = null;
+            }
+            content.classList.add('scale-95');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        // ⏸️ Toggle Scheduler
+        let isSchedulerPaused = false;
+        async function toggleScheduler() {
+            const endpoint = isSchedulerPaused 
+                ? '/admin/api/indiapost-resume-scheduler' 
+                : '/admin/api/indiapost-pause-scheduler';
+
+            try {
+                const res = await fetch(endpoint, { method: 'POST' });
+                const data = await res.json();
+                isSchedulerPaused = data.isPaused;
+
+                const icon = document.getElementById('schedulerIcon');
+                const text = document.getElementById('schedulerText');
+
+                if (isSchedulerPaused) {
+                    icon.className = 'fa-solid fa-play text-emerald-400';
+                    text.innerText = 'Resume Scheduler';
+                } else {
+                    icon.className = 'fa-solid fa-pause text-amber-400';
+                    text.innerText = 'Pause Scheduler';
+                }
+            } catch(e) {
+                console.error('Scheduler toggle error:', e);
+            }
+        }
+
+        // Initialize Table on Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderPaginatedTable();
+        });
+    </script>
+
+</body>
+</html>

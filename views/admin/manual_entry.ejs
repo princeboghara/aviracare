@@ -286,8 +286,16 @@
         </footer>
     </div>
 
+    <script id="manualEntriesDataCarrier" type="application/json"><%- JSON.stringify(entries || []) %></script>
     <script>
-        let localEntries = JSON.parse('<%- JSON.stringify(entries || []) %>');
+        let localEntries = [];
+        try {
+            const dataElem = document.getElementById('manualEntriesDataCarrier');
+            localEntries = dataElem ? JSON.parse(dataElem.textContent || '[]') : [];
+        } catch (e) {
+            console.error('Error parsing manual entries JSON:', e);
+            localEntries = [];
+        }
         let isNewestFirst = true;
 
         window.onload = () => { 

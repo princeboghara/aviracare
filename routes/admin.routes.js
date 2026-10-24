@@ -45,6 +45,11 @@ router.get('/logout', (req, res) => {
     res.redirect('/admin/login');
 });
 
+// ⚡ Root Admin Redirect
+router.get('/', (req, res) => {
+    res.redirect('/admin/home');
+});
+
 // 📊 Admin Dashboard Hub
 router.get('/home', checkAdmin, (req, res) => {
     res.render('admin/home');
@@ -55,14 +60,63 @@ router.get('/tracking', checkAdmin, (req, res) => {
     res.render('admin/tracking');
 });
 
+// 🚚 Admin Live Tracking Hub (India Post Integration)
+router.get('/live-tracking', checkAdmin, async (req, res) => {
+    try {
+        const indiaPostBot = require('../config/indiapost_sync');
+        const dbResult = await db.query(`
+            SELECT 
+                sr_no, member_id, name, order_date, pv, amount, tracking,
+                delivery_status, destination, booked_date, delivery_date, last_sync_time
+            FROM main_database 
+            WHERE tracking IS NOT NULL AND tracking != '' AND tracking != 'PENDING'
+            ORDER BY sr_no DESC
+        `);
+
+        const statsResult = await db.query(`
+            SELECT 
+                COUNT(*) as total,
+                COUNT(*) FILTER (WHERE LOWER(delivery_status) LIKE '%delivered%') as delivered,
+                COUNT(*) FILTER (WHERE LOWER(delivery_status) LIKE '%transit%') as in_transit,
+                COUNT(*) FILTER (WHERE LOWER(delivery_status) LIKE '%dispatch%') as dispatched,
+                COUNT(*) FILTER (WHERE delivery_status IS NULL OR LOWER(delivery_status) LIKE '%pending%') as pending
+            FROM main_database
+            WHERE tracking IS NOT NULL AND tracking != '' AND tracking != 'PENDING'
+        `);
+
+        const botStatus = indiaPostBot.getStatus();
+        res.render('admin/live_tracking', {
+            consignments: dbResult.rows,
+            stats: statsResult.rows[0],
+            botStatus
+        });
+    } catch (err) {
+        console.error("Fetch Live Tracking Error:", err);
+        res.render('admin/live_tracking', {
+            consignments: [],
+            stats: { total: 0, delivered: 0, in_transit: 0, dispatched: 0, pending: 0 },
+            botStatus: null
+        });
+    }
+});
+
 // 📋 Admin Orders Master View
 router.get('/orders-master', checkAdmin, async (req, res) => {
     try {
-        const ordersRes = await db.query('SELECT * FROM orders_master ORDER BY id DESC');
-        res.render('admin/orders_master', { orders: ordersRes.rows });
+        const orderSyncBot = require('../config/order_sync');
+        const ordersRes = await db.query(`
+            SELECT * FROM orders_master 
+            ORDER BY 
+                CASE 
+                    WHEN order_no ~ '^ORD-[0-9]+$' THEN CAST(SUBSTRING(order_no FROM 5) AS INTEGER)
+                    ELSE id 
+                END DESC
+        `);
+        const syncStatus = await orderSyncBot.getStatus();
+        res.render('admin/orders_master', { orders: ordersRes.rows, syncStatus });
     } catch (err) {
         console.error("Fetch Orders Master Error:", err);
-        res.render('admin/orders_master', { orders: [] });
+        res.render('admin/orders_master', { orders: [], syncStatus: null });
     }
 });
 
@@ -243,4 +297,15 @@ router.get('/settings', checkAdmin, async (req, res) => {
     }
 });
 
+// 📄 Admin Bill Uploader & Converter View (Temporarily Locked)
+router.get('/bill-uploader', checkAdmin, (req, res) => {
+    res.redirect('/admin/home?locked=bill-combo');
+});
+
+// 🎛️ Admin Manage Combo Presets View (Temporarily Locked)
+router.get('/manage-combos', checkAdmin, (req, res) => {
+    res.redirect('/admin/home?locked=bill-combo');
+});
+
 module.exports = router;
+

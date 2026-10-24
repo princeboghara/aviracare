@@ -12,6 +12,28 @@
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<script>
+    // ⚡ ZERO-FLASH UNIVERSAL DARK/LIGHT THEME ENGINE
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('avira_admin_theme') || localStorage.getItem('avira_theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        } catch (e) {}
+    })();
+
+    window.toggleAdminTheme = function() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        try {
+            localStorage.setItem('avira_admin_theme', isDark ? 'dark' : 'light');
+            localStorage.setItem('avira_theme', isDark ? 'dark' : 'light');
+        } catch (e) {}
+    };
+</script>
+
 <style>
     :root {
         --primary-emerald: #059669;
@@ -415,7 +437,54 @@
     }
     html.dark tbody tr:hover,
     html.dark tr.hover\:bg-slate-50:hover,
-    html.dark tr.hover\:bg-slate-50\/50:hover {
+    html.dark tr.hover\:bg-slate-50\/50:hover,
+    html.dark tr.hover\:bg-slate-50\/70:hover {
         background-color: rgba(16, 185, 129, 0.08) !important;
+    }
+
+    /* 🌓 Extended Dark Mode Harmonization */
+    html.dark .bg-gradient-to-br,
+    html.dark .from-slate-50 {
+        background-image: none !important;
+        background-color: #080c14 !important;
+    }
+
+    html.dark button.bg-white,
+    html.dark a.bg-white {
+        background-color: #141c2e !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    html.dark button.bg-white:hover,
+    html.dark a.bg-white:hover {
+        background-color: #1e293b !important;
+        border-color: #10b981 !important;
+        color: #ffffff !important;
+    }
+
+    /* Pagination Bar in Dark Mode */
+    html.dark #paginationBar {
+        background-color: #0b0f19 !important;
+        border-color: #1e293b !important;
+    }
+
+    /* Modal Backdrop in Dark Mode */
+    html.dark .bg-slate-900\/50,
+    html.dark .bg-slate-950\/80 {
+        background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+
+    /* Checkbox & Radio in Dark Mode */
+    html.dark input[type="checkbox"],
+    html.dark input[type="radio"] {
+        background-color: #0b0f19 !important;
+        border-color: #334155 !important;
+    }
+
+    /* Counter Badge in Dark Mode */
+    html.dark .bg-emerald-100 {
+        background-color: rgba(16, 185, 129, 0.2) !important;
+        color: #34d399 !important;
     }
 </style>

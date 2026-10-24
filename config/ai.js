@@ -138,6 +138,113 @@ Return ONLY valid JSON.`;
     throw lastError || new Error('All Gemini models and keys exhausted. Please check quota or try again in a few seconds.');
 }
 
+/**
+ * 📄 Robust AI Tax Invoice Document / PDF Extractor with Cascade
+ */
+async function extractBillInvoice(fileBuffer, mimeType = 'application/pdf') {
+    const keys = getApiKeys();
+    if (keys.length === 0) {
+        throw new Error('GEMINI_API_KEY is not configured in .env');
+    }
+
+    const imagePart = {
+        inlineData: {
+            data: fileBuffer.toString('base64'),
+            mimeType: mimeType || 'application/pdf'
+        }
+    };
+
+    const prompt = `Carefully analyze this Tax Invoice document image/pdf and extract all buyer/consignee details AND all product items from the invoice table into a JSON object:
+{
+    "invoice_no": "Inv. No.",
+    "invoice_date": "Date of invoice",
+    "buyer_name": "Name of Buyer under Details Of Buyer",
+    "buyer_id": "Buyer ID inside brackets if present e.g. AV40604",
+    "buyer_address": "Buyer full address",
+    "buyer_phone": "Buyer phone or mobile",
+    "buyer_state": "Buyer state name e.g. Uttar Pradesh",
+    "buyer_state_code": "Buyer state code e.g. 09",
+    "buyer_pincode": "Buyer pincode e.g. 281205",
+    "buyer_gstin": "Buyer GSTIN if present",
+    "consignee_name": "Consignee Name under Details Of Consignee",
+    "consignee_address": "Consignee full address",
+    "consignee_phone": "Consignee phone/mobile",
+    "consignee_state": "Consignee state name e.g. Uttar Pradesh",
+    "consignee_state_code": "Consignee state code e.g. 09",
+    "consignee_pincode": "Consignee pincode e.g. 281205",
+    "consignee_gstin": "Consignee GSTIN if present",
+    "raw_items": [
+        {
+            "product": "Product name e.g. SOAP or Offer Combo 2200/-",
+            "hsn": "HSN Code e.g. 30045090",
+            "qty": "Quantity e.g. 1",
+            "rate": "Rate before tax",
+            "pv": "PV points e.g. 500",
+            "offer_pv": "Offer PV if present else 0",
+            "discount": "Discount if present else 0.00",
+            "offer_discount": "Offer discount if present else 0.00",
+            "taxable_val": "Taxable Value",
+            "gst_pct": "GST percentage e.g. 18.00",
+            "gst_amt": "GST Amount",
+            "net_amt": "Net Amount"
+        }
+    ]
+}
+Return ONLY raw clean JSON. Do NOT wrap in markdown codeblocks. No extra text.`;
+
+    const models = getModelCascade();
+    let lastError = null;
+
+    for (let keyIdx = 0; keyIdx < keys.length; keyIdx++) {
+        const apiKey = keys[(keyRotationIndex + keyIdx) % keys.length];
+        const genAI = new GoogleGenerativeAI(apiKey);
+
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: { 
+                        responseMimeType: 'application/json',
+                        temperature: 0.1
+                    }
+                });
+
+                const result = await model.generateContent([prompt, imagePart]);
+                if (result && result.response) {
+                    let responseText = result.response.text().trim();
+                    responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                    let parsedData = null;
+
+                    try {
+                        parsedData = JSON.parse(responseText);
+                    } catch (parseErr) {
+                        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                        if (jsonMatch) {
+                            parsedData = JSON.parse(jsonMatch[0]);
+                        }
+                    }
+
+                    if (parsedData) {
+                        return parsedData;
+                    }
+                }
+            } catch (err) {
+                lastError = err;
+                const errMsg = err.message || '';
+                console.warn(`⚠️ Model [${modelName}] failed for invoice processing: ${errMsg.slice(0, 100)}`);
+                if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('RESOURCE_EXHAUSTED')) {
+                    continue;
+                } else if (errMsg.includes('503') || errMsg.includes('demand')) {
+                    await new Promise(r => setTimeout(r, 600));
+                    continue;
+                }
+            }
+        }
+    }
+
+    throw lastError || new Error('All Gemini models and keys exhausted during invoice processing.');
+}
+
 module.exports = {
     getApiKeys,
     getModelCascade,
@@ -149,6 +256,8 @@ module.exports = {
             ...options
         });
     },
-    scanParcelLabel
+    scanParcelLabel,
+    extractBillInvoice
 };
+
 

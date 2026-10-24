@@ -241,7 +241,6 @@ function generateAviraExactPriceList(outputPath, stream = null) {
 
 if (require.main === module) {
     const publicOut = path.join(__dirname, '../public/downloads/AviraCare_Product_Price_List.pdf');
-    const defaultOut = path.join(__dirname, '../AviraCare_Product_Price_List.pdf');
 
     const dir = path.dirname(publicOut);
     if (!fs.existsSync(dir)) {
@@ -251,13 +250,6 @@ if (require.main === module) {
     try {
         generateAviraExactPriceList(publicOut);
         console.log(`✅ Generated: ${publicOut}`);
-    } catch (e) {
-        console.warn(e.message);
-    }
-
-    try {
-        generateAviraExactPriceList(defaultOut);
-        console.log(`✅ Generated: ${defaultOut}`);
     } catch (e) {
         console.warn(e.message);
     }

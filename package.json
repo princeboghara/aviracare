@@ -23,6 +23,7 @@
     "express-session": "^1.19.0",
     "multer": "^2.2.0",
     "pdfkit": "^0.19.1",
-    "pg": "^8.22.0"
+    "pg": "^8.22.0",
+    "puppeteer-core": "^25.16.0"
   }
 }

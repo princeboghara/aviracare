@@ -179,6 +179,10 @@
                         <a href="/admin/orders-master" class="p-2 rounded-xl bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
                             <i class="fa-solid fa-box text-emerald-500"></i> Orders Master
                         </a>
+                        <a href="/admin/live-tracking" class="p-2 col-span-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/80 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300 font-extrabold text-[11px] transition-all border border-blue-200 dark:border-blue-800 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-satellite-dish text-blue-500"></i> India Post Live Tracking</span>
+                            <span class="text-[8px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-black tracking-wider">LIVE SYNC</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -261,6 +265,42 @@
                     </a>
                 </div>
             </div>
+
+            <!-- 6. Bill & Combo Manager (LOCKED) -->
+            <div class="premium-3d-card p-5 sm:p-6 rounded-3xl flex flex-col justify-between shadow-sm relative overflow-hidden border border-amber-200/70 bg-gradient-to-b from-white to-amber-50/20">
+                <!-- Lock Badge -->
+                <div class="absolute top-4 right-4 bg-amber-50 border border-amber-300 text-amber-700 text-[10px] font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
+                    <i class="fa-solid fa-lock text-[9px]"></i> Locked
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-amber-200 shadow-xs">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-black text-slate-800">6. Bill & Combo Manager</h2>
+                            <p class="text-amber-600 text-[11px] font-bold flex items-center gap-1">
+                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Temporarily Locked
+                            </p>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-xs mb-4 leading-relaxed">
+                        This module is currently locked and undergoing upgrades. Direct access to Bill Converter and Combo settings is disabled.
+                    </p>
+                </div>
+                <div class="pt-3 border-t border-slate-100 space-y-1.5">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Access Status:</span>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button disabled class="p-2.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-[11px] border border-slate-200 flex items-center justify-center gap-1.5 cursor-not-allowed">
+                            <i class="fa-solid fa-lock text-[10px]"></i> Bill Converter
+                        </button>
+                        <button disabled class="p-2.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-[11px] border border-slate-200 flex items-center justify-center gap-1.5 cursor-not-allowed">
+                            <i class="fa-solid fa-lock text-[10px]"></i> Manage Combos
+                        </button>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
     </main>

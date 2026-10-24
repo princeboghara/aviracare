@@ -15,7 +15,13 @@
                 <i class="fa-solid fa-file-invoice text-emerald-500 flex-shrink-0"></i>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Orders / Order Master Repository</span>
             </div>
-            <div class="flex items-center gap-3 flex-shrink-0 ml-2">
+            <div class="flex items-center gap-2.5 sm:gap-3 flex-shrink-0 ml-2">
+                <button type="button" onclick="toggleAdminTheme()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-100 dark:bg-slate-800 dark:border-slate-700 text-xs font-bold transition-all cursor-pointer shadow-sm" title="Toggle Theme">
+                    <i class="fa-solid fa-moon dark:hidden text-slate-700 text-xs"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400 text-xs"></i>
+                    <span class="dark:hidden text-[10px] font-black uppercase ml-1">Dark</span>
+                    <span class="hidden dark:inline text-[10px] font-black text-amber-300 uppercase ml-1">Light</span>
+                </button>
                 <div class="text-right hidden sm:block">
                     <p class="text-xs font-bold text-slate-800">Avira Admin</p>
                     <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
@@ -26,44 +32,112 @@
 
         <main class="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 box-border">
 
-            <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-4 sm:p-6 rounded-2xl shadow-lg text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full">
-                <div class="flex items-start gap-3.5">
-                    <div class="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl flex-shrink-0 border border-white/20">
-                        <i class="fa-solid fa-file-excel text-amber-300"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-sm sm:text-base font-black uppercase tracking-wide">Upload Order Excel File</h2>
-                        <p class="text-[11px] sm:text-xs text-emerald-100 mt-0.5">Upload order Excel spreadsheet to automatically extract Date, Member ID, Name, PV, & Amount details while preventing duplicate records.</p>
+            <!-- 🤖 Avira Admin Live Sync Control Console -->
+            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 p-5 sm:p-7 rounded-3xl shadow-xl text-white border border-slate-700/60 relative overflow-hidden">
+                <div class="absolute -right-12 -top-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-700/70">
+                    <div class="flex items-center gap-3.5">
+                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shadow-emerald-500/20 flex-shrink-0">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between gap-3 flex-wrap">
+                                <h1 class="text-base sm:text-lg font-black tracking-wide text-white">Avira Live Order Sync Engine</h1>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span id="autoSyncBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'bg-amber-500/20 border-amber-400/30 text-amber-300' : 'bg-emerald-500/20 border-emerald-400/30 text-emerald-300' %> text-[10px] font-black uppercase tracking-wider">
+                                        <span id="autoSyncDot" class="h-2 w-2 rounded-full <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse' %>"></span>
+                                        <span id="autoSyncBadgeText"><%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'Auto-Sync Paused' : 'Auto-Sync Active (5m)' %></span>
+                                    </span>
+                                    <button type="button" id="btnToggleAutoSync" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 hover:text-white text-[11px] font-bold transition-all cursor-pointer shadow-sm">
+                                        <i id="toggleSyncIcon" class="fa-solid <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'fa-play text-emerald-400' : 'fa-pause text-amber-400' %> text-[10px]"></i>
+                                        <span id="toggleSyncText"><%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'Resume Auto-Sync' : 'Pause Auto-Sync' %></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-0.5 font-medium">Direct synchronization with https://aviraglobal.in without third-party developer requirements.</p>
+                        </div>
                     </div>
                 </div>
-                <form id="uploadOrdersForm" class="flex items-center gap-2 bg-white/10 p-2 rounded-xl border border-white/20 w-full md:w-auto">
-                    <input type="file" id="orderExcelFile" accept=".xlsx, .xls" required class="text-xs text-white file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-400 file:text-slate-950 hover:file:bg-amber-500 cursor-pointer w-full min-w-0">
-                    <button type="submit" id="btnUploadOrders" class="bg-white hover:bg-slate-100 text-slate-900 font-black text-xs px-5 py-2.5 rounded-lg shadow uppercase flex-shrink-0 transition-all cursor-pointer">Upload</button>
-                </form>
+
+                <!-- 2 Action Cards: 1. Sync New Orders | 2. Wipe & Sync All -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 pt-5">
+                    
+                    <!-- Option 1: Sync New Orders -->
+                    <div class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/40 p-4 sm:p-5 rounded-2xl flex flex-col justify-between transition-all group shadow-sm">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-black">1</span>
+                                    <h3 class="text-sm font-black text-white group-hover:text-emerald-300 transition-colors">Sync New Orders</h3>
+                                </div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">Fast Incremental</span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                Scans newest pages only. Existing saved records are <strong class="text-slate-200">retained safely</strong> and only brand-new orders are added.
+                            </p>
+                        </div>
+                        <button type="button" id="btnSyncNew" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer uppercase tracking-wider">
+                            <i class="fa-solid fa-bolt text-xs"></i> <span>Sync New Orders</span>
+                        </button>
+                    </div>
+
+                    <!-- Option 2: Wipe & Sync All -->
+                    <div class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/40 p-4 sm:p-5 rounded-2xl flex flex-col justify-between transition-all group shadow-sm">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-black">2</span>
+                                    <h3 class="text-sm font-black text-white group-hover:text-amber-300 transition-colors">Wipe & Sync All</h3>
+                                </div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60">Full Reset</span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                <strong class="text-amber-300">Wipes all current records</strong> from Orders Master and pulls a 100% fresh catalog of all orders from Avira Website.
+                            </p>
+                        </div>
+                        <button type="button" id="btnWipeAll" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 text-white font-black text-xs py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer uppercase tracking-wider">
+                            <i class="fa-solid fa-broom text-xs"></i> <span>Wipe & Sync All</span>
+                        </button>
+                    </div>
+
+                </div>
+
             </div>
 
+            <!-- Orders Table Card -->
             <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden w-full">
                 <div class="px-4 sm:px-6 py-3.5 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
                     <div class="flex items-center gap-3">
                         <h2 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
                             <i class="fa-solid fa-list text-emerald-500"></i> Permanent Order Repository
                         </h2>
-                        <span id="ordersCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-0.5 rounded-full"><%= orders.length %> Records Saved</span>
+                        <span id="ordersCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-0.5 rounded-full"><%= orders ? orders.length : 0 %> Records Saved</span>
                     </div>
 
-                    <button id="btnBulkDelete" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
-                        <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedCount">0</span>)
-                    </button>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <div class="relative">
+                            <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input type="text" id="orderSearchInput" placeholder="Filter orders..." class="pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:border-emerald-500 w-44 sm:w-56">
+                        </div>
+                        <button id="btnBulkDelete" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-3.5 py-1.5 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
+                            <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedCount">0</span>)
+                        </button>
+                        <button id="btnDirectWipe" type="button" class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200 font-bold text-xs px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-sm">
+                            <i class="fa-solid fa-broom text-rose-500"></i> Wipe All Orders
+                        </button>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[650px]">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[750px]">
                         <thead>
                             <tr class="bg-slate-100/80 border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
                                 <th class="py-3 px-3 text-center w-10">
                                     <input type="checkbox" id="selectAllCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                                 </th>
                                 <th class="py-3 px-3 w-12">#</th>
+                                <th class="py-3 px-4">Order No</th>
                                 <th class="py-3 px-4">Ordered Date</th>
                                 <th class="py-3 px-4">Member ID</th>
                                 <th class="py-3 px-4">Customer Name</th>
@@ -73,43 +147,43 @@
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
-                            <% if(!orders || orders.length === 0) { %>
-                                <tr>
-                                    <td colspan="8" class="py-8 text-center text-slate-400 font-normal">No order excel imported yet. Upload an order file above!</td>
-                                </tr>
-                            <% } else { %>
-                                <% orders.forEach((item, index) => { %>
-                                    <tr class="hover:bg-slate-50/70 transition-colors" id="order-row-<%= item.id %>">
-                                        <td class="py-2.5 px-3 text-center">
-                                            <input type="checkbox" value="<%= item.id %>" class="row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
-                                        </td>
-                                        <td class="py-2.5 px-3 text-slate-400 font-mono"><%= index + 1 %></td>
-                                        <td class="py-2.5 px-4 font-semibold text-slate-800 row-date"><%= item.order_date %></td>
-                                        <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 row-memberid"><%= item.member_id %></td>
-                                        <td class="py-2.5 px-4 uppercase font-semibold text-slate-900 row-name"><%= item.name %></td>
-                                        <td class="py-2.5 px-4 font-mono font-bold text-slate-700 row-pv"><%= item.pv %></td>
-                                        <td class="py-2.5 px-4 font-mono font-bold text-slate-900 row-amount">₹<%= item.amount %></td>
-                                        <td class="py-2.5 px-4 text-center space-x-2">
-                                            <button type="button" 
-                                                    data-id="<%= item.id %>"
-                                                    data-date="<%= item.order_date %>"
-                                                    data-memberid="<%= item.member_id %>"
-                                                    data-name="<%= item.name %>"
-                                                    data-pv="<%= item.pv %>"
-                                                    data-amount="<%= item.amount %>"
-                                                    class="btn-edit-order text-amber-500 hover:text-amber-700 font-bold cursor-pointer text-xs transition-colors">
-                                                <i class="fa-solid fa-pen-to-square"></i> Edit
-                                            </button>
-                                            <button type="button" data-order-id="<%= item.id %>" class="btn-delete-order text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-xs transition-colors">
-                                                <i class="fa-solid fa-trash"></i> Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <% }) %>
-                            <% } %>
+                            <!-- Populated dynamically via renderPaginatedTable() -->
                         </tbody>
                     </table>
                 </div>
+
+                <!-- 50 Records Per Page Pagination Toolbar -->
+                <div id="paginationBar" class="px-4 sm:px-6 py-3.5 bg-slate-50/80 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+                        Showing <span id="pageStart" class="font-bold text-slate-800">0</span> to <span id="pageEnd" class="font-bold text-slate-800">0</span> of <span id="totalRecordsCount" class="font-bold text-slate-900">0</span> orders
+                        <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold ml-1">50 per page</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 flex-wrap justify-center">
+                        <button type="button" id="btnFirstPage" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm" title="First Page">
+                            <i class="fa-solid fa-angles-left"></i>
+                        </button>
+                        <button type="button" id="btnPrevPage" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-chevron-left text-[10px]"></i> Prev
+                        </button>
+                        
+                        <div id="pagePillsContainer" class="flex items-center gap-1">
+                            <!-- Page number buttons injected dynamically -->
+                        </div>
+
+                        <button type="button" id="btnNextPage" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm">
+                            Next <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button type="button" id="btnLastPage" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm" title="Last Page">
+                            <i class="fa-solid fa-angles-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="text-xs font-bold text-slate-600">
+                        Page <span id="currentPageNum" class="text-emerald-600 font-black">1</span> of <span id="totalPagesNum" class="text-slate-800 font-black">1</span>
+                    </div>
+                </div>
+
             </div>
 
         </main>
@@ -119,6 +193,7 @@
         </footer>
     </div>
 
+    <!-- Edit Order Modal -->
     <div id="editOrderModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md border border-slate-100 overflow-hidden">
             <div class="bg-slate-900 px-5 py-3.5 text-white flex justify-between items-center">
@@ -137,8 +212,8 @@
                         <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-800 focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Member ID (AV + 5 Digits)</label>
-                        <input type="text" id="editMemberId" required maxlength="7" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Member ID (AV + Digits)</label>
+                        <input type="text" id="editMemberId" required maxlength="8" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
@@ -166,7 +241,351 @@
         </div>
     </div>
 
+    <!-- 🚀 Live Sync Progress Modal (Real-Time Terminal, Steps & Progress Bar) -->
+    <div id="syncProgressModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden transition-opacity">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden text-white flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div id="modalIconWrap" class="h-9 w-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm border border-emerald-500/30">
+                        <i class="fa-solid fa-rotate fa-spin" id="modalSpinner"></i>
+                    </div>
+                    <div>
+                        <h3 id="modalTitle" class="text-sm font-black tracking-wide text-white">Avira Live Sync in Progress</h3>
+                        <p id="modalSubtitle" class="text-[11px] text-slate-400 font-medium">Communicating with https://aviraglobal.in/AVGControl</p>
+                    </div>
+                </div>
+                <button type="button" id="btnSyncModalClose" class="h-8 w-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs transition-colors cursor-pointer hidden">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-4">
+                
+                <!-- Current Step Headline -->
+                <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+                    <span id="syncCurrentStep" class="flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="syncStepText">Initializing connection...</span>
+                    </span>
+                    <span id="syncPercentText" class="font-mono text-emerald-400 font-black">0%</span>
+                </div>
+
+                <!-- Animated Progress Bar -->
+                <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700/80">
+                    <div id="syncProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300 ease-out shadow-sm shadow-emerald-500/50" style="width: 0%"></div>
+                </div>
+
+                <!-- 3 Live Stats Counters -->
+                <div class="grid grid-cols-3 gap-3 pt-1">
+                    <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-center">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Page</div>
+                        <div id="statPage" class="text-base font-black text-white font-mono mt-0.5">-</div>
+                    </div>
+                    <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-center">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Orders Added</div>
+                        <div id="statOrders" class="text-base font-black text-emerald-400 font-mono mt-0.5">0</div>
+                    </div>
+                    <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-center">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</div>
+                        <div id="statStatus" class="text-xs font-black text-teal-300 font-mono mt-1 uppercase tracking-wide">Connecting</div>
+                    </div>
+                </div>
+
+                <!-- Dark Live Terminal Console Log -->
+                <div class="space-y-1.5 pt-1">
+                    <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <span>Live Execution Log:</span>
+                        <span class="text-slate-500 font-mono">Stream: active</span>
+                    </div>
+                    <div id="syncTerminalLog" class="bg-slate-950 text-emerald-400/90 font-mono text-[11px] p-3 rounded-xl h-44 overflow-y-auto leading-relaxed border border-slate-800/90 shadow-inner space-y-1 scroll-smooth">
+                        <!-- Stream logs dynamically injected here -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-slate-950/60 border-t border-slate-800 flex justify-between items-center">
+                <span class="text-[11px] text-slate-400 font-medium">Tracking numbers from Avira are excluded per system protocol.</span>
+                <button type="button" id="btnSyncCompleteDone" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-5 py-2.5 rounded-xl uppercase tracking-wider shadow transition-all cursor-pointer hidden">
+                    Done & Refresh
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 📦 Raw Orders Data Carrier (Eliminates IDE Linter Syntax Errors) -->
+    <script id="ordersDataCarrier" type="application/json"><%- JSON.stringify(orders || []) %></script>
+
     <script>
+        // 📦 Master Orders State & Pagination Config
+        const PAGE_SIZE = 50;
+        let currentPage = 1;
+        let rawOrdersData = [];
+        try {
+            const dataElem = document.getElementById('ordersDataCarrier');
+            rawOrdersData = dataElem ? JSON.parse(dataElem.textContent || '[]') : [];
+        } catch (e) {
+            console.error('Error parsing orders JSON:', e);
+            rawOrdersData = [];
+        }
+
+        // Function: Sort Orders so Latest Date & Order No are always on TOP
+        function sortOrdersLatestFirst(list) {
+            return (list || []).sort((a, b) => {
+                const matchA = a.order_no ? a.order_no.match(/ORD-(\d+)/i) : null;
+                const matchB = b.order_no ? b.order_no.match(/ORD-(\d+)/i) : null;
+                const numA = matchA ? parseInt(matchA[1], 10) : 0;
+                const numB = matchB ? parseInt(matchB[1], 10) : 0;
+                if (numA !== numB) {
+                    return numB - numA; // Largest order number (e.g. ORD-001226) at index 0
+                }
+                return (b.id || 0) - (a.id || 0);
+            });
+        }
+
+        let allOrders = sortOrdersLatestFirst(rawOrdersData);
+        let filteredOrders = [...allOrders];
+
+        // 🔄 Render Paginated Table (50 Items Per Page)
+        function renderPaginatedTable() {
+            const total = filteredOrders.length;
+            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIdx = (currentPage - 1) * PAGE_SIZE;
+            const endIdx = Math.min(startIdx + PAGE_SIZE, total);
+            const pageItems = filteredOrders.slice(startIdx, endIdx);
+
+            // Update Counter Badges
+            document.getElementById('ordersCounter').innerText = `${total} Records Saved`;
+            document.getElementById('totalRecordsCount').innerText = total;
+            document.getElementById('pageStart').innerText = total === 0 ? 0 : startIdx + 1;
+            document.getElementById('pageEnd').innerText = endIdx;
+            document.getElementById('currentPageNum').innerText = currentPage;
+            document.getElementById('totalPagesNum').innerText = totalPages;
+
+            // Update Button Disabled States
+            document.getElementById('btnFirstPage').disabled = (currentPage === 1);
+            document.getElementById('btnPrevPage').disabled = (currentPage === 1);
+            document.getElementById('btnNextPage').disabled = (currentPage >= totalPages || total === 0);
+            document.getElementById('btnLastPage').disabled = (currentPage >= totalPages || total === 0);
+
+            // Render Page Number Pills
+            renderPaginationPills(totalPages);
+
+            const tbody = document.getElementById('ordersTableBody');
+            if (pageItems.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="py-12 text-center text-slate-400 font-medium">
+                            No orders found. Click "Sync New Orders" or "Wipe & Sync All" above to pull live orders!
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('selectAllCheckbox').checked = false;
+                updateBulkDeleteButton();
+                return;
+            }
+
+            tbody.innerHTML = pageItems.map((item, idx) => {
+                const seq = startIdx + idx + 1;
+                const orderBadge = item.order_no 
+                    ? `<span class="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-mono font-bold">${item.order_no}</span>`
+                    : `<span class="text-slate-400 text-[10px]">MANUAL</span>`;
+                
+                return `
+                    <tr class="hover:bg-slate-50/70 transition-colors" id="order-row-${item.id}">
+                        <td class="py-2.5 px-3 text-center">
+                            <input type="checkbox" value="${item.id}" class="row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-400 font-mono text-[11px]">${seq}</td>
+                        <td class="py-2.5 px-4 font-mono">${orderBadge}</td>
+                        <td class="py-2.5 px-4 font-semibold text-slate-800 row-date">${item.order_date || '-'}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 row-memberid">${item.member_id || '-'}</td>
+                        <td class="py-2.5 px-4 uppercase font-semibold text-slate-900 row-name">${item.name || '-'}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-slate-700 row-pv">${item.pv || '0'}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-slate-900 row-amount">₹${item.amount || '0'}</td>
+                        <td class="py-2.5 px-4 text-center space-x-2">
+                            <button type="button" 
+                                    data-id="${item.id}"
+                                    data-date="${item.order_date || ''}"
+                                    data-memberid="${item.member_id || ''}"
+                                    data-name="${item.name || ''}"
+                                    data-pv="${item.pv || ''}"
+                                    data-amount="${item.amount || ''}"
+                                    class="btn-edit-order text-amber-500 hover:text-amber-700 font-bold cursor-pointer text-xs transition-colors">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                            <button type="button" data-order-id="${item.id}" class="btn-delete-order text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-xs transition-colors">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Reset select-all checkbox for the current page
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateBulkDeleteButton();
+        }
+
+        // 🏷️ Pagination Number Pills Component
+        function renderPaginationPills(totalPages) {
+            const container = document.getElementById('pagePillsContainer');
+            container.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            const pages = [];
+            if (totalPages <= 7) {
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+            } else {
+                pages.push(1);
+                if (currentPage > 3) pages.push('...');
+                
+                const start = Math.max(2, currentPage - 1);
+                const end = Math.min(totalPages - 1, currentPage + 1);
+                for (let i = start; i <= end; i++) {
+                    if (!pages.includes(i)) pages.push(i);
+                }
+
+                if (currentPage < totalPages - 2) pages.push('...');
+                if (!pages.includes(totalPages)) pages.push(totalPages);
+            }
+
+            pages.forEach(p => {
+                if (p === '...') {
+                    const span = document.createElement('span');
+                    span.className = 'px-1.5 text-slate-400 text-xs font-bold';
+                    span.innerText = '…';
+                    container.appendChild(span);
+                } else {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = (p === currentPage)
+                        ? 'h-7 w-7 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-sm cursor-default'
+                        : 'h-7 w-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer transition-all shadow-sm';
+                    btn.innerText = p;
+                    if (p !== currentPage) {
+                        btn.addEventListener('click', () => {
+                            currentPage = p;
+                            renderPaginatedTable();
+                        });
+                    }
+                    container.appendChild(btn);
+                }
+            });
+        }
+
+        // Pagination Navigation Event Listeners
+        document.getElementById('btnFirstPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage = 1;
+                renderPaginatedTable();
+            }
+        });
+        document.getElementById('btnPrevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPaginatedTable();
+            }
+        });
+        document.getElementById('btnNextPage').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPaginatedTable();
+            }
+        });
+        document.getElementById('btnLastPage').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
+            if (currentPage < totalPages) {
+                currentPage = totalPages;
+                renderPaginatedTable();
+            }
+        });
+
+        // 🔍 Real-Time Order Search Filter
+        function applyFilter() {
+            const q = (document.getElementById('orderSearchInput').value || '').toLowerCase().trim();
+            if (!q) {
+                filteredOrders = [...allOrders];
+            } else {
+                filteredOrders = allOrders.filter(o => {
+                    const no = (o.order_no || '').toLowerCase();
+                    const mem = (o.member_id || '').toLowerCase();
+                    const nm = (o.name || '').toLowerCase();
+                    const dt = (o.order_date || '').toLowerCase();
+                    const pv = (o.pv || '').toString().toLowerCase();
+                    const amt = (o.amount || '').toString().toLowerCase();
+                    return no.includes(q) || mem.includes(q) || nm.includes(q) || dt.includes(q) || pv.includes(q) || amt.includes(q);
+                });
+            }
+            currentPage = 1;
+            renderPaginatedTable();
+        }
+
+        const searchInput = document.getElementById('orderSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFilter);
+        }
+
+        // 🔄 Fetch and Refresh Orders from Server
+        async function fetchOrdersListFromServer() {
+            try {
+                const res = await fetch('/admin/api/orders-list');
+                const data = await res.json();
+                if (data.success && Array.isArray(data.orders)) {
+                    allOrders = sortOrdersLatestFirst(data.orders);
+                    applyFilter();
+                }
+            } catch (err) {
+                console.error("Failed to fetch updated orders list:", err);
+            }
+        }
+
+        // 🗑️ Instant Wipe Helper (Deletes immediately from DB and UI)
+        async function executeInstantWipe() {
+            try {
+                const res = await fetch('/admin/api/wipe-orders', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    allOrders = [];
+                    filteredOrders = [];
+                    currentPage = 1;
+                    renderPaginatedTable();
+                    return true;
+                } else {
+                    alert("Error wiping orders: " + (data.msg || "Unknown error"));
+                    return false;
+                }
+            } catch (err) {
+                console.error("Wipe failed:", err);
+                alert("Server error wiping orders repository.");
+                return false;
+            }
+        }
+
+        // Direct Wipe Button Handler
+        const btnDirectWipe = document.getElementById('btnDirectWipe');
+        if (btnDirectWipe) {
+            btnDirectWipe.addEventListener('click', async function() {
+                const confirmed = confirm("⚠️ WIPE ALL ORDERS CONFIRMATION\n\nAre you sure you want to permanently DELETE ALL records from Orders Master?\n\nThe table will be emptied immediately.");
+                if (confirmed) {
+                    this.disabled = true;
+                    this.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-rose-500"></i> Wiping...`;
+                    await executeInstantWipe();
+                    this.disabled = false;
+                    this.innerHTML = `<i class="fa-solid fa-broom text-rose-500"></i> Wipe All Orders`;
+                }
+            });
+        }
+
         function formatMemberIdInput(el) {
             let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
             if (!raw) {
@@ -178,54 +597,15 @@
                 return;
             }
             if (raw.startsWith('AV')) {
-                let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 5);
+                let num = raw.slice(2).replace(/[^0-9]/g, '').slice(0, 6);
                 el.value = 'AV' + num;
             } else {
-                let num = raw.replace(/[^0-9]/g, '').slice(0, 5);
-                if (num.length > 0) {
-                    el.value = 'AV' + num;
-                } else {
-                    el.value = '';
-                }
+                let num = raw.replace(/[^0-9]/g, '').slice(0, 6);
+                el.value = num.length > 0 ? 'AV' + num : '';
             }
         }
 
         const editModal = document.getElementById('editOrderModal');
-
-        document.getElementById('uploadOrdersForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const fileInput = document.getElementById('orderExcelFile');
-            if (fileInput.files.length === 0) return;
-
-            const btn = document.getElementById('btnUploadOrders');
-            btn.innerText = "IMPORTING...";
-            btn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('excelFile', fileInput.files[0]);
-
-            try {
-                const res = await fetch('/admin/api/upload-orders-excel', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await res.json();
-
-                if (result.success) {
-                    alert(result.msg);
-                    renderOrdersTable(result.orders);
-                } else {
-                    alert(result.msg || "Upload failed");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Server connection error during upload.");
-            } finally {
-                btn.innerText = "Upload";
-                btn.disabled = false;
-                fileInput.value = '';
-            }
-        });
 
         document.addEventListener('click', function(e) {
             const editBtn = e.target.closest('.btn-edit-order');
@@ -275,7 +655,8 @@
                 const result = await res.json();
 
                 if (result.success) {
-                    renderOrdersTable(result.orders);
+                    allOrders = sortOrdersLatestFirst(result.orders);
+                    applyFilter();
                     closeEditModal();
                 } else {
                     alert("Error: " + result.msg);
@@ -298,7 +679,8 @@
                         const res = await fetch('/admin/api/delete-order/' + id, { method: 'DELETE' });
                         const result = await res.json();
                         if (result.success) {
-                            renderOrdersTable(result.orders);
+                            allOrders = sortOrdersLatestFirst(result.orders);
+                            applyFilter();
                         }
                     } catch (err) {
                         console.error(err);
@@ -361,7 +743,8 @@
                     const result = await res.json();
 
                     if (result.success) {
-                        renderOrdersTable(result.orders);
+                        allOrders = sortOrdersLatestFirst(result.orders);
+                        applyFilter();
                     } else {
                         alert(result.msg || "Deletion failed!");
                     }
@@ -376,49 +759,233 @@
             }
         });
 
-        function renderOrdersTable(orders) {
-            const tbody = document.getElementById('ordersTableBody');
-            document.getElementById('ordersCounter').innerText = `${orders.length} Records Saved`;
-            document.getElementById('selectAllCheckbox').checked = false;
-            updateBulkDeleteButton();
+        // 🚀 Real-Time Live Sync Engine Controller
+        const syncModal = document.getElementById('syncProgressModal');
+        const progressBar = document.getElementById('syncProgressBar');
+        const percentText = document.getElementById('syncPercentText');
+        const stepText = document.getElementById('syncStepText');
+        const statPage = document.getElementById('statPage');
+        const statOrders = document.getElementById('statOrders');
+        const statStatus = document.getElementById('statStatus');
+        const terminalLog = document.getElementById('syncTerminalLog');
+        const btnModalDone = document.getElementById('btnSyncCompleteDone');
+        const btnModalClose = document.getElementById('btnSyncModalClose');
+        const modalSpinner = document.getElementById('modalSpinner');
+        const modalIconWrap = document.getElementById('modalIconWrap');
 
-            if (!orders || orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400 font-normal">No order excel imported yet. Upload an order file above!</td></tr>`;
-                return;
+        let activeEventSource = null;
+
+        function appendTerminalLog(msg, isError = false) {
+            const time = new Date().toLocaleTimeString();
+            const logLine = document.createElement('div');
+            logLine.className = 'flex items-start gap-2';
+            logLine.innerHTML = `
+                <span class="text-slate-500 font-mono text-[10px] flex-shrink-0">[${time}]</span>
+                <span class="${isError ? 'text-rose-400 font-bold' : 'text-emerald-300'}">${msg}</span>
+            `;
+            terminalLog.appendChild(logLine);
+            terminalLog.scrollTop = terminalLog.scrollHeight;
+        }
+
+        async function startLiveSync(mode) {
+            const syncModal = document.getElementById('syncProgressModal');
+            const progressBar = document.getElementById('syncProgressBar');
+            const percentText = document.getElementById('syncPercentText');
+            const stepText = document.getElementById('syncStepText');
+            const statPage = document.getElementById('statPage');
+            const statOrders = document.getElementById('statOrders');
+            const statStatus = document.getElementById('statStatus');
+            const terminalLog = document.getElementById('syncTerminalLog');
+            const btnModalDone = document.getElementById('btnSyncCompleteDone');
+            const btnModalClose = document.getElementById('btnSyncModalClose');
+            const modalSpinner = document.getElementById('modalSpinner');
+            const modalIconWrap = document.getElementById('modalIconWrap');
+            const modalTitle = document.getElementById('modalTitle');
+
+            // Reset modal state
+            if (progressBar) {
+                progressBar.style.width = '0%';
+                progressBar.className = 'h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300 ease-out shadow-sm shadow-emerald-500/50';
+            }
+            if (percentText) percentText.innerText = '0%';
+            if (stepText) stepText.innerText = mode === 'wipe_all' ? 'Initiating full wipe & catalog sync...' : 'Starting sync for new orders...';
+            if (statPage) statPage.innerText = '-';
+            if (statOrders) statOrders.innerText = '0';
+            if (statStatus) {
+                statStatus.innerText = 'CONNECTING';
+                statStatus.className = 'text-xs font-black text-teal-300 font-mono mt-1 uppercase tracking-wide';
+            }
+            if (terminalLog) terminalLog.innerHTML = '';
+            
+            if (modalSpinner) modalSpinner.className = 'fa-solid fa-rotate fa-spin';
+            if (modalIconWrap) modalIconWrap.className = 'h-9 w-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm border border-emerald-500/30';
+
+            if (btnModalDone) btnModalDone.classList.add('hidden');
+            if (btnModalClose) btnModalClose.classList.add('hidden');
+
+            if (modalTitle) modalTitle.innerText = mode === 'wipe_all' ? 'Wipe & Full Re-sync in Progress' : 'Syncing New Orders';
+            
+            // Show modal immediately
+            if (syncModal) {
+                syncModal.classList.remove('hidden');
+                syncModal.classList.add('flex');
             }
 
-            tbody.innerHTML = '';
-            orders.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/70 transition-colors" id="order-row-${item.id}">
-                        <td class="py-2.5 px-3 text-center">
-                            <input type="checkbox" value="${item.id}" class="row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
-                        </td>
-                        <td class="py-2.5 px-3 text-slate-400 font-mono">${index + 1}</td>
-                        <td class="py-2.5 px-4 font-semibold text-slate-800 row-date">${item.order_date}</td>
-                        <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 row-memberid">${item.member_id}</td>
-                        <td class="py-2.5 px-4 uppercase font-semibold text-slate-900 row-name">${item.name}</td>
-                        <td class="py-2.5 px-4 font-mono font-bold text-slate-700 row-pv">${item.pv}</td>
-                        <td class="py-2.5 px-4 font-mono font-bold text-slate-900 row-amount">₹${item.amount}</td>
-                        <td class="py-2.5 px-4 text-center space-x-2">
-                            <button type="button" 
-                                    data-id="${item.id}"
-                                    data-date="${item.order_date}"
-                                    data-memberid="${item.member_id}"
-                                    data-name="${item.name}"
-                                    data-pv="${item.pv}"
-                                    data-amount="${item.amount}"
-                                    class="btn-edit-order text-amber-500 hover:text-amber-700 font-bold cursor-pointer text-xs transition-colors">
-                                <i class="fa-solid fa-pen-to-square"></i> Edit
-                            </button>
-                            <button type="button" data-order-id="${item.id}" class="btn-delete-order text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-xs transition-colors">
-                                <i class="fa-solid fa-trash"></i> Delete
-                            </button>
-                        </td>
-                    </tr>
-                `;
+            appendTerminalLog(`🚀 [Sync Engine] Initialized in ${mode.toUpperCase()} mode.`);
+            appendTerminalLog(`🌐 Connecting to Avira Admin portal...`);
+
+            if (activeEventSource) {
+                activeEventSource.close();
+            }
+
+            activeEventSource = new EventSource(`/admin/api/order-sync-stream?mode=${encodeURIComponent(mode)}`);
+
+            activeEventSource.onmessage = async function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+
+                    if (data.percent !== undefined) {
+                        progressBar.style.width = `${data.percent}%`;
+                        percentText.innerText = `${data.percent}%`;
+                    }
+
+                    if (data.message) {
+                        stepText.innerText = data.message;
+                        appendTerminalLog(data.message, data.step === 'error');
+                    }
+
+                    if (data.page) {
+                        statPage.innerText = `${data.page} / ${data.totalPages || data.maxPages || '?'}`;
+                    }
+
+                    if (data.totalNewAdded !== undefined) {
+                        statOrders.innerText = data.totalNewAdded;
+                    }
+
+                    if (data.step) {
+                        statStatus.innerText = data.step.toUpperCase();
+                    }
+
+                    // On Successful Completion
+                    if (data.step === 'done') {
+                        activeEventSource.close();
+                        progressBar.style.width = '100%';
+                        percentText.innerText = '100%';
+                        statStatus.innerText = 'COMPLETED';
+                        statStatus.className = 'text-xs font-black text-emerald-400 font-mono mt-1 uppercase tracking-wide';
+                        
+                        modalSpinner.className = 'fa-solid fa-check text-emerald-400';
+                        modalIconWrap.className = 'h-9 w-9 rounded-xl bg-emerald-500/30 text-emerald-400 flex items-center justify-center text-sm border border-emerald-400/50';
+
+                        btnModalDone.classList.remove('hidden');
+                        btnModalClose.classList.remove('hidden');
+
+                        // Automatically fetch and render fresh latest orders
+                        await fetchOrdersListFromServer();
+                    }
+
+                    // On Error
+                    if (data.step === 'error') {
+                        activeEventSource.close();
+                        statStatus.innerText = 'ERROR';
+                        statStatus.className = 'text-xs font-black text-rose-400 font-mono mt-1 uppercase tracking-wide';
+                        modalSpinner.className = 'fa-solid fa-triangle-exclamation text-rose-400';
+                        modalIconWrap.className = 'h-9 w-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm border border-rose-500/40';
+                        btnModalClose.classList.remove('hidden');
+                    }
+
+                } catch (e) {
+                    console.error('Error parsing sync event:', e);
+                }
+            };
+
+            activeEventSource.onerror = async function() {
+                if (activeEventSource.readyState === EventSource.CLOSED) {
+                    btnModalClose.classList.remove('hidden');
+                    btnModalDone.classList.remove('hidden');
+                } else {
+                    appendTerminalLog("Stream connection closed or completed.", false);
+                    activeEventSource.close();
+                    btnModalClose.classList.remove('hidden');
+                    btnModalDone.classList.remove('hidden');
+                    await fetchOrdersListFromServer();
+                }
+            };
+        }
+
+        // Option 1 Button: Sync New Orders
+        const btnSyncNew = document.getElementById('btnSyncNew');
+        if (btnSyncNew) {
+            btnSyncNew.addEventListener('click', () => startLiveSync('new'));
+        }
+
+        // Option 2 Button: Wipe & Sync All
+        const btnWipeAll = document.getElementById('btnWipeAll');
+        if (btnWipeAll) {
+            btnWipeAll.addEventListener('click', async () => {
+                const confirmed = confirm("⚠️ WARNING: Wipe & Sync All\n\nThis will completely DELETE all current records from Orders Master immediately and re-download all orders from Avira Website.\n\nAre you sure you want to proceed?");
+                if (confirmed) {
+                    // Wipe immediately so UI and DB are emptied right away
+                    await executeInstantWipe();
+                    // Launch full catalog re-sync
+                    startLiveSync('wipe_all');
+                }
             });
         }
+
+        // ⏸️ Toggle Auto-Sync Button Handler (Pause / Resume)
+        const btnToggleAutoSync = document.getElementById('btnToggleAutoSync');
+        if (btnToggleAutoSync) {
+            btnToggleAutoSync.addEventListener('click', async function() {
+                this.disabled = true;
+                try {
+                    const res = await fetch('/admin/api/toggle-auto-sync', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        const isEnabled = data.isAutoSyncEnabled;
+                        const badge = document.getElementById('autoSyncBadge');
+                        const dot = document.getElementById('autoSyncDot');
+                        const badgeText = document.getElementById('autoSyncBadgeText');
+                        const icon = document.getElementById('toggleSyncIcon');
+                        const text = document.getElementById('toggleSyncText');
+
+                        if (isEnabled) {
+                            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider';
+                            dot.className = 'h-2 w-2 rounded-full bg-emerald-400 animate-pulse';
+                            badgeText.innerText = 'Auto-Sync Active (5m)';
+                            icon.className = 'fa-solid fa-pause text-amber-400 text-[10px]';
+                            text.innerText = 'Pause Auto-Sync';
+                        } else {
+                            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[10px] font-black uppercase tracking-wider';
+                            dot.className = 'h-2 w-2 rounded-full bg-amber-400';
+                            badgeText.innerText = 'Auto-Sync Paused';
+                            icon.className = 'fa-solid fa-play text-emerald-400 text-[10px]';
+                            text.innerText = 'Resume Auto-Sync';
+                        }
+                    } else {
+                        alert(data.msg || 'Unable to toggle auto-sync.');
+                    }
+                } catch (e) {
+                    console.error('Toggle error:', e);
+                    alert('Server error toggling auto-sync.');
+                } finally {
+                    this.disabled = false;
+                }
+            });
+        }
+
+        // Modal Close & Done Button Listeners
+        const closeModal = async () => {
+            syncModal.classList.add('hidden');
+            syncModal.classList.remove('flex');
+            await fetchOrdersListFromServer();
+        };
+
+        if (btnModalDone) btnModalDone.addEventListener('click', closeModal);
+        if (btnModalClose) btnModalClose.addEventListener('click', closeModal);
+
+        // Initial render on page load
+        renderPaginatedTable();
     </script>
 </body>
 </html>

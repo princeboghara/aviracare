@@ -24,7 +24,7 @@ app.use(compression({
     level: 6,
     threshold: 1024, // Compress responses above 1KB
     filter: (req, res) => {
-        if (req.headers['x-no-compression']) return false;
+        if (req.headers['x-no-compression'] || (req.headers.accept && req.headers.accept.includes('text/event-stream'))) return false;
         return compression.filter(req, res);
     }
 }));
@@ -121,6 +121,14 @@ if (!process.env.VERCEL) {
             await db.initIndexes();
         } catch (e) {
             console.warn('DB index init error:', e.message);
+        }
+
+        // 🤖 Start Avira Live Order Auto-Sync Bot
+        try {
+            const orderSyncBot = require('./config/order_sync');
+            orderSyncBot.startBackgroundBot();
+        } catch (e) {
+            console.warn('Avira Order Sync Bot init error:', e.message);
         }
     });
 }

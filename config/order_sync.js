@@ -1,0 +1,556 @@
+/**
+ * 🌐 AviraCare Live Order Sync Bot
+ * Supports:
+ * 1. Sync New Orders (keeps existing records, pulls only new ones)
+ * 2. Wipe & Sync All (deletes existing records, re-syncs entire catalog from Avira)
+ * 3. Real-time step progress streaming for live UI progress bars and logs.
+ * Note: Never imports or touches tracking numbers from Avira Global.
+ */
+
+const db = require('../db');
+const pool = db.pool || db;
+
+class AviraOrderSyncBot {
+    constructor() {
+        this.baseUrl = (process.env.AVG_BASE_URL || 'https://aviraglobal.in').replace(/\/+$/, '');
+        this.email = process.env.AVG_EMAIL || 'admin@aviralifecare.com';
+        this.password = process.env.AVG_PASSWORD || 'Avira@Admin2026';
+        this.syncIntervalMinutes = parseInt(process.env.AVG_AUTO_SYNC_MINUTES || '5', 10);
+        
+        this.cachedCookies = null;
+        this.cookieExpiry = null;
+        this.isSyncing = false;
+        this.isAutoSyncEnabled = true;
+        this.intervalHandle = null;
+
+        this.lastSyncStatus = {
+            lastRun: null,
+            success: true,
+            mode: 'idle',
+            message: 'Ready',
+            newOrdersAdded: 0,
+            totalOrdersInDb: 0,
+            error: null
+        };
+    }
+
+    /**
+     * 🔐 Authenticates with Avira Admin portal and caches session cookies
+     */
+    async getAuthenticatedCookies(forceFresh = false, onProgress = null) {
+        if (!forceFresh && this.cachedCookies && this.cookieExpiry && Date.now() < this.cookieExpiry) {
+            return this.cachedCookies;
+        }
+
+        if (onProgress) {
+            onProgress({ step: 'auth', message: 'Connecting to https://aviraglobal.in/AVGControl...', percent: 5 });
+        }
+
+        const loginUrl = `${this.baseUrl}/AVGControl`;
+
+        // Step 1: GET Login Page for CSRF token & initial cookies
+        const getRes = await fetch(loginUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            }
+        });
+
+        if (!getRes.ok) {
+            throw new Error(`Failed to reach Avira login page: HTTP ${getRes.status}`);
+        }
+
+        const html = await getRes.text();
+        const tokenMatch = html.match(/name="__RequestVerificationToken"\s+type="hidden"\s+value="([^"]+)"/);
+        if (!tokenMatch) {
+            throw new Error('Verification token not found on Avira login page.');
+        }
+
+        const token = tokenMatch[1];
+        const rawCookies = getRes.headers.getSetCookie ? getRes.headers.getSetCookie() : [];
+        let cookieJar = {};
+        for (const c of rawCookies) {
+            const parts = c.split(';')[0].split('=');
+            cookieJar[parts[0].trim()] = parts.slice(1).join('=');
+        }
+
+        if (onProgress) {
+            onProgress({ step: 'auth', message: 'Authenticating administrator credentials...', percent: 10 });
+        }
+
+        // Step 2: POST Credentials
+        const formParams = new URLSearchParams();
+        formParams.append('__RequestVerificationToken', token);
+        formParams.append('Email', this.email);
+        formParams.append('Password', this.password);
+        formParams.append('RememberMe', 'true');
+        formParams.append('ReturnUrl', '');
+
+        const postRes = await fetch(loginUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Cookie': Object.entries(cookieJar).map(([k, v]) => `${k}=${v}`).join('; '),
+                'Origin': this.baseUrl,
+                'Referer': loginUrl,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            },
+            body: formParams.toString(),
+            redirect: 'manual'
+        });
+
+        const postCookies = postRes.headers.getSetCookie ? postRes.headers.getSetCookie() : [];
+        for (const c of postCookies) {
+            const parts = c.split(';')[0].split('=');
+            cookieJar[parts[0].trim()] = parts.slice(1).join('=');
+        }
+
+        if (!cookieJar['Avira.Admin']) {
+            throw new Error('Authentication failed. Please verify AVG_EMAIL and AVG_PASSWORD.');
+        }
+
+        this.cachedCookies = Object.entries(cookieJar).map(([k, v]) => `${k}=${v}`).join('; ');
+        this.cookieExpiry = Date.now() + (4 * 60 * 60 * 1000); // 4 hours session validity
+
+        if (onProgress) {
+            onProgress({ step: 'auth_success', message: 'Session authenticated successfully!', percent: 15 });
+        }
+
+        return this.cachedCookies;
+    }
+
+    /**
+     * 📥 Fetches ALL orders HTML in a single request using size=all
+     * Target: https://aviraglobal.in/AVGControl/orders?status=ALL&size=all
+     */
+    async fetchAllOrdersHtml(onProgress = null) {
+        let cookies = await this.getAuthenticatedCookies(false, onProgress);
+        const url = `${this.baseUrl}/AVGControl/orders?status=ALL&size=all`;
+
+        let res = await fetch(url, {
+            headers: {
+                'Cookie': cookies,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            }
+        });
+
+        // Auto-refresh session if expired
+        if (res.status === 401 || res.status === 302) {
+            cookies = await this.getAuthenticatedCookies(true, onProgress);
+            res = await fetch(url, {
+                headers: {
+                    'Cookie': cookies,
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+                }
+            });
+        }
+
+        if (!res.ok) {
+            throw new Error(`Failed to fetch orders from size=all: HTTP ${res.status}`);
+        }
+
+        return await res.text();
+    }
+
+    /**
+     * 📥 Fetches HTML of a specific orders page (Fallback)
+     */
+    async fetchOrdersPageHtml(pageNumber = 1, onProgress = null) {
+        let cookies = await this.getAuthenticatedCookies(false, onProgress);
+        const url = `${this.baseUrl}/AVGControl/orders?status=ALL&page=${pageNumber}`;
+
+        let res = await fetch(url, {
+            headers: {
+                'Cookie': cookies,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            }
+        });
+
+        if (res.status === 401 || res.status === 302) {
+            cookies = await this.getAuthenticatedCookies(true, onProgress);
+            res = await fetch(url, {
+                headers: {
+                    'Cookie': cookies,
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+                }
+            });
+        }
+
+        if (!res.ok) {
+            throw new Error(`Failed to fetch orders page ${pageNumber}: HTTP ${res.status}`);
+        }
+
+        return await res.text();
+    }
+
+    /**
+     * 🧩 Parses table rows into structured order objects (Excludes Tracking Number!)
+     */
+    parseOrdersFromHtml(html) {
+        const rows = html.match(/<tr[\s\S]*?<\/tr>/gi) || [];
+        const parsedOrders = [];
+
+        for (const row of rows) {
+            if (row.includes('<th') || !row.includes('ORD-')) continue;
+
+            try {
+                // 1. Order Number
+                const ordMatch = row.match(/data-value="(ORD-[0-9]+)"/i) || row.match(/<b>(ORD-[0-9]+)<\/b>/i);
+                const orderNo = ordMatch ? ordMatch[1].trim() : null;
+                if (!orderNo) continue;
+
+                // 2. Order Date (e.g. 23 Oct 2026)
+                const dateMatch = row.match(/<td data-value="[0-9-:\s]+">([^<]+)<\/td>/i);
+                let orderDate = dateMatch ? dateMatch[1].trim() : '';
+                if (!orderDate) {
+                    const fallbackDate = row.match(/data-value="([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2})"/i);
+                    orderDate = fallbackDate ? fallbackDate[1].trim() : '';
+                }
+
+                // 3. Member ID
+                const memberMatch = row.match(/members\?q=([A-Za-z0-9]+)/i);
+                const memberId = memberMatch ? memberMatch[1].trim().toUpperCase() : '';
+
+                // 4. Customer Name
+                const nameMatch = row.match(/<div style="font-size:\.8rem;color:var\(--av-muted\)">([^<]+)<\/div>/i);
+                let name = nameMatch ? nameMatch[1].trim() : '';
+                name = name.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#x27;/g, "'");
+
+                // 5. Total PV and Amount
+                const numRegex = /<td class="av-num" data-value="([^"]+)">/gi;
+                let numMatch;
+                const numValues = [];
+                while ((numMatch = numRegex.exec(row)) !== null) {
+                    numValues.push(numMatch[1].trim());
+                }
+
+                const pv = numValues[0] || '0';
+                const amount = numValues[1] || '0';
+
+                // Notice: Tracking number is completely ignored and excluded per protocol!
+                parsedOrders.push({
+                    order_no: orderNo,
+                    order_date: orderDate,
+                    member_id: memberId,
+                    name: name,
+                    pv: pv,
+                    amount: amount
+                });
+            } catch (err) {
+                console.warn('⚠️ Error parsing order row:', err.message);
+            }
+        }
+
+        return parsedOrders;
+    }
+
+    /**
+     * 🔢 Detects total pages available from Page 1 HTML
+     */
+    extractTotalPages(html) {
+        const pageMatches = html.match(/page=(\d+)/g) || [];
+        const pageNumbers = pageMatches.map(m => parseInt(m.replace('page=', ''), 10)).filter(n => !isNaN(n));
+        return pageNumbers.length > 0 ? Math.max(...pageNumbers) : 1;
+    }
+
+    /**
+     * ⚡ OPTION 1: Sync New Orders
+     * Fetches all orders via size=all, detects brand new orders, batch inserts only new ones.
+     */
+    async syncNewOrders(onProgress = null) {
+        if (this.isSyncing) {
+            const msg = 'Another sync process is already running. Please wait a moment.';
+            if (onProgress) onProgress({ step: 'error', message: msg, error: msg });
+            return { success: false, message: msg };
+        }
+
+        this.isSyncing = true;
+        let totalNewAdded = 0;
+
+        try {
+            if (onProgress) {
+                onProgress({ step: 'start', mode: 'new', message: 'Connecting to https://aviraglobal.in/AVGControl/orders?status=ALL&size=all...', percent: 10 });
+            }
+
+            // Fetch all orders using size=all in 1 lightning-fast request
+            const html = await this.fetchAllOrdersHtml(onProgress);
+            if (onProgress) {
+                onProgress({ step: 'parsing', message: 'Received live catalog. Parsing orders...', percent: 40 });
+            }
+
+            const liveOrders = this.parseOrdersFromHtml(html);
+            if (onProgress) {
+                onProgress({ step: 'checking', message: `Parsed ${liveOrders.length} orders from Avira. Checking for new records...`, percent: 60 });
+            }
+
+            // Get existing order_no set from database
+            const existingRes = await pool.query('SELECT order_no FROM orders_master WHERE order_no IS NOT NULL');
+            const existingOrderNos = new Set(existingRes.rows.map(r => r.order_no));
+
+            // Find new orders that are not in database yet
+            const newOrdersToInsert = liveOrders.filter(o => o.order_no && !existingOrderNos.has(o.order_no));
+
+            if (newOrdersToInsert.length > 0) {
+                if (onProgress) {
+                    onProgress({ step: 'inserting', message: `Found ${newOrdersToInsert.length} new orders! Saving into database...`, percent: 80 });
+                }
+
+                // Batch insert new orders in chunks of 50
+                const CHUNK_SIZE = 50;
+                for (let i = 0; i < newOrdersToInsert.length; i += CHUNK_SIZE) {
+                    const chunk = newOrdersToInsert.slice(i, i + CHUNK_SIZE);
+                    const values = [];
+                    const valueStrings = chunk.map((order, idx) => {
+                        const offset = idx * 6;
+                        values.push(order.order_no, order.order_date, order.member_id, order.name, order.pv, order.amount);
+                        return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6})`;
+                    });
+
+                    await pool.query(`
+                        INSERT INTO orders_master (order_no, order_date, member_id, name, pv, amount)
+                        VALUES ${valueStrings.join(', ')}
+                        ON CONFLICT (order_no) DO NOTHING
+                    `, values);
+
+                    totalNewAdded += chunk.length;
+                }
+            }
+
+            const totalInDbRes = await pool.query('SELECT count(*) FROM orders_master');
+            const totalInDb = parseInt(totalInDbRes.rows[0].count, 10);
+
+            this.lastSyncStatus = {
+                lastRun: new Date(),
+                success: true,
+                mode: 'new',
+                message: totalNewAdded > 0 
+                    ? `Sync Complete! Added ${totalNewAdded} new orders. Total in DB: ${totalInDb}.`
+                    : `System is already up to date! All ${totalInDb} orders are in sync.`,
+                newOrdersAdded: totalNewAdded,
+                totalOrdersInDb: totalInDb,
+                error: null
+            };
+
+            if (onProgress) {
+                onProgress({
+                    step: 'done',
+                    mode: 'new',
+                    message: totalNewAdded > 0 
+                        ? `Sync complete! Successfully added ${totalNewAdded} new orders. Total records: ${totalInDb}.`
+                        : `System is completely up to date! All ${totalInDb} orders are in sync.`,
+                    totalNewAdded,
+                    newOrdersAdded: totalNewAdded,
+                    totalInDb,
+                    percent: 100
+                });
+            }
+
+            return this.lastSyncStatus;
+
+        } catch (err) {
+            console.error('❌ [Sync New Orders Error]:', err.message);
+            this.lastSyncStatus = {
+                lastRun: new Date(),
+                success: false,
+                mode: 'new',
+                message: err.message,
+                newOrdersAdded: totalNewAdded,
+                totalOrdersInDb: 0,
+                error: err.message
+            };
+            if (onProgress) {
+                onProgress({ step: 'error', message: err.message, error: err.message, percent: 100 });
+            }
+            return this.lastSyncStatus;
+        } finally {
+            this.isSyncing = false;
+        }
+    }
+
+    /**
+     * 🧹 OPTION 2: Wipe and Sync All
+     * Clears all old orders from orders_master, pulls entire catalog via size=all in 1 single shot.
+     */
+    async wipeAndSyncAll(onProgress = null) {
+        if (this.isSyncing) {
+            const msg = 'Another sync process is already running. Please wait a moment.';
+            if (onProgress) onProgress({ step: 'error', message: msg, error: msg });
+            return { success: false, message: msg };
+        }
+
+        this.isSyncing = true;
+        let totalNewAdded = 0;
+
+        try {
+            if (onProgress) {
+                onProgress({ step: 'start', mode: 'wipe_all', message: 'Initiating Full Wipe & Fresh Sync from size=all...', percent: 5 });
+            }
+
+            // Step 1: Wipe existing orders immediately
+            if (onProgress) {
+                onProgress({ step: 'wipe', message: 'Wiping old orders from Orders Master...', percent: 15 });
+            }
+            await pool.query('DELETE FROM orders_master');
+
+            // Step 2: Fetch all orders from size=all in 1 single request
+            if (onProgress) {
+                onProgress({ step: 'fetching', message: 'Fetching entire catalog from https://aviraglobal.in/AVGControl/orders?status=ALL&size=all...', percent: 35 });
+            }
+            const html = await this.fetchAllOrdersHtml(onProgress);
+
+            if (onProgress) {
+                onProgress({ step: 'parsing', message: 'Parsing all orders...', percent: 60 });
+            }
+            const allOrders = this.parseOrdersFromHtml(html);
+
+            if (onProgress) {
+                onProgress({ step: 'inserting', message: `Parsed ${allOrders.length} orders! Saving into database...`, percent: 75 });
+            }
+
+            // Step 3: Fast Batch insert in chunks of 100
+            const CHUNK_SIZE = 100;
+            for (let i = 0; i < allOrders.length; i += CHUNK_SIZE) {
+                const chunk = allOrders.slice(i, i + CHUNK_SIZE);
+                const values = [];
+                const valueStrings = chunk.map((order, idx) => {
+                    const offset = idx * 6;
+                    values.push(order.order_no, order.order_date, order.member_id, order.name, order.pv, order.amount);
+                    return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6})`;
+                });
+
+                await pool.query(`
+                    INSERT INTO orders_master (order_no, order_date, member_id, name, pv, amount)
+                    VALUES ${valueStrings.join(', ')}
+                    ON CONFLICT (order_no) DO NOTHING
+                `, values);
+
+                totalNewAdded += chunk.length;
+                const progressPct = Math.min(96, Math.round(75 + (totalNewAdded / allOrders.length) * 21));
+                if (onProgress) {
+                    onProgress({
+                        step: 'inserting',
+                        message: `Saved ${totalNewAdded}/${allOrders.length} orders into database...`,
+                        totalNewAdded,
+                        percent: progressPct
+                    });
+                }
+            }
+
+            const totalInDbRes = await pool.query('SELECT count(*) FROM orders_master');
+            const totalInDb = parseInt(totalInDbRes.rows[0].count, 10);
+
+            this.lastSyncStatus = {
+                lastRun: new Date(),
+                success: true,
+                mode: 'wipe_all',
+                message: `Wipe & Sync Complete! Successfully imported all ${totalNewAdded} orders in 1 shot.`,
+                newOrdersAdded: totalNewAdded,
+                totalOrdersInDb: totalInDb,
+                error: null
+            };
+
+            if (onProgress) {
+                onProgress({
+                    step: 'done',
+                    mode: 'wipe_all',
+                    message: `Complete! All ${totalInDb} orders successfully imported from size=all in 1 shot!`,
+                    newOrdersAdded: totalNewAdded,
+                    totalNewAdded,
+                    totalInDb,
+                    percent: 100
+                });
+            }
+
+            return this.lastSyncStatus;
+
+        } catch (err) {
+            console.error('❌ [Wipe & Sync All Error]:', err.message);
+            this.lastSyncStatus = {
+                lastRun: new Date(),
+                success: false,
+                mode: 'wipe_all',
+                message: err.message,
+                newOrdersAdded: totalNewAdded,
+                totalOrdersInDb: 0,
+                error: err.message
+            };
+            if (onProgress) {
+                onProgress({ step: 'error', message: err.message, error: err.message, percent: 100 });
+            }
+            return this.lastSyncStatus;
+        } finally {
+            this.isSyncing = false;
+        }
+    }
+
+    /**
+     * ⏸️ Pauses background auto-sync
+     */
+    pauseAutoSync() {
+        this.isAutoSyncEnabled = false;
+        console.log('⏸️ [Avira Sync Bot] Auto-sync has been PAUSED.');
+        return { isAutoSyncEnabled: false, message: 'Auto-sync paused.' };
+    }
+
+    /**
+     * ▶️ Resumes background auto-sync
+     */
+    resumeAutoSync() {
+        this.isAutoSyncEnabled = true;
+        console.log('▶️ [Avira Sync Bot] Auto-sync has been RESUMED.');
+        return { isAutoSyncEnabled: true, message: 'Auto-sync active.' };
+    }
+
+    /**
+     * 🔄 Toggles background auto-sync on/off
+     */
+    toggleAutoSync() {
+        this.isAutoSyncEnabled = !this.isAutoSyncEnabled;
+        console.log(`🔄 [Avira Sync Bot] Auto-sync toggled to: ${this.isAutoSyncEnabled ? 'ACTIVE (5m)' : 'PAUSED'}`);
+        return { 
+            isAutoSyncEnabled: this.isAutoSyncEnabled, 
+            message: this.isAutoSyncEnabled ? 'Auto-sync is now Active (every 5 mins)' : 'Auto-sync has been Paused'
+        };
+    }
+
+    /**
+     * 📊 Returns current sync status
+     */
+    async getStatus() {
+        const totalInDb = await pool.query('SELECT count(*) FROM orders_master').catch(() => ({ rows: [{ count: 0 }] }));
+        return {
+            ...this.lastSyncStatus,
+            isAutoSyncEnabled: this.isAutoSyncEnabled,
+            totalOrdersInDb: parseInt(totalInDb.rows[0].count, 10),
+            syncIntervalMinutes: this.syncIntervalMinutes
+        };
+    }
+
+    /**
+     * ⏱️ Starts the automated background timer bot (syncs new orders quietly)
+     */
+    startBackgroundBot() {
+        if (this.intervalHandle) {
+            clearInterval(this.intervalHandle);
+        }
+
+        const intervalMs = Math.max(1, this.syncIntervalMinutes) * 60 * 1000;
+        console.log(`🚀 [Avira Sync Bot] Initialized. Auto-checking every ${this.syncIntervalMinutes} minutes.`);
+
+        // Initial background check after 10 seconds of server boot
+        setTimeout(() => {
+            if (!this.isAutoSyncEnabled) return;
+            this.syncNewOrders().catch(e => console.warn('Background sync notice:', e.message));
+        }, 10000);
+
+        // Recurring interval
+        this.intervalHandle = setInterval(() => {
+            if (!this.isAutoSyncEnabled) {
+                console.log('⏸️ [Avira Sync Bot] 5-minute timer fired but auto-sync is PAUSED. Skipping.');
+                return;
+            }
+            this.syncNewOrders().catch(e => console.warn('Background sync notice:', e.message));
+        }, intervalMs);
+    }
+}
+
+module.exports = new AviraOrderSyncBot();
