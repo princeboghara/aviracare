@@ -1,3 +1,4 @@
+require('./config/dns_resilience');
 const { Pool } = require('pg');
 require('dotenv').config();
 
@@ -44,7 +45,17 @@ async function initIndexes() {
         `CREATE INDEX IF NOT EXISTS idx_query_tickets_status ON query_tickets (status);`,
         `CREATE INDEX IF NOT EXISTS idx_content_pdf_category ON content_pdf (category);`,
         `CREATE INDEX IF NOT EXISTS idx_pincodes_pincode ON pincodes (pincode);`,
-        `CREATE INDEX IF NOT EXISTS idx_avira_products_category ON avira_products (category);`
+        `CREATE INDEX IF NOT EXISTS idx_avira_products_category ON avira_products (category);`,
+        `CREATE TABLE IF NOT EXISTS order_trackings (
+            order_no VARCHAR(100) PRIMARY KEY,
+            tracking_no VARCHAR(100) NOT NULL DEFAULT '',
+            member_id VARCHAR(100),
+            delivery_status VARCHAR(50) DEFAULT 'Pending',
+            destination VARCHAR(100),
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );`,
+        `CREATE INDEX IF NOT EXISTS idx_order_trackings_tracking ON order_trackings (tracking_no);`,
+        `CREATE INDEX IF NOT EXISTS idx_order_trackings_member ON order_trackings (member_id);`
     ];
 
     try {

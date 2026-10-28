@@ -3,317 +3,254 @@
 <head>
     <%- include('../partials/head_meta') %>
     <title>Admin Dashboard - Avira Control Center</title>
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('avira_admin_theme');
-            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        })();
-    </script>
-    <style>
-        /* Glass Panel */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        /* Interactive 3D Cards */
-        .premium-3d-card {
-            background: #ffffff;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-        }
-
-        .premium-3d-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(16, 185, 129, 0.4);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
-        }
-
-        /* 🌑 Pro Clean Dark Mode */
-        html.dark body {
-            background-color: #0b0f19 !important;
-            background-image: radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.05) 0px, transparent 40%),
-                              radial-gradient(at 100% 100%, rgba(15, 118, 110, 0.05) 0px, transparent 40%) !important;
-            color: #e2e8f0 !important;
-        }
-        html.dark .glass-panel {
-            background: #0d1322 !important;
-            border-color: #1e293b !important;
-        }
-        html.dark .premium-3d-card {
-            background: #111827 !important;
-            border-color: #1f293d !important;
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5) !important;
-        }
-        html.dark .text-slate-900,
-        html.dark .text-slate-800,
-        html.dark .text-slate-700 {
-            color: #f8fafc !important;
-        }
-        html.dark .text-slate-500,
-        html.dark .text-slate-400 {
-            color: #94a3b8 !important;
-        }
-        html.dark .bg-slate-50 {
-            background: #0d1322 !important;
-            border-color: #1e293b !important;
-            color: #cbd5e1 !important;
-        }
-        html.dark .border-slate-100,
-        html.dark .border-slate-200 {
-            border-color: #1e293b !important;
-        }
-    </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative w-full overflow-x-hidden">
+<body class="bg-mesh-corporate min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative w-full overflow-x-hidden">
 
+    <!-- Ambient Subtle Glows -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div class="absolute -top-10 -left-10 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-emerald-400/10 blur-[100px]"></div>
-        <div class="absolute -bottom-10 -right-10 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-teal-400/10 blur-[100px]"></div>
+        <div class="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-indigo-500/5 blur-[120px]"></div>
+        <div class="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-blue-500/5 blur-[120px]"></div>
     </div>
 
-    <header class="glass-panel sticky top-0 z-50 px-4 sm:px-8 py-3.5 flex justify-between items-center shadow-sm border-b border-slate-200/60 w-full">
+    <!-- 🧭 Executive Header -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3.5 flex justify-between items-center shadow-xs border-b border-slate-200/80 w-full">
         <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-md border border-slate-200 flex-shrink-0">
-                <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover">
+            <div class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-xs border border-slate-200 flex-shrink-0 p-1">
+                <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-[8px]">
             </div>
-            <span class="text-base sm:text-xl font-black tracking-tight text-slate-900 truncate">Avira <span class="text-emerald-500 font-bold">Control Hub</span></span>
+            <div>
+                <span class="text-base sm:text-lg font-black tracking-tight text-slate-900 block leading-tight">Avira <span class="text-indigo-600 font-extrabold">Control Hub</span></span>
+                <span class="text-[9px] font-bold text-slate-400 tracking-wider uppercase block">Executive Administration Portal</span>
+            </div>
         </div>
         
-        <div class="flex items-center gap-2.5 sm:gap-4 flex-shrink-0 ml-2">
-            <!-- Theme Toggle Button -->
-            <button type="button" onclick="toggleAdminTheme()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-100 dark:bg-slate-800 dark:border-slate-700 text-xs font-bold transition-all cursor-pointer" title="Toggle Theme">
-                <i class="fa-solid fa-moon dark:hidden text-slate-700 text-xs"></i>
-                <i class="fa-solid fa-sun hidden dark:inline text-amber-400 text-xs"></i>
-                <span class="dark:hidden text-[10px] font-black uppercase ml-1">Dark</span>
-                <span class="hidden dark:inline text-[10px] font-black text-amber-300 uppercase ml-1">Light</span>
-            </button>
-
+        <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0 ml-2">
             <div class="hidden sm:flex flex-col text-right">
-                <p class="text-xs font-black text-slate-800">Master Root Admin</p>
-                <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest flex items-center justify-end gap-1">
-                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block animate-ping"></span> Live Session
+                <p class="text-xs font-black text-slate-900">Administrator</p>
+                <span class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest flex items-center justify-end gap-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span> Active Session
                 </span>
             </div>
-            <a href="/admin/logout" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-slate-900 dark:bg-rose-600/90 text-white hover:bg-rose-600 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl transition-all shadow-md cursor-pointer flex items-center gap-1.5">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> Exit Panel
+            <a href="/admin/logout" class="btn-corporate-3d text-[11px] font-bold uppercase tracking-wider px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl flex items-center gap-1.5 shadow-xs">
+                <i class="fa-solid fa-power-off text-rose-400 text-xs"></i> Exit Panel
             </a>
         </div>
     </header>
 
-    <main class="flex-grow flex flex-col items-center justify-center max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 relative z-10 box-border">
+    <main class="flex-grow flex flex-col items-center justify-center max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 relative z-10 box-border space-y-6 sm:space-y-8">
         
-        <div class="text-center max-w-2xl mb-6 sm:mb-10 space-y-2 sm:space-y-3">
-            <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 text-[10px] sm:text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-xs inline-block">
-                <i class="fa-solid fa-shield-halved mr-1"></i> Secure Admin Workspace
-            </span>
-            <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 leading-tight">
-                Welcome Back, Chief Administrator
-            </h1>
-            <p class="text-slate-500 text-xs sm:text-sm max-w-lg mx-auto font-medium">
-                Select any module or direct sub-menu shortcut below to manage system features.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
+        <!-- 🌟 Welcome Hero Banner (Corporate Slate/Indigo Gradient) -->
+        <div class="w-full bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-slate-800/80 relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
-            <!-- 1. Content Manager -->
-            <div class="premium-3d-card p-5 sm:p-6 rounded-3xl flex flex-col justify-between shadow-sm relative overflow-hidden">
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-blue-100 shadow-xs">
-                            <i class="fa-solid fa-file-pdf"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-base font-black text-slate-900">1. Content Manager</h2>
-                            <p class="text-slate-400 text-[11px] font-medium">PDF Flyers & Catalogues</p>
-                        </div>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+                <div class="space-y-2 max-w-2xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[10px] font-extrabold uppercase tracking-wider text-indigo-200">
+                        <i class="fa-solid fa-shield-check text-indigo-300"></i> Secure Admin Workspace
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed">
-                        Upload, update, and manage downloadable Business Plan PDFs and Product Catalog files for members.
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">
+                        Welcome Back, Chief Administrator
+                    </h1>
+                    <p class="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
+                        Manage parcel dispatches, live tracking synchronization, product inventory, and member requests with 3D precision.
                     </p>
                 </div>
-                <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
-                    <a href="/admin/content-manager" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold text-xs transition-all border border-slate-100">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-folder-open text-blue-500"></i> Manage PDF Documents</span>
-                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+
+                <div class="flex flex-row md:flex-col items-end gap-2.5 flex-shrink-0 w-full md:w-auto justify-between md:justify-center border-t md:border-t-0 border-white/10 pt-4 md:pt-0">
+                    <a href="/admin/manual-entry" class="btn-indigo-3d text-xs font-black px-5 py-2.5 rounded-xl uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-keyboard"></i> Open Manual Entry
+                    </a>
+                    <a href="/admin/orders-master" class="btn-white-3d text-xs font-bold px-4 py-2 rounded-xl uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-indigo-600"></i> Orders Master
                     </a>
                 </div>
             </div>
+        </div>
 
-            <!-- 2. Tracking Manager -->
-            <div class="premium-3d-card p-5 sm:p-6 rounded-3xl flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <!-- 🧩 Interactive 3D Module Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
+            
+            <!-- 1. Dispatch & Consignment Hub -->
+            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-emerald-100 shadow-xs">
+                    <div class="flex items-center gap-3.5 mb-4">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-blue-100 shadow-2xs">
                             <i class="fa-solid fa-truck-fast"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-black text-slate-900">2. Tracking Manager</h2>
-                            <p class="text-slate-400 text-[11px] font-medium">Logistics & Dispatch</p>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-black text-slate-900">1. Dispatch & Logistics</h2>
+                                <span class="badge-3d bg-blue-50 text-blue-700 border-blue-200 text-[8px]">CORE</span>
+                            </div>
+                            <p class="text-slate-400 text-[11px] font-semibold">Consignments & Parcel Labelling</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed">
-                        Core shipping pipeline. Process parcel labels, manual entries, member confirmations, and master DB.
+                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                        Create unique consignment batches, barcode scanner integration, auto-calculate weights, and manage manual entries.
                     </p>
                 </div>
                 <div class="pt-3 border-t border-slate-100 space-y-1.5">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
                     <div class="grid grid-cols-2 gap-1.5">
-                        <a href="/admin/manual-entry" class="p-2 rounded-xl bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
-                            <i class="fa-solid fa-keyboard text-emerald-500"></i> Manual Entry
+                        <a href="/admin/manual-entry" class="p-2 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
+                            <i class="fa-solid fa-keyboard text-blue-500"></i> Manual Entry
                         </a>
-                        <a href="/admin/confirm-member" class="p-2 rounded-xl bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-check text-emerald-500"></i> Confirm Member
+                        <a href="/admin/orders-master" class="p-2 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-invoice text-blue-500"></i> Orders Master
                         </a>
-                        <a href="/admin/master-database" class="p-2 rounded-xl bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
-                            <i class="fa-solid fa-database text-emerald-500"></i> Master Database
+                        <a href="/admin/customers" class="p-2 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
+                            <i class="fa-solid fa-users text-purple-500"></i> Customers
                         </a>
-                        <a href="/admin/orders-master" class="p-2 rounded-xl bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
-                            <i class="fa-solid fa-box text-emerald-500"></i> Orders Master
+                        <a href="/admin/master-database" class="p-2 rounded-xl bg-slate-50 hover:bg-teal-50 text-slate-700 hover:text-teal-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
+                            <i class="fa-solid fa-database text-teal-500"></i> Master DB
                         </a>
-                        <a href="/admin/live-tracking" class="p-2 col-span-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/80 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300 font-extrabold text-[11px] transition-all border border-blue-200 dark:border-blue-800 flex items-center justify-between">
-                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-satellite-dish text-blue-500"></i> India Post Live Tracking</span>
-                            <span class="text-[8px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-black tracking-wider">LIVE SYNC</span>
+                        <a href="/admin/live-tracking" class="p-2 col-span-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/80 text-blue-800 font-extrabold text-[11px] transition-all border border-blue-200 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-satellite-dish text-blue-600"></i> India Post Live Tracking</span>
+                            <span class="text-[8px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-black tracking-wider">LIVE SYNC</span>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. Query Manager -->
-            <div class="premium-3d-card p-5 sm:p-6 rounded-3xl flex flex-col justify-between shadow-sm relative overflow-hidden">
+            <!-- 2. Product Catalog & Inventory -->
+            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-amber-100 shadow-xs">
-                            <i class="fa-solid fa-headset"></i>
+                    <div class="flex items-center gap-3.5 mb-4">
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-purple-100 shadow-2xs">
+                            <i class="fa-solid fa-boxes-stacked"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-black text-slate-900">3. Query Manager</h2>
-                            <p class="text-slate-400 text-[11px] font-medium">Customer Helpdesk</p>
+                            <h2 class="text-base font-black text-slate-900">2. Product Catalog</h2>
+                            <p class="text-slate-400 text-[11px] font-semibold">Inventory & Product Assets</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed">
-                        Review customer support tickets, address change requests, and member inquiries in real-time.
-                    </p>
-                </div>
-                <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
-                    <a href="/admin/queries" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-700 font-bold text-xs transition-all border border-slate-100">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-ticket text-amber-500"></i> View All Support Tickets</span>
-                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- 4. Product Manager -->
-            <div class="premium-3d-card p-5 sm:p-6 rounded-3xl flex flex-col justify-between shadow-sm relative overflow-hidden">
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-purple-100 shadow-xs">
-                            <i class="fa-solid fa-basket-shopping"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-base font-black text-slate-900">4. Product Manager</h2>
-                            <p class="text-slate-400 text-[11px] font-medium">Inventory & Catalog</p>
-                        </div>
-                    </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed">
-                        Publish new items, upload multiple product images, configure PV values, and manage existing stock.
+                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                        Publish new items, upload product gallery images, configure Point Values (PV), and monitor inventory.
                     </p>
                 </div>
                 <div class="pt-3 border-t border-slate-100 space-y-1.5">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
                     <div class="grid grid-cols-2 gap-1.5">
                         <a href="/admin/add-product" class="p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-plus text-purple-500"></i> Add Product
+                            <i class="fa-solid fa-plus-circle text-purple-600"></i> Add Product
                         </a>
                         <a href="/admin/view-products" class="p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-list text-purple-500"></i> View All Items
+                            <i class="fa-solid fa-list-check text-purple-600"></i> View Catalog
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- 5. System Settings -->
-            <div class="premium-3d-card p-5 sm:p-6 rounded-3xl flex flex-col justify-between shadow-sm relative overflow-hidden">
+            <!-- 3. Content & PDF Manager -->
+            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 bg-slate-100 text-slate-800 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-slate-200 shadow-xs">
-                            <i class="fa-solid fa-gear"></i>
+                    <div class="flex items-center gap-3.5 mb-4">
+                        <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-rose-100 shadow-2xs">
+                            <i class="fa-solid fa-file-pdf"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-black text-slate-900">5. System Settings</h2>
-                            <p class="text-slate-400 text-[11px] font-medium">Box Presets & Config</p>
+                            <h2 class="text-base font-black text-slate-900">3. Content Manager</h2>
+                            <p class="text-slate-400 text-[11px] font-semibold">PDF Flyers & Catalogues</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed">
+                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                        Upload, update, and manage downloadable Business Plan PDFs and Product Catalog files for members.
+                    </p>
+                </div>
+                <div class="pt-3 border-t border-slate-100 space-y-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
+                    <a href="/admin/content-manager" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-700 hover:text-rose-700 font-bold text-xs transition-all border border-slate-100">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-folder-open text-rose-500"></i> Manage PDF Documents</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. Query & Support Manager -->
+            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3.5 mb-4">
+                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-orange-100 shadow-2xs">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-black text-slate-900">4. Support Helpdesk</h2>
+                            <p class="text-slate-400 text-[11px] font-semibold">Customer Tickets & Inquiries</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                        Review customer support tickets, address change requests, and member inquiries in real-time.
+                    </p>
+                </div>
+                <div class="pt-3 border-t border-slate-100 space-y-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
+                    <a href="/admin/queries" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-700 font-bold text-xs transition-all border border-slate-100">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-ticket text-orange-500"></i> View Support Inquiries</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 5. Courier Box Dimensions & Presets -->
+            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3.5 mb-4">
+                        <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-slate-200 shadow-2xs">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-black text-slate-900">5. Box Presets & Config</h2>
+                            <p class="text-slate-400 text-[11px] font-semibold">Courier Dimension Presets</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
                         Configure courier box dimension shortcuts (Length, Breadth, Height) for fast manual shipping entries.
                     </p>
                 </div>
                 <div class="pt-3 border-t border-slate-100 space-y-2">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
                     <a href="/admin/settings" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all border border-slate-100">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-boxes-packing text-slate-600"></i> Box Dimensions & Settings</span>
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-boxes-packing text-slate-600"></i> Configure Box Dimensions</span>
                         <i class="fa-solid fa-chevron-right text-[10px]"></i>
                     </a>
                 </div>
             </div>
 
-            <!-- 6. Bill & Combo Manager (LOCKED) -->
-            <div class="premium-3d-card p-5 sm:p-6 rounded-3xl flex flex-col justify-between shadow-sm relative overflow-hidden border border-amber-200/70 bg-gradient-to-b from-white to-amber-50/20">
-                <!-- Lock Badge -->
-                <div class="absolute top-4 right-4 bg-amber-50 border border-amber-300 text-amber-700 text-[10px] font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
-                    <i class="fa-solid fa-lock text-[9px]"></i> Locked
-                </div>
+            <!-- 6. Bill Converter & Combos -->
+            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-amber-200 shadow-xs">
-                            <i class="fa-solid fa-lock"></i>
+                    <div class="flex items-center gap-3.5 mb-4">
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-amber-100 shadow-2xs">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-black text-slate-800">6. Bill & Combo Manager</h2>
-                            <p class="text-amber-600 text-[11px] font-bold flex items-center gap-1">
-                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Temporarily Locked
-                            </p>
+                            <h2 class="text-base font-black text-slate-900">6. Billing & Combos</h2>
+                            <p class="text-slate-400 text-[11px] font-semibold">Tax Invoices & Special Packs</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed">
-                        This module is currently locked and undergoing upgrades. Direct access to Bill Converter and Combo settings is disabled.
+                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                        Convert bulk PDF bills into parsed invoice structures and manage combo pack offerings.
                     </p>
                 </div>
                 <div class="pt-3 border-t border-slate-100 space-y-1.5">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Access Status:</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
                     <div class="grid grid-cols-2 gap-1.5">
-                        <button disabled class="p-2.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-[11px] border border-slate-200 flex items-center justify-center gap-1.5 cursor-not-allowed">
-                            <i class="fa-solid fa-lock text-[10px]"></i> Bill Converter
-                        </button>
-                        <button disabled class="p-2.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-[11px] border border-slate-200 flex items-center justify-center gap-1.5 cursor-not-allowed">
-                            <i class="fa-solid fa-lock text-[10px]"></i> Manage Combos
-                        </button>
+                        <a href="/admin/bill-uploader" class="p-2.5 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-invoice-dollar text-amber-600"></i> Bill Converter
+                        </a>
+                        <a href="/admin/manage-combos" class="p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-layer-group text-purple-600"></i> Manage Combos
+                        </a>
                     </div>
                 </div>
             </div>
 
-
         </div>
     </main>
     
-    <footer class="glass-panel border-t border-slate-200/60 py-4 text-center text-[10px] sm:text-[11px] font-semibold text-slate-400 shadow-inner w-full overflow-hidden">
+    <footer class="bg-white/80 backdrop-blur-sm border-t border-slate-200/80 py-4 text-center text-[10px] sm:text-[11px] font-bold text-slate-400 shadow-2xs w-full overflow-hidden">
         &copy; 2026 Avira Control Center. Encrypted TLS 1.3 Administrator System.
     </footer>
 
-    <script>
-        function toggleAdminTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('avira_admin_theme', isDark ? 'dark' : 'light');
-        }
-    </script>
 </body>
 </html>

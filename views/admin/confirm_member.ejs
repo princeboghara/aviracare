@@ -196,11 +196,13 @@
                                         <td class="py-2.5 px-3.5">
                                             <div class="flex items-center gap-2">
                                                 <div class="font-mono font-black text-slate-900 dark:text-slate-100 tracking-number-text text-xs bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-lg border border-slate-200/80 dark:border-slate-700">
-                                                    <%= item.tracking %>
+                                                    <%= (item.tracking && item.tracking.trim()) ? item.tracking : 'Shop Pickup' %>
                                                 </div>
+                                                <% if (item.tracking && item.tracking.trim()) { %>
                                                 <button type="button" onclick="navigator.clipboard.writeText('<%= item.tracking %>')" class="text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer" title="Copy Tracking Number">
                                                     <i class="fa-regular fa-copy text-[10px]"></i>
                                                 </button>
+                                                <% } %>
                                             </div>
                                             <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-extrabold name-text truncate max-w-[170px] mt-1">
                                                 <i class="fa-regular fa-user text-[9px] mr-1 opacity-70"></i><%= item.name %>
@@ -584,11 +586,14 @@
 
                 const formattedDate = formatCustomDate(rawDate);
 
+                const pendingId = this.getAttribute('data-id') || row.querySelector('.pending-row-checkbox')?.getAttribute('data-id') || null;
+
                 try {
                     const res = await fetch('/admin/api/approve-entry-by-tracking', { 
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
+                            pendingId,
                             tracking,
                             memberId,
                             orderDate: formattedDate,

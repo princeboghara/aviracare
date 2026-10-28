@@ -226,6 +226,13 @@ class AviraOrderSyncBot {
                 const pv = numValues[0] || '0';
                 const amount = numValues[1] || '0';
 
+                // 🛡️ Date Filter: Only retain orders on or after 1 September 2026 (skip older orders)
+                const parsedDate = new Date(orderDate).getTime();
+                const minSyncDate = new Date(2026, 8, 1, 0, 0, 0).getTime();
+                if (!isNaN(parsedDate) && parsedDate < minSyncDate) {
+                    continue;
+                }
+
                 // Notice: Tracking number is completely ignored and excluded per protocol!
                 parsedOrders.push({
                     order_no: orderNo,
@@ -250,6 +257,66 @@ class AviraOrderSyncBot {
         const pageMatches = html.match(/page=(\d+)/g) || [];
         const pageNumbers = pageMatches.map(m => parseInt(m.replace('page=', ''), 10)).filter(n => !isNaN(n));
         return pageNumbers.length > 0 ? Math.max(...pageNumbers) : 1;
+    }
+
+    /**
+     * 🛡️ Snapshot & Load Tracking Vault Map
+     * Preserves all assigned tracking numbers permanently so wipe/resync NEVER loses them.
+     */
+    async getTrackingVaultMap() {
+        try {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS order_trackings (
+                    order_no VARCHAR(100) PRIMARY KEY,
+                    tracking_no VARCHAR(100) NOT NULL DEFAULT '',
+                    member_id VARCHAR(100),
+                    delivery_status VARCHAR(50) DEFAULT 'Pending',
+                    destination VARCHAR(100),
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+
+            // Snapshot from orders_master
+            await pool.query(`
+                INSERT INTO order_trackings (order_no, tracking_no, member_id, updated_at)
+                SELECT order_no, tracking_no, member_id, NOW()
+                FROM orders_master
+                WHERE order_no IS NOT NULL AND tracking_no IS NOT NULL AND TRIM(tracking_no) != ''
+                ON CONFLICT (order_no) DO UPDATE
+                SET tracking_no = EXCLUDED.tracking_no, member_id = EXCLUDED.member_id, updated_at = NOW();
+            `);
+
+            // Snapshot from main_database
+            await pool.query(`
+                INSERT INTO order_trackings (order_no, tracking_no, member_id, updated_at)
+                SELECT order_no, tracking, member_id, NOW()
+                FROM main_database
+                WHERE order_no IS NOT NULL AND tracking IS NOT NULL AND TRIM(tracking) != ''
+                ON CONFLICT (order_no) DO UPDATE
+                SET tracking_no = EXCLUDED.tracking_no, member_id = EXCLUDED.member_id, updated_at = NOW();
+            `);
+
+            // Snapshot from consignment_parcels
+            await pool.query(`
+                INSERT INTO order_trackings (order_no, tracking_no, member_id, updated_at)
+                SELECT order_no, tracking, member_id, NOW()
+                FROM consignment_parcels
+                WHERE order_no IS NOT NULL AND tracking IS NOT NULL AND TRIM(tracking) != ''
+                ON CONFLICT (order_no) DO UPDATE
+                SET tracking_no = EXCLUDED.tracking_no, member_id = EXCLUDED.member_id, updated_at = NOW();
+            `);
+        } catch (e) {
+            console.warn('⚠️ Tracking vault snapshot notice:', e.message);
+        }
+
+        const vaultRes = await pool.query("SELECT order_no, tracking_no FROM order_trackings WHERE tracking_no IS NOT NULL AND TRIM(tracking_no) != ''");
+        const map = new Map();
+        for (const row of vaultRes.rows) {
+            if (row.order_no) {
+                map.set(row.order_no.toUpperCase().trim(), (row.tracking_no || '').toUpperCase().trim());
+            }
+        }
+        return map;
     }
 
     /**
@@ -294,21 +361,38 @@ class AviraOrderSyncBot {
                     onProgress({ step: 'inserting', message: `Found ${newOrdersToInsert.length} new orders! Saving into database...`, percent: 80 });
                 }
 
+                // Load tracking vault lookup map
+                const trackingMap = await this.getTrackingVaultMap();
+
                 // Batch insert new orders in chunks of 50
                 const CHUNK_SIZE = 50;
                 for (let i = 0; i < newOrdersToInsert.length; i += CHUNK_SIZE) {
                     const chunk = newOrdersToInsert.slice(i, i + CHUNK_SIZE);
                     const values = [];
                     const valueStrings = chunk.map((order, idx) => {
-                        const offset = idx * 6;
-                        values.push(order.order_no, order.order_date, order.member_id, order.name, order.pv, order.amount);
-                        return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6})`;
+                        const offset = idx * 7;
+                        const preservedTracking = trackingMap.get((order.order_no || '').toUpperCase().trim()) || '';
+                        values.push(order.order_no, order.order_date, order.member_id, order.name, order.pv, order.amount, preservedTracking);
+                        return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7})`;
                     });
 
+                    // 1. Insert into orders_master with preserved tracking
                     await pool.query(`
-                        INSERT INTO orders_master (order_no, order_date, member_id, name, pv, amount)
+                        INSERT INTO orders_master (order_no, order_date, member_id, name, pv, amount, tracking_no)
                         VALUES ${valueStrings.join(', ')}
-                        ON CONFLICT (order_no) DO NOTHING
+                        ON CONFLICT (order_no) DO UPDATE
+                        SET tracking_no = CASE WHEN EXCLUDED.tracking_no != '' THEN EXCLUDED.tracking_no ELSE orders_master.tracking_no END
+                    `, values);
+
+                    // 2. Directly mirror into main_database (bypassing Confirm Member)
+                    await pool.query(`
+                        INSERT INTO main_database (order_no, order_date, member_id, name, pv, amount, tracking, delivery_status)
+                        VALUES ${chunk.map((_, idx) => {
+                            const offset = idx * 7;
+                            return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7}, 'Pending')`;
+                        }).join(', ')}
+                        ON CONFLICT (order_no) DO UPDATE
+                        SET tracking = CASE WHEN EXCLUDED.tracking != '' THEN EXCLUDED.tracking ELSE main_database.tracking END
                     `, values);
 
                     totalNewAdded += chunk.length;
@@ -385,13 +469,20 @@ class AviraOrderSyncBot {
                 onProgress({ step: 'start', mode: 'wipe_all', message: 'Initiating Full Wipe & Fresh Sync from size=all...', percent: 5 });
             }
 
-            // Step 1: Wipe existing orders immediately
+            // Step 1: Snapshot and preserve all tracking numbers in Vault
             if (onProgress) {
-                onProgress({ step: 'wipe', message: 'Wiping old orders from Orders Master...', percent: 15 });
+                onProgress({ step: 'snapshot', message: 'Preserving tracking numbers in Tracking Vault...', percent: 8 });
+            }
+            const trackingMap = await this.getTrackingVaultMap();
+
+            // Step 2: Wipe existing orders immediately
+            if (onProgress) {
+                onProgress({ step: 'wipe', message: 'Wiping old records from Orders Master & Master Database...', percent: 16 });
             }
             await pool.query('DELETE FROM orders_master');
+            await pool.query('TRUNCATE TABLE main_database RESTART IDENTITY');
 
-            // Step 2: Fetch all orders from size=all in 1 single request
+            // Step 3: Fetch all orders from size=all in 1 single request
             if (onProgress) {
                 onProgress({ step: 'fetching', message: 'Fetching entire catalog from https://aviraglobal.in/AVGControl/orders?status=ALL&size=all...', percent: 35 });
             }
@@ -403,24 +494,38 @@ class AviraOrderSyncBot {
             const allOrders = this.parseOrdersFromHtml(html);
 
             if (onProgress) {
-                onProgress({ step: 'inserting', message: `Parsed ${allOrders.length} orders! Saving into database...`, percent: 75 });
+                onProgress({ step: 'inserting', message: `Parsed ${allOrders.length} orders! Restoring orders with preserved tracking numbers...`, percent: 75 });
             }
 
-            // Step 3: Fast Batch insert in chunks of 100
+            // Step 4: Fast Batch insert in chunks of 100 with preserved tracking numbers!
             const CHUNK_SIZE = 100;
             for (let i = 0; i < allOrders.length; i += CHUNK_SIZE) {
                 const chunk = allOrders.slice(i, i + CHUNK_SIZE);
                 const values = [];
                 const valueStrings = chunk.map((order, idx) => {
-                    const offset = idx * 6;
-                    values.push(order.order_no, order.order_date, order.member_id, order.name, order.pv, order.amount);
-                    return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6})`;
+                    const offset = idx * 7;
+                    const preservedTracking = trackingMap.get((order.order_no || '').toUpperCase().trim()) || '';
+                    values.push(order.order_no, order.order_date, order.member_id, order.name, order.pv, order.amount, preservedTracking);
+                    return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7})`;
                 });
 
+                // 1. Insert into orders_master with preserved tracking
                 await pool.query(`
-                    INSERT INTO orders_master (order_no, order_date, member_id, name, pv, amount)
+                    INSERT INTO orders_master (order_no, order_date, member_id, name, pv, amount, tracking_no)
                     VALUES ${valueStrings.join(', ')}
-                    ON CONFLICT (order_no) DO NOTHING
+                    ON CONFLICT (order_no) DO UPDATE
+                    SET tracking_no = CASE WHEN EXCLUDED.tracking_no != '' THEN EXCLUDED.tracking_no ELSE orders_master.tracking_no END
+                `, values);
+
+                // 2. Directly mirror into main_database with preserved tracking
+                await pool.query(`
+                    INSERT INTO main_database (order_no, order_date, member_id, name, pv, amount, tracking, delivery_status)
+                    VALUES ${chunk.map((_, idx) => {
+                        const offset = idx * 7;
+                        return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7}, 'Pending')`;
+                    }).join(', ')}
+                    ON CONFLICT (order_no) DO UPDATE
+                    SET tracking = CASE WHEN EXCLUDED.tracking != '' THEN EXCLUDED.tracking ELSE main_database.tracking END
                 `, values);
 
                 totalNewAdded += chunk.length;

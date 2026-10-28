@@ -1,4 +1,11 @@
-const puppeteer = require('puppeteer-core');
+let puppeteerModule = null;
+async function getPuppeteer() {
+    if (!puppeteerModule) {
+        const mod = await import('puppeteer-core');
+        puppeteerModule = mod.default || mod;
+    }
+    return puppeteerModule;
+}
 const fs = require('fs');
 const db = require('../db');
 
@@ -81,6 +88,7 @@ class IndiaPostSyncBot {
     }
 
     async launchBrowser() {
+        const puppeteer = await getPuppeteer();
         return await puppeteer.launch({
             executablePath: this.executablePath,
             headless: true,

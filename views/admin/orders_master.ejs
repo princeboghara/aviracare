@@ -2,101 +2,149 @@
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('../partials/head_meta') %>
-    <title>Order Master Repository - Avira Control</title>
+    <title>Order Master Repository - Avira Control Center</title>
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        .ref-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .ref-card:hover {
+            border-color: #cbd5e1;
+        }
+
+        .ref-input {
+            width: 100%;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
+            padding-top: 0.625rem;
+            padding-bottom: 0.625rem;
+            padding-left: 0.875rem;
+            padding-right: 0.875rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #0f172a;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
+        }
+        .ref-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-emerald-50/30 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden block">
+<body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden block">
 
     <%- include('../partials/admin_navbar') %>
 
     <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between box-border min-w-0">
 
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
+        <!-- 🧭 Top Navigation Header -->
+        <header class="bg-white border-b border-slate-200 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 w-full">
             <div class="flex items-center gap-2 min-w-0">
-                <i class="fa-solid fa-file-invoice text-emerald-500 flex-shrink-0"></i>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Orders / Order Master Repository</span>
+                <i class="fa-solid fa-file-invoice text-blue-600 flex-shrink-0"></i>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Orders / Order Master Repository</span>
             </div>
             <div class="flex items-center gap-2.5 sm:gap-3 flex-shrink-0 ml-2">
-                <button type="button" onclick="toggleAdminTheme()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-100 dark:bg-slate-800 dark:border-slate-700 text-xs font-bold transition-all cursor-pointer shadow-sm" title="Toggle Theme">
-                    <i class="fa-solid fa-moon dark:hidden text-slate-700 text-xs"></i>
-                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400 text-xs"></i>
-                    <span class="dark:hidden text-[10px] font-black uppercase ml-1">Dark</span>
-                    <span class="hidden dark:inline text-[10px] font-black text-amber-300 uppercase ml-1">Light</span>
-                </button>
                 <div class="text-right hidden sm:block">
                     <p class="text-xs font-bold text-slate-800">Avira Admin</p>
-                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active Workspace</p>
+                    <p class="text-[9px] font-bold text-blue-600 uppercase tracking-widest">Active Workspace</p>
                 </div>
-                <div class="h-8 w-8 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 border border-emerald-100 font-bold text-xs">A</div>
+                <div class="h-8 w-8 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 border border-blue-200 font-bold text-xs shadow-2xs">A</div>
             </div>
         </header>
 
         <main class="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 box-border">
 
-            <!-- 🤖 Avira Admin Live Sync Control Console -->
-            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 p-5 sm:p-7 rounded-3xl shadow-xl text-white border border-slate-700/60 relative overflow-hidden">
-                <div class="absolute -right-12 -top-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <!-- 🤖 Avira Admin Live Sync Control Console (Modern Corporate Executive Look) -->
+            <div class="ref-card p-5 sm:p-6 border border-slate-200/90 shadow-xs relative overflow-hidden bg-white">
                 
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-700/70">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-100">
                     <div class="flex items-center gap-3.5">
-                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shadow-emerald-500/20 flex-shrink-0">
+                        <div class="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center text-lg font-bold shadow-2xs flex-shrink-0">
                             <i class="fa-solid fa-robot"></i>
                         </div>
                         <div>
-                            <div class="flex items-center justify-between gap-3 flex-wrap">
-                                <h1 class="text-base sm:text-lg font-black tracking-wide text-white">Avira Live Order Sync Engine</h1>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <h1 class="text-base sm:text-lg font-black tracking-tight text-slate-900">Avira Live Order Sync Engine</h1>
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span id="autoSyncBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'bg-amber-500/20 border-amber-400/30 text-amber-300' : 'bg-emerald-500/20 border-emerald-400/30 text-emerald-300' %> text-[10px] font-black uppercase tracking-wider">
-                                        <span id="autoSyncDot" class="h-2 w-2 rounded-full <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse' %>"></span>
+                                    <span id="autoSyncBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'bg-amber-50 border border-amber-200 text-amber-700' : 'bg-emerald-50 border border-emerald-200 text-emerald-700' %> text-[11px] font-bold">
+                                        <span id="autoSyncDot" class="h-2 w-2 rounded-full <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse' %>"></span>
                                         <span id="autoSyncBadgeText"><%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'Auto-Sync Paused' : 'Auto-Sync Active (5m)' %></span>
                                     </span>
-                                    <button type="button" id="btnToggleAutoSync" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 hover:text-white text-[11px] font-bold transition-all cursor-pointer shadow-sm">
-                                        <i id="toggleSyncIcon" class="fa-solid <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'fa-play text-emerald-400' : 'fa-pause text-amber-400' %> text-[10px]"></i>
+                                    <button type="button" id="btnToggleAutoSync" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-[11px] font-bold transition-all cursor-pointer shadow-2xs">
+                                        <i id="toggleSyncIcon" class="fa-solid <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'fa-play text-emerald-600' : 'fa-pause text-amber-600' %> text-[10px]"></i>
                                         <span id="toggleSyncText"><%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'Resume Auto-Sync' : 'Pause Auto-Sync' %></span>
                                     </button>
                                 </div>
                             </div>
-                            <p class="text-xs text-slate-400 mt-0.5 font-medium">Direct synchronization with https://aviraglobal.in without third-party developer requirements.</p>
+                            <p class="text-xs text-slate-500 mt-0.5 font-medium">Direct synchronization with <span class="font-mono text-blue-600 font-semibold">https://aviraglobal.in</span> without third-party developer requirements.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2 Action Cards: 1. Sync New Orders | 2. Wipe & Sync All -->
+                <!-- 2 Big Box Corporate Action Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 pt-5">
                     
-                    <!-- Option 1: Sync New Orders -->
-                    <div class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/40 p-4 sm:p-5 rounded-2xl flex flex-col justify-between transition-all group shadow-sm">
+                    <!-- Option 1: Sync New Orders (Corporate Emerald Accent) -->
+                    <div class="bg-gradient-to-br from-white to-slate-50/70 border border-slate-200 hover:border-emerald-500/50 hover:shadow-md p-5 rounded-2xl flex flex-col justify-between transition-all group relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
                         <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-black">1</span>
-                                    <h3 class="text-sm font-black text-white group-hover:text-emerald-300 transition-colors">Sync New Orders</h3>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xs font-black shadow-2xs">
+                                        <i class="fa-solid fa-bolt text-emerald-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-black text-slate-900 group-hover:text-emerald-700 transition-colors">Sync New Orders</h3>
+                                        <span class="text-[10px] text-slate-400 font-medium">Incremental Safe Pull</span>
+                                    </div>
                                 </div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">Fast Incremental</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                                    Fast Incremental
+                                </span>
                             </div>
-                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                                Scans newest pages only. Existing saved records are <strong class="text-slate-200">retained safely</strong> and only brand-new orders are added.
+                            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                                Scans newest pages only. Existing saved records are <strong class="text-slate-900 font-bold">retained safely</strong> and only brand-new orders are seamlessly inserted.
                             </p>
                         </div>
-                        <button type="button" id="btnSyncNew" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer uppercase tracking-wider">
+                        <button type="button" id="btnSyncNew" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs py-2.5 px-4 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer uppercase tracking-wider">
                             <i class="fa-solid fa-bolt text-xs"></i> <span>Sync New Orders</span>
                         </button>
                     </div>
 
-                    <!-- Option 2: Wipe & Sync All -->
-                    <div class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/40 p-4 sm:p-5 rounded-2xl flex flex-col justify-between transition-all group shadow-sm">
+                    <!-- Option 2: Wipe & Sync All (Corporate Amber/Rose Accent) -->
+                    <div class="bg-gradient-to-br from-white to-slate-50/70 border border-slate-200 hover:border-rose-400/50 hover:shadow-md p-5 rounded-2xl flex flex-col justify-between transition-all group relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-rose-500"></div>
                         <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-black">2</span>
-                                    <h3 class="text-sm font-black text-white group-hover:text-amber-300 transition-colors">Wipe & Sync All</h3>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center text-xs font-black shadow-2xs">
+                                        <i class="fa-solid fa-broom text-amber-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-black text-slate-900 group-hover:text-rose-700 transition-colors">Wipe & Sync All</h3>
+                                        <span class="text-[10px] text-slate-400 font-medium">Full Fresh Reset</span>
+                                    </div>
                                 </div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60">Full Reset</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                                    Full Reset
+                                </span>
                             </div>
-                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                                <strong class="text-amber-300">Wipes all current records</strong> from Orders Master and pulls a 100% fresh catalog of all orders from Avira Website.
+                            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                                <strong class="text-rose-600 font-bold">Wipes all current records</strong> from Orders Master and pulls a 100% fresh catalog of all orders directly from Avira Website.
                             </p>
                         </div>
-                        <button type="button" id="btnWipeAll" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 text-white font-black text-xs py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer uppercase tracking-wider">
+                        <button type="button" id="btnWipeAll" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white font-black text-xs py-2.5 px-4 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer uppercase tracking-wider">
                             <i class="fa-solid fa-broom text-xs"></i> <span>Wipe & Sync All</span>
                         </button>
                     </div>
@@ -106,38 +154,56 @@
             </div>
 
             <!-- Orders Table Card -->
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden w-full">
-                <div class="px-4 sm:px-6 py-3.5 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
+            <div class="ref-card overflow-hidden w-full bg-white border border-slate-200">
+                <div class="px-4 sm:px-6 py-3.5 bg-slate-50/80 border-b border-slate-200 flex justify-between items-center flex-wrap gap-3">
                     <div class="flex items-center gap-3">
-                        <h2 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
-                            <i class="fa-solid fa-list text-emerald-500"></i> Permanent Order Repository
+                        <h2 class="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-list text-blue-600"></i> Permanent Order Repository
                         </h2>
-                        <span id="ordersCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-0.5 rounded-full"><%= orders ? orders.length : 0 %> Records Saved</span>
+                        <span id="ordersCounter" class="bg-blue-50 text-blue-800 border border-blue-200 text-[11px] font-bold px-3 py-0.5 rounded-full"><%= orders ? orders.length : 0 %> Records Saved</span>
                     </div>
 
                     <div class="flex items-center gap-2 flex-wrap">
+                        <!-- Search Box -->
                         <div class="relative">
                             <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                            <input type="text" id="orderSearchInput" placeholder="Filter orders..." class="pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:border-emerald-500 w-44 sm:w-56">
+                            <input type="text" id="orderSearchInput" placeholder="Filter orders..." class="pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-500 w-44 sm:w-56">
                         </div>
+
+                        <!-- Show All Toggle Button -->
+                        <button id="btnToggleShowAllOrders" type="button" onclick="toggleShowAllOrders()" 
+                                class="inline-flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs">
+                            <i class="fa-solid fa-expand text-blue-600" id="showAllOrdersIcon"></i>
+                            <span id="showAllOrdersText">Show All (<span id="showAllOrdersCount"><%= orders ? orders.length : 0 %></span>)</span>
+                        </button>
+
+                        <!-- Bulk Shoppee Button (Appears on row selection) -->
+                        <button id="btnBulkShoppee" type="button" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-3.5 py-1.5 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
+                            <i class="fa-solid fa-shop"></i> Shoppee (<span id="selectedShoppeeCount">0</span>)
+                        </button>
+
+                        <!-- Bulk Delete Button (Appears on row selection) -->
                         <button id="btnBulkDelete" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-3.5 py-1.5 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
                             <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedCount">0</span>)
                         </button>
-                        <button id="btnDirectWipe" type="button" class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200 font-bold text-xs px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-sm">
+
+                        <!-- Wipe All Button -->
+                        <button id="btnDirectWipe" type="button" class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200 font-bold text-xs px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs">
                             <i class="fa-solid fa-broom text-rose-500"></i> Wipe All Orders
                         </button>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[750px]">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[850px]">
                         <thead>
-                            <tr class="bg-slate-100/80 border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
+                            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-extrabold uppercase text-[10px]">
                                 <th class="py-3 px-3 text-center w-10">
-                                    <input type="checkbox" id="selectAllCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                                    <input type="checkbox" id="selectAllCheckbox" class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4 cursor-pointer">
                                 </th>
-                                <th class="py-3 px-3 w-12">#</th>
+                                <th class="py-3 px-3 w-12 text-center">#</th>
                                 <th class="py-3 px-4">Order No</th>
+                                <th class="py-3 px-4">Tracking Number</th>
                                 <th class="py-3 px-4">Ordered Date</th>
                                 <th class="py-3 px-4">Member ID</th>
                                 <th class="py-3 px-4">Customer Name</th>
@@ -146,24 +212,24 @@
                                 <th class="py-3 px-4 text-center w-36">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="ordersTableBody" class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tbody id="ordersTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
                             <!-- Populated dynamically via renderPaginatedTable() -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- 50 Records Per Page Pagination Toolbar -->
-                <div id="paginationBar" class="px-4 sm:px-6 py-3.5 bg-slate-50/80 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <!-- 50 Records Per Page / Show All Toolbar -->
+                <div id="paginationBar" class="px-4 sm:px-6 py-3.5 bg-slate-50/90 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
                     <div class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
                         Showing <span id="pageStart" class="font-bold text-slate-800">0</span> to <span id="pageEnd" class="font-bold text-slate-800">0</span> of <span id="totalRecordsCount" class="font-bold text-slate-900">0</span> orders
-                        <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold ml-1">50 per page</span>
+                        <span id="pageModeBadge" class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold ml-1">50 per page</span>
                     </div>
 
-                    <div class="flex items-center gap-1.5 flex-wrap justify-center">
-                        <button type="button" id="btnFirstPage" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm" title="First Page">
+                    <div id="paginationControlsGroup" class="flex items-center gap-1.5 flex-wrap justify-center">
+                        <button type="button" id="btnFirstPage" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs" title="First Page">
                             <i class="fa-solid fa-angles-left"></i>
                         </button>
-                        <button type="button" id="btnPrevPage" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm">
+                        <button type="button" id="btnPrevPage" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 shadow-2xs">
                             <i class="fa-solid fa-chevron-left text-[10px]"></i> Prev
                         </button>
                         
@@ -171,16 +237,16 @@
                             <!-- Page number buttons injected dynamically -->
                         </div>
 
-                        <button type="button" id="btnNextPage" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm">
+                        <button type="button" id="btnNextPage" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 shadow-2xs">
                             Next <i class="fa-solid fa-chevron-right text-[10px]"></i>
                         </button>
-                        <button type="button" id="btnLastPage" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm" title="Last Page">
+                        <button type="button" id="btnLastPage" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs" title="Last Page">
                             <i class="fa-solid fa-angles-right"></i>
                         </button>
                     </div>
 
                     <div class="text-xs font-bold text-slate-600">
-                        Page <span id="currentPageNum" class="text-emerald-600 font-black">1</span> of <span id="totalPagesNum" class="text-slate-800 font-black">1</span>
+                        Page <span id="currentPageNum" class="text-blue-600 font-black">1</span> of <span id="totalPagesNum" class="text-slate-800 font-black">1</span>
                     </div>
                 </div>
 
@@ -188,14 +254,14 @@
 
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-3 text-center text-xs font-medium text-slate-400 mt-6 w-full overflow-hidden">
+        <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs font-semibold text-slate-400 mt-6 w-full overflow-hidden">
             &copy; 2026 Avira LifeCare. All rights reserved.
         </footer>
     </div>
 
-    <!-- Edit Order Modal -->
-    <div id="editOrderModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md border border-slate-100 overflow-hidden">
+    <!-- Edit Order Modal (Corporate Clean Look) -->
+    <div id="editOrderModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md border border-slate-200 overflow-hidden">
             <div class="bg-slate-900 px-5 py-3.5 text-white flex justify-between items-center">
                 <h3 class="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Order Record
@@ -209,54 +275,69 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Order Date</label>
-                        <input type="text" id="editOrderDate" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editOrderDate" required class="ref-input">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Member ID (AV + Digits)</label>
-                        <input type="text" id="editMemberId" required maxlength="8" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editMemberId" required maxlength="8" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="ref-input font-mono uppercase text-blue-700 font-bold">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Customer Full Name</label>
-                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold uppercase text-slate-900 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="editName" required class="ref-input uppercase">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Total PV</label>
-                        <input type="text" id="editPv" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-slate-700 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editPv" required class="ref-input font-mono">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Amount (₹)</label>
-                        <input type="text" id="editAmount" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editAmount" required class="ref-input font-mono font-bold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center justify-between">
+                        <span>Tracking Number <span class="text-slate-400 font-normal lowercase">(optional)</span></span>
+                        <span class="text-[9px] text-slate-400">Leave blank for shop pickup</span>
+                    </label>
+                    <div class="relative flex items-center">
+                        <input type="text" id="editTrackingNo" placeholder="Enter tracking no or leave blank..." class="ref-input font-mono uppercase font-bold pr-28">
+                        <button type="button" onclick="document.getElementById('editTrackingNo').value='SHOP PICKUP'" 
+                                class="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-lg cursor-pointer transition-colors flex items-center gap-1"
+                                title="Set as Shop Delivery">
+                            <i class="fa-solid fa-shop text-[9px]"></i> Shop Pickup
+                        </button>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button type="button" id="btnCancelOrderModal" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold cursor-pointer transition-all">Cancel</button>
-                    <button type="submit" id="btnSaveOrderEdit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black uppercase tracking-wider shadow cursor-pointer transition-all">Save Changes</button>
+                    <button type="button" id="btnCancelOrderModal" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold cursor-pointer transition-all">Cancel</button>
+                    <button type="submit" id="btnSaveOrderEdit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black uppercase tracking-wider shadow cursor-pointer transition-all">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- 🚀 Live Sync Progress Modal (Real-Time Terminal, Steps & Progress Bar) -->
-    <div id="syncProgressModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden transition-opacity">
-        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden text-white flex flex-col animate-in fade-in zoom-in-95 duration-200">
+    <div id="syncProgressModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden transition-opacity">
+        <div class="bg-white border border-slate-200 rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden text-slate-800 flex flex-col animate-in fade-in zoom-in-95 duration-200">
             
             <!-- Modal Header -->
-            <div class="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex justify-between items-center">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div id="modalIconWrap" class="h-9 w-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm border border-emerald-500/30">
+                    <div id="modalIconWrap" class="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm border border-blue-200">
                         <i class="fa-solid fa-rotate fa-spin" id="modalSpinner"></i>
                     </div>
                     <div>
-                        <h3 id="modalTitle" class="text-sm font-black tracking-wide text-white">Avira Live Sync in Progress</h3>
-                        <p id="modalSubtitle" class="text-[11px] text-slate-400 font-medium">Communicating with https://aviraglobal.in/AVGControl</p>
+                        <h3 id="modalTitle" class="text-sm font-black tracking-wide text-slate-900">Avira Live Sync in Progress</h3>
+                        <p id="modalSubtitle" class="text-[11px] text-slate-500 font-medium">Communicating with https://aviraglobal.in/AVGControl</p>
                     </div>
                 </div>
-                <button type="button" id="btnSyncModalClose" class="h-8 w-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs transition-colors cursor-pointer hidden">
+                <button type="button" id="btnSyncModalClose" class="h-8 w-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center text-xs transition-colors cursor-pointer hidden">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -265,42 +346,42 @@
             <div class="p-6 space-y-4">
                 
                 <!-- Current Step Headline -->
-                <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-700">
                     <span id="syncCurrentStep" class="flex items-center gap-2">
-                        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
                         <span id="syncStepText">Initializing connection...</span>
                     </span>
-                    <span id="syncPercentText" class="font-mono text-emerald-400 font-black">0%</span>
+                    <span id="syncPercentText" class="font-mono text-blue-600 font-black">0%</span>
                 </div>
 
                 <!-- Animated Progress Bar -->
-                <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700/80">
-                    <div id="syncProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300 ease-out shadow-sm shadow-emerald-500/50" style="width: 0%"></div>
+                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden p-0.5 border border-slate-200">
+                    <div id="syncProgressBar" class="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-300 ease-out shadow-xs" style="width: 0%"></div>
                 </div>
 
                 <!-- 3 Live Stats Counters -->
                 <div class="grid grid-cols-3 gap-3 pt-1">
-                    <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-center">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Page</div>
-                        <div id="statPage" class="text-base font-black text-white font-mono mt-0.5">-</div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Page</div>
+                        <div id="statPage" class="text-base font-black text-slate-900 font-mono mt-0.5">-</div>
                     </div>
-                    <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-center">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Orders Added</div>
-                        <div id="statOrders" class="text-base font-black text-emerald-400 font-mono mt-0.5">0</div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Orders Added</div>
+                        <div id="statOrders" class="text-base font-black text-emerald-600 font-mono mt-0.5">0</div>
                     </div>
-                    <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-center">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</div>
-                        <div id="statStatus" class="text-xs font-black text-teal-300 font-mono mt-1 uppercase tracking-wide">Connecting</div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</div>
+                        <div id="statStatus" class="text-xs font-black text-blue-600 font-mono mt-1 uppercase tracking-wide">Connecting</div>
                     </div>
                 </div>
 
                 <!-- Dark Live Terminal Console Log -->
                 <div class="space-y-1.5 pt-1">
-                    <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                         <span>Live Execution Log:</span>
-                        <span class="text-slate-500 font-mono">Stream: active</span>
+                        <span class="text-slate-400 font-mono">Stream: active</span>
                     </div>
-                    <div id="syncTerminalLog" class="bg-slate-950 text-emerald-400/90 font-mono text-[11px] p-3 rounded-xl h-44 overflow-y-auto leading-relaxed border border-slate-800/90 shadow-inner space-y-1 scroll-smooth">
+                    <div id="syncTerminalLog" class="bg-slate-900 text-emerald-400 font-mono text-[11px] p-3 rounded-xl h-44 overflow-y-auto leading-relaxed border border-slate-800 shadow-inner space-y-1 scroll-smooth">
                         <!-- Stream logs dynamically injected here -->
                     </div>
                 </div>
@@ -308,9 +389,9 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-4 bg-slate-950/60 border-t border-slate-800 flex justify-between items-center">
-                <span class="text-[11px] text-slate-400 font-medium">Tracking numbers from Avira are excluded per system protocol.</span>
-                <button type="button" id="btnSyncCompleteDone" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-5 py-2.5 rounded-xl uppercase tracking-wider shadow transition-all cursor-pointer hidden">
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+                <span class="text-[11px] text-slate-500 font-medium">Tracking numbers from Avira are excluded per system protocol.</span>
+                <button type="button" id="btnSyncCompleteDone" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-5 py-2.5 rounded-xl uppercase tracking-wider shadow-xs transition-all cursor-pointer hidden">
                     Done & Refresh
                 </button>
             </div>
@@ -318,13 +399,14 @@
         </div>
     </div>
 
-    <!-- 📦 Raw Orders Data Carrier (Eliminates IDE Linter Syntax Errors) -->
+    <!-- 📦 Raw Orders Data Carrier -->
     <script id="ordersDataCarrier" type="application/json"><%- JSON.stringify(orders || []) %></script>
 
     <script>
         // 📦 Master Orders State & Pagination Config
         const PAGE_SIZE = 50;
         let currentPage = 1;
+        let isShowAll = false;
         let rawOrdersData = [];
         try {
             const dataElem = document.getElementById('ordersDataCarrier');
@@ -342,7 +424,7 @@
                 const numA = matchA ? parseInt(matchA[1], 10) : 0;
                 const numB = matchB ? parseInt(matchB[1], 10) : 0;
                 if (numA !== numB) {
-                    return numB - numA; // Largest order number (e.g. ORD-001226) at index 0
+                    return numB - numA;
                 }
                 return (b.id || 0) - (a.id || 0);
             });
@@ -351,16 +433,61 @@
         let allOrders = sortOrdersLatestFirst(rawOrdersData);
         let filteredOrders = [...allOrders];
 
-        // 🔄 Render Paginated Table (50 Items Per Page)
+        // 🔄 Toggle Show All Orders / Show Paginated (50 Per Page)
+        function toggleShowAllOrders() {
+            isShowAll = !isShowAll;
+            const btnText = document.getElementById('showAllOrdersText');
+            const btnIcon = document.getElementById('showAllOrdersIcon');
+            const modeBadge = document.getElementById('pageModeBadge');
+            const controlsGroup = document.getElementById('paginationControlsGroup');
+
+            if (isShowAll) {
+                if (btnText) btnText.innerHTML = `Show Paginated (50/Page)`;
+                if (btnIcon) btnIcon.className = 'fa-solid fa-compress text-blue-600';
+                if (modeBadge) {
+                    modeBadge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold ml-1';
+                    modeBadge.innerText = 'Showing All';
+                }
+                if (controlsGroup) controlsGroup.classList.add('opacity-30', 'pointer-events-none');
+            } else {
+                if (btnText) btnText.innerHTML = `Show All (<span id="showAllOrdersCount">${filteredOrders.length}</span>)`;
+                if (btnIcon) btnIcon.className = 'fa-solid fa-expand text-blue-600';
+                if (modeBadge) {
+                    modeBadge.className = 'text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold ml-1';
+                    modeBadge.innerText = '50 per page';
+                }
+                if (controlsGroup) controlsGroup.classList.remove('opacity-30', 'pointer-events-none');
+            }
+
+            renderPaginatedTable();
+        }
+
+        // 🔄 Render Orders Table (50 Per Page or Show All)
         function renderPaginatedTable() {
             const total = filteredOrders.length;
-            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
+            const countSpan = document.getElementById('showAllOrdersCount');
+            if (countSpan) countSpan.innerText = total;
 
-            const startIdx = (currentPage - 1) * PAGE_SIZE;
-            const endIdx = Math.min(startIdx + PAGE_SIZE, total);
-            const pageItems = filteredOrders.slice(startIdx, endIdx);
+            let pageItems = [];
+            let startIdx = 0;
+            let endIdx = total;
+            let totalPages = 1;
+
+            if (isShowAll) {
+                pageItems = filteredOrders;
+                startIdx = 0;
+                endIdx = total;
+                totalPages = 1;
+                currentPage = 1;
+            } else {
+                totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+                if (currentPage > totalPages) currentPage = totalPages;
+                if (currentPage < 1) currentPage = 1;
+
+                startIdx = (currentPage - 1) * PAGE_SIZE;
+                endIdx = Math.min(startIdx + PAGE_SIZE, total);
+                pageItems = filteredOrders.slice(startIdx, endIdx);
+            }
 
             // Update Counter Badges
             document.getElementById('ordersCounter').innerText = `${total} Records Saved`;
@@ -371,19 +498,23 @@
             document.getElementById('totalPagesNum').innerText = totalPages;
 
             // Update Button Disabled States
-            document.getElementById('btnFirstPage').disabled = (currentPage === 1);
-            document.getElementById('btnPrevPage').disabled = (currentPage === 1);
-            document.getElementById('btnNextPage').disabled = (currentPage >= totalPages || total === 0);
-            document.getElementById('btnLastPage').disabled = (currentPage >= totalPages || total === 0);
+            document.getElementById('btnFirstPage').disabled = (currentPage === 1 || isShowAll);
+            document.getElementById('btnPrevPage').disabled = (currentPage === 1 || isShowAll);
+            document.getElementById('btnNextPage').disabled = (currentPage >= totalPages || total === 0 || isShowAll);
+            document.getElementById('btnLastPage').disabled = (currentPage >= totalPages || total === 0 || isShowAll);
 
             // Render Page Number Pills
-            renderPaginationPills(totalPages);
+            if (isShowAll) {
+                document.getElementById('pagePillsContainer').innerHTML = `<span class="px-2 py-1 text-slate-500 font-bold text-xs bg-slate-100 rounded-lg">All Records Visible</span>`;
+            } else {
+                renderPaginationPills(totalPages);
+            }
 
             const tbody = document.getElementById('ordersTableBody');
             if (pageItems.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" class="py-12 text-center text-slate-400 font-medium">
+                        <td colspan="10" class="py-12 text-center text-slate-400 font-medium">
                             No orders found. Click "Sync New Orders" or "Wipe & Sync All" above to pull live orders!
                         </td>
                     </tr>
@@ -396,19 +527,31 @@
             tbody.innerHTML = pageItems.map((item, idx) => {
                 const seq = startIdx + idx + 1;
                 const orderBadge = item.order_no 
-                    ? `<span class="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-mono font-bold">${item.order_no}</span>`
+                    ? `<span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-mono font-bold">${item.order_no}</span>`
                     : `<span class="text-slate-400 text-[10px]">MANUAL</span>`;
                 
+                // 🚚 Tracking Number Badge: If present show tracking, or shop pickup, otherwise show "Pending Dispatch"
+                const trkClean = (item.tracking_no || '').trim();
+                let trackingBadge = '';
+                if (!trkClean) {
+                    trackingBadge = `<span class="inline-flex items-center gap-1.5 font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-lg text-[10px] uppercase tracking-wider"><span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending Dispatch</span>`;
+                } else if (trkClean.toUpperCase().includes('SHOP')) {
+                    trackingBadge = `<span class="px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold text-[11px] inline-flex items-center gap-1.5"><i class="fa-solid fa-shop text-[10px] text-emerald-600"></i> ${trkClean.toUpperCase()}</span>`;
+                } else {
+                    trackingBadge = `<span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-mono font-bold text-[11px] inline-flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-[10px] text-blue-600"></i> ${trkClean}</span>`;
+                }
+
                 return `
-                    <tr class="hover:bg-slate-50/70 transition-colors" id="order-row-${item.id}">
+                    <tr class="hover:bg-slate-50 transition-colors" id="order-row-${item.id}">
                         <td class="py-2.5 px-3 text-center">
-                            <input type="checkbox" value="${item.id}" class="row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                            <input type="checkbox" value="${item.id}" class="row-checkbox rounded text-blue-600 focus:ring-blue-500 h-4 w-4 cursor-pointer">
                         </td>
-                        <td class="py-2.5 px-3 text-slate-400 font-mono text-[11px]">${seq}</td>
+                        <td class="py-2.5 px-3 text-slate-400 font-mono text-[11px] text-center">${seq}</td>
                         <td class="py-2.5 px-4 font-mono">${orderBadge}</td>
+                        <td class="py-2.5 px-4">${trackingBadge}</td>
                         <td class="py-2.5 px-4 font-semibold text-slate-800 row-date">${item.order_date || '-'}</td>
-                        <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 row-memberid">${item.member_id || '-'}</td>
-                        <td class="py-2.5 px-4 uppercase font-semibold text-slate-900 row-name">${item.name || '-'}</td>
+                        <td class="py-2.5 px-4 font-mono font-bold text-blue-700 row-memberid">${item.member_id || '-'}</td>
+                        <td class="py-2.5 px-4 uppercase font-extrabold text-slate-900 row-name">${item.name || '-'}</td>
                         <td class="py-2.5 px-4 font-mono font-bold text-slate-700 row-pv">${item.pv || '0'}</td>
                         <td class="py-2.5 px-4 font-mono font-bold text-slate-900 row-amount">₹${item.amount || '0'}</td>
                         <td class="py-2.5 px-4 text-center space-x-2">
@@ -419,7 +562,8 @@
                                     data-name="${item.name || ''}"
                                     data-pv="${item.pv || ''}"
                                     data-amount="${item.amount || ''}"
-                                    class="btn-edit-order text-amber-500 hover:text-amber-700 font-bold cursor-pointer text-xs transition-colors">
+                                    data-tracking="${item.tracking_no || ''}"
+                                    class="btn-edit-order text-amber-600 hover:text-amber-800 font-bold cursor-pointer text-xs transition-colors">
                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                             </button>
                             <button type="button" data-order-id="${item.id}" class="btn-delete-order text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-xs transition-colors">
@@ -468,8 +612,8 @@
                     const btn = document.createElement('button');
                     btn.type = 'button';
                     btn.className = (p === currentPage)
-                        ? 'h-7 w-7 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-sm cursor-default'
-                        : 'h-7 w-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer transition-all shadow-sm';
+                        ? 'h-7 w-7 rounded-lg bg-blue-600 text-white font-black text-xs shadow-2xs cursor-default'
+                        : 'h-7 w-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer transition-all shadow-2xs';
                     btn.innerText = p;
                     if (p !== currentPage) {
                         btn.addEventListener('click', () => {
@@ -484,27 +628,27 @@
 
         // Pagination Navigation Event Listeners
         document.getElementById('btnFirstPage').addEventListener('click', () => {
-            if (currentPage > 1) {
+            if (currentPage > 1 && !isShowAll) {
                 currentPage = 1;
                 renderPaginatedTable();
             }
         });
         document.getElementById('btnPrevPage').addEventListener('click', () => {
-            if (currentPage > 1) {
+            if (currentPage > 1 && !isShowAll) {
                 currentPage--;
                 renderPaginatedTable();
             }
         });
         document.getElementById('btnNextPage').addEventListener('click', () => {
             const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
-            if (currentPage < totalPages) {
+            if (currentPage < totalPages && !isShowAll) {
                 currentPage++;
                 renderPaginatedTable();
             }
         });
         document.getElementById('btnLastPage').addEventListener('click', () => {
             const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
-            if (currentPage < totalPages) {
+            if (currentPage < totalPages && !isShowAll) {
                 currentPage = totalPages;
                 renderPaginatedTable();
             }
@@ -518,12 +662,13 @@
             } else {
                 filteredOrders = allOrders.filter(o => {
                     const no = (o.order_no || '').toLowerCase();
+                    const trk = (o.tracking_no || '').toLowerCase();
                     const mem = (o.member_id || '').toLowerCase();
                     const nm = (o.name || '').toLowerCase();
                     const dt = (o.order_date || '').toLowerCase();
                     const pv = (o.pv || '').toString().toLowerCase();
                     const amt = (o.amount || '').toString().toLowerCase();
-                    return no.includes(q) || mem.includes(q) || nm.includes(q) || dt.includes(q) || pv.includes(q) || amt.includes(q);
+                    return no.includes(q) || trk.includes(q) || mem.includes(q) || nm.includes(q) || dt.includes(q) || pv.includes(q) || amt.includes(q);
                 });
             }
             currentPage = 1;
@@ -616,6 +761,7 @@
                 document.getElementById('editName').value = editBtn.getAttribute('data-name');
                 document.getElementById('editPv').value = editBtn.getAttribute('data-pv');
                 document.getElementById('editAmount').value = editBtn.getAttribute('data-amount');
+                document.getElementById('editTrackingNo').value = editBtn.getAttribute('data-tracking') || '';
 
                 editModal.classList.remove('hidden');
                 editModal.classList.add('flex');
@@ -643,7 +789,8 @@
                 memberId: document.getElementById('editMemberId').value,
                 name: document.getElementById('editName').value,
                 pv: document.getElementById('editPv').value,
-                amount: document.getElementById('editAmount').value
+                amount: document.getElementById('editAmount').value,
+                trackingNo: document.getElementById('editTrackingNo').value.trim()
             };
 
             try {
@@ -706,23 +853,81 @@
         function updateBulkDeleteButton() {
             const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
             const bulkBtn = document.getElementById('btnBulkDelete');
+            const bulkShoppeeBtn = document.getElementById('btnBulkShoppee');
             const counterSpan = document.getElementById('selectedCount');
+            const shoppeeCounterSpan = document.getElementById('selectedShoppeeCount');
 
             if (selectedCheckboxes.length > 0) {
                 if (counterSpan) {
                     counterSpan.innerText = selectedCheckboxes.length;
-                } else {
+                } else if (bulkBtn) {
                     bulkBtn.innerHTML = `<i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedCount">${selectedCheckboxes.length}</span>)`;
                 }
-                bulkBtn.classList.remove('hidden');
-                bulkBtn.classList.add('flex');
+
+                if (shoppeeCounterSpan) {
+                    shoppeeCounterSpan.innerText = selectedCheckboxes.length;
+                } else if (bulkShoppeeBtn) {
+                    bulkShoppeeBtn.innerHTML = `<i class="fa-solid fa-shop"></i> Shoppee (<span id="selectedShoppeeCount">${selectedCheckboxes.length}</span>)`;
+                }
+
+                if (bulkShoppeeBtn) {
+                    bulkShoppeeBtn.classList.remove('hidden');
+                    bulkShoppeeBtn.classList.add('flex');
+                }
+                if (bulkBtn) {
+                    bulkBtn.classList.remove('hidden');
+                    bulkBtn.classList.add('flex');
+                }
             } else {
-                bulkBtn.classList.add('hidden');
-                bulkBtn.classList.remove('flex');
+                if (bulkShoppeeBtn) {
+                    bulkShoppeeBtn.classList.add('hidden');
+                    bulkShoppeeBtn.classList.remove('flex');
+                }
+                if (bulkBtn) {
+                    bulkBtn.classList.add('hidden');
+                    bulkBtn.classList.remove('flex');
+                }
                 const selectAll = document.getElementById('selectAllCheckbox');
                 if (selectAll) selectAll.checked = false;
             }
         }
+
+        // 🏬 Bulk Shoppee / Shop Pickup Handler
+        document.getElementById('btnBulkShoppee')?.addEventListener('click', async function() {
+            const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+            const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value)).filter(id => !isNaN(id));
+
+            if (selectedIds.length === 0) return;
+
+            if (confirm(`Set ${selectedIds.length} selected orders as "SHOP PICKUP" (Shoppee)?`)) {
+                const origHtml = this.innerHTML;
+                this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Updating...`;
+                this.disabled = true;
+
+                try {
+                    const res = await fetch('/admin/api/bulk-shoppee-orders', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ids: selectedIds })
+                    });
+                    const result = await res.json();
+
+                    if (result.success) {
+                        allOrders = sortOrdersLatestFirst(result.orders);
+                        applyFilter();
+                    } else {
+                        alert(result.msg || "Bulk Shoppee update failed!");
+                    }
+                } catch (err) {
+                    console.error("Bulk Shoppee error:", err);
+                    alert("Server error during bulk Shoppee update.");
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = origHtml;
+                    updateBulkDeleteButton();
+                }
+            }
+        });
 
         document.getElementById('btnBulkDelete').addEventListener('click', async function() {
             const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
@@ -805,7 +1010,7 @@
             // Reset modal state
             if (progressBar) {
                 progressBar.style.width = '0%';
-                progressBar.className = 'h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300 ease-out shadow-sm shadow-emerald-500/50';
+                progressBar.className = 'h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-300 ease-out shadow-xs';
             }
             if (percentText) percentText.innerText = '0%';
             if (stepText) stepText.innerText = mode === 'wipe_all' ? 'Initiating full wipe & catalog sync...' : 'Starting sync for new orders...';
@@ -813,12 +1018,12 @@
             if (statOrders) statOrders.innerText = '0';
             if (statStatus) {
                 statStatus.innerText = 'CONNECTING';
-                statStatus.className = 'text-xs font-black text-teal-300 font-mono mt-1 uppercase tracking-wide';
+                statStatus.className = 'text-xs font-black text-blue-600 font-mono mt-1 uppercase tracking-wide';
             }
             if (terminalLog) terminalLog.innerHTML = '';
             
             if (modalSpinner) modalSpinner.className = 'fa-solid fa-rotate fa-spin';
-            if (modalIconWrap) modalIconWrap.className = 'h-9 w-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm border border-emerald-500/30';
+            if (modalIconWrap) modalIconWrap.className = 'h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm border border-blue-200';
 
             if (btnModalDone) btnModalDone.classList.add('hidden');
             if (btnModalClose) btnModalClose.classList.add('hidden');
@@ -872,10 +1077,10 @@
                         progressBar.style.width = '100%';
                         percentText.innerText = '100%';
                         statStatus.innerText = 'COMPLETED';
-                        statStatus.className = 'text-xs font-black text-emerald-400 font-mono mt-1 uppercase tracking-wide';
+                        statStatus.className = 'text-xs font-black text-emerald-600 font-mono mt-1 uppercase tracking-wide';
                         
-                        modalSpinner.className = 'fa-solid fa-check text-emerald-400';
-                        modalIconWrap.className = 'h-9 w-9 rounded-xl bg-emerald-500/30 text-emerald-400 flex items-center justify-center text-sm border border-emerald-400/50';
+                        modalSpinner.className = 'fa-solid fa-check text-emerald-600';
+                        modalIconWrap.className = 'h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-200';
 
                         btnModalDone.classList.remove('hidden');
                         btnModalClose.classList.remove('hidden');
@@ -888,9 +1093,9 @@
                     if (data.step === 'error') {
                         activeEventSource.close();
                         statStatus.innerText = 'ERROR';
-                        statStatus.className = 'text-xs font-black text-rose-400 font-mono mt-1 uppercase tracking-wide';
-                        modalSpinner.className = 'fa-solid fa-triangle-exclamation text-rose-400';
-                        modalIconWrap.className = 'h-9 w-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm border border-rose-500/40';
+                        statStatus.className = 'text-xs font-black text-rose-600 font-mono mt-1 uppercase tracking-wide';
+                        modalSpinner.className = 'fa-solid fa-triangle-exclamation text-rose-600';
+                        modalIconWrap.className = 'h-9 w-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-200';
                         btnModalClose.classList.remove('hidden');
                     }
 
@@ -950,16 +1155,16 @@
                         const text = document.getElementById('toggleSyncText');
 
                         if (isEnabled) {
-                            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider';
-                            dot.className = 'h-2 w-2 rounded-full bg-emerald-400 animate-pulse';
+                            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold';
+                            dot.className = 'h-2 w-2 rounded-full bg-emerald-500 animate-pulse';
                             badgeText.innerText = 'Auto-Sync Active (5m)';
-                            icon.className = 'fa-solid fa-pause text-amber-400 text-[10px]';
+                            icon.className = 'fa-solid fa-pause text-amber-600 text-[10px]';
                             text.innerText = 'Pause Auto-Sync';
                         } else {
-                            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[10px] font-black uppercase tracking-wider';
-                            dot.className = 'h-2 w-2 rounded-full bg-amber-400';
+                            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold';
+                            dot.className = 'h-2 w-2 rounded-full bg-amber-500';
                             badgeText.innerText = 'Auto-Sync Paused';
-                            icon.className = 'fa-solid fa-play text-emerald-400 text-[10px]';
+                            icon.className = 'fa-solid fa-play text-emerald-600 text-[10px]';
                             text.innerText = 'Resume Auto-Sync';
                         }
                     } else {

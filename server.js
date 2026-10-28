@@ -1,3 +1,4 @@
+require('./config/dns_resilience');
 const express = require('express');
 const bodyParser = require('body-parser');
 const compression = require('compression');
@@ -129,6 +130,14 @@ if (!process.env.VERCEL) {
             orderSyncBot.startBackgroundBot();
         } catch (e) {
             console.warn('Avira Order Sync Bot init error:', e.message);
+        }
+
+        // 👥 Start Avira Member/Customer Directory Auto-Sync Bot (Every 30 mins)
+        try {
+            const customerSyncBot = require('./config/customer_sync');
+            customerSyncBot.initAutoScheduler();
+        } catch (e) {
+            console.warn('Avira Customer Sync Bot init error:', e.message);
         }
     });
 }

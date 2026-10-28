@@ -105,11 +105,35 @@ router.get('/orders-master', checkAdmin, async (req, res) => {
     try {
         const orderSyncBot = require('../config/order_sync');
         const ordersRes = await db.query(`
-            SELECT * FROM orders_master 
+            SELECT 
+                om.*,
+                COALESCE(
+                    NULLIF(om.tracking_no, ''),
+                    NULLIF(ot.tracking_no, ''),
+                    NULLIF(cp.tracking, ''),
+                    NULLIF(mb.tracking, ''),
+                    ''
+                ) as tracking_no
+            FROM orders_master om
+            LEFT JOIN order_trackings ot ON (ot.order_no = om.order_no AND ot.tracking_no IS NOT NULL AND ot.tracking_no != '')
+            LEFT JOIN LATERAL (
+                SELECT tracking 
+                FROM consignment_parcels 
+                WHERE (order_no = om.order_no OR (member_id = om.member_id AND om.member_id IS NOT NULL AND om.member_id != ''))
+                  AND tracking IS NOT NULL AND TRIM(tracking) != ''
+                ORDER BY id DESC LIMIT 1
+            ) cp ON true
+            LEFT JOIN LATERAL (
+                SELECT tracking 
+                FROM main_database 
+                WHERE (order_no = om.order_no OR (member_id = om.member_id AND om.member_id IS NOT NULL AND om.member_id != ''))
+                  AND tracking IS NOT NULL AND TRIM(tracking) != ''
+                ORDER BY sr_no DESC LIMIT 1
+            ) mb ON true
             ORDER BY 
                 CASE 
-                    WHEN order_no ~ '^ORD-[0-9]+$' THEN CAST(SUBSTRING(order_no FROM 5) AS INTEGER)
-                    ELSE id 
+                    WHEN om.order_no ~ '^ORD-[0-9]+$' THEN CAST(SUBSTRING(om.order_no FROM 5) AS INTEGER)
+                    ELSE om.id 
                 END DESC
         `);
         const syncStatus = await orderSyncBot.getStatus();
@@ -123,23 +147,61 @@ router.get('/orders-master', checkAdmin, async (req, res) => {
 // ✍️ Admin Manual Entry View
 router.get('/manual-entry', checkAdmin, async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM pending_entries ORDER BY id DESC');
-        res.render('admin/manual_entry', { entries: result.rows });
+        const consignmentId = req.query.consignmentId ? parseInt(req.query.consignmentId, 10) : null;
+        
+        // Fetch all consignments with parcel count
+        const consignmentsRes = await db.query(`
+            SELECT c.*, 
+                   COALESCE(COUNT(p.id), 0)::int as total_parcels
+            FROM consignments c
+            LEFT JOIN consignment_parcels p ON c.id = p.consignment_id
+            GROUP BY c.id
+            ORDER BY c.id DESC
+        `);
+
+        let activeConsignment = null;
+        let activeParcels = [];
+
+        if (consignmentId) {
+            const cRes = await db.query('SELECT * FROM consignments WHERE id = $1', [consignmentId]);
+            if (cRes.rows.length > 0) {
+                activeConsignment = cRes.rows[0];
+                const pRes = await db.query('SELECT * FROM consignment_parcels WHERE consignment_id = $1 ORDER BY id DESC', [consignmentId]);
+                activeParcels = pRes.rows;
+            }
+        }
+
+        res.render('admin/manual_entry', { 
+            consignments: consignmentsRes.rows,
+            activeConsignment,
+            activeParcels,
+            consignmentId: activeConsignment ? activeConsignment.id : null
+        });
     } catch (err) {
         console.error("Fetch Manual Entry Error:", err);
-        res.render('admin/manual_entry', { entries: [] });
+        res.render('admin/manual_entry', { 
+            consignments: [],
+            activeConsignment: null,
+            activeParcels: [],
+            consignmentId: null
+        });
     }
 });
 
-// 🤝 Admin Confirm & Match Member View
-router.get('/confirm-member', checkAdmin, async (req, res) => {
+// 👥 Admin Customers & Members Directory View
+router.get('/customers', checkAdmin, async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM pending_entries ORDER BY id DESC');
-        res.render('admin/confirm_member', { entries: result.rows });
+        const result = await db.query('SELECT * FROM customers ORDER BY id ASC');
+        res.render('admin/customers', { customers: result.rows });
     } catch (err) {
-        console.error("Fetch Confirm Member Error:", err);
-        res.render('admin/confirm_member', { entries: [] });
+        console.error("Fetch Customers Error:", err);
+        res.render('admin/customers', { customers: [] });
     }
+});
+
+// Legacy redirect from /confirm-member to /master-database
+router.get('/confirm-member', checkAdmin, (req, res) => {
+    res.redirect('/admin/master-database');
 });
 
 // 📨 Admin Helpdesk Queries View
@@ -201,12 +263,14 @@ router.get('/master-database', checkAdmin, async (req, res) => {
         const result = await db.query('SELECT * FROM main_database ORDER BY sr_no DESC');
         const formattedRows = result.rows.map(row => ({
             srNo: row.sr_no,
+            orderNo: row.order_no || '-',
             memberId: row.member_id,
             name: row.name,
             orderDate: row.order_date,
             pv: row.pv,
             amount: row.amount,
-            tracking: row.tracking
+            tracking: row.tracking || '',
+            deliveryStatus: row.delivery_status || 'Pending'
         }));
         res.render('admin/master_database', { entries: formattedRows });
     } catch (error) {

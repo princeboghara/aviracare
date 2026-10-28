@@ -204,43 +204,43 @@ router.get('/track-parcel', (req, res) => {
     res.render('member/tracking');
 });
 
-// 📡 Order & Consignment Tracking API Lookup (Fast Direct Database Lookup)
+// 📡 Order Tracking API Lookup (Fast Direct Database Lookup)
 router.get('/api/track', async (req, res) => {
     const rawSearch = (req.query.memberId || req.query.query || req.query.tracking || '').toUpperCase().trim();
     try {
         if (!rawSearch) return res.json([]);
 
+        // Generate smart search variants for 5 or 6 digit member IDs (e.g. 123456 or AV123456)
+        let withAv = rawSearch;
+        let withoutAv = rawSearch;
+        if (rawSearch.startsWith('AV')) {
+            withoutAv = rawSearch.substring(2);
+        } else if (/^\d+$/.test(rawSearch)) {
+            withAv = 'AV' + rawSearch;
+        }
+
         const queryText = `
             SELECT * FROM main_database 
-            WHERE UPPER(member_id) = $1 
-               OR UPPER(tracking) = $1 
-               OR UPPER(name) LIKE $2
+            WHERE UPPER(TRIM(member_id)) IN ($1, $2)
+               OR UPPER(TRIM(order_no)) IN ($1, $2)
+               OR UPPER(TRIM(tracking)) IN ($1, $2)
+               OR UPPER(name) LIKE $3
             ORDER BY sr_no DESC
         `;
-        const result = await db.query(queryText, [rawSearch, `%${rawSearch}%`]);
+        const result = await db.query(queryText, [withAv, withoutAv, `%${rawSearch}%`]);
         
         const formattedResults = result.rows.map((row) => {
             const trackingNum = (row.tracking || '').trim().toUpperCase();
-            const isDispatched = trackingNum.length > 0 && trackingNum !== 'PENDING' && trackingNum !== '-';
 
             return {
                 srNo: row.sr_no,
-                memberId: row.member_id,
-                name: row.name,
-                orderDate: row.order_date,
-                pv: row.pv,
-                amount: row.amount,
-                tracking: trackingNum,
-                isDispatched,
-                isLive: false,
-                statusBadge: isDispatched ? 'DISPATCHED' : 'PROCESSING',
-                statusText: isDispatched ? 'Dispatched' : 'Processing in Warehouse',
-                currentStep: isDispatched ? 3 : 1,
-                articleType: 'Speed Post / Courier',
-                bookingOffice: 'Surat Fulfillment Center',
-                indiaPostUrl: 'https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx',
-                parcelsAppUrl: isDispatched ? `https://parcelsapp.com/en/tracking/${encodeURIComponent(trackingNum)}` : '#',
-                events: []
+                orderNo: row.order_no || '',
+                memberId: row.member_id || '',
+                name: row.name || '',
+                orderDate: row.order_date || '',
+                pv: row.pv || '0',
+                amount: row.amount || '0',
+                tracking: trackingNum
             };
         });
 

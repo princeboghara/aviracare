@@ -40,13 +40,6 @@
                     <span><%= (botStatus && botStatus.walletBalance) ? botStatus.walletBalance : '₹1,106.00' %></span>
                 </div>
 
-                <!-- Theme Toggle Button -->
-                <button type="button" onclick="toggleAdminTheme()" class="pro-theme-toggle" title="Toggle Dark/Light Mode">
-                    <i class="fa-solid fa-moon dark:hidden text-slate-700 text-xs"></i>
-                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400 text-xs"></i>
-                    <span class="dark:hidden text-[10px] font-black">DARK</span>
-                    <span class="hidden dark:inline text-[10px] font-black text-amber-300">LIGHT</span>
-                </button>
 
                 <!-- Sync Action Button -->
                 <button type="button" onclick="triggerLiveIndiaPostSync()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95">

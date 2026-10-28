@@ -69,6 +69,9 @@
                         </div>
 
                         <span id="masterCounter" class="bg-emerald-100 text-emerald-800 text-[11px] font-black px-3 py-1.5 rounded-xl border border-emerald-200"><%= entries.length %> Records Saved</span>
+                        <button id="btnBulkShoppeeMaster" type="button" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
+                            <i class="fa-solid fa-shop"></i> Shoppee (<span id="selectedMasterShoppeeCount">0</span>)
+                        </button>
                         <button id="btnBulkDeleteMaster" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
                             <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedMasterCount">0</span>)
                         </button>
@@ -82,25 +85,31 @@
                                 <th class="p-4 w-10 text-center select-none">
                                     <input type="checkbox" id="selectAllMasterCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                                 </th>
-                                <th class="p-4 w-20 cursor-pointer hover:text-emerald-600:text-emerald-400 transition-colors select-none group" id="colSrNo" title="Click to sort by Series Number">
+                                <th class="p-4 w-16 cursor-pointer hover:text-emerald-600 transition-colors select-none group" id="colSrNo" title="Click to sort by Series Number">
                                     <div class="flex items-center gap-1">
                                         <span>SR</span>
                                         <i class="fa-solid fa-sort-up ml-1 text-emerald-500 text-[10px]" id="sortSrIcon"></i>
                                     </div>
                                 </th>
-                                <th class="p-4 cursor-pointer hover:text-emerald-600:text-emerald-400 transition-colors select-none group" id="colMemberId" title="Click to sort by Member ID">
+                                <th class="p-4 cursor-pointer hover:text-emerald-600 transition-colors select-none group" id="colOrderNo" title="Click to sort by Order No">
+                                    <div class="flex items-center gap-1">
+                                        <span>Order No</span>
+                                        <i class="fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortOrderIcon"></i>
+                                    </div>
+                                </th>
+                                <th class="p-4 cursor-pointer hover:text-emerald-600 transition-colors select-none group" id="colMemberId" title="Click to sort by Member ID">
                                     <div class="flex items-center gap-1">
                                         <span>Member ID</span>
                                         <i class="fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortMemberIcon"></i>
                                     </div>
                                 </th>
-                                <th class="p-4 cursor-pointer hover:text-emerald-600:text-emerald-400 transition-colors select-none group" id="colName" title="Click to sort by Full Name">
+                                <th class="p-4 cursor-pointer hover:text-emerald-600 transition-colors select-none group" id="colName" title="Click to sort by Full Name">
                                     <div class="flex items-center gap-1">
                                         <span>Full Name</span>
                                         <i class="fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortNameIcon"></i>
                                     </div>
                                 </th>
-                                <th class="p-4 cursor-pointer hover:text-emerald-600:text-emerald-400 transition-colors select-none group" id="colOrderDate" title="Click to sort by Order Date">
+                                <th class="p-4 cursor-pointer hover:text-emerald-600 transition-colors select-none group" id="colOrderDate" title="Click to sort by Order Date">
                                     <div class="flex items-center gap-1">
                                         <span>Order Date</span>
                                         <i class="fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortDateIcon"></i>
@@ -115,27 +124,43 @@
                         <tbody class="divide-y divide-slate-50 font-medium text-slate-700" id="masterTableBody">
                             <% if(entries.length === 0) { %>
                                 <tr id="no-records-row">
-                                    <td colspan="9" class="py-12 text-center text-slate-400 font-normal">
+                                    <td colspan="10" class="py-12 text-center text-slate-400 font-normal">
                                         <i class="fa-solid fa-database text-2xl block mb-2 text-slate-200"></i>
                                         Database is empty! No records found in main_database.
                                     </td>
                                 </tr>
                             <% } else { %>
                                 <% entries.forEach((item, index) => { %>
-                                <tr class="hover:bg-slate-50:bg-slate-800/60 transition-colors table-row-item" id="row-master-<%= item.srNo %>" data-initial-index="<%= index + 1 %>">
+                                <tr class="hover:bg-slate-50 transition-colors table-row-item" id="row-master-<%= item.srNo %>" data-initial-index="<%= index + 1 %>">
                                     <td class="p-4 text-center">
                                         <input type="checkbox" value="<%= item.srNo %>" class="master-row-checkbox rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                                     </td>
                                     <td class="p-4 font-mono text-slate-400 sr-number-cell"><%= index + 1 %></td>
+                                    <td class="p-4 font-mono font-bold text-slate-800 order-no-cell">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-mono font-bold border border-slate-200">
+                                            <%= item.orderNo %>
+                                        </span>
+                                    </td>
                                     <td class="p-4 font-bold font-mono text-emerald-700 member-id-cell"><%= item.memberId %></td>
                                     <td class="p-4 uppercase text-slate-800 font-semibold name-cell"><%= item.name %></td>
                                     <td class="p-4 text-slate-500 date-cell" data-raw-date="<%= item.orderDate %>"><%= item.orderDate %></td>
                                     <td class="p-4 font-mono text-slate-600 pv-cell"><%= item.pv %> PV</td>
                                     <td class="p-4 font-bold font-mono text-slate-900 amount-cell">₹<%= item.amount %></td>
-                                    <td class="p-4 font-mono font-bold tracking-wide text-slate-800 tracking-cell"><%= item.tracking %></td>
+                                    <td class="p-4 font-mono tracking-wide text-slate-800 tracking-cell">
+                                        <% if (!item.tracking || item.tracking === '' || item.tracking === '-') { %>
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                                                <i class="fa-solid fa-store text-amber-500"></i> Shop / Pending
+                                            </span>
+                                        <% } else { %>
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                                <i class="fa-solid fa-barcode text-blue-500"></i> <%= item.tracking %>
+                                            </span>
+                                        <% } %>
+                                    </td>
                                     <td class="p-4 text-center space-x-2">
                                         <button type="button" 
                                                 data-srno="<%= item.srNo %>"
+                                                data-orderno="<%= item.orderNo %>"
                                                 data-memberid="<%= item.memberId %>"
                                                 data-name="<%= item.name %>"
                                                 data-orderdate="<%= item.orderDate %>"
@@ -197,14 +222,21 @@
             <form id="editMasterForm" class="p-6 space-y-4">
                 <input type="hidden" id="editSrNo">
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Member ID (AV + 5 or 6 Digits)</label>
-                        <input type="text" id="editMemberId" required maxlength="8" placeholder="AV12345 or AV123456" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Order No</label>
+                        <input type="text" id="editOrderNo" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-slate-600 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Tracking Number</label>
-                        <input type="text" id="editTracking" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Member ID</label>
+                        <input type="text" id="editMemberId" required maxlength="8" placeholder="AV12345" oninput="formatMemberIdInput(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase">Tracking Number</label>
+                            <button type="button" onclick="document.getElementById('editTracking').value=''" class="text-[9px] font-bold text-amber-600 hover:underline cursor-pointer">Clear / Shop</button>
+                        </div>
+                        <input type="text" id="editTracking" placeholder="Tracking No or Blank" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono uppercase font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
@@ -276,6 +308,7 @@
                 element: row,
                 initialIndex: idx + 1,
                 srNo: parseInt(row.querySelector('.master-row-checkbox')?.value || (idx + 1), 10),
+                orderNo: (row.querySelector('.order-no-cell')?.innerText || '').trim().toUpperCase(),
                 memberId: (row.querySelector('.member-id-cell')?.innerText || '').trim().toUpperCase(),
                 name: (row.querySelector('.name-cell')?.innerText || '').trim().toUpperCase(),
                 orderDateRaw: dateStr,
@@ -301,7 +334,8 @@
             // 1. Filter
             let filtered = masterRows.filter(item => {
                 if (!currentSearch) return true;
-                return item.name.includes(currentSearch) ||
+                return item.orderNo.includes(currentSearch) ||
+                       item.name.includes(currentSearch) ||
                        item.memberId.includes(currentSearch) ||
                        item.tracking.includes(currentSearch);
             });
@@ -347,6 +381,7 @@
                 tbody.appendChild(emptyRow);
             } else {
                 const slice = filtered.slice(startIndex, endIndex);
+                const fragment = document.createDocumentFragment();
                 slice.forEach((item, sliceIdx) => {
                     const row = item.element;
                     // Update the visible SR Number on the page
@@ -354,8 +389,9 @@
                     if (srCell) {
                         srCell.innerText = startIndex + sliceIdx + 1;
                     }
-                    tbody.appendChild(row);
+                    fragment.appendChild(row);
                 });
+                tbody.appendChild(fragment);
             }
 
             // 4. Update Pagination Info Text
@@ -493,11 +529,11 @@
         document.querySelectorAll('.page-size-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.page-size-btn').forEach(b => {
-                    b.classList.remove('active-page-size', 'bg-white', '', 'text-emerald-600', '', 'shadow-xs');
-                    b.classList.add('text-slate-600', '');
+                    b.classList.remove('active-page-size', 'bg-white', 'text-emerald-600', 'shadow-xs');
+                    b.classList.add('text-slate-600');
                 });
-                this.classList.add('active-page-size', 'bg-white', '', 'text-emerald-600', '', 'shadow-xs');
-                this.classList.remove('text-slate-600', '');
+                this.classList.add('active-page-size', 'bg-white', 'text-emerald-600', 'shadow-xs');
+                this.classList.remove('text-slate-600');
 
                 const sizeVal = this.getAttribute('data-size');
                 pageSize = sizeVal === 'ALL' ? 'ALL' : parseInt(sizeVal, 10);
@@ -515,7 +551,7 @@
 
         // ◀️ Prev / Next Buttons
         document.getElementById('btnPrevPage')?.addEventListener('click', () => {
-            if (currentPage > 1) {
+            if (pageSize !== 'ALL' && currentPage > 1) {
                 currentPage--;
                 renderMasterTable();
                 window.scrollTo({ top: document.getElementById('masterDbTable').offsetTop - 120, behavior: 'smooth' });
@@ -523,9 +559,11 @@
         });
 
         document.getElementById('btnNextPage')?.addEventListener('click', () => {
-            currentPage++;
-            renderMasterTable();
-            window.scrollTo({ top: document.getElementById('masterDbTable').offsetTop - 120, behavior: 'smooth' });
+            if (pageSize !== 'ALL') {
+                currentPage++;
+                renderMasterTable();
+                window.scrollTo({ top: document.getElementById('masterDbTable').offsetTop - 120, behavior: 'smooth' });
+            }
         });
 
         // ✅ Checkbox & Bulk Actions
@@ -544,21 +582,78 @@
         function updateBulkDeleteMasterButton() {
             const selectedCheckboxes = document.querySelectorAll('.master-row-checkbox:checked');
             const bulkBtn = document.getElementById('btnBulkDeleteMaster');
+            const bulkShoppeeBtn = document.getElementById('btnBulkShoppeeMaster');
             const counterSpan = document.getElementById('selectedMasterCount');
+            const shoppeeCounterSpan = document.getElementById('selectedMasterShoppeeCount');
 
             if (selectedCheckboxes.length > 0) {
                 if (counterSpan) {
                     counterSpan.innerText = selectedCheckboxes.length;
-                } else {
+                } else if (bulkBtn) {
                     bulkBtn.innerHTML = `<i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedMasterCount">${selectedCheckboxes.length}</span>)`;
                 }
-                bulkBtn.classList.remove('hidden');
-                bulkBtn.classList.add('flex');
+
+                if (shoppeeCounterSpan) {
+                    shoppeeCounterSpan.innerText = selectedCheckboxes.length;
+                } else if (bulkShoppeeBtn) {
+                    bulkShoppeeBtn.innerHTML = `<i class="fa-solid fa-shop"></i> Shoppee (<span id="selectedMasterShoppeeCount">${selectedCheckboxes.length}</span>)`;
+                }
+
+                if (bulkShoppeeBtn) {
+                    bulkShoppeeBtn.classList.remove('hidden');
+                    bulkShoppeeBtn.classList.add('flex');
+                }
+                if (bulkBtn) {
+                    bulkBtn.classList.remove('hidden');
+                    bulkBtn.classList.add('flex');
+                }
             } else {
-                bulkBtn.classList.add('hidden');
-                bulkBtn.classList.remove('flex');
+                if (bulkShoppeeBtn) {
+                    bulkShoppeeBtn.classList.add('hidden');
+                    bulkShoppeeBtn.classList.remove('flex');
+                }
+                if (bulkBtn) {
+                    bulkBtn.classList.add('hidden');
+                    bulkBtn.classList.remove('flex');
+                }
             }
         }
+
+        // 🏬 Bulk Shoppee Master Handler
+        document.getElementById('btnBulkShoppeeMaster')?.addEventListener('click', async function() {
+            const selectedCheckboxes = document.querySelectorAll('.master-row-checkbox:checked');
+            const selectedSrNos = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value)).filter(n => !isNaN(n));
+
+            if (selectedSrNos.length === 0) return;
+
+            if (confirm(`Set ${selectedSrNos.length} selected orders as "SHOP PICKUP" (Shoppee)?`)) {
+                const origHtml = this.innerHTML;
+                this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Updating...`;
+                this.disabled = true;
+
+                try {
+                    const res = await fetch('/admin/api/bulk-shoppee-master', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ srNos: selectedSrNos })
+                    });
+                    const result = await res.json();
+
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert("Error: " + (result.msg || "Bulk Shoppee update failed"));
+                    }
+                } catch (err) {
+                    console.error("Bulk Shoppee master error:", err);
+                    alert("Server error during bulk Shoppee update.");
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = origHtml;
+                    updateBulkDeleteMasterButton();
+                }
+            }
+        });
 
         document.getElementById('selectAllMasterCheckbox')?.addEventListener('change', function() {
             const isChecked = this.checked;
@@ -617,12 +712,13 @@
             const editBtn = e.target.closest('.edit-btn');
             if (editBtn) {
                 document.getElementById('editSrNo').value = editBtn.getAttribute('data-srno');
+                document.getElementById('editOrderNo').value = editBtn.getAttribute('data-orderno') || '';
                 document.getElementById('editMemberId').value = editBtn.getAttribute('data-memberid');
                 document.getElementById('editName').value = editBtn.getAttribute('data-name');
                 document.getElementById('editOrderDate').value = editBtn.getAttribute('data-orderdate');
                 document.getElementById('editPv').value = editBtn.getAttribute('data-pv');
                 document.getElementById('editAmount').value = editBtn.getAttribute('data-amount');
-                document.getElementById('editTracking').value = editBtn.getAttribute('data-tracking');
+                document.getElementById('editTracking').value = editBtn.getAttribute('data-tracking') || '';
 
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
@@ -646,6 +742,7 @@
             btn.disabled = true;
 
             const payload = {
+                orderNo: document.getElementById('editOrderNo').value,
                 memberId: document.getElementById('editMemberId').value,
                 name: document.getElementById('editName').value,
                 orderDate: document.getElementById('editOrderDate').value,
