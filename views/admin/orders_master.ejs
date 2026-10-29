@@ -167,14 +167,24 @@
                         <!-- Search Box -->
                         <div class="relative">
                             <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                            <input type="text" id="orderSearchInput" placeholder="Filter orders..." class="pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-500 w-44 sm:w-56">
+                            <input type="text" id="orderSearchInput" oninput="applyFilterAndSort()" placeholder="Filter orders..." class="pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-500 w-44 sm:w-56">
                         </div>
 
-                        <!-- Show All Toggle Button -->
-                        <button id="btnToggleShowAllOrders" type="button" onclick="toggleShowAllOrders()" 
-                                class="inline-flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs">
-                            <i class="fa-solid fa-expand text-blue-600" id="showAllOrdersIcon"></i>
-                            <span id="showAllOrdersText">Show All (<span id="showAllOrdersCount"><%= orders ? orders.length : 0 %></span>)</span>
+                        <!-- 🔢 Page Size Selector Buttons (10, 25, 50, 100, ALL) -->
+                        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+                            <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 px-1">Show:</span>
+                            <button type="button" onclick="setOrdersPageSize(10)" id="pageSizeBtn-10" class="orders-page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">10</button>
+                            <button type="button" onclick="setOrdersPageSize(25)" id="pageSizeBtn-25" class="orders-page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">25</button>
+                            <button type="button" onclick="setOrdersPageSize(50)" id="pageSizeBtn-50" class="orders-page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white text-blue-600 shadow-xs cursor-pointer">50</button>
+                            <button type="button" onclick="setOrdersPageSize(100)" id="pageSizeBtn-100" class="orders-page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">100</button>
+                            <button type="button" onclick="setOrdersPageSize('ALL')" id="pageSizeBtn-ALL" class="orders-page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">ALL</button>
+                        </div>
+
+                        <!-- Copy Tracking IDs Button -->
+                        <button id="btnCopyAllTrackings" type="button" onclick="copyMasterTrackingNumbers()" 
+                                class="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs" title="Copy tracking numbers for bulk India Post tracking">
+                            <i class="fa-regular fa-copy text-emerald-600" id="copyMasterIcon"></i>
+                            <span id="copyMasterText">Copy Tracking IDs</span>
                         </button>
 
                         <!-- Bulk Shoppee Button (Appears on row selection) -->
@@ -197,18 +207,58 @@
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[850px]">
                         <thead>
-                            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-extrabold uppercase text-[10px]">
+                            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-extrabold uppercase text-[10px] select-none">
                                 <th class="py-3 px-3 text-center w-10">
                                     <input type="checkbox" id="selectAllCheckbox" class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4 cursor-pointer">
                                 </th>
-                                <th class="py-3 px-3 w-12 text-center">#</th>
-                                <th class="py-3 px-4">Order No</th>
-                                <th class="py-3 px-4">Tracking Number</th>
-                                <th class="py-3 px-4">Ordered Date</th>
-                                <th class="py-3 px-4">Member ID</th>
-                                <th class="py-3 px-4">Customer Name</th>
-                                <th class="py-3 px-4">Total PV</th>
-                                <th class="py-3 px-4">Amount</th>
+                                <th class="py-3 px-3 w-12 text-center cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('seq')" title="Click to sort by Sequence">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <span>#</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="sortIcon-seq"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('order_no')" title="Click to sort by Order No">
+                                    <div class="flex items-center gap-1">
+                                        <span>Order No</span>
+                                        <i class="fa-solid fa-sort-down text-[10px] text-blue-600" id="sortIcon-order_no"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('tracking_no')" title="Click to sort by Tracking Number">
+                                    <div class="flex items-center gap-1">
+                                        <span>Tracking Number</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="sortIcon-tracking_no"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('order_date')" title="Click to sort by Order Date">
+                                    <div class="flex items-center gap-1">
+                                        <span>Ordered Date</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="sortIcon-order_date"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('member_id')" title="Click to sort by Member ID">
+                                    <div class="flex items-center gap-1">
+                                        <span>Member ID</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="sortIcon-member_id"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('name')" title="Click to sort by Customer Name">
+                                    <div class="flex items-center gap-1">
+                                        <span>Customer Name</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="sortIcon-name"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('pv')" title="Click to sort by Total PV">
+                                    <div class="flex items-center gap-1">
+                                        <span>Total PV</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="sortIcon-pv"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('amount')" title="Click to sort by Amount">
+                                    <div class="flex items-center gap-1">
+                                        <span>Amount</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="sortIcon-amount"></i>
+                                    </div>
+                                </th>
                                 <th class="py-3 px-4 text-center w-36">Actions</th>
                             </tr>
                         </thead>
@@ -302,15 +352,47 @@
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center justify-between">
                         <span>Tracking Number <span class="text-slate-400 font-normal lowercase">(optional)</span></span>
-                        <span class="text-[9px] text-slate-400">Leave blank for shop pickup</span>
+                        <span class="text-[9px] text-slate-400">Leave blank for Pending Dispatch</span>
                     </label>
                     <div class="relative flex items-center">
-                        <input type="text" id="editTrackingNo" placeholder="Enter tracking no or leave blank..." class="ref-input font-mono uppercase font-bold pr-28">
-                        <button type="button" onclick="document.getElementById('editTrackingNo').value='SHOP PICKUP'" 
-                                class="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-lg cursor-pointer transition-colors flex items-center gap-1"
-                                title="Set as Shop Delivery">
+                        <input type="text" id="editTrackingNo" placeholder="Enter tracking no or click Shop Pickup / With..." class="ref-input font-mono uppercase font-bold">
+                    </div>
+
+                    <!-- Quick Action Buttons for Tracking -->
+                    <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                        <button type="button" onclick="setEditTrackingShoppee()" 
+                                class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg cursor-pointer transition-colors flex items-center gap-1"
+                                title="Set as Shop Pickup (Shoppee)">
                             <i class="fa-solid fa-shop text-[9px]"></i> Shop Pickup
                         </button>
+                        <button type="button" id="btnOpenWithSelector" onclick="toggleWithSelector()" 
+                                class="text-[10px] font-extrabold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-300 px-2.5 py-1 rounded-lg cursor-pointer transition-colors flex items-center gap-1 shadow-2xs"
+                                title="Link with another parcel/order (Shipped Together)">
+                            <i class="fa-solid fa-link text-[9px]"></i> With...
+                        </button>
+                        <button type="button" onclick="clearEditTracking()" 
+                                class="text-[10px] font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
+                                title="Clear tracking (Pending Dispatch)">
+                            <i class="fa-solid fa-xmark text-[9px]"></i> Clear
+                        </button>
+                    </div>
+
+                    <!-- 📦 With Parcel / Order Selector Popover -->
+                    <div id="withSelectorContainer" class="hidden mt-2.5 p-3 bg-purple-50/70 border border-purple-200 rounded-2xl space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black uppercase text-purple-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-link text-purple-600"></i> Select Parcel / Order Shipped Together:
+                            </span>
+                            <button type="button" onclick="toggleWithSelector(false)" class="text-slate-400 hover:text-slate-700 text-xs cursor-pointer font-bold px-1">&times;</button>
+                        </div>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                            <input type="text" id="withSearchInput" oninput="filterWithOrders(this.value)" placeholder="Search Order No, Tracking, Member or Name..." 
+                                   class="w-full pl-7 pr-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div id="withOrdersList" class="max-h-48 overflow-y-auto divide-y divide-slate-100 bg-white rounded-xl border border-slate-200 text-xs">
+                            <!-- Populated dynamically via populateWithOrdersList() -->
+                        </div>
                     </div>
                 </div>
 
@@ -404,9 +486,10 @@
 
     <script>
         // 📦 Master Orders State & Pagination Config
-        const PAGE_SIZE = 50;
+        let pageSize = 50; // 10, 25, 50, 100, or 'ALL'
         let currentPage = 1;
-        let isShowAll = false;
+        let currentSortColumn = 'order_no';
+        let currentSortDir = 'desc';
         let rawOrdersData = [];
         try {
             const dataElem = document.getElementById('ordersDataCarrier');
@@ -416,53 +499,116 @@
             rawOrdersData = [];
         }
 
-        // Function: Sort Orders so Latest Date & Order No are always on TOP
-        function sortOrdersLatestFirst(list) {
-            return (list || []).sort((a, b) => {
-                const matchA = a.order_no ? a.order_no.match(/ORD-(\d+)/i) : null;
-                const matchB = b.order_no ? b.order_no.match(/ORD-(\d+)/i) : null;
-                const numA = matchA ? parseInt(matchA[1], 10) : 0;
-                const numB = matchB ? parseInt(matchB[1], 10) : 0;
-                if (numA !== numB) {
-                    return numB - numA;
-                }
-                return (b.id || 0) - (a.id || 0);
-            });
-        }
-
-        let allOrders = sortOrdersLatestFirst(rawOrdersData);
+        let allOrders = [...rawOrdersData];
         let filteredOrders = [...allOrders];
 
-        // 🔄 Toggle Show All Orders / Show Paginated (50 Per Page)
-        function toggleShowAllOrders() {
-            isShowAll = !isShowAll;
-            const btnText = document.getElementById('showAllOrdersText');
-            const btnIcon = document.getElementById('showAllOrdersIcon');
-            const modeBadge = document.getElementById('pageModeBadge');
-            const controlsGroup = document.getElementById('paginationControlsGroup');
+        // 🔢 Change Page Size (10, 25, 50, 100, ALL)
+        function setOrdersPageSize(size) {
+            pageSize = size;
+            currentPage = 1;
 
-            if (isShowAll) {
-                if (btnText) btnText.innerHTML = `Show Paginated (50/Page)`;
-                if (btnIcon) btnIcon.className = 'fa-solid fa-compress text-blue-600';
-                if (modeBadge) {
-                    modeBadge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold ml-1';
-                    modeBadge.innerText = 'Showing All';
+            ['10', '25', '50', '100', 'ALL'].forEach(s => {
+                const btn = document.getElementById(`pageSizeBtn-${s}`);
+                if (btn) {
+                    if (String(size) === s) {
+                        btn.className = 'orders-page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white text-blue-600 shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'orders-page-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer';
+                    }
                 }
-                if (controlsGroup) controlsGroup.classList.add('opacity-30', 'pointer-events-none');
-            } else {
-                if (btnText) btnText.innerHTML = `Show All (<span id="showAllOrdersCount">${filteredOrders.length}</span>)`;
-                if (btnIcon) btnIcon.className = 'fa-solid fa-expand text-blue-600';
-                if (modeBadge) {
-                    modeBadge.className = 'text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold ml-1';
-                    modeBadge.innerText = '50 per page';
-                }
-                if (controlsGroup) controlsGroup.classList.remove('opacity-30', 'pointer-events-none');
+            });
+
+            const modeBadge = document.getElementById('pageModeBadge');
+            if (modeBadge) {
+                modeBadge.innerText = size === 'ALL' ? 'Showing All' : `${size} per page`;
+                modeBadge.className = size === 'ALL' 
+                    ? 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold ml-1'
+                    : 'text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold ml-1';
             }
 
             renderPaginatedTable();
         }
 
-        // 🔄 Render Orders Table (50 Per Page or Show All)
+        // 🔀 Column Sorting (Order No, Tracking, Date, Member ID, Name, PV, Amount)
+        function sortOrdersBy(col) {
+            if (currentSortColumn === col) {
+                currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = col;
+                currentSortDir = 'asc';
+            }
+
+            ['seq', 'order_no', 'tracking_no', 'order_date', 'member_id', 'name', 'pv', 'amount'].forEach(c => {
+                const icon = document.getElementById(`sortIcon-${c}`);
+                if (icon) {
+                    if (c === col) {
+                        icon.className = currentSortDir === 'asc' 
+                            ? 'fa-solid fa-sort-up text-[10px] text-blue-600' 
+                            : 'fa-solid fa-sort-down text-[10px] text-blue-600';
+                    } else {
+                        icon.className = 'fa-solid fa-sort text-[10px] text-slate-300';
+                    }
+                }
+            });
+
+            applyFilterAndSort();
+        }
+
+        // 🔍 Filter & Sort Engine
+        function applyFilterAndSort() {
+            const query = (document.getElementById('orderSearchInput').value || '').toLowerCase().trim();
+
+            filteredOrders = allOrders.filter(item => {
+                if (!query) return true;
+                const oNo = (item.order_no || '').toLowerCase();
+                const mId = (item.member_id || '').toLowerCase();
+                const mName = (item.name || '').toLowerCase();
+                const trk = (item.tracking_no || '').toLowerCase();
+                const oDate = (item.order_date || '').toLowerCase();
+                const amt = (item.amount || '').toString();
+                const pv = (item.pv || '').toString();
+                return oNo.includes(query) || mId.includes(query) || mName.includes(query) || trk.includes(query) || oDate.includes(query) || amt.includes(query) || pv.includes(query);
+            });
+
+            filteredOrders.sort((a, b) => {
+                let valA, valB;
+                if (currentSortColumn === 'order_no') {
+                    const matchA = a.order_no ? a.order_no.match(/ORD-(\d+)/i) : null;
+                    const matchB = b.order_no ? b.order_no.match(/ORD-(\d+)/i) : null;
+                    valA = matchA ? parseInt(matchA[1], 10) : (a.id || 0);
+                    valB = matchB ? parseInt(matchB[1], 10) : (b.id || 0);
+                } else if (currentSortColumn === 'seq') {
+                    valA = a.id || 0;
+                    valB = b.id || 0;
+                } else if (currentSortColumn === 'amount') {
+                    valA = parseFloat(a.amount || 0);
+                    valB = parseFloat(b.amount || 0);
+                } else if (currentSortColumn === 'pv') {
+                    valA = parseFloat(a.pv || 0);
+                    valB = parseFloat(b.pv || 0);
+                } else if (currentSortColumn === 'order_date') {
+                    valA = new Date(a.order_date || 0).getTime() || 0;
+                    valB = new Date(b.order_date || 0).getTime() || 0;
+                } else {
+                    valA = (a[currentSortColumn] || '').toString().toLowerCase();
+                    valB = (b[currentSortColumn] || '').toString().toLowerCase();
+                }
+
+                if (valA < valB) return currentSortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            currentPage = 1;
+            renderPaginatedTable();
+        }
+
+        // Backward compatibility
+        function toggleShowAllOrders() {
+            setOrdersPageSize(pageSize === 'ALL' ? 50 : 'ALL');
+        }
+
+        // 🔄 Render Orders Table (Paginated or Show All)
         function renderPaginatedTable() {
             const total = filteredOrders.length;
             const countSpan = document.getElementById('showAllOrdersCount');
@@ -472,20 +618,22 @@
             let startIdx = 0;
             let endIdx = total;
             let totalPages = 1;
+            const isAll = (pageSize === 'ALL');
 
-            if (isShowAll) {
+            if (isAll) {
                 pageItems = filteredOrders;
                 startIdx = 0;
                 endIdx = total;
                 totalPages = 1;
                 currentPage = 1;
             } else {
-                totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+                const numericSize = parseInt(pageSize, 10) || 50;
+                totalPages = Math.max(1, Math.ceil(total / numericSize));
                 if (currentPage > totalPages) currentPage = totalPages;
                 if (currentPage < 1) currentPage = 1;
 
-                startIdx = (currentPage - 1) * PAGE_SIZE;
-                endIdx = Math.min(startIdx + PAGE_SIZE, total);
+                startIdx = (currentPage - 1) * numericSize;
+                endIdx = Math.min(startIdx + numericSize, total);
                 pageItems = filteredOrders.slice(startIdx, endIdx);
             }
 
@@ -530,13 +678,15 @@
                     ? `<span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-mono font-bold">${item.order_no}</span>`
                     : `<span class="text-slate-400 text-[10px]">MANUAL</span>`;
                 
-                // 🚚 Tracking Number Badge: If present show tracking, or shop pickup, otherwise show "Pending Dispatch"
+                // 🚚 Tracking Number Badge: If present show tracking, or shop pickup, or With..., otherwise show "Pending Dispatch"
                 const trkClean = (item.tracking_no || '').trim();
                 let trackingBadge = '';
                 if (!trkClean) {
                     trackingBadge = `<span class="inline-flex items-center gap-1.5 font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-lg text-[10px] uppercase tracking-wider"><span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending Dispatch</span>`;
                 } else if (trkClean.toUpperCase().includes('SHOP')) {
                     trackingBadge = `<span class="px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold text-[11px] inline-flex items-center gap-1.5"><i class="fa-solid fa-shop text-[10px] text-emerald-600"></i> ${trkClean.toUpperCase()}</span>`;
+                } else if (trkClean.toUpperCase().startsWith('WITH') || trkClean.toUpperCase().includes('WITH')) {
+                    trackingBadge = `<span class="px-2.5 py-0.5 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 font-mono font-bold text-[11px] inline-flex items-center gap-1.5 shadow-2xs" title="${trkClean}"><i class="fa-solid fa-link text-[10px] text-purple-600"></i> ${trkClean}</span>`;
                 } else {
                     trackingBadge = `<span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-mono font-bold text-[11px] inline-flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-[10px] text-blue-600"></i> ${trkClean}</span>`;
                 }
@@ -763,6 +913,7 @@
                 document.getElementById('editAmount').value = editBtn.getAttribute('data-amount');
                 document.getElementById('editTrackingNo').value = editBtn.getAttribute('data-tracking') || '';
 
+                toggleWithSelector(false);
                 editModal.classList.remove('hidden');
                 editModal.classList.add('flex');
             }
@@ -772,8 +923,146 @@
         document.getElementById('btnCancelOrderModal').addEventListener('click', closeEditModal);
 
         function closeEditModal() {
+            toggleWithSelector(false);
             editModal.classList.add('hidden');
             editModal.classList.remove('flex');
+        }
+
+        // 🔗 With... Parcel Linking Helpers
+        function setEditTrackingShoppee() {
+            document.getElementById('editTrackingNo').value = 'SHOP PICKUP';
+            toggleWithSelector(false);
+        }
+
+        function clearEditTracking() {
+            document.getElementById('editTrackingNo').value = '';
+            toggleWithSelector(false);
+        }
+
+        let withOrdersCache = [];
+
+        function toggleWithSelector(forceState) {
+            const container = document.getElementById('withSelectorContainer');
+            if (!container) return;
+            const willShow = forceState !== undefined ? forceState : container.classList.contains('hidden');
+            if (willShow) {
+                container.classList.remove('hidden');
+                populateWithOrdersList();
+                setTimeout(() => document.getElementById('withSearchInput')?.focus(), 50);
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function populateWithOrdersList() {
+            const searchInput = document.getElementById('withSearchInput');
+            if (searchInput) searchInput.value = '';
+
+            const currentId = parseInt(document.getElementById('editOrderId')?.value || '0', 10);
+            const currentMemberId = (document.getElementById('editMemberId')?.value || '').trim().toUpperCase();
+
+            // Filter out the order being edited
+            withOrdersCache = (allOrders || []).filter(o => o.id !== currentId);
+            renderWithOrdersList(withOrdersCache, currentMemberId);
+        }
+
+        function renderWithOrdersList(orders, currentMemberId) {
+            const listEl = document.getElementById('withOrdersList');
+            if (!listEl) return;
+
+            if (orders.length === 0) {
+                listEl.innerHTML = `<div class="p-3 text-center text-slate-400 text-xs">No matching orders found.</div>`;
+                return;
+            }
+
+            // Separate same-member orders and other orders
+            const sameMemberOrders = currentMemberId ? orders.filter(o => (o.member_id || '').toUpperCase().trim() === currentMemberId) : [];
+            const otherOrders = currentMemberId ? orders.filter(o => (o.member_id || '').toUpperCase().trim() !== currentMemberId) : orders;
+
+            let html = '';
+
+            if (sameMemberOrders.length > 0) {
+                html += `
+                    <div class="px-2.5 py-1 bg-purple-100 text-purple-900 font-extrabold text-[10px] uppercase tracking-wider flex items-center gap-1 sticky top-0 z-10 shadow-2xs">
+                        <i class="fa-solid fa-star text-amber-500 text-[9px]"></i> Same Member Orders (${currentMemberId}):
+                    </div>
+                `;
+                html += sameMemberOrders.map(o => renderWithOrderItem(o, true)).join('');
+            }
+
+            if (otherOrders.length > 0) {
+                if (sameMemberOrders.length > 0) {
+                    html += `
+                        <div class="px-2.5 py-1 bg-slate-100 text-slate-600 font-bold text-[10px] uppercase tracking-wider sticky top-0 z-10">
+                            Other Recent Orders:
+                        </div>
+                    `;
+                }
+                html += otherOrders.slice(0, 50).map(o => renderWithOrderItem(o, false)).join('');
+            }
+
+            listEl.innerHTML = html;
+        }
+
+        function renderWithOrderItem(o, isSameMember) {
+            const trk = (o.tracking_no || '').trim();
+            const safeOrderNo = (o.order_no || 'ORD-' + o.id).replace(/'/g, "\\'");
+            const safeTracking = trk.replace(/'/g, "\\'");
+
+            return `
+                <div onclick="selectWithOrder('${safeOrderNo}', '${safeTracking}')" 
+                     class="p-2 hover:bg-purple-50 cursor-pointer transition-colors flex items-center justify-between gap-2 text-xs select-none">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="font-mono font-bold ${isSameMember ? 'text-purple-700 bg-purple-50 border border-purple-200' : 'text-slate-800 bg-slate-100'} px-1.5 py-0.2 rounded text-[11px]">${o.order_no || '-'}</span>
+                            <span class="font-black text-slate-900 uppercase truncate max-w-[150px]">${o.name || '-'}</span>
+                            <span class="text-blue-700 font-mono text-[10px]">${o.member_id || ''}</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-mono mt-0.5">
+                            ${o.order_date || ''} ${o.amount ? '• ₹' + o.amount : ''}
+                        </div>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        ${trk 
+                            ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${trk.toUpperCase().includes('SHOP') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}">${trk}</span>` 
+                            : `<span class="text-[10px] text-amber-700 font-medium">No tracking</span>`}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectWithOrder(orderNo, trackingNo) {
+            const input = document.getElementById('editTrackingNo');
+            if (!input) return;
+
+            let withText = `WITH ${orderNo}`;
+            if (trackingNo && !trackingNo.toUpperCase().includes('SHOP') && !trackingNo.toUpperCase().startsWith('WITH')) {
+                withText = `WITH ${orderNo} (${trackingNo})`;
+            }
+
+            input.value = withText;
+            toggleWithSelector(false);
+            input.focus();
+        }
+
+        function filterWithOrders(q) {
+            const query = (q || '').toLowerCase().trim();
+            const currentMemberId = (document.getElementById('editMemberId')?.value || '').trim().toUpperCase();
+
+            if (!query) {
+                renderWithOrdersList(withOrdersCache, currentMemberId);
+                return;
+            }
+
+            const filtered = withOrdersCache.filter(o => {
+                const no = (o.order_no || '').toLowerCase();
+                const trk = (o.tracking_no || '').toLowerCase();
+                const mem = (o.member_id || '').toLowerCase();
+                const nm = (o.name || '').toLowerCase();
+                return no.includes(query) || trk.includes(query) || mem.includes(query) || nm.includes(query);
+            });
+
+            renderWithOrdersList(filtered, currentMemberId);
         }
 
         document.getElementById('editOrderForm').addEventListener('submit', async function(e) {
@@ -1187,7 +1476,58 @@
         };
 
         if (btnModalDone) btnModalDone.addEventListener('click', closeModal);
-        if (btnModalClose) btnModalClose.addEventListener('click', closeModal);
+        // 📋 1-Click Copy Master Tracking Numbers for India Post Bulk Tracking
+        async function copyMasterTrackingNumbers() {
+            const btn = document.getElementById('btnCopyAllTrackings');
+            const icon = document.getElementById('copyMasterIcon');
+            const text = document.getElementById('copyMasterText');
+            
+            try {
+                if (btn) btn.disabled = true;
+                if (text) text.innerText = 'Fetching IDs...';
+
+                const res = await fetch('/admin/api/tracking-numbers-list');
+                const data = await res.json();
+                
+                let list = [];
+                if (data.success && data.active && data.active.length > 0) {
+                    list = data.active;
+                } else if (data.success && data.all && data.all.length > 0) {
+                    list = data.all;
+                } else {
+                    const localList = [];
+                    ordersMasterData.forEach(o => {
+                        const trk = (o.tracking_no || '').trim().toUpperCase();
+                        if (trk && trk !== 'SHOP PICKUP' && trk !== 'PENDING' && trk !== '-') {
+                            localList.push(trk);
+                        }
+                    });
+                    list = [...new Set(localList)];
+                }
+
+                if (!list.length) {
+                    alert('No tracking numbers found to copy.');
+                    if (btn) btn.disabled = false;
+                    if (text) text.innerText = 'Copy Tracking IDs';
+                    return;
+                }
+
+                await navigator.clipboard.writeText(list.join('\n'));
+                if (icon) icon.className = 'fa-solid fa-check text-emerald-600';
+                if (text) text.innerText = `Copied ${list.length} IDs!`;
+                
+                setTimeout(() => {
+                    if (icon) icon.className = 'fa-regular fa-copy text-emerald-600';
+                    if (text) text.innerText = 'Copy Tracking IDs';
+                    if (btn) btn.disabled = false;
+                }, 2500);
+            } catch (err) {
+                console.error('Copy tracking numbers error:', err);
+                alert('Failed to copy tracking numbers: ' + err.message);
+                if (btn) btn.disabled = false;
+                if (text) text.innerText = 'Copy Tracking IDs';
+            }
+        }
 
         // Initial render on page load
         renderPaginatedTable();

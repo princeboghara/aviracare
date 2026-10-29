@@ -28,9 +28,9 @@ class IndiaPostSyncBot {
             customerId: this.customerId,
             walletBalance: '₹1,106.00',
             lastSyncTime: null,
-            lastSyncStatus: 'Ready',
+            lastSyncStatus: 'Live Auto-Sync Disabled (Manual Tracking Mode)',
             error: null,
-            isPaused: false
+            isPaused: true
         };
 
         this.syncIntervalHours = parseInt(process.env.INDIA_POST_AUTO_SYNC_HOURS, 10) || 6;
@@ -51,14 +51,9 @@ class IndiaPostSyncBot {
     }
 
     initAutoScheduler() {
-        const intervalMs = this.syncIntervalHours * 60 * 60 * 1000;
-        this.timer = setInterval(() => {
-            if (!this.status.isPaused && !this.status.isSyncing) {
-                console.log(`⏰ [India Post Bot] Auto-sync triggered (every ${this.syncIntervalHours}h)...`);
-                this.startLiveSync().catch(err => console.error('Auto India Post sync error:', err.message));
-            }
-        }, intervalMs);
-        console.log(`🚀 [India Post Bot] Auto-scheduler initialized. Syncing every ${this.syncIntervalHours} hours.`);
+        // 🛑 Auto-sync disabled as requested by admin. Daily bulk tracking is performed via Copy IDs & Excel Upload.
+        this.status.isPaused = true;
+        console.log(`🛑 [India Post Bot] Automatic background sync disabled. Manual bulk tracking mode active.`);
     }
 
     getStatus() {

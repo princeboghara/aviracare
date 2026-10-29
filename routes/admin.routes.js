@@ -119,14 +119,14 @@ router.get('/orders-master', checkAdmin, async (req, res) => {
             LEFT JOIN LATERAL (
                 SELECT tracking 
                 FROM consignment_parcels 
-                WHERE (order_no = om.order_no OR (member_id = om.member_id AND om.member_id IS NOT NULL AND om.member_id != ''))
+                WHERE order_no = om.order_no
                   AND tracking IS NOT NULL AND TRIM(tracking) != ''
                 ORDER BY id DESC LIMIT 1
             ) cp ON true
             LEFT JOIN LATERAL (
                 SELECT tracking 
                 FROM main_database 
-                WHERE (order_no = om.order_no OR (member_id = om.member_id AND om.member_id IS NOT NULL AND om.member_id != ''))
+                WHERE order_no = om.order_no
                   AND tracking IS NOT NULL AND TRIM(tracking) != ''
                 ORDER BY sr_no DESC LIMIT 1
             ) mb ON true

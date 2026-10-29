@@ -120,6 +120,15 @@
         .btn-teal-save:active {
             transform: translateY(1px);
         }
+
+        /* 🚨 Light red highlight when pincode repeats in entry */
+        .entry-row-repeat-pincode {
+            background-color: #fef2f2 !important;
+            border-left: 4px solid #f43f5e !important;
+        }
+        .entry-row-repeat-pincode:hover {
+            background-color: #fee2e2 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800 w-full overflow-x-hidden">
@@ -236,17 +245,30 @@
 
                 <!-- 📋 EXISTING CONSIGNMENTS HISTORY TABLE -->
                 <div class="ref-card overflow-hidden">
-                    <div class="px-5 py-4 bg-slate-50/80 border-b border-slate-200 flex justify-between items-center flex-wrap gap-2">
+                    <div class="px-5 py-4 bg-slate-50/80 border-b border-slate-200 flex justify-between items-center flex-wrap gap-2.5">
                         <div class="flex items-center gap-2.5">
                             <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
                             <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">
                                 Existing Consignments History
                             </h2>
+                            <span id="consignmentsCountBadge" class="text-[10px] font-mono text-slate-400">Total: <%= safeConsignments.length %></span>
                         </div>
-                        <div class="relative">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
-                            <input type="text" id="searchConsignmentsInput" placeholder="Filter consignments..." 
-                                   class="ref-input ref-input-icon-left text-xs py-1.5 w-52 font-medium">
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                            <!-- 🔢 Page Size Selector (10, 25, 50, 100, ALL) -->
+                            <div class="flex items-center gap-1 bg-white p-1 rounded-xl text-xs font-extrabold border border-slate-200">
+                                <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 px-1">Show:</span>
+                                <button type="button" onclick="setConsignmentPageSize(10)" id="consPageSize-10" class="cons-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">10</button>
+                                <button type="button" onclick="setConsignmentPageSize(25)" id="consPageSize-25" class="cons-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-blue-600 text-white shadow-xs cursor-pointer">25</button>
+                                <button type="button" onclick="setConsignmentPageSize(50)" id="consPageSize-50" class="cons-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">50</button>
+                                <button type="button" onclick="setConsignmentPageSize(100)" id="consPageSize-100" class="cons-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">100</button>
+                                <button type="button" onclick="setConsignmentPageSize('ALL')" id="consPageSize-ALL" class="cons-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">ALL</button>
+                            </div>
+
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                <input type="text" id="searchConsignmentsInput" oninput="applyConsignmentFilterAndSort()" placeholder="Filter consignments..." 
+                                       class="ref-input ref-input-icon-left text-xs py-1.5 w-48 sm:w-56 font-medium">
+                            </div>
                         </div>
                     </div>
 
@@ -254,18 +276,43 @@
                         <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[700px]">
                             <thead>
                                 <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-extrabold uppercase select-none text-[11px]">
-                                    <th class="py-3 px-4 w-12 text-center">#</th>
-                                    <th class="py-3 px-4">Consignment No</th>
-                                    <th class="py-3 px-4">Title</th>
-                                    <th class="py-3 px-4">Dispatch Date</th>
-                                    <th class="py-3 px-4 text-center">Total Parcels</th>
+                                    <th class="py-3 px-4 w-12 text-center cursor-pointer hover:text-blue-600 transition-colors" onclick="sortConsignmentsBy('seq')" title="Sort by #">
+                                        <div class="flex items-center justify-center gap-1">
+                                            <span>#</span>
+                                            <i class="fa-solid fa-sort-down text-[10px] text-blue-600" id="consSortIcon-seq"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortConsignmentsBy('no')" title="Sort by Consignment No">
+                                        <div class="flex items-center gap-1">
+                                            <span>Consignment No</span>
+                                            <i class="fa-solid fa-sort text-[10px] text-slate-300" id="consSortIcon-no"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortConsignmentsBy('title')" title="Sort by Title">
+                                        <div class="flex items-center gap-1">
+                                            <span>Title</span>
+                                            <i class="fa-solid fa-sort text-[10px] text-slate-300" id="consSortIcon-title"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortConsignmentsBy('date')" title="Sort by Date">
+                                        <div class="flex items-center gap-1">
+                                            <span>Dispatch Date</span>
+                                            <i class="fa-solid fa-sort text-[10px] text-slate-300" id="consSortIcon-date"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 text-center cursor-pointer hover:text-blue-600 transition-colors" onclick="sortConsignmentsBy('parcels')" title="Sort by Total Parcels">
+                                        <div class="flex items-center justify-center gap-1">
+                                            <span>Total Parcels</span>
+                                            <i class="fa-solid fa-sort text-[10px] text-slate-300" id="consSortIcon-parcels"></i>
+                                        </div>
+                                    </th>
                                     <th class="py-3 px-4 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="consignmentsTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
                                 <% if (safeConsignments && safeConsignments.length > 0) { %>
                                     <% for (let idx = 0; idx < safeConsignments.length; idx++) { let c = safeConsignments[idx]; %>
-                                        <tr class="hover:bg-slate-50 transition-colors consignment-row">
+                                        <tr class="hover:bg-slate-50 transition-colors consignment-row" id="cons-row-<%= idx %>">
                                             <td class="py-3 px-4 text-center text-slate-400 font-mono text-[11px]"><%= idx + 1 %></td>
                                             <td class="py-3 px-4">
                                                 <span class="font-mono font-black text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-lg">
@@ -309,6 +356,15 @@
                                 <% } %>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Footer Summary & Pagination Controls -->
+                    <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-200 flex justify-between items-center flex-wrap gap-3 text-xs">
+                        <span class="text-slate-500 font-medium">
+                            Showing <strong id="consFooterCount" class="text-slate-800">0</strong> of <strong class="text-slate-900" id="consFooterTotal"><%= safeConsignments.length %></strong> batches
+                        </span>
+
+                        <div id="consignmentPaginationControls" class="flex items-center gap-1.5 flex-wrap"></div>
                     </div>
                 </div>
 
@@ -427,9 +483,14 @@
                             <div>
                                 <label class="flex items-center justify-between font-bold text-slate-800 text-xs mb-1.5">
                                     <span>Receiver Pincode <span class="text-rose-500">*</span></span>
-                                    <span class="bg-teal-50 text-teal-700 border border-teal-200 text-[9px] font-extrabold px-1.5 py-0.2 rounded tracking-wider flex items-center gap-1">
-                                        <i class="fa-solid fa-location-dot text-[8px]"></i> 6-digit PIN
-                                    </span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span id="pincodeRepeatBadge" class="hidden bg-rose-100 text-rose-700 border border-rose-300 text-[9px] font-extrabold px-1.5 py-0.2 rounded tracking-wider flex items-center gap-1">
+                                            <i class="fa-solid fa-triangle-exclamation text-[9px]"></i> Repeat Pincode
+                                        </span>
+                                        <span class="bg-teal-50 text-teal-700 border border-teal-200 text-[9px] font-extrabold px-1.5 py-0.2 rounded tracking-wider flex items-center gap-1">
+                                            <i class="fa-solid fa-location-dot text-[8px]"></i> 6-digit PIN
+                                        </span>
+                                    </div>
                                 </label>
                                 <div class="relative">
                                     <input type="text" id="mPincode" required maxlength="6" placeholder="Enter 6-digit PIN" 
@@ -666,9 +727,10 @@
 
                 <!-- ============================================================== -->
                 <!-- 📋 PARCELS IN ACTIVE CONSIGNMENT TABLE -->
+                <!-- 📋 PARCELS IN ACTIVE CONSIGNMENT TABLE -->
                 <!-- ============================================================== -->
                 <div class="ref-card overflow-hidden w-full">
-                    <div class="px-5 py-4 bg-slate-50/80 border-b border-slate-200 flex justify-between items-center flex-wrap gap-2">
+                    <div class="px-5 py-4 bg-slate-50/80 border-b border-slate-200 flex justify-between items-center flex-wrap gap-3">
                         <div class="flex items-center gap-3">
                             <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide flex items-center gap-2">
                                 <i class="fa-solid fa-boxes-packing text-blue-600"></i> Parcels in this Consignment
@@ -678,30 +740,90 @@
                             </span>
                         </div>
                         
-                        <button type="button" id="btnExportActiveExcel" onclick="exportActiveConsignmentWithCustomName()"
-                           class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
-                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Export Excel
-                        </button>
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                            <!-- 🔢 Page Size Selector (10, 25, 50, 100, ALL) -->
+                            <div class="flex items-center gap-1 bg-white p-1 rounded-xl text-xs font-extrabold border border-slate-200">
+                                <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 px-1">Show:</span>
+                                <button type="button" onclick="setParcelPageSize(10)" id="parcelPageSize-10" class="parcel-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">10</button>
+                                <button type="button" onclick="setParcelPageSize(25)" id="parcelPageSize-25" class="parcel-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">25</button>
+                                <button type="button" onclick="setParcelPageSize(50)" id="parcelPageSize-50" class="parcel-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">50</button>
+                                <button type="button" onclick="setParcelPageSize(100)" id="parcelPageSize-100" class="parcel-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">100</button>
+                                <button type="button" onclick="setParcelPageSize('ALL')" id="parcelPageSize-ALL" class="parcel-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-blue-600 text-white shadow-xs cursor-pointer">ALL</button>
+                            </div>
+
+                            <!-- 🔍 Instant Search Input -->
+                            <div class="relative w-44 sm:w-56">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                <input type="text" id="parcelSearchInput" oninput="handleParcelSearch()" placeholder="Search Name, Tracking, Pin..." 
+                                       class="ref-input ref-input-icon-left text-xs py-1.5 w-full font-medium">
+                            </div>
+
+                            <button type="button" id="btnExportActiveExcel" onclick="exportActiveConsignmentWithCustomName()"
+                               class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
+                                <i class="fa-solid fa-file-excel text-emerald-600"></i> Export Excel
+                            </button>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto w-full">
                         <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[700px]">
                             <thead>
                                 <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-extrabold uppercase select-none text-[11px]">
-                                    <th class="py-3 px-3 w-12 text-center">SR</th>
-                                    <th class="py-3 px-4">Tracking No</th>
-                                    <th class="py-3 px-4">Receiver & Order Info</th>
-                                    <th class="py-3 px-4">Mobile</th>
-                                    <th class="py-3 px-4">Pincode & Location</th>
-                                    <th class="py-3 px-4">Weight & Dimensions</th>
+                                    <th class="py-3 px-3 w-12 text-center cursor-pointer hover:text-blue-600 transition-colors" onclick="sortParcelsBy('seq')" title="Sort by SR">
+                                        <div class="flex items-center justify-center gap-1">
+                                            <span>SR</span>
+                                            <i class="fa-solid fa-sort-down text-[10px] text-blue-600" id="parcelSortIcon-seq"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortParcelsBy('tracking')" title="Sort by Tracking No">
+                                        <div class="flex items-center gap-1">
+                                            <span>Tracking No</span>
+                                            <i class="fa-solid fa-sort text-[10px] text-slate-300" id="parcelSortIcon-tracking"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortParcelsBy('name')" title="Sort by Receiver Info">
+                                        <div class="flex items-center gap-1">
+                                            <span>Receiver & Order Info</span>
+                                            <i class="fa-solid fa-sort text-[10px] text-slate-300" id="parcelSortIcon-name"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortParcelsBy('mobile')" title="Sort by Mobile">
+                                        <div class="flex items-center gap-1">
+                                            <span>Mobile</span>
+                                            <i class="fa-solid fa-sort text-[10px] text-slate-300" id="parcelSortIcon-mobile"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortParcelsBy('pincode')" title="Sort by Pincode">
+                                        <div class="flex items-center gap-1">
+                                            <span>Pincode & Location</span>
+                                            <i class="fa-solid fa-sort text-[10px] text-slate-300" id="parcelSortIcon-pincode"></i>
+                                        </div>
+                                    </th>
+                                    <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortParcelsBy('weight')" title="Sort by Weight">
+                                        <div class="flex items-center gap-1">
+                                            <span>Weight & Dimensions</span>
+                                            <i class="fa-solid fa-sort text-[10px] text-slate-300" id="parcelSortIcon-weight"></i>
+                                        </div>
+                                    </th>
                                     <th class="py-3 px-4 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="parcelsTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
                                 <% if (safeActiveParcels && safeActiveParcels.length !== 0) { %>
-                                    <% for (let idx = 0; idx < safeActiveParcels.length; idx++) { let p = safeActiveParcels[idx]; %>
-                                        <tr class="hover:bg-slate-50 transition-colors">
-                                            <td class="py-3 px-3 text-center font-mono text-[11px] text-slate-400"><%= idx + 1 %></td>
+                                    <% 
+                                        const pinCountsSSR = {};
+                                        safeActiveParcels.forEach(p => {
+                                            const pin = (p.pincode || '').toString().trim();
+                                            if (pin) pinCountsSSR[pin] = (pinCountsSSR[pin] || 0) + 1;
+                                        });
+                                    %>
+                                    <% for (let idx = 0; idx < safeActiveParcels.length; idx++) { 
+                                        let p = safeActiveParcels[idx]; 
+                                        const pin = (p.pincode || '').toString().trim();
+                                        const isDuplicatePin = pin && pinCountsSSR[pin] > 1;
+                                    %>
+                                        <tr class="<%= isDuplicatePin ? 'entry-row-repeat-pincode' : 'hover:bg-slate-50' %> transition-colors">
+                                            <td class="py-3 px-3 text-center font-mono text-[11px] <%= isDuplicatePin ? 'text-rose-600 font-bold' : 'text-slate-400' %>"><%= idx + 1 %></td>
                                             <td class="py-3 px-4">
                                                 <% if (p.tracking && p.tracking.trim() && !p.tracking.toUpperCase().includes('SHOP')) { %>
                                                     <span class="font-mono font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
@@ -727,9 +849,12 @@
                                             </td>
                                             <td class="py-3 px-4 font-mono"><%= p.mobile || '-' %></td>
                                             <td class="py-3 px-4">
-                                                <span class="font-bold text-blue-700 font-mono"><%= p.pincode || '-' %></span>
+                                                <span class="font-bold font-mono <%= isDuplicatePin ? 'text-rose-700 bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded inline-flex items-center gap-1' : 'text-blue-700' %>">
+                                                    <% if (isDuplicatePin) { %><i class="fa-solid fa-triangle-exclamation text-[9px] text-rose-600"></i><% } %>
+                                                    <%= p.pincode || '-' %>
+                                                </span>
                                                 <% if (p.city || p.state || p.address) { %>
-                                                    <span class="text-slate-400 text-[10px]"> • <%= [p.address, p.city, p.state].filter(Boolean).join(', ') %></span>
+                                                    <span class="<%= isDuplicatePin ? 'text-rose-700/80' : 'text-slate-400' %> text-[10px]"> • <%= [p.address, p.city, p.state].filter(Boolean).join(', ') %></span>
                                                 <% } %>
                                             </td>
                                             <td class="py-3 px-4 font-mono text-[11px]">
@@ -755,6 +880,15 @@
                                 <% } %>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Footer Summary & Pagination Controls -->
+                    <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-200 flex justify-between items-center flex-wrap gap-3 text-xs">
+                        <span class="text-slate-500 font-medium">
+                            Showing <strong id="parcelsFooterCount" class="text-slate-800">0</strong> of <strong class="text-slate-900" id="parcelsFooterTotal"><%= safeActiveParcels.length %></strong> parcels
+                        </span>
+
+                        <div id="parcelsPaginationControls" class="flex items-center gap-1.5 flex-wrap"></div>
                     </div>
                 </div>
 
@@ -787,10 +921,170 @@
             console.error('Error parsing initial state data:', e);
         }
 
+        // Consignments pagination & sorting state
+        let consPageSize = 25;
+        let consCurrentPage = 1;
+        let consSortCol = 'seq';
+        let consSortDir = 'desc';
+
+        // 🔢 Consignment Page Size & Sorting
+        function setConsignmentPageSize(size) {
+            consPageSize = size;
+            consCurrentPage = 1;
+
+            ['10', '25', '50', '100', 'ALL'].forEach(s => {
+                const btn = document.getElementById(`consPageSize-${s}`);
+                if (btn) {
+                    if (s == size) {
+                        btn.className = 'cons-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-blue-600 text-white shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'cons-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer';
+                    }
+                }
+            });
+
+            applyConsignmentFilterAndSort();
+        }
+
+        function sortConsignmentsBy(col) {
+            if (consSortCol === col) {
+                consSortDir = consSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                consSortCol = col;
+                consSortDir = 'asc';
+            }
+
+            ['seq', 'no', 'title', 'date', 'parcels'].forEach(c => {
+                const icon = document.getElementById(`consSortIcon-${c}`);
+                if (icon) {
+                    if (c === col) {
+                        icon.className = consSortDir === 'asc'
+                            ? 'fa-solid fa-sort-up text-[10px] text-blue-600'
+                            : 'fa-solid fa-sort-down text-[10px] text-blue-600';
+                    } else {
+                        icon.className = 'fa-solid fa-sort text-[10px] text-slate-300';
+                    }
+                }
+            });
+
+            const tbody = document.getElementById('consignmentsTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr.consignment-row'));
+
+            rows.sort((rowA, rowB) => {
+                let valA = '', valB = '';
+                if (col === 'seq') {
+                    valA = parseInt(rowA.id.replace('cons-row-', '') || 0, 10);
+                    valB = parseInt(rowB.id.replace('cons-row-', '') || 0, 10);
+                } else if (col === 'no') {
+                    valA = (rowA.querySelector('td:nth-child(2)')?.innerText || '').toLowerCase();
+                    valB = (rowB.querySelector('td:nth-child(2)')?.innerText || '').toLowerCase();
+                } else if (col === 'title') {
+                    valA = (rowA.querySelector('td:nth-child(3)')?.innerText || '').toLowerCase();
+                    valB = (rowB.querySelector('td:nth-child(3)')?.innerText || '').toLowerCase();
+                } else if (col === 'date') {
+                    valA = new Date(rowA.querySelector('td:nth-child(4)')?.innerText || 0).getTime() || 0;
+                    valB = new Date(rowB.querySelector('td:nth-child(4)')?.innerText || 0).getTime() || 0;
+                } else if (col === 'parcels') {
+                    valA = parseInt(rowA.querySelector('td:nth-child(5)')?.innerText || 0, 10);
+                    valB = parseInt(rowB.querySelector('td:nth-child(5)')?.innerText || 0, 10);
+                }
+
+                if (valA < valB) return consSortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return consSortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach(r => tbody.appendChild(r));
+            applyConsignmentFilterAndSort();
+        }
+
+        function applyConsignmentFilterAndSort() {
+            const query = (document.getElementById('searchConsignmentsInput')?.value || '').toLowerCase().trim();
+            const allRows = Array.from(document.querySelectorAll('#consignmentsTableBody tr.consignment-row'));
+
+            const matchingRows = allRows.filter(row => {
+                const text = row.innerText.toLowerCase();
+                return !query || text.includes(query);
+            });
+
+            const total = matchingRows.length;
+            const effectiveSize = consPageSize === 'ALL' ? (total || 1) : parseInt(consPageSize, 10);
+            const totalPages = Math.ceil(total / effectiveSize) || 1;
+
+            if (consCurrentPage > totalPages) consCurrentPage = totalPages;
+            if (consCurrentPage < 1) consCurrentPage = 1;
+
+            const startIndex = (consCurrentPage - 1) * effectiveSize;
+            const endIndex = Math.min(startIndex + effectiveSize, total);
+
+            allRows.forEach(r => r.style.display = 'none');
+            matchingRows.forEach((row, idx) => {
+                if (idx >= startIndex && idx < endIndex) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            const footerCount = document.getElementById('consFooterCount');
+            const footerTotal = document.getElementById('consFooterTotal');
+            if (footerCount) footerCount.innerText = total === 0 ? 0 : `${startIndex + 1} to ${endIndex}`;
+            if (footerTotal) footerTotal.innerText = total;
+
+            renderConsignmentPaginationControls(totalPages);
+        }
+
+        function renderConsignmentPaginationControls(totalPages) {
+            const container = document.getElementById('consignmentPaginationControls');
+            if (!container) return;
+
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button type="button" onclick="goToConsignmentPage(1)" ${consCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-left text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToConsignmentPage(${consCurrentPage - 1})" ${consCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                </button>
+            `;
+
+            let startP = Math.max(1, consCurrentPage - 2);
+            let endP = Math.min(totalPages, consCurrentPage + 2);
+
+            for (let p = startP; p <= endP; p++) {
+                if (p === consCurrentPage) {
+                    html += `<button type="button" class="px-3 py-1 rounded-lg bg-blue-600 text-white text-xs font-black shadow-xs">${p}</button>`;
+                } else {
+                    html += `<button type="button" onclick="goToConsignmentPage(${p})" class="px-3 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">${p}</button>`;
+                }
+            }
+
+            html += `
+                <button type="button" onclick="goToConsignmentPage(${consCurrentPage + 1})" ${consCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToConsignmentPage(${totalPages})" ${consCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-right text-[10px]"></i>
+                </button>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function goToConsignmentPage(p) {
+            consCurrentPage = p;
+            applyConsignmentFilterAndSort();
+        }
+
         window.onload = () => {
             initConsignmentDateDefaults();
             loadPresetsFromDB();
             setupInputHighlightListeners();
+            applyConsignmentFilterAndSort();
 
             if (currentActiveConsignment) {
                 showManualEntryWorkspace();
@@ -1063,7 +1357,62 @@
             }
         });
 
-        // Render Parcels Table
+        // 📦 Parcel Pagination, Search & Sorting State
+        let parcelPageSize = 'ALL';
+        let parcelCurrentPage = 1;
+        let parcelSortCol = 'seq';
+        let parcelSortDir = 'asc';
+        let parcelSearchQuery = '';
+
+        function setParcelPageSize(size) {
+            parcelPageSize = size;
+            parcelCurrentPage = 1;
+
+            ['10', '25', '50', '100', 'ALL'].forEach(s => {
+                const btn = document.getElementById(`parcelPageSize-${s}`);
+                if (btn) {
+                    if (s == size) {
+                        btn.className = 'parcel-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-blue-600 text-white shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'parcel-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer';
+                    }
+                }
+            });
+
+            renderParcelsTable();
+        }
+
+        function handleParcelSearch() {
+            parcelSearchQuery = (document.getElementById('parcelSearchInput')?.value || '').toLowerCase().trim();
+            parcelCurrentPage = 1;
+            renderParcelsTable();
+        }
+
+        function sortParcelsBy(col) {
+            if (parcelSortCol === col) {
+                parcelSortDir = parcelSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                parcelSortCol = col;
+                parcelSortDir = 'asc';
+            }
+
+            ['seq', 'tracking', 'name', 'mobile', 'pincode', 'weight'].forEach(c => {
+                const icon = document.getElementById(`parcelSortIcon-${c}`);
+                if (icon) {
+                    if (c === col) {
+                        icon.className = parcelSortDir === 'asc'
+                            ? 'fa-solid fa-sort-up text-[10px] text-blue-600'
+                            : 'fa-solid fa-sort-down text-[10px] text-blue-600';
+                    } else {
+                        icon.className = 'fa-solid fa-sort text-[10px] text-slate-300';
+                    }
+                }
+            });
+
+            renderParcelsTable();
+        }
+
+        // Render Parcels Table with Filtering, Sorting & Pagination
         function renderParcelsTable() {
             const tbody = document.getElementById('parcelsTableBody');
             const badge = document.getElementById('parcelsCountBadge');
@@ -1078,12 +1427,94 @@
                         </td>
                     </tr>
                 `;
+                const fCount = document.getElementById('parcelsFooterCount');
+                const fTotal = document.getElementById('parcelsFooterTotal');
+                if (fCount) fCount.innerText = '0';
+                if (fTotal) fTotal.innerText = '0';
+                renderParcelPaginationControls(0);
+                checkPincodeDuplicateLive();
                 return;
             }
 
-            tbody.innerHTML = currentParcelsList.map((p, idx) => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="py-3 px-3 text-center font-mono text-[11px] text-slate-400">${idx + 1}</td>
+            // Calculate repeat pincode occurrences across active consignment
+            const pinCounts = {};
+            currentParcelsList.forEach(p => {
+                const pin = (p.pincode || '').toString().trim();
+                if (pin) pinCounts[pin] = (pinCounts[pin] || 0) + 1;
+            });
+
+            // 1. Filter
+            let list = currentParcelsList.filter((p, origIdx) => {
+                p._originalIdx = origIdx + 1; // Preserve original SR sequence
+                if (!parcelSearchQuery) return true;
+                const trk = (p.tracking || '').toLowerCase();
+                const name = (p.name || '').toLowerCase();
+                const mob = (p.mobile || '').toLowerCase();
+                const pin = (p.pincode || '').toString().toLowerCase();
+                const ord = (p.order_no || '').toLowerCase();
+                const mem = (p.member_id || '').toLowerCase();
+                return trk.includes(parcelSearchQuery) || name.includes(parcelSearchQuery) || 
+                       mob.includes(parcelSearchQuery) || pin.includes(parcelSearchQuery) || 
+                       ord.includes(parcelSearchQuery) || mem.includes(parcelSearchQuery);
+            });
+
+            // 2. Sort
+            list.sort((a, b) => {
+                let valA, valB;
+                if (parcelSortCol === 'seq') {
+                    valA = a._originalIdx || 0;
+                    valB = b._originalIdx || 0;
+                } else if (parcelSortCol === 'weight') {
+                    valA = parseFloat(a.weight || 0);
+                    valB = parseFloat(b.weight || 0);
+                } else {
+                    valA = (a[parcelSortCol] || '').toString().toLowerCase();
+                    valB = (b[parcelSortCol] || '').toString().toLowerCase();
+                }
+
+                if (valA < valB) return parcelSortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return parcelSortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // 3. Paginate
+            const total = list.length;
+            const effectiveSize = parcelPageSize === 'ALL' ? (total || 1) : parseInt(parcelPageSize, 10);
+            const totalPages = Math.ceil(total / effectiveSize) || 1;
+
+            if (parcelCurrentPage > totalPages) parcelCurrentPage = totalPages;
+            if (parcelCurrentPage < 1) parcelCurrentPage = 1;
+
+            const startIndex = (parcelCurrentPage - 1) * effectiveSize;
+            const endIndex = Math.min(startIndex + effectiveSize, total);
+            const pageItems = list.slice(startIndex, endIndex);
+
+            const fCount = document.getElementById('parcelsFooterCount');
+            const fTotal = document.getElementById('parcelsFooterTotal');
+            if (fCount) fCount.innerText = total === 0 ? '0' : `${startIndex + 1} to ${endIndex}`;
+            if (fTotal) fTotal.innerText = currentParcelsList.length;
+
+            if (pageItems.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="emptyParcelsRow">
+                        <td colspan="7" class="py-8 text-center text-slate-400 font-normal">
+                            No matching parcels found for "${parcelSearchQuery}".
+                        </td>
+                    </tr>
+                `;
+                renderParcelPaginationControls(0);
+                checkPincodeDuplicateLive();
+                return;
+            }
+
+            tbody.innerHTML = pageItems.map((p, pageIdx) => {
+                const pin = (p.pincode || '').toString().trim();
+                const isDuplicatePin = pin && pinCounts[pin] > 1;
+                const srNumber = p._originalIdx || (startIndex + pageIdx + 1);
+
+                return `
+                <tr class="${isDuplicatePin ? 'entry-row-repeat-pincode' : 'hover:bg-slate-50'} transition-colors">
+                    <td class="py-3 px-3 text-center font-mono text-[11px] ${isDuplicatePin ? 'text-rose-600 font-bold' : 'text-slate-400'}">${srNumber}</td>
                     <td class="py-3 px-4">
                         ${(p.tracking && p.tracking.trim() && !p.tracking.toUpperCase().includes('SHOP')) 
                             ? `<span class="font-mono font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">${p.tracking}</span>`
@@ -1103,8 +1534,11 @@
                     </td>
                     <td class="py-3 px-4 font-mono">${p.mobile || '-'}</td>
                     <td class="py-3 px-4">
-                        <span class="font-bold text-blue-700 font-mono">${p.pincode || '-' }</span>
-                        ${(p.city || p.state || p.address) ? `<span class="text-slate-400 text-[10px]"> • ${[p.address, p.city, p.state].filter(Boolean).join(', ')}</span>` : ''}
+                        <span class="font-bold font-mono ${isDuplicatePin ? 'text-rose-700 bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded inline-flex items-center gap-1' : 'text-blue-700'}">
+                            ${isDuplicatePin ? '<i class="fa-solid fa-triangle-exclamation text-[9px] text-rose-600"></i>' : ''}
+                            ${p.pincode || '-' }
+                        </span>
+                        ${(p.city || p.state || p.address) ? `<span class="${isDuplicatePin ? 'text-rose-700/80' : 'text-slate-400'} text-[10px]"> • ${[p.address, p.city, p.state].filter(Boolean).join(', ')}</span>` : ''}
                     </td>
                     <td class="py-3 px-4 font-mono text-[11px]">
                         <span class="font-black text-slate-800">${p.weight || '0'}g</span>
@@ -1118,7 +1552,56 @@
                         </button>
                     </td>
                 </tr>
-            `).join('');
+            `;}).join('');
+
+            renderParcelPaginationControls(totalPages);
+            checkPincodeDuplicateLive();
+        }
+
+        function renderParcelPaginationControls(totalPages) {
+            const container = document.getElementById('parcelsPaginationControls');
+            if (!container) return;
+
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button type="button" onclick="goToParcelPage(1)" ${parcelCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-left text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToParcelPage(${parcelCurrentPage - 1})" ${parcelCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                </button>
+            `;
+
+            let startP = Math.max(1, parcelCurrentPage - 2);
+            let endP = Math.min(totalPages, parcelCurrentPage + 2);
+
+            for (let p = startP; p <= endP; p++) {
+                if (p === parcelCurrentPage) {
+                    html += `<button type="button" class="px-3 py-1 rounded-lg bg-blue-600 text-white text-xs font-black shadow-xs">${p}</button>`;
+                } else {
+                    html += `<button type="button" onclick="goToParcelPage(${p})" class="px-3 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">${p}</button>`;
+                }
+            }
+
+            html += `
+                <button type="button" onclick="goToParcelPage(${parcelCurrentPage + 1})" ${parcelCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToParcelPage(${totalPages})" ${parcelCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-right text-[10px]"></i>
+                </button>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function goToParcelPage(p) {
+            parcelCurrentPage = p;
+            renderParcelsTable();
         }
 
         // ==============================================================
@@ -1656,9 +2139,35 @@
         let pincodeLookupTimer = null;
         let lastFetchedPincode = '';
 
+        // 🚨 Live Duplicate / Repeat Pincode Detection
+        function checkPincodeDuplicateLive() {
+            const pinInput = document.getElementById('mPincode');
+            if (!pinInput) return;
+            const cleanPin = pinInput.value.replace(/[^0-9]/g, '').trim();
+            const badge = document.getElementById('pincodeRepeatBadge');
+
+            const isDuplicate = cleanPin.length >= 3 && currentParcelsList.some(p => {
+                const existing = (p.pincode || '').toString().replace(/[^0-9]/g, '').trim();
+                return existing === cleanPin;
+            });
+
+            if (isDuplicate) {
+                pinInput.style.backgroundColor = '#fef2f2';
+                pinInput.style.borderColor = '#f87171';
+                pinInput.style.color = '#991b1b';
+                if (badge) badge.classList.remove('hidden');
+            } else {
+                pinInput.style.backgroundColor = '';
+                pinInput.style.borderColor = '';
+                pinInput.style.color = '';
+                if (badge) badge.classList.add('hidden');
+            }
+        }
+
         function clearPincodeAutoFill() {
             clearTimeout(pincodeLookupTimer);
             lastFetchedPincode = '';
+            checkPincodeDuplicateLive();
             const cityEl = document.getElementById('txtCity');
             const stateEl = document.getElementById('txtState');
             const addressEl = document.getElementById('txtAddress');
@@ -1684,6 +2193,8 @@
                 const clean = raw.replace(/[^0-9]/g, '');
                 if (clean !== raw) pincodeInput.value = clean;
 
+                checkPincodeDuplicateLive();
+
                 if (clean.length < 6) {
                     clearPincodeAutoFill();
                     return;
@@ -1705,6 +2216,7 @@
             pincodeInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Backspace' || e.key === 'Delete') {
                     clearPincodeAutoFill();
+                    setTimeout(checkPincodeDuplicateLive, 10);
                 }
             });
         }

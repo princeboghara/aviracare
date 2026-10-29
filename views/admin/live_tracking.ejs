@@ -41,11 +41,23 @@
                 </div>
 
 
-                <!-- Sync Action Button -->
-                <button type="button" onclick="triggerLiveIndiaPostSync()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95">
-                    <i class="fa-solid fa-arrows-rotate animate-spin-hover text-xs"></i>
-                    <span>Sync India Post</span>
+                <!-- 📋 Copy Tracking Numbers Action Button -->
+                <button type="button" onclick="openCopyModal()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95" title="Copy tracking numbers for bulk India Post tracking">
+                    <i class="fa-regular fa-copy text-xs"></i>
+                    <span>Copy Tracking IDs</span>
                 </button>
+
+                <!-- 📤 Upload Tracking Excel Action Button -->
+                <button type="button" onclick="openUploadModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95" title="Upload India Post bulk tracking Excel / CSV">
+                    <i class="fa-solid fa-file-arrow-up text-xs"></i>
+                    <span>Upload Tracking Excel</span>
+                </button>
+
+                <!-- India Post Portal Link Button -->
+                <a href="https://app.indiapost.gov.in/customer-selfservice/track" target="_blank" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer" title="Open India Post Bulk Tracking Portal">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[11px] text-blue-500"></i>
+                    <span class="hidden sm:inline">India Post</span> Portal
+                </a>
             </div>
         </header>
 
@@ -122,34 +134,37 @@
 
             </div>
 
-            <!-- 🤖 BOT STATUS & SCHEDULER BANNER -->
+            <!-- 📮 MANUAL BULK TRACKING WORKFLOW BANNER -->
             <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-4 sm:p-5 shadow-lg border border-indigo-900/50 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-3.5">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-400 text-xl font-bold flex-shrink-0">
-                        <i class="fa-solid fa-robot animate-pulse"></i>
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 text-xl font-bold flex-shrink-0">
+                        <i class="fa-solid fa-list-check"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-black uppercase tracking-wider text-blue-300">India Post Automation Bot</span>
-                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
-                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active Daemon
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs font-black uppercase tracking-wider text-emerald-300">Daily Manual Bulk Tracking Mode</span>
+                            <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
+                                <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span> Live Auto-Sync Disabled
                             </span>
                         </div>
-                        <p class="text-[11px] text-slate-300 font-medium mt-0.5">
-                            Auto-sync scheduled every 6 hours. Last synchronized: 
-                            <span id="lastSyncBanner" class="font-bold text-white"><%= (botStatus && botStatus.lastSyncTime) ? botStatus.lastSyncTime : 'Never' %></span>
+                        <p class="text-[11px] text-slate-300 font-medium mt-1">
+                            <strong>Daily Workflow:</strong> 1. Click <span class="text-emerald-400 font-bold">Copy Tracking IDs</span> &bull; 2. Bulk track on <span class="text-blue-400 font-bold">India Post Portal</span> &bull; 3. Upload downloaded Excel file here to automatically update statuses & delivery dates.
                         </p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
-                    <button type="button" onclick="toggleScheduler()" id="btnSchedulerToggle" class="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-pause text-amber-400" id="schedulerIcon"></i>
-                        <span id="schedulerText">Pause Scheduler</span>
+                <div class="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
+                    <button type="button" onclick="copyInTransitOnlyQuick()" class="px-3 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95" title="Copy only active & in-transit tracking IDs">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>Copy Active IDs</span>
                     </button>
-                    <a href="https://app.indiapost.gov.in/customer-selfservice/home" target="_blank" class="px-3.5 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border border-blue-500/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                    <button type="button" onclick="openUploadModal()" class="px-3 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border border-blue-500/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
+                        <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i>
+                        <span>Upload Excel</span>
+                    </button>
+                    <a href="https://app.indiapost.gov.in/customer-selfservice/track" target="_blank" class="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
                         <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
-                        <span>Open Portal</span>
+                        <span>India Post</span>
                     </a>
                 </div>
             </div>
@@ -175,6 +190,22 @@
                             <button type="button" onclick="setFilter('Item Dispatched')" id="filter-Item Dispatched" class="px-3 py-1.5 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer">Dispatched</button>
                         </div>
 
+                        <!-- 🔢 Page Size Selector Buttons (10, 25, 50, 100, ALL) -->
+                        <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl text-xs font-extrabold border border-slate-200 dark:border-slate-800">
+                            <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 px-1">Show:</span>
+                            <button type="button" onclick="setLivePageSize(10)" id="livePageSize-10" class="live-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer">10</button>
+                            <button type="button" onclick="setLivePageSize(25)" id="livePageSize-25" class="live-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer">25</button>
+                            <button type="button" onclick="setLivePageSize(50)" id="livePageSize-50" class="live-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs cursor-pointer">50</button>
+                            <button type="button" onclick="setLivePageSize(100)" id="livePageSize-100" class="live-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer">100</button>
+                            <button type="button" onclick="setLivePageSize('ALL')" id="livePageSize-ALL" class="live-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer">ALL</button>
+                        </div>
+
+                        <!-- 📋 Copy IDs Quick Button -->
+                        <button type="button" onclick="openCopyModal()" class="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer flex-shrink-0" title="Copy tracking numbers for bulk India Post tracking">
+                            <i class="fa-regular fa-copy text-emerald-600 dark:text-emerald-400 text-xs"></i>
+                            <span>Copy IDs</span>
+                        </button>
+
                         <!-- Export Excel -->
                         <button type="button" onclick="exportTableToCSV()" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer flex-shrink-0" title="Export Current List to Excel/CSV">
                             <i class="fa-solid fa-file-excel text-emerald-600 text-xs"></i>
@@ -188,14 +219,49 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-50/90 dark:bg-slate-900/90 text-slate-400 dark:text-slate-500 font-extrabold uppercase text-[10px] tracking-wider border-b border-slate-200/80 dark:border-slate-800">
-                                <th class="py-3 px-4 w-12 text-center">#</th>
-                                <th class="py-3 px-4">Member Info</th>
-                                <th class="py-3 px-4">Article / Tracking</th>
-                                <th class="py-3 px-4">Destination</th>
-                                <th class="py-3 px-4">Current Status</th>
-                                <th class="py-3 px-4">Booked Date</th>
-                                <th class="py-3 px-4">Delivery Date</th>
+                            <tr class="bg-slate-50/90 dark:bg-slate-900/90 text-slate-400 dark:text-slate-500 font-extrabold uppercase text-[10px] tracking-wider border-b border-slate-200/80 dark:border-slate-800 select-none">
+                                <th class="py-3 px-4 w-12 text-center cursor-pointer hover:text-blue-600 transition-colors" onclick="sortLiveTrackingBy('seq')" title="Click to sort by Sequence">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <span>#</span>
+                                        <i class="fa-solid fa-sort-down text-[10px] text-blue-600" id="liveSortIcon-seq"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortLiveTrackingBy('name')" title="Click to sort by Member Name">
+                                    <div class="flex items-center gap-1">
+                                        <span>Member Info</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="liveSortIcon-name"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortLiveTrackingBy('tracking')" title="Click to sort by Tracking Number">
+                                    <div class="flex items-center gap-1">
+                                        <span>Article / Tracking</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="liveSortIcon-tracking"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortLiveTrackingBy('destination')" title="Click to sort by Destination">
+                                    <div class="flex items-center gap-1">
+                                        <span>Destination</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="liveSortIcon-destination"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortLiveTrackingBy('status')" title="Click to sort by Status">
+                                    <div class="flex items-center gap-1">
+                                        <span>Current Status</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="liveSortIcon-status"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortLiveTrackingBy('booked_date')" title="Click to sort by Booked Date">
+                                    <div class="flex items-center gap-1">
+                                        <span>Booked Date</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="liveSortIcon-booked_date"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortLiveTrackingBy('delivery_date')" title="Click to sort by Delivery Date">
+                                    <div class="flex items-center gap-1">
+                                        <span>Delivery Date</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="liveSortIcon-delivery_date"></i>
+                                    </div>
+                                </th>
                                 <th class="py-3 px-4 text-center">Action</th>
                             </tr>
                         </thead>
@@ -271,13 +337,170 @@
         </div>
     </div>
 
+    <!-- 📋 MODAL: COPY TRACKING NUMBERS FOR INDIA POST BULK TRACKING -->
+    <div id="copyTrackingModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white dark:bg-[#0f172a] rounded-3xl p-6 sm:p-7 max-w-xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5 transform scale-95 transition-all duration-300" id="copyModalContent">
+            
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg font-bold shadow-xs">
+                        <i class="fa-regular fa-copy"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">Copy Tracking Numbers</h3>
+                        <p class="text-xs font-bold text-slate-400">Bulk Tracking for India Post Portal</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeCopyModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Filter & Format Selection -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <!-- Filter Type -->
+                <div class="bg-slate-50 dark:bg-slate-900/70 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1.5">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Select Parcels</span>
+                    <div class="flex gap-1.5">
+                        <button type="button" id="btnFilterActiveOnly" onclick="setCopyFilter('active')" class="flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-emerald-600 text-white shadow-xs cursor-pointer">
+                            Active Only (<span id="copyActiveCount"><%= (stats.in_transit || 0) + (stats.dispatched || 0) + (stats.pending || 0) %></span>)
+                        </button>
+                        <button type="button" id="btnFilterAll" onclick="setCopyFilter('all')" class="flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">
+                            All (<span id="copyAllCount"><%= stats.total || 0 %></span>)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Format Type -->
+                <div class="bg-slate-50 dark:bg-slate-900/70 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1.5">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Copy Format</span>
+                    <div class="flex gap-1.5">
+                        <button type="button" id="btnFormatLine" onclick="setCopyFormat('line')" class="flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-blue-600 text-white shadow-xs cursor-pointer">
+                            Line by Line
+                        </button>
+                        <button type="button" id="btnFormatComma" onclick="setCopyFormat('comma')" class="flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">
+                            Comma (,)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Textarea -->
+            <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-xs font-bold text-slate-500">
+                    <span>Preview & Direct Copy</span>
+                    <span id="previewCountBadge" class="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md font-mono font-bold">0 IDs loaded</span>
+                </div>
+                <textarea id="copyTrackingTextarea" rows="6" readonly class="w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 select-all resize-none"></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2.5">
+                <a href="https://app.indiapost.gov.in/customer-selfservice/track" target="_blank" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-extrabold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-blue-500"></i>
+                    <span>Open India Post Portal</span>
+                </a>
+
+                <button type="button" id="btnModalCopyAction" onclick="executeCopyTracking()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95">
+                    <i class="fa-regular fa-copy text-sm" id="modalCopyIcon"></i>
+                    <span id="modalCopyText">Copy to Clipboard</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 📤 MODAL: UPLOAD TRACKING EXCEL / CSV -->
+    <div id="uploadTrackingModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white dark:bg-[#0f172a] rounded-3xl p-6 sm:p-7 max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5 transform scale-95 transition-all duration-300" id="uploadModalContent">
+            
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg font-bold shadow-xs">
+                        <i class="fa-solid fa-file-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">Upload Tracking Excel</h3>
+                        <p class="text-xs font-bold text-slate-400">Update Statuses & Delivery Dates from India Post</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeUploadModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Upload Form -->
+            <form id="trackingUploadForm" onsubmit="handleTrackingFormSubmit(event)" class="space-y-4">
+                <div id="trackingDropZone" onclick="document.getElementById('trackingFileInput').click()" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 rounded-3xl p-6 sm:p-8 text-center cursor-pointer transition-all bg-slate-50/50 dark:bg-slate-900/50 hover:bg-blue-50/30 dark:hover:bg-blue-950/30 group">
+                    <input type="file" id="trackingFileInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleFileSelected(this)">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl mx-auto mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <p class="text-xs font-black text-slate-800 dark:text-slate-200" id="dropZoneText">
+                        Click to select or drag and drop Excel/CSV file
+                    </p>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Supports India Post Tracking Export (.xlsx, .xls, .csv)</p>
+                </div>
+
+                <!-- Selected File Display Card -->
+                <div id="selectedFileInfo" class="hidden items-center justify-between p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800">
+                    <div class="flex items-center gap-2.5 truncate">
+                        <i class="fa-solid fa-file-excel text-emerald-600 text-lg"></i>
+                        <div class="truncate text-left">
+                            <span id="selectedFileName" class="text-xs font-black text-slate-800 dark:text-slate-200 block truncate">filename.xlsx</span>
+                            <span id="selectedFileSize" class="text-[10px] font-bold text-slate-400">0 KB</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="clearSelectedFile(event)" class="p-1.5 text-slate-400 hover:text-rose-500 transition-colors">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Guidance Box -->
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 space-y-1">
+                    <div class="font-extrabold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info text-blue-500"></i> Auto-Detected Columns:
+                    </div>
+                    <p class="text-[10px] leading-relaxed">
+                        &bull; <strong>Article Number</strong> (Tracking No)<br>
+                        &bull; <strong>Status</strong> (Delivered, In Transit, Dispatched)<br>
+                        &bull; <strong>Delivery Date</strong> & Destination City
+                    </p>
+                </div>
+
+                <!-- Upload Result Alert (Initially Hidden) -->
+                <div id="uploadResultBox" class="hidden p-4 rounded-2xl border text-xs space-y-2"></div>
+
+                <!-- Buttons -->
+                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs transition-all cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" id="btnSubmitUpload" disabled class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-blue-500/20 active:scale-95">
+                        <i class="fa-solid fa-upload" id="uploadSubmitIcon"></i>
+                        <span id="uploadSubmitText">Upload & Update</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- 🔔 FLOATING TOAST NOTIFICATION -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-800 dark:border-slate-200 text-xs font-black">
+        <i class="fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600 text-base" id="toastIcon"></i>
+        <span id="toastMessage">Tracking IDs Copied!</span>
+    </div>
+
     <!-- 📦 Raw Consignments Safe Data Carrier (Eliminates IDE Linter Syntax Errors) -->
     <script id="consignmentsDataCarrier" type="application/json"><%- JSON.stringify(consignments || []) %></script>
 
     <script>
         // 📦 Master State & Pagination Config
-        const PAGE_SIZE = 50;
+        let livePageSize = 50;
         let currentPage = 1;
+        let currentLiveSortCol = 'seq';
+        let currentLiveSortDir = 'asc';
         let rawConsignments = [];
         try {
             const dataElem = document.getElementById('consignmentsDataCarrier');
@@ -291,6 +514,50 @@
         let currentFilter = 'ALL';
         let searchQuery = '';
         let filteredConsignments = [...allConsignments];
+
+        // 🔢 Page Size Selector (10, 25, 50, 100, ALL)
+        function setLivePageSize(size) {
+            livePageSize = size;
+            currentPage = 1;
+
+            ['10', '25', '50', '100', 'ALL'].forEach(s => {
+                const btn = document.getElementById(`livePageSize-${s}`);
+                if (btn) {
+                    if (s == size) {
+                        btn.className = 'live-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'live-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer';
+                    }
+                }
+            });
+
+            renderPaginatedTable();
+        }
+
+        // 🔀 Column Sorting (seq, name, tracking, destination, status, booked_date, delivery_date)
+        function sortLiveTrackingBy(col) {
+            if (currentLiveSortCol === col) {
+                currentLiveSortDir = currentLiveSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentLiveSortCol = col;
+                currentLiveSortDir = 'asc';
+            }
+
+            ['seq', 'name', 'tracking', 'destination', 'status', 'booked_date', 'delivery_date'].forEach(c => {
+                const icon = document.getElementById(`liveSortIcon-${c}`);
+                if (icon) {
+                    if (c === col) {
+                        icon.className = currentLiveSortDir === 'asc'
+                            ? 'fa-solid fa-sort-up text-[10px] text-blue-600'
+                            : 'fa-solid fa-sort-down text-[10px] text-blue-600';
+                    } else {
+                        icon.className = 'fa-solid fa-sort text-[10px] text-slate-300';
+                    }
+                }
+            });
+
+            applyFilterAndSearch();
+        }
 
         // 🔍 Search & Filter Engine
         function handleSearch() {
@@ -332,26 +599,52 @@
                 const mId = (item.member_id || '').toLowerCase();
                 const mName = (item.name || '').toLowerCase();
                 const mTrack = (item.tracking || '').toLowerCase();
-                const mDest = (item.destination || '').toLowerCase();
+                const mDest = (item.destination || item.city || '').toLowerCase();
 
                 return mId.includes(searchQuery) || mName.includes(searchQuery) || mTrack.includes(searchQuery) || mDest.includes(searchQuery);
+            });
+
+            // Column Sorting
+            filteredConsignments.sort((a, b) => {
+                let valA, valB;
+                if (currentLiveSortCol === 'seq') {
+                    valA = a.id || 0;
+                    valB = b.id || 0;
+                } else if (currentLiveSortCol === 'booked_date') {
+                    valA = new Date(a.booked_date || a.order_date || 0).getTime() || 0;
+                    valB = new Date(b.booked_date || b.order_date || 0).getTime() || 0;
+                } else if (currentLiveSortCol === 'delivery_date') {
+                    valA = new Date(a.delivery_date || 0).getTime() || 0;
+                    valB = new Date(b.delivery_date || 0).getTime() || 0;
+                } else if (currentLiveSortCol === 'status') {
+                    valA = (a.delivery_status || '').toLowerCase();
+                    valB = (b.delivery_status || '').toLowerCase();
+                } else {
+                    valA = (a[currentLiveSortCol] || '').toString().toLowerCase();
+                    valB = (b[currentLiveSortCol] || '').toString().toLowerCase();
+                }
+
+                if (valA < valB) return currentLiveSortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return currentLiveSortDir === 'asc' ? 1 : -1;
+                return 0;
             });
 
             currentPage = 1;
             renderPaginatedTable();
         }
 
-        // 🔄 Render Paginated Table (50 Items Per Page)
+        // 🔄 Render Paginated Table (Variable Page Size: 10, 25, 50, 100, ALL)
         function renderPaginatedTable() {
             const tbody = document.getElementById('consignmentsTableBody');
             const total = filteredConsignments.length;
-            const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+            const effectivePageSize = livePageSize === 'ALL' ? (total || 1) : parseInt(livePageSize, 10);
+            const totalPages = Math.ceil(total / effectivePageSize) || 1;
 
             if (currentPage > totalPages) currentPage = totalPages;
             if (currentPage < 1) currentPage = 1;
 
-            const startIndex = (currentPage - 1) * PAGE_SIZE;
-            const endIndex = Math.min(startIndex + PAGE_SIZE, total);
+            const startIndex = (currentPage - 1) * effectivePageSize;
+            const endIndex = Math.min(startIndex + effectivePageSize, total);
             const pageItems = filteredConsignments.slice(startIndex, endIndex);
 
             if (pageItems.length === 0) {
@@ -478,12 +771,345 @@
             window.scrollTo({ top: 300, behavior: 'smooth' });
         }
 
-        // 📋 Copy Tracking Number Utility
+        // 🔔 Floating Toast Notification Utility
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toastNotification');
+            const msgEl = document.getElementById('toastMessage');
+            const iconEl = document.getElementById('toastIcon');
+            if (!toast || !msgEl) return;
+
+            msgEl.innerText = msg;
+            if (isSuccess) {
+                iconEl.className = 'fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600 text-base';
+            } else {
+                iconEl.className = 'fa-solid fa-triangle-exclamation text-amber-400 text-base';
+            }
+
+            toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+            }, 2800);
+        }
+
+        // 📋 Copy Single Tracking Number Utility
         function copyToClipboard(text) {
             if (!text || text === '-') return;
             navigator.clipboard.writeText(text).then(() => {
-                alert('Copied tracking number: ' + text);
+                showToast('Copied: ' + text);
             }).catch(() => {});
+        }
+
+        // =========================================================================
+        // 📋 BULK TRACKING ID COPY MODAL LOGIC
+        // =========================================================================
+        let copyFilterType = 'active'; // 'active' or 'all'
+        let copyFormatType = 'line';   // 'line' or 'comma'
+
+        function getFilteredTrackingList() {
+            const list = [];
+            allConsignments.forEach(item => {
+                const trk = (item.tracking || '').trim().toUpperCase();
+                if (!trk || trk === 'PENDING' || trk === 'SHOP PICKUP' || trk === '-') return;
+
+                if (copyFilterType === 'active') {
+                    const st = (item.delivery_status || '').toLowerCase();
+                    if (!st.includes('delivered') && !st.includes('pickup')) {
+                        list.push(trk);
+                    }
+                } else {
+                    list.push(trk);
+                }
+            });
+            return [...new Set(list)];
+        }
+
+        function updateCopyPreview() {
+            const list = getFilteredTrackingList();
+            const textarea = document.getElementById('copyTrackingTextarea');
+            const countBadge = document.getElementById('previewCountBadge');
+
+            if (textarea) {
+                if (copyFormatType === 'line') {
+                    textarea.value = list.join('\n');
+                } else {
+                    textarea.value = list.join(', ');
+                }
+            }
+            if (countBadge) {
+                countBadge.innerText = `${list.length} IDs loaded`;
+            }
+        }
+
+        function setCopyFilter(type) {
+            copyFilterType = type;
+            const btnActive = document.getElementById('btnFilterActiveOnly');
+            const btnAll = document.getElementById('btnFilterAll');
+
+            if (btnActive && btnAll) {
+                if (type === 'active') {
+                    btnActive.className = 'flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-emerald-600 text-white shadow-xs cursor-pointer';
+                    btnAll.className = 'flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer';
+                } else {
+                    btnAll.className = 'flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-emerald-600 text-white shadow-xs cursor-pointer';
+                    btnActive.className = 'flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer';
+                }
+            }
+            updateCopyPreview();
+        }
+
+        function setCopyFormat(fmt) {
+            copyFormatType = fmt;
+            const btnLine = document.getElementById('btnFormatLine');
+            const btnComma = document.getElementById('btnFormatComma');
+
+            if (btnLine && btnComma) {
+                if (fmt === 'line') {
+                    btnLine.className = 'flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-blue-600 text-white shadow-xs cursor-pointer';
+                    btnComma.className = 'flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer';
+                } else {
+                    btnComma.className = 'flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-blue-600 text-white shadow-xs cursor-pointer';
+                    btnLine.className = 'flex-1 py-1.5 px-2 rounded-xl font-extrabold text-[11px] transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer';
+                }
+            }
+            updateCopyPreview();
+        }
+
+        function openCopyModal() {
+            const modal = document.getElementById('copyTrackingModal');
+            const content = document.getElementById('copyModalContent');
+            updateCopyPreview();
+            if (modal && content) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-95');
+            }
+        }
+
+        function closeCopyModal() {
+            const modal = document.getElementById('copyTrackingModal');
+            const content = document.getElementById('copyModalContent');
+            if (modal && content) {
+                content.classList.add('scale-95');
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function executeCopyTracking() {
+            const textarea = document.getElementById('copyTrackingTextarea');
+            const text = textarea ? textarea.value : '';
+            if (!text) {
+                showToast('No tracking numbers available to copy', false);
+                return;
+            }
+
+            const count = getFilteredTrackingList().length;
+            navigator.clipboard.writeText(text).then(() => {
+                const btnText = document.getElementById('modalCopyText');
+                const btnIcon = document.getElementById('modalCopyIcon');
+                if (btnText && btnIcon) {
+                    btnText.innerText = 'Copied to Clipboard!';
+                    btnIcon.className = 'fa-solid fa-check text-sm';
+                    setTimeout(() => {
+                        btnText.innerText = 'Copy to Clipboard';
+                        btnIcon.className = 'fa-regular fa-copy text-sm';
+                    }, 2000);
+                }
+                showToast(`Copied ${count} Tracking IDs to clipboard!`);
+            }).catch(err => {
+                console.error('Clipboard copy error:', err);
+                showToast('Failed to copy. Please manually select and copy text.', false);
+            });
+        }
+
+        function copyInTransitOnlyQuick() {
+            copyFilterType = 'active';
+            copyFormatType = 'line';
+            const list = getFilteredTrackingList();
+            if (!list.length) {
+                showToast('No active tracking IDs found to copy', false);
+                return;
+            }
+            navigator.clipboard.writeText(list.join('\n')).then(() => {
+                showToast(`Copied ${list.length} Active Tracking IDs (Line-by-Line)!`);
+            }).catch(() => {
+                openCopyModal();
+            });
+        }
+
+        // =========================================================================
+        // 📤 UPLOAD TRACKING EXCEL / CSV LOGIC
+        // =========================================================================
+        let selectedTrackingFile = null;
+
+        function openUploadModal() {
+            const modal = document.getElementById('uploadTrackingModal');
+            const content = document.getElementById('uploadModalContent');
+            const resultBox = document.getElementById('uploadResultBox');
+            if (resultBox) resultBox.classList.add('hidden');
+            clearSelectedFile();
+            if (modal && content) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-95');
+            }
+        }
+
+        function closeUploadModal() {
+            const modal = document.getElementById('uploadTrackingModal');
+            const content = document.getElementById('uploadModalContent');
+            if (modal && content) {
+                content.classList.add('scale-95');
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function handleFileSelected(input) {
+            if (input.files && input.files[0]) {
+                setSelectedFile(input.files[0]);
+            }
+        }
+
+        function setSelectedFile(file) {
+            selectedTrackingFile = file;
+            const nameEl = document.getElementById('selectedFileName');
+            const sizeEl = document.getElementById('selectedFileSize');
+            const infoCard = document.getElementById('selectedFileInfo');
+            const btnSubmit = document.getElementById('btnSubmitUpload');
+
+            if (nameEl) nameEl.innerText = file.name;
+            if (sizeEl) sizeEl.innerText = (file.size / 1024).toFixed(1) + ' KB';
+
+            if (infoCard) {
+                infoCard.classList.remove('hidden');
+                infoCard.classList.add('flex');
+            }
+            if (btnSubmit) btnSubmit.disabled = false;
+        }
+
+        function clearSelectedFile(e) {
+            if (e) e.stopPropagation();
+            selectedTrackingFile = null;
+            const input = document.getElementById('trackingFileInput');
+            if (input) input.value = '';
+            const infoCard = document.getElementById('selectedFileInfo');
+            if (infoCard) {
+                infoCard.classList.add('hidden');
+                infoCard.classList.remove('flex');
+            }
+            const btnSubmit = document.getElementById('btnSubmitUpload');
+            if (btnSubmit) btnSubmit.disabled = true;
+        }
+
+        // Drag & drop support
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('trackingDropZone');
+            if (dropZone) {
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropZone.classList.add('border-blue-500', 'bg-blue-50/50');
+                    }, false);
+                });
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropZone.classList.remove('border-blue-500', 'bg-blue-50/50');
+                    }, false);
+                });
+                dropZone.addEventListener('drop', (e) => {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    if (files && files.length > 0) {
+                        setSelectedFile(files[0]);
+                    }
+                }, false);
+            }
+        });
+
+        async function handleTrackingFormSubmit(e) {
+            e.preventDefault();
+            if (!selectedTrackingFile) {
+                showToast('Please select an Excel or CSV file first', false);
+                return;
+            }
+
+            const btnSubmit = document.getElementById('btnSubmitUpload');
+            const btnText = document.getElementById('uploadSubmitText');
+            const btnIcon = document.getElementById('uploadSubmitIcon');
+            const resultBox = document.getElementById('uploadResultBox');
+
+            if (btnSubmit) btnSubmit.disabled = true;
+            if (btnText) btnText.innerText = 'Processing...';
+            if (btnIcon) btnIcon.className = 'fa-solid fa-spinner fa-spin';
+            if (resultBox) resultBox.classList.add('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('trackingFile', selectedTrackingFile);
+
+                const res = await fetch('/admin/api/upload-tracking-excel', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    resultBox.className = 'p-4 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 text-xs space-y-2';
+                    let samplesHtml = '';
+                    if (data.samples && data.samples.length > 0) {
+                        samplesHtml = `
+                            <div class="mt-2 pt-2 border-t border-emerald-200 dark:border-emerald-800 text-[11px]">
+                                <strong>Sample Updates:</strong>
+                                <ul class="list-disc pl-4 space-y-0.5 mt-1 font-mono">
+                                    ${data.samples.map(s => `<li>${s.tracking}: <span class="font-bold">${s.status || '-'}</span> (${s.deliveryDate || 'No Date'})</li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    }
+                    resultBox.innerHTML = `
+                        <div class="flex items-center gap-2 font-black text-emerald-700 dark:text-emerald-300">
+                            <i class="fa-solid fa-circle-check text-base"></i>
+                            <span>${data.msg}</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-center pt-1 font-bold text-[11px]">
+                            <div class="bg-white/80 dark:bg-slate-900/80 p-2 rounded-xl">Total: ${data.totalProcessed}</div>
+                            <div class="bg-emerald-100/80 dark:bg-emerald-900/80 p-2 rounded-xl text-emerald-700 dark:text-emerald-300">Updated: ${data.updatedCount}</div>
+                            <div class="bg-slate-100/80 dark:bg-slate-800/80 p-2 rounded-xl text-slate-500">Skipped: ${data.notFoundCount}</div>
+                        </div>
+                        ${samplesHtml}
+                    `;
+                    resultBox.classList.remove('hidden');
+                    showToast(`Success! ${data.updatedCount} parcels updated in database.`);
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2500);
+                } else {
+                    resultBox.className = 'p-4 rounded-2xl border border-rose-300 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 text-xs';
+                    resultBox.innerHTML = `
+                        <div class="flex items-center gap-2 font-black">
+                            <i class="fa-solid fa-triangle-exclamation text-base"></i>
+                            <span>Upload Failed: ${data.msg || 'Error processing file'}</span>
+                        </div>
+                    `;
+                    resultBox.classList.remove('hidden');
+                    showToast(data.msg || 'Upload failed', false);
+                }
+            } catch (err) {
+                console.error('Upload Error:', err);
+                resultBox.className = 'p-4 rounded-2xl border border-rose-300 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 text-xs';
+                resultBox.innerHTML = `<div class="font-bold">Error: ${err.message}</div>`;
+                resultBox.classList.remove('hidden');
+                showToast('Network error during upload', false);
+            } finally {
+                if (btnSubmit) btnSubmit.disabled = false;
+                if (btnText) btnText.innerText = 'Upload & Update';
+                if (btnIcon) btnIcon.className = 'fa-solid fa-upload';
+            }
         }
 
         // 📊 Export to CSV Utility

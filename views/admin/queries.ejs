@@ -135,8 +135,18 @@
                             </select>
                         </div>
 
+                        <!-- 🔢 Page Size Selector (10, 25, 50, 100, ALL) -->
+                        <div class="flex items-center gap-1 bg-slate-100/90 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                            <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 dark:text-slate-500 px-1">Show:</span>
+                            <button type="button" onclick="setQueryPageSize(10)" id="queryPageSize-10" class="query-size-btn px-2 py-0.5 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer">10</button>
+                            <button type="button" onclick="setQueryPageSize(25)" id="queryPageSize-25" class="query-size-btn px-2 py-0.5 text-[11px] font-black rounded-lg transition-all bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs cursor-pointer">25</button>
+                            <button type="button" onclick="setQueryPageSize(50)" id="queryPageSize-50" class="query-size-btn px-2 py-0.5 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer">50</button>
+                            <button type="button" onclick="setQueryPageSize(100)" id="queryPageSize-100" class="query-size-btn px-2 py-0.5 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer">100</button>
+                            <button type="button" onclick="setQueryPageSize('ALL')" id="queryPageSize-ALL" class="query-size-btn px-2 py-0.5 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer">ALL</button>
+                        </div>
+
                         <!-- 🔍 Instant Search Input -->
-                        <div class="relative w-44 sm:w-56">
+                        <div class="relative w-40 sm:w-52">
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                             <input type="text" id="querySearchInput" onkeyup="filterTickets()" placeholder="Search Name, ID, Subject..."
                                    class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500 text-slate-700 dark:text-slate-200 shadow-xs">
@@ -152,13 +162,38 @@
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap sm:whitespace-normal" id="queriesTable">
                         <thead>
-                            <tr class="bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
-                                <th class="py-3 px-4 w-12">ID</th>
-                                <th class="py-3 px-4 w-44">Date & Time</th>
-                                <th class="py-3 px-4 w-36">Member Info</th>
-                                <th class="py-3 px-4 w-44">Subject / Contact</th>
+                            <tr class="bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider select-none">
+                                <th class="py-3 px-4 w-12 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortQueriesBy('id')" title="Sort by ID">
+                                    <div class="flex items-center gap-1">
+                                        <span>ID</span>
+                                        <i class="fa-solid fa-sort-down text-[10px] text-emerald-600" id="querySortIcon-id"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 w-44 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortQueriesBy('date')" title="Sort by Date">
+                                    <div class="flex items-center gap-1">
+                                        <span>Date & Time</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="querySortIcon-date"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 w-36 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortQueriesBy('member')" title="Sort by Member">
+                                    <div class="flex items-center gap-1">
+                                        <span>Member Info</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="querySortIcon-member"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 w-44 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortQueriesBy('subject')" title="Sort by Subject">
+                                    <div class="flex items-center gap-1">
+                                        <span>Subject / Contact</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="querySortIcon-subject"></i>
+                                    </div>
+                                </th>
                                 <th class="py-3 px-4 min-w-[220px]">Member Query & Admin Reply</th>
-                                <th class="py-3 px-4 w-28 text-center">Status</th>
+                                <th class="py-3 px-4 w-28 text-center cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortQueriesBy('status')" title="Sort by Status">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <span>Status</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="querySortIcon-status"></i>
+                                    </div>
+                                </th>
                                 <th class="py-3 px-4 text-center w-48">Actions</th>
                             </tr>
                         </thead>
@@ -272,6 +307,15 @@
                     </table>
                 </div>
 
+                <!-- Footer Summary & Pagination Controls -->
+                <div class="px-5 py-3.5 bg-slate-50 dark:bg-[#0b0f19] border-t border-slate-200/80 dark:border-slate-800 flex justify-between items-center flex-wrap gap-3 text-xs">
+                    <span class="text-slate-500 font-medium">
+                        Showing <strong id="queriesFooterCount" class="text-slate-800 dark:text-slate-200">0</strong> of <strong class="text-slate-900 dark:text-slate-100" id="queriesFooterTotal"><%= tickets.length %></strong> tickets
+                    </span>
+
+                    <div id="queriesPaginationControls" class="flex items-center gap-1.5 flex-wrap"></div>
+                </div>
+
                 <!-- Empty filter state notice -->
                 <div id="filterEmptyNotice" class="hidden py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
                     <div class="h-14 w-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-2xl mx-auto mb-3 shadow-xs">
@@ -340,6 +384,81 @@
 
     <script>
         let currentFilterStatus = 'PENDING';
+        let queryPageSize = 25;
+        let queryCurrentPage = 1;
+        let querySortCol = 'id';
+        let querySortDir = 'desc';
+
+        function setQueryPageSize(size) {
+            queryPageSize = size;
+            queryCurrentPage = 1;
+
+            ['10', '25', '50', '100', 'ALL'].forEach(s => {
+                const btn = document.getElementById(`queryPageSize-${s}`);
+                if (btn) {
+                    if (s == size) {
+                        btn.className = 'query-size-btn px-2 py-0.5 text-[11px] font-black rounded-lg transition-all bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'query-size-btn px-2 py-0.5 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer';
+                    }
+                }
+            });
+
+            applyQueryFilterAndSort();
+        }
+
+        function sortQueriesBy(col) {
+            if (querySortCol === col) {
+                querySortDir = querySortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                querySortCol = col;
+                querySortDir = 'asc';
+            }
+
+            ['id', 'date', 'member', 'subject', 'status'].forEach(c => {
+                const icon = document.getElementById(`querySortIcon-${c}`);
+                if (icon) {
+                    if (c === col) {
+                        icon.className = querySortDir === 'asc' 
+                            ? 'fa-solid fa-sort-up text-[10px] text-emerald-600' 
+                            : 'fa-solid fa-sort-down text-[10px] text-emerald-600';
+                    } else {
+                        icon.className = 'fa-solid fa-sort text-[10px] text-slate-300';
+                    }
+                }
+            });
+
+            // Sort DOM rows inside #queriesTableBody
+            const tbody = document.getElementById('queriesTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr.query-row-item'));
+
+            rows.sort((rowA, rowB) => {
+                let valA = '', valB = '';
+                if (col === 'id') {
+                    valA = parseInt(rowA.dataset.id || 0, 10);
+                    valB = parseInt(rowB.dataset.id || 0, 10);
+                } else if (col === 'date') {
+                    valA = new Date(rowA.querySelector('td:nth-child(2)')?.innerText.trim() || 0).getTime() || 0;
+                    valB = new Date(rowB.querySelector('td:nth-child(2)')?.innerText.trim() || 0).getTime() || 0;
+                } else if (col === 'member') {
+                    valA = (rowA.dataset.name || rowA.dataset.memberid || '').toLowerCase();
+                    valB = (rowB.dataset.name || rowB.dataset.memberid || '').toLowerCase();
+                } else if (col === 'subject') {
+                    valA = (rowA.dataset.subject || '').toLowerCase();
+                    valB = (rowB.dataset.subject || '').toLowerCase();
+                } else if (col === 'status') {
+                    valA = (rowA.dataset.status || '').toLowerCase();
+                    valB = (rowB.dataset.status || '').toLowerCase();
+                }
+
+                if (valA < valB) return querySortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return querySortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach(r => tbody.appendChild(r));
+            applyQueryFilterAndSort();
+        }
 
         // 🌟 Open Reply Modal cleanly from dataset
         function openReplyModalFromRow(row) {
@@ -415,21 +534,37 @@
         }
 
         function filterTickets() {
-            const searchQuery = (document.getElementById('querySearchInput').value || '').toLowerCase().trim();
-            const rows = document.querySelectorAll('.query-row-item');
-            
-            let visibleCount = 0;
+            queryCurrentPage = 1;
+            applyQueryFilterAndSort();
+        }
 
-            rows.forEach(row => {
+        function applyQueryFilterAndSort() {
+            const searchQuery = (document.getElementById('querySearchInput').value || '').toLowerCase().trim();
+            const allRows = Array.from(document.querySelectorAll('.query-row-item'));
+
+            const matchingRows = allRows.filter(row => {
                 const rowStatus = row.dataset.status || 'PENDING';
                 const rowText = row.innerText.toLowerCase();
 
                 const matchesStatus = (currentFilterStatus === 'ALL') || (rowStatus === currentFilterStatus);
                 const matchesSearch = !searchQuery || rowText.includes(searchQuery);
+                return matchesStatus && matchesSearch;
+            });
 
-                if (matchesStatus && matchesSearch) {
+            const total = matchingRows.length;
+            const effectiveSize = queryPageSize === 'ALL' ? (total || 1) : parseInt(queryPageSize, 10);
+            const totalPages = Math.ceil(total / effectiveSize) || 1;
+
+            if (queryCurrentPage > totalPages) queryCurrentPage = totalPages;
+            if (queryCurrentPage < 1) queryCurrentPage = 1;
+
+            const startIndex = (queryCurrentPage - 1) * effectiveSize;
+            const endIndex = Math.min(startIndex + effectiveSize, total);
+
+            allRows.forEach(row => row.style.display = 'none');
+            matchingRows.forEach((row, idx) => {
+                if (idx >= startIndex && idx < endIndex) {
                     row.style.display = '';
-                    visibleCount++;
                 } else {
                     row.style.display = 'none';
                 }
@@ -437,18 +572,72 @@
 
             const badge = document.getElementById('filteredCounterBadge');
             if (badge) {
-                badge.innerText = visibleCount + ' Tickets';
+                badge.innerText = total + ' Tickets';
             }
+
+            const footerCount = document.getElementById('queriesFooterCount');
+            const footerTotal = document.getElementById('queriesFooterTotal');
+            if (footerCount) footerCount.innerText = total === 0 ? 0 : `${startIndex + 1} to ${endIndex}`;
+            if (footerTotal) footerTotal.innerText = total;
 
             const emptyNotice = document.getElementById('filterEmptyNotice');
             const table = document.getElementById('queriesTable');
-            if (visibleCount === 0 && rows.length > 0) {
+            if (total === 0 && allRows.length > 0) {
                 if (emptyNotice) emptyNotice.classList.remove('hidden');
                 if (table) table.classList.add('hidden');
             } else {
                 if (emptyNotice) emptyNotice.classList.add('hidden');
                 if (table) table.classList.remove('hidden');
             }
+
+            renderQueriesPaginationControls(totalPages);
+        }
+
+        function renderQueriesPaginationControls(totalPages) {
+            const container = document.getElementById('queriesPaginationControls');
+            if (!container) return;
+
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button type="button" onclick="goToQueryPage(1)" ${queryCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-left text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToQueryPage(${queryCurrentPage - 1})" ${queryCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                </button>
+            `;
+
+            let startP = Math.max(1, queryCurrentPage - 2);
+            let endP = Math.min(totalPages, queryCurrentPage + 2);
+
+            for (let p = startP; p <= endP; p++) {
+                if (p === queryCurrentPage) {
+                    html += `<button type="button" class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-xs font-black shadow-xs">${p}</button>`;
+                } else {
+                    html += `<button type="button" onclick="goToQueryPage(${p})" class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 cursor-pointer">${p}</button>`;
+                }
+            }
+
+            html += `
+                <button type="button" onclick="goToQueryPage(${queryCurrentPage + 1})" ${queryCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToQueryPage(${totalPages})" ${queryCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-right text-[10px]"></i>
+                </button>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function goToQueryPage(p) {
+            queryCurrentPage = p;
+            applyQueryFilterAndSort();
+            window.scrollTo({ top: 250, behavior: 'smooth' });
         }
 
         // Initialize default view to PENDING on load

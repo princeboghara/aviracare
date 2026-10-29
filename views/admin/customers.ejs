@@ -148,12 +148,17 @@
                         <span id="matchingCountBadge" class="text-[10px] font-mono text-slate-400 ml-1">Showing <%= safeCustomers.length %> members</span>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <button type="button" id="btnToggleShowAll" onclick="toggleShowAllCustomers()" 
-                                class="px-3.5 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
-                            <i class="fa-solid fa-expand text-blue-600" id="toggleShowAllIcon"></i>
-                            <span id="toggleShowAllText">Show All (<%= safeCustomers.length %>)</span>
-                        </button>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <!-- 🔢 Page Size Selector (10, 25, 50, 100, ALL) -->
+                        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-extrabold border border-slate-200">
+                            <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 px-1">Show:</span>
+                            <button type="button" onclick="setCustomerPageSize(10)" id="custPageSize-10" class="cust-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">10</button>
+                            <button type="button" onclick="setCustomerPageSize(25)" id="custPageSize-25" class="cust-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white text-blue-600 shadow-xs cursor-pointer">25</button>
+                            <button type="button" onclick="setCustomerPageSize(50)" id="custPageSize-50" class="cust-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">50</button>
+                            <button type="button" onclick="setCustomerPageSize(100)" id="custPageSize-100" class="cust-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">100</button>
+                            <button type="button" onclick="setCustomerPageSize('ALL')" id="custPageSize-ALL" class="cust-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer">ALL</button>
+                        </div>
+
                         <button type="button" onclick="exportCustomersToCSV()" 
                                 class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
                             <i class="fa-solid fa-file-csv text-emerald-600"></i>
@@ -166,11 +171,36 @@
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[700px]">
                         <thead>
                             <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-extrabold uppercase select-none text-[11px]">
-                                <th class="py-3 px-4 w-12 text-center">#</th>
-                                <th class="py-3 px-4">Member ID</th>
-                                <th class="py-3 px-4">Customer Name</th>
-                                <th class="py-3 px-4">Mobile Number</th>
-                                <th class="py-3 px-4">Email / Gmail</th>
+                                <th class="py-3 px-4 w-12 text-center cursor-pointer hover:text-blue-600 transition-colors" onclick="sortCustomersBy('seq')" title="Sort by Sequence">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <span>#</span>
+                                        <i class="fa-solid fa-sort-down text-[10px] text-blue-600" id="custSortIcon-seq"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortCustomersBy('member_id')" title="Sort by Member ID">
+                                    <div class="flex items-center gap-1">
+                                        <span>Member ID</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="custSortIcon-member_id"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortCustomersBy('name')" title="Sort by Customer Name">
+                                    <div class="flex items-center gap-1">
+                                        <span>Customer Name</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="custSortIcon-name"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortCustomersBy('mobile')" title="Sort by Mobile">
+                                    <div class="flex items-center gap-1">
+                                        <span>Mobile Number</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="custSortIcon-mobile"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortCustomersBy('email')" title="Sort by Email">
+                                    <div class="flex items-center gap-1">
+                                        <span>Email / Gmail</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="custSortIcon-email"></i>
+                                    </div>
+                                </th>
                                 <th class="py-3 px-4 text-center">Quick Action</th>
                             </tr>
                         </thead>
@@ -219,14 +249,13 @@
                     </table>
                 </div>
 
-                <!-- Footer Summary / Quick Load Bar -->
-                <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-200 flex justify-between items-center flex-wrap gap-2 text-xs">
+                <!-- Footer Summary & Pagination Controls -->
+                <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-200 flex justify-between items-center flex-wrap gap-3 text-xs">
                     <span class="text-slate-500 font-medium">
-                        Showing <strong id="footerCountDisplay" class="text-slate-800"><%= Math.min(safeCustomers.length, 25) %></strong> of <strong class="text-slate-900"><%= safeCustomers.length %></strong> total members
+                        Showing <strong id="footerCountDisplay" class="text-slate-800"><%= Math.min(safeCustomers.length, 25) %></strong> of <strong class="text-slate-900" id="footerTotalDisplay"><%= safeCustomers.length %></strong> total members
                     </span>
-                    <button type="button" onclick="toggleShowAllCustomers()" class="font-bold text-blue-600 hover:text-blue-800 text-xs cursor-pointer flex items-center gap-1">
-                        <span id="footerToggleText"><%= safeCustomers.length > 25 ? 'Show all ' + safeCustomers.length + ' members →' : '' %></span>
-                    </button>
+
+                    <div id="customerPaginationControls" class="flex items-center gap-1.5 flex-wrap"></div>
                 </div>
             </div>
 
@@ -250,8 +279,88 @@
             allCustomers = [];
         }
 
-        let isShowingAll = false;
-        const INITIAL_LIMIT = 25;
+        let customerPageSize = 25;
+        let customerCurrentPage = 1;
+        let customerSortCol = 'seq';
+        let customerSortDir = 'asc';
+        let filteredCustomers = [...allCustomers];
+
+        // 🔢 Page Size Selector (10, 25, 50, 100, ALL)
+        function setCustomerPageSize(size) {
+            customerPageSize = size;
+            customerCurrentPage = 1;
+
+            ['10', '25', '50', '100', 'ALL'].forEach(s => {
+                const btn = document.getElementById(`custPageSize-${s}`);
+                if (btn) {
+                    if (s == size) {
+                        btn.className = 'cust-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-white text-blue-600 shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'cust-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 hover:text-blue-600 cursor-pointer';
+                    }
+                }
+            });
+
+            renderCustomersTable();
+        }
+
+        // 🔀 Column Sorting (seq, member_id, name, mobile, email)
+        function sortCustomersBy(col) {
+            if (customerSortCol === col) {
+                customerSortDir = customerSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                customerSortCol = col;
+                customerSortDir = 'asc';
+            }
+
+            ['seq', 'member_id', 'name', 'mobile', 'email'].forEach(c => {
+                const icon = document.getElementById(`custSortIcon-${c}`);
+                if (icon) {
+                    if (c === col) {
+                        icon.className = customerSortDir === 'asc'
+                            ? 'fa-solid fa-sort-up text-[10px] text-blue-600'
+                            : 'fa-solid fa-sort-down text-[10px] text-blue-600';
+                    } else {
+                        icon.className = 'fa-solid fa-sort text-[10px] text-slate-300';
+                    }
+                }
+            });
+
+            applyCustomerFilterAndSort();
+        }
+
+        // 🔍 Filter & Sort Engine
+        function applyCustomerFilterAndSort() {
+            const searchInput = document.getElementById('customerSearchInput');
+            const q = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+            filteredCustomers = allCustomers.filter(c => {
+                if (!q) return true;
+                const mid = (c.member_id || '').toLowerCase();
+                const nm = (c.name || '').toLowerCase();
+                const mob = (c.mobile || '').toLowerCase();
+                const eml = (c.email || '').toLowerCase();
+                return mid.includes(q) || nm.includes(q) || mob.includes(q) || eml.includes(q);
+            });
+
+            filteredCustomers.sort((a, b) => {
+                let valA, valB;
+                if (customerSortCol === 'seq') {
+                    valA = a.id || 0;
+                    valB = b.id || 0;
+                } else {
+                    valA = (a[customerSortCol] || '').toString().toLowerCase();
+                    valB = (b[customerSortCol] || '').toString().toLowerCase();
+                }
+
+                if (valA < valB) return customerSortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return customerSortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            customerCurrentPage = 1;
+            renderCustomersTable();
+        }
 
         // Copy Member ID Helper
         function copyMemberId(id) {
@@ -261,21 +370,28 @@
         }
 
         // Render Customers to DOM
-        function renderCustomersTable(list, maxLimit = null) {
+        function renderCustomersTable() {
             const tbody = document.getElementById('customersTableBody');
             const footerCount = document.getElementById('footerCountDisplay');
+            const footerTotal = document.getElementById('footerTotalDisplay');
             const matchingBadge = document.getElementById('matchingCountBadge');
-            const total = list.length;
-            const items = (maxLimit && total > maxLimit) ? list.slice(0, maxLimit) : list;
+            const total = filteredCustomers.length;
 
-            if (footerCount) footerCount.innerText = items.length;
-            if (matchingBadge) {
-                matchingBadge.innerText = items.length === total 
-                    ? `Showing all ${total} members`
-                    : `Showing first ${items.length} of ${total} members`;
-            }
+            const effectiveSize = customerPageSize === 'ALL' ? (total || 1) : parseInt(customerPageSize, 10);
+            const totalPages = Math.ceil(total / effectiveSize) || 1;
 
-            if (!items.length) {
+            if (customerCurrentPage > totalPages) customerCurrentPage = totalPages;
+            if (customerCurrentPage < 1) customerCurrentPage = 1;
+
+            const startIndex = (customerCurrentPage - 1) * effectiveSize;
+            const endIndex = Math.min(startIndex + effectiveSize, total);
+            const pageItems = filteredCustomers.slice(startIndex, endIndex);
+
+            if (footerCount) footerCount.innerText = total === 0 ? 0 : `${startIndex + 1} to ${endIndex}`;
+            if (footerTotal) footerTotal.innerText = total;
+            if (matchingBadge) matchingBadge.innerText = `Showing ${pageItems.length} of ${total} members`;
+
+            if (!pageItems.length) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="6" class="py-12 text-center text-slate-400 font-normal">
@@ -284,15 +400,17 @@
                         </td>
                     </tr>
                 `;
+                renderCustomerPaginationControls(0);
                 return;
             }
 
-            tbody.innerHTML = items.map((c, idx) => {
+            tbody.innerHTML = pageItems.map((c, idx) => {
+                const rowNum = startIndex + idx + 1;
                 const mob = c.mobile ? c.mobile : '<span class="text-slate-300 font-normal">N/A</span>';
                 const eml = c.email ? c.email : '<span class="text-slate-300 font-normal">N/A</span>';
                 return `
                     <tr class="hover:bg-slate-50 transition-colors customer-row">
-                        <td class="py-3 px-4 text-center text-slate-400 font-mono text-[11px]">${idx + 1}</td>
+                        <td class="py-3 px-4 text-center text-slate-400 font-mono text-[11px]">${rowNum}</td>
                         <td class="py-3 px-4 font-mono">
                             <span class="font-black text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-lg">
                                 ${c.member_id || ''}
@@ -313,52 +431,62 @@
                     </tr>
                 `;
             }).join('');
+
+            renderCustomerPaginationControls(totalPages);
         }
 
-        // Toggle Show All / Show 25
-        function toggleShowAllCustomers() {
-            isShowingAll = !isShowingAll;
-            const btnText = document.getElementById('toggleShowAllText');
-            const btnIcon = document.getElementById('toggleShowAllIcon');
-            const footerToggle = document.getElementById('footerToggleText');
+        // Render Pagination Buttons
+        function renderCustomerPaginationControls(totalPages) {
+            const container = document.getElementById('customerPaginationControls');
+            if (!container) return;
 
-            if (isShowingAll) {
-                renderCustomersTable(allCustomers, null);
-                if (btnText) btnText.innerText = 'Show First 25';
-                if (btnIcon) btnIcon.className = 'fa-solid fa-compress text-blue-600';
-                if (footerToggle) footerToggle.innerText = '← Show first 25 members';
-            } else {
-                renderCustomersTable(allCustomers, INITIAL_LIMIT);
-                if (btnText) btnText.innerText = `Show All (${allCustomers.length})`;
-                if (btnIcon) btnIcon.className = 'fa-solid fa-expand text-blue-600';
-                if (footerToggle) footerToggle.innerText = `Show all ${allCustomers.length} members →`;
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
             }
+
+            let html = `
+                <button type="button" onclick="goToCustomerPage(1)" ${customerCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-left text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToCustomerPage(${customerCurrentPage - 1})" ${customerCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                </button>
+            `;
+
+            let startP = Math.max(1, customerCurrentPage - 2);
+            let endP = Math.min(totalPages, customerCurrentPage + 2);
+
+            for (let p = startP; p <= endP; p++) {
+                if (p === customerCurrentPage) {
+                    html += `<button type="button" class="px-3 py-1 rounded-lg bg-blue-600 text-white text-xs font-black shadow-xs">${p}</button>`;
+                } else {
+                    html += `<button type="button" onclick="goToCustomerPage(${p})" class="px-3 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">${p}</button>`;
+                }
+            }
+
+            html += `
+                <button type="button" onclick="goToCustomerPage(${customerCurrentPage + 1})" ${customerCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToCustomerPage(${totalPages})" ${customerCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-right text-[10px]"></i>
+                </button>
+            `;
+
+            container.innerHTML = html;
         }
 
-        // Fast Live Search across ALL customers
+        function goToCustomerPage(p) {
+            customerCurrentPage = p;
+            renderCustomersTable();
+            window.scrollTo({ top: 200, behavior: 'smooth' });
+        }
+
+        // Live Search event
         const searchInput = document.getElementById('customerSearchInput');
         if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                const q = this.value.toLowerCase().trim();
-                if (!q) {
-                    if (isShowingAll) {
-                        renderCustomersTable(allCustomers, null);
-                    } else {
-                        renderCustomersTable(allCustomers, INITIAL_LIMIT);
-                    }
-                    return;
-                }
-
-                const filtered = allCustomers.filter(c => {
-                    const mid = (c.member_id || '').toLowerCase();
-                    const nm = (c.name || '').toLowerCase();
-                    const mob = (c.mobile || '').toLowerCase();
-                    const eml = (c.email || '').toLowerCase();
-                    return mid.includes(q) || nm.includes(q) || mob.includes(q) || eml.includes(q);
-                });
-
-                renderCustomersTable(filtered, null);
-            });
+            searchInput.addEventListener('input', applyCustomerFilterAndSort);
         }
 
         // Trigger Manual Sync

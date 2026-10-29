@@ -120,7 +120,7 @@
             <!-- 📋 Table Container Card -->
             <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden w-full">
                 
-                <!-- 🛠️ Bulk Actions Bar -->
+                <!-- 🛠️ Bulk Actions & Page Size Bar -->
                 <div class="px-4 sm:px-6 py-3 bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 flex justify-between items-center flex-wrap gap-3">
                     <div class="flex items-center gap-2 flex-wrap">
                         <button type="button" id="btnSelectAllFilled" class="text-xs font-black text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5">
@@ -133,7 +133,17 @@
                         </button>
                     </div>
 
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <!-- 🔢 Page Size Selector (10, 25, 50, 100, ALL) -->
+                        <div class="flex items-center gap-1 bg-white dark:bg-slate-800 p-1 rounded-xl text-xs font-extrabold border border-slate-200 dark:border-slate-700">
+                            <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 px-1">Show:</span>
+                            <button type="button" onclick="setConfirmPageSize(10)" id="confirmPageSize-10" class="confirm-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer">10</button>
+                            <button type="button" onclick="setConfirmPageSize(25)" id="confirmPageSize-25" class="confirm-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-emerald-600 text-white shadow-xs cursor-pointer">25</button>
+                            <button type="button" onclick="setConfirmPageSize(50)" id="confirmPageSize-50" class="confirm-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer">50</button>
+                            <button type="button" onclick="setConfirmPageSize(100)" id="confirmPageSize-100" class="confirm-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer">100</button>
+                            <button type="button" onclick="setConfirmPageSize('ALL')" id="confirmPageSize-ALL" class="confirm-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer">ALL</button>
+                        </div>
+
                         <!-- 🟢 Confirm Selected (Bulk OK) Button -->
                         <button id="btnBulkApprove" type="button" class="hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs px-4 py-1.5 rounded-xl transition-all shadow-md cursor-pointer uppercase tracking-wider items-center gap-2">
                             <i class="fa-solid fa-circle-check"></i>
@@ -145,27 +155,51 @@
                 <div class="overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
                         <thead>
-                            <tr class="bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
+                            <tr class="bg-slate-50 dark:bg-[#0b0f19] border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider select-none">
                                 <th class="py-3 px-3 w-10 text-center select-none">
                                     <input type="checkbox" id="selectAllPendingCheckbox" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer" title="Select All">
                                 </th>
-                                <th class="py-3 px-3.5">
-                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-barcode text-emerald-500"></i> Tracking & Recipient</div>
+                                <th class="py-3 px-3.5 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortConfirmBy('tracking')" title="Sort by Tracking / Name">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-barcode text-emerald-500"></i>
+                                        <span>Tracking & Recipient</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300 ml-0.5" id="confirmSortIcon-tracking"></i>
+                                    </div>
                                 </th>
-                                <th class="py-3 px-3">
-                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-emerald-500"></i> Pincode & City</div>
+                                <th class="py-3 px-3 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortConfirmBy('pincode')" title="Sort by Pincode">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-location-dot text-emerald-500"></i>
+                                        <span>Pincode & City</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300 ml-0.5" id="confirmSortIcon-pincode"></i>
+                                    </div>
                                 </th>
-                                <th class="py-3 px-2">
-                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-id-card text-teal-500"></i> Member ID</div>
+                                <th class="py-3 px-2 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortConfirmBy('member_id')" title="Sort by Member ID">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-id-card text-teal-500"></i>
+                                        <span>Member ID</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300 ml-0.5" id="confirmSortIcon-member_id"></i>
+                                    </div>
                                 </th>
-                                <th class="py-3 px-2">
-                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-calendar-day text-cyan-500"></i> Order Date</div>
+                                <th class="py-3 px-2 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortConfirmBy('order_date')" title="Sort by Order Date">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-calendar-day text-cyan-500"></i>
+                                        <span>Order Date</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300 ml-0.5" id="confirmSortIcon-order_date"></i>
+                                    </div>
                                 </th>
-                                <th class="py-3 px-2">
-                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-gem text-amber-500"></i> PV</div>
+                                <th class="py-3 px-2 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortConfirmBy('pv')" title="Sort by PV">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-gem text-amber-500"></i>
+                                        <span>PV</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300 ml-0.5" id="confirmSortIcon-pv"></i>
+                                    </div>
                                 </th>
-                                <th class="py-3 px-2">
-                                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-indian-rupee-sign text-emerald-500"></i> Amount</div>
+                                <th class="py-3 px-2 cursor-pointer hover:text-emerald-600 transition-colors" onclick="sortConfirmBy('amount')" title="Sort by Amount">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-indian-rupee-sign text-emerald-500"></i>
+                                        <span>Amount</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300 ml-0.5" id="confirmSortIcon-amount"></i>
+                                    </div>
                                 </th>
                                 <th class="py-3 px-3 text-center">
                                     <div class="flex items-center justify-center gap-1.5"><i class="fa-solid fa-sliders text-slate-400"></i> Action</div>
@@ -258,6 +292,15 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Footer Summary & Pagination Controls -->
+                <div class="px-5 py-3.5 bg-slate-50 dark:bg-[#0b0f19] border-t border-slate-200/80 dark:border-slate-800 flex justify-between items-center flex-wrap gap-3 text-xs">
+                    <span class="text-slate-500 font-medium">
+                        Showing <strong id="confirmFooterCount" class="text-slate-800 dark:text-slate-200">0</strong> of <strong class="text-slate-900 dark:text-slate-100" id="confirmFooterTotal"><%= entries.length %></strong> pending items
+                    </span>
+
+                    <div id="confirmPaginationControls" class="flex items-center gap-1.5 flex-wrap"></div>
+                </div>
             </div>
         </main>
 
@@ -268,6 +311,88 @@
     </div>
 
     <script>
+        let confirmPageSize = 25;
+        let confirmCurrentPage = 1;
+        let confirmSortCol = '';
+        let confirmSortDir = 'asc';
+
+        function setConfirmPageSize(size) {
+            confirmPageSize = size;
+            confirmCurrentPage = 1;
+
+            ['10', '25', '50', '100', 'ALL'].forEach(s => {
+                const btn = document.getElementById(`confirmPageSize-${s}`);
+                if (btn) {
+                    if (s == size) {
+                        btn.className = 'confirm-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all bg-emerald-600 text-white shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'confirm-size-btn px-2.5 py-1 text-[11px] font-black rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-emerald-600 cursor-pointer';
+                    }
+                }
+            });
+
+            applyConfirmFilterAndSort();
+        }
+
+        function sortConfirmBy(col) {
+            if (confirmSortCol === col) {
+                confirmSortDir = confirmSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                confirmSortCol = col;
+                confirmSortDir = 'asc';
+            }
+
+            ['tracking', 'pincode', 'member_id', 'order_date', 'pv', 'amount'].forEach(c => {
+                const icon = document.getElementById(`confirmSortIcon-${c}`);
+                if (icon) {
+                    if (c === col) {
+                        icon.className = confirmSortDir === 'asc' 
+                            ? 'fa-solid fa-sort-up text-[10px] text-emerald-600 ml-0.5' 
+                            : 'fa-solid fa-sort-down text-[10px] text-emerald-600 ml-0.5';
+                    } else {
+                        icon.className = 'fa-solid fa-sort text-[10px] text-slate-300 ml-0.5';
+                    }
+                }
+            });
+
+            // Sort DOM rows inside #confirmTableBody
+            const tbody = document.getElementById('confirmTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr.pending-row-item'));
+            
+            rows.sort((rowA, rowB) => {
+                const idxA = rowA.id.replace('row-', '');
+                const idxB = rowB.id.replace('row-', '');
+                let valA = '', valB = '';
+
+                if (col === 'tracking') {
+                    valA = (rowA.querySelector('.tracking-number-text')?.innerText || '').toLowerCase();
+                    valB = (rowB.querySelector('.tracking-number-text')?.innerText || '').toLowerCase();
+                } else if (col === 'pincode') {
+                    valA = (rowA.querySelector('td:nth-child(3)')?.innerText || '').toLowerCase();
+                    valB = (rowB.querySelector('td:nth-child(3)')?.innerText || '').toLowerCase();
+                } else if (col === 'member_id') {
+                    valA = (document.getElementById(`member-${idxA}`)?.value || '').toLowerCase();
+                    valB = (document.getElementById(`member-${idxB}`)?.value || '').toLowerCase();
+                } else if (col === 'order_date') {
+                    valA = new Date(document.getElementById(`date-${idxA}`)?.value || 0).getTime() || 0;
+                    valB = new Date(document.getElementById(`date-${idxB}`)?.value || 0).getTime() || 0;
+                } else if (col === 'pv') {
+                    valA = parseFloat(document.getElementById(`pv-${idxA}`)?.value || 0);
+                    valB = parseFloat(document.getElementById(`pv-${idxB}`)?.value || 0);
+                } else if (col === 'amount') {
+                    valA = parseFloat(document.getElementById(`amount-${idxA}`)?.value || 0);
+                    valB = parseFloat(document.getElementById(`amount-${idxB}`)?.value || 0);
+                }
+
+                if (valA < valB) return confirmSortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return confirmSortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach(r => tbody.appendChild(r));
+            applyConfirmFilterAndSort();
+        }
+
         function formatMemberIdInput(el) {
             let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
             if (!raw) {
@@ -293,7 +418,7 @@
 
         window.onload = () => {
             document.querySelectorAll('.date-picker-field').forEach(picker => { convertAndSetInputDate(picker); });
-            updateBulkButtons();
+            applyConfirmFilterAndSort();
         };
 
         function convertAndSetInputDate(picker) {
@@ -329,22 +454,101 @@
             return str.toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
         }
 
-        // 🔍 Instant Client-Side Live Filter Search
+        // 🔍 Instant Client-Side Live Filter Search & Pagination
         function filterConfirmTable() {
-            const filterValue = document.getElementById('tableFilterInput').value.toLowerCase().trim();
-            const rows = document.querySelectorAll('#confirmTableBody tr:not(#empty-row)');
+            confirmCurrentPage = 1;
+            applyConfirmFilterAndSort();
+        }
+
+        function applyConfirmFilterAndSort() {
+            const filterValue = (document.getElementById('tableFilterInput')?.value || '').toLowerCase().trim();
+            const allRows = Array.from(document.querySelectorAll('#confirmTableBody tr.pending-row-item'));
             
-            rows.forEach(row => {
+            const matchingRows = allRows.filter(row => {
                 const text = row.innerText.toLowerCase();
-                if (!filterValue || text.includes(filterValue)) {
-                    row.style.display = '';
-                } else {
+                const idx = row.id.replace('row-', '');
+                const memberVal = (document.getElementById(`member-${idx}`)?.value || '').toLowerCase();
+                const match = !filterValue || text.includes(filterValue) || memberVal.includes(filterValue);
+                if (!match) {
                     row.style.display = 'none';
                     const cb = row.querySelector('.pending-row-checkbox');
                     if (cb) cb.checked = false;
                 }
+                return match;
             });
+
+            const total = matchingRows.length;
+            const effectiveSize = confirmPageSize === 'ALL' ? (total || 1) : parseInt(confirmPageSize, 10);
+            const totalPages = Math.ceil(total / effectiveSize) || 1;
+
+            if (confirmCurrentPage > totalPages) confirmCurrentPage = totalPages;
+            if (confirmCurrentPage < 1) confirmCurrentPage = 1;
+
+            const startIndex = (confirmCurrentPage - 1) * effectiveSize;
+            const endIndex = Math.min(startIndex + effectiveSize, total);
+
+            matchingRows.forEach((row, idx) => {
+                if (idx >= startIndex && idx < endIndex) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            const footerCount = document.getElementById('confirmFooterCount');
+            const footerTotal = document.getElementById('confirmFooterTotal');
+            if (footerCount) footerCount.innerText = total === 0 ? 0 : `${startIndex + 1} to ${endIndex}`;
+            if (footerTotal) footerTotal.innerText = total;
+
+            renderConfirmPaginationControls(totalPages);
             updateBulkButtons();
+        }
+
+        function renderConfirmPaginationControls(totalPages) {
+            const container = document.getElementById('confirmPaginationControls');
+            if (!container) return;
+
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button type="button" onclick="goToConfirmPage(1)" ${confirmCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-left text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToConfirmPage(${confirmCurrentPage - 1})" ${confirmCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                </button>
+            `;
+
+            let startP = Math.max(1, confirmCurrentPage - 2);
+            let endP = Math.min(totalPages, confirmCurrentPage + 2);
+
+            for (let p = startP; p <= endP; p++) {
+                if (p === confirmCurrentPage) {
+                    html += `<button type="button" class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-xs font-black shadow-xs">${p}</button>`;
+                } else {
+                    html += `<button type="button" onclick="goToConfirmPage(${p})" class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 cursor-pointer">${p}</button>`;
+                }
+            }
+
+            html += `
+                <button type="button" onclick="goToConfirmPage(${confirmCurrentPage + 1})" ${confirmCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+                <button type="button" onclick="goToConfirmPage(${totalPages})" ${confirmCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <i class="fa-solid fa-angles-right text-[10px]"></i>
+                </button>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function goToConfirmPage(p) {
+            confirmCurrentPage = p;
+            applyConfirmFilterAndSort();
+            window.scrollTo({ top: 250, behavior: 'smooth' });
         }
 
         // 🔘 Checkbox Selection Management

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+const { Readable } = require('stream');
 const ExcelJS = require('exceljs');
 const db = require('../db');
 const { checkAdmin } = require('../middleware/auth');
@@ -228,14 +229,14 @@ async function getOrdersMasterWithTracking() {
         LEFT JOIN LATERAL (
             SELECT tracking 
             FROM consignment_parcels 
-            WHERE (order_no = om.order_no OR (member_id = om.member_id AND om.member_id IS NOT NULL AND om.member_id != ''))
+            WHERE order_no = om.order_no
               AND tracking IS NOT NULL AND TRIM(tracking) != ''
             ORDER BY id DESC LIMIT 1
         ) cp ON true
         LEFT JOIN LATERAL (
             SELECT tracking 
             FROM main_database 
-            WHERE (order_no = om.order_no OR (member_id = om.member_id AND om.member_id IS NOT NULL AND om.member_id != ''))
+            WHERE order_no = om.order_no
               AND tracking IS NOT NULL AND TRIM(tracking) != ''
             ORDER BY sr_no DESC LIMIT 1
         ) mb ON true
@@ -2981,14 +2982,14 @@ router.get('/orders-list', async (req, res) => {
             LEFT JOIN LATERAL (
                 SELECT tracking 
                 FROM consignment_parcels 
-                WHERE (order_no = om.order_no OR (member_id = om.member_id AND om.member_id IS NOT NULL AND om.member_id != ''))
+                WHERE order_no = om.order_no
                   AND tracking IS NOT NULL AND TRIM(tracking) != ''
                 ORDER BY id DESC LIMIT 1
             ) cp ON true
             LEFT JOIN LATERAL (
                 SELECT tracking 
                 FROM main_database 
-                WHERE (order_no = om.order_no OR (member_id = om.member_id AND om.member_id IS NOT NULL AND om.member_id != ''))
+                WHERE order_no = om.order_no
                   AND tracking IS NOT NULL AND TRIM(tracking) != ''
                 ORDER BY sr_no DESC LIMIT 1
             ) mb ON true
@@ -3114,6 +3115,355 @@ router.post('/indiapost-pause-scheduler', (req, res) => {
 router.post('/indiapost-resume-scheduler', (req, res) => {
     const result = indiaPostBot.resumeScheduler();
     res.json(result);
+});
+
+// =========================================================================
+// 📋 MANUAL BULK TRACKING: COPY TRACKING NUMBERS & EXCEL UPLOAD
+// =========================================================================
+
+// Helper function to auto-detect columns from Excel/CSV headers
+// Helper function to format dates from India Post (e.g. "27/10/2026 17:40:20" -> "27 Oct 2026")
+function formatIndiaPostDate(raw) {
+    if (!raw || raw === '—' || raw === '-' || raw === 'null' || raw === '01 Jan 1') return null;
+    if (raw instanceof Date) {
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const d = String(raw.getDate()).padStart(2, '0');
+        const m = months[raw.getMonth()];
+        const y = raw.getFullYear();
+        return `${d} ${m} ${y}`;
+    }
+    const str = String(raw).trim();
+    // Handles "27/10/2026 17:40:20" or "27/10/2026"
+    const slashMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (slashMatch) {
+        const [_, d, m, y] = slashMatch;
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthName = months[parseInt(m, 10) - 1] || m;
+        return `${d.padStart(2, '0')} ${monthName} ${y}`;
+    }
+    // Handles "27-10-2026 17:40:20" or "27-10-2026"
+    const dashMatch = str.match(/^(\d{1,2})-(\d{1,2})-(\d{4})/);
+    if (dashMatch) {
+        const [_, d, m, y] = dashMatch;
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthName = months[parseInt(m, 10) - 1] || m;
+        return `${d.padStart(2, '0')} ${monthName} ${y}`;
+    }
+    // Handles already formatted "27 Oct 2026"
+    if (/^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/.test(str)) {
+        return str;
+    }
+    return str.split(' ')[0];
+}
+
+// Helper function to auto-detect columns from India Post Excel / CSV headers
+function findTrackingColumnIndices(headerRow) {
+    const mapping = {
+        trackingCol: -1,
+        statusCol: -1,
+        eventCol: -1,
+        eventDateCol: -1,
+        deliveryDateCol: -1,
+        destinationCol: -1,
+        bookedDateCol: -1,
+        locationCol: -1
+    };
+
+    headerRow.forEach((val, idx) => {
+        if (!val) return;
+        const colStr = String(val).toLowerCase().trim();
+
+        // 1. Article / Tracking Number (e.g. "Article Number")
+        if (mapping.trackingCol === -1 && (
+            colStr.includes('article') || colStr.includes('tracking') || colStr.includes('consignment') ||
+            colStr.includes('barcode') || colStr.includes('awb') || colStr === 'number' || colStr === 'no' || colStr === 'art_no'
+        )) {
+            mapping.trackingCol = idx;
+        }
+        // 2. Status (e.g. "Status")
+        else if (mapping.statusCol === -1 && colStr === 'status') {
+            mapping.statusCol = idx;
+        }
+        // 3. Latest Event (e.g. "Latest Event")
+        else if (mapping.eventCol === -1 && (colStr.includes('latest event') || colStr.includes('event description') || colStr === 'event')) {
+            mapping.eventCol = idx;
+        }
+        // 4. Latest Event On / Delivery Date (e.g. "Latest Event On")
+        else if (mapping.eventDateCol === -1 && (
+            colStr.includes('latest event on') || colStr.includes('event on') || colStr.includes('event date') ||
+            colStr.includes('delivery date') || colStr.includes('delivered on') || colStr.includes('del date') ||
+            colStr.includes('delivery dt') || (colStr.includes('date') && !colStr.includes('book'))
+        )) {
+            mapping.eventDateCol = idx;
+            mapping.deliveryDateCol = idx;
+        }
+        // 5. Booking Date / Booked On (e.g. "Booked On")
+        else if (mapping.bookedDateCol === -1 && colStr.includes('book')) {
+            mapping.bookedDateCol = idx;
+        }
+        // 6. Destination (e.g. "Destination")
+        else if (mapping.destinationCol === -1 && (
+            colStr.includes('destination') || colStr.includes('delivery office') || colStr === 'dest'
+        )) {
+            mapping.destinationCol = idx;
+        }
+        // 7. Latest Location (e.g. "Latest Location")
+        else if (mapping.locationCol === -1 && (
+            colStr.includes('latest location') || (colStr.includes('location') && !colStr.includes('booking'))
+        )) {
+            mapping.locationCol = idx;
+        }
+    });
+
+    // Fallbacks
+    if (mapping.trackingCol === -1) mapping.trackingCol = 1;
+    if (mapping.statusCol === -1 && mapping.eventCol !== -1) mapping.statusCol = mapping.eventCol;
+    if (mapping.deliveryDateCol === -1 && mapping.eventDateCol !== -1) mapping.deliveryDateCol = mapping.eventDateCol;
+
+    return mapping;
+}
+
+// 📋 6. Get All & Active Daily Tracking Numbers for 1-Click Copy
+router.get('/tracking-numbers-list', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT 
+                tracking, 
+                delivery_status,
+                name,
+                member_id,
+                order_date
+            FROM main_database
+            WHERE tracking IS NOT NULL 
+              AND tracking != '' 
+              AND tracking != 'PENDING'
+              AND tracking != 'SHOP PICKUP'
+            ORDER BY sr_no DESC
+        `);
+
+        const all = [];
+        const active = []; // in-transit, item dispatched, pending
+        const delivered = [];
+
+        result.rows.forEach(r => {
+            const trk = (r.tracking || '').trim().toUpperCase();
+            if (!trk) return;
+            all.push(trk);
+
+            const st = (r.delivery_status || '').toLowerCase();
+            if (st.includes('delivered') || st.includes('pickup')) {
+                delivered.push(trk);
+            } else {
+                active.push(trk);
+            }
+        });
+
+        // Deduplicate maintaining order
+        const uniqueAll = [...new Set(all)];
+        const uniqueActive = [...new Set(active)];
+        const uniqueDelivered = [...new Set(delivered)];
+
+        res.json({
+            success: true,
+            counts: {
+                total: uniqueAll.length,
+                active: uniqueActive.length,
+                delivered: uniqueDelivered.length
+            },
+            active: uniqueActive,
+            all: uniqueAll,
+            delivered: uniqueDelivered
+        });
+    } catch (err) {
+        console.error('Fetch tracking numbers list error:', err);
+        res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
+// 📤 7. Upload Tracking Excel / CSV (Bulk Update Tracking Status & Delivery Dates)
+router.post('/upload-tracking-excel', memoryUpload.single('trackingFile'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, msg: 'No Excel/CSV file was selected. Please choose a file.' });
+        }
+
+        const buffer = req.file.buffer;
+        const originalName = req.file.originalname || '';
+        const ext = path.extname(originalName).toLowerCase();
+
+        const workbook = new ExcelJS.Workbook();
+
+        if (ext === '.csv') {
+            const stream = Readable.from(buffer);
+            await workbook.csv.read(stream);
+        } else {
+            await workbook.xlsx.load(buffer);
+        }
+
+        const worksheet = workbook.worksheets[0];
+        if (!worksheet || worksheet.rowCount < 1) {
+            return res.status(400).json({ success: false, msg: 'Uploaded file is empty or cannot be read.' });
+        }
+
+        // Search for header row among first 10 rows
+        let headerRowNumber = 1;
+        let columnMapping = null;
+
+        for (let r = 1; r <= Math.min(10, worksheet.rowCount); r++) {
+            const rowValues = worksheet.getRow(r).values;
+            if (Array.isArray(rowValues)) {
+                const rowStr = rowValues.join(' ').toLowerCase();
+                if (rowStr.includes('article') || rowStr.includes('tracking') || rowStr.includes('consignment') || rowStr.includes('awb')) {
+                    headerRowNumber = r;
+                    columnMapping = findTrackingColumnIndices(rowValues);
+                    break;
+                }
+            }
+        }
+
+        if (!columnMapping) {
+            const rowValues = worksheet.getRow(1).values;
+            columnMapping = findTrackingColumnIndices(Array.isArray(rowValues) ? rowValues : []);
+        }
+
+        let totalProcessed = 0;
+        let updatedCount = 0;
+        let notFoundCount = 0;
+        let deliveredCount = 0;
+        let inTransitCount = 0;
+        let dispatchedCount = 0;
+        const updatedSamples = [];
+
+        for (let r = headerRowNumber + 1; r <= worksheet.rowCount; r++) {
+            const row = worksheet.getRow(r);
+            if (!row || !row.values) continue;
+
+            const values = row.values;
+            const rawTracking = values[columnMapping.trackingCol];
+            if (!rawTracking) continue;
+
+            let trackingNo = String(rawTracking).trim().toUpperCase();
+            if (typeof rawTracking === 'object' && rawTracking !== null) {
+                trackingNo = String(rawTracking.text || rawTracking.result || rawTracking).trim().toUpperCase();
+            }
+
+            if (!trackingNo || trackingNo === 'PENDING' || trackingNo.length < 5) continue;
+
+            totalProcessed++;
+
+            // Extract raw fields
+            const rawStatus = columnMapping.statusCol > 0 ? values[columnMapping.statusCol] : null;
+            const rawEvent = columnMapping.eventCol > 0 ? values[columnMapping.eventCol] : null;
+            const rawEventDate = columnMapping.eventDateCol > 0 ? values[columnMapping.eventDateCol] : null;
+            const rawBooked = columnMapping.bookedDateCol > 0 ? values[columnMapping.bookedDateCol] : null;
+            const rawDest = columnMapping.destinationCol > 0 ? values[columnMapping.destinationCol] : null;
+            const rawLoc = columnMapping.locationCol > 0 ? values[columnMapping.locationCol] : null;
+
+            const statusStr = rawStatus ? String(rawStatus.text || rawStatus.result || rawStatus).trim() : '';
+            const eventStr = rawEvent ? String(rawEvent.text || rawEvent.result || rawEvent).trim() : '';
+            const bookedStr = rawBooked ? String(rawBooked.text || rawBooked.result || rawBooked).trim() : '';
+
+            const statusLower = statusStr.toLowerCase();
+            const eventLower = eventStr.toLowerCase();
+
+            // 1. Resolve Standard Delivery Status
+            let finalStatus = 'In Transit';
+            if (eventLower.includes('returned') || statusLower.includes('returned')) {
+                finalStatus = 'Returned';
+            } else if (statusLower.includes('delivered') || eventLower.includes('delivered')) {
+                finalStatus = 'Delivered';
+                deliveredCount++;
+            } else if (eventLower.includes('out for delivery') || statusLower.includes('out for delivery')) {
+                finalStatus = 'Out for Delivery';
+                inTransitCount++;
+            } else if (eventLower === 'dispatched' || statusLower === 'dispatched') {
+                finalStatus = 'Item Dispatched';
+                dispatchedCount++;
+            } else if (eventLower.includes('hold') || statusLower.includes('hold')) {
+                finalStatus = 'On Hold';
+                inTransitCount++;
+            } else if (bookedStr === '01 Jan 1' && !eventStr) {
+                finalStatus = 'Pending';
+            } else if (statusStr) {
+                finalStatus = statusStr;
+                inTransitCount++;
+            } else {
+                finalStatus = 'In Transit';
+                inTransitCount++;
+            }
+
+            // 2. Delivery Date (only when Delivered)
+            let deliveryDate = null;
+            if (finalStatus === 'Delivered') {
+                deliveryDate = formatIndiaPostDate(rawEventDate);
+            }
+
+            // 3. Booking Date
+            let bookedDate = formatIndiaPostDate(rawBooked);
+
+            // 4. Destination
+            let destination = null;
+            const destCandidate = rawDest ? String(rawDest.text || rawDest.result || rawDest).trim() : '';
+            const locCandidate = rawLoc ? String(rawLoc.text || rawLoc.result || rawLoc).trim() : '';
+
+            if (destCandidate && destCandidate !== '—' && destCandidate !== '-') {
+                destination = destCandidate;
+            } else if (locCandidate && locCandidate !== '—' && !locCandidate.startsWith('₹')) {
+                destination = locCandidate;
+            }
+
+            // Update main_database
+            const updateRes = await db.query(`
+                UPDATE main_database
+                SET 
+                    delivery_status = COALESCE($1, delivery_status),
+                    delivery_date = COALESCE($2, delivery_date),
+                    destination = COALESCE($3, destination),
+                    booked_date = COALESCE($4, booked_date),
+                    last_sync_time = NOW()
+                WHERE UPPER(TRIM(tracking)) = $5
+                RETURNING sr_no, tracking, delivery_status, delivery_date, destination
+            `, [finalStatus, deliveryDate, destination, bookedDate, trackingNo]);
+
+            if (updateRes.rowCount > 0) {
+                updatedCount += updateRes.rowCount;
+                if (updatedSamples.length < 6) {
+                    updatedSamples.push({
+                        tracking: trackingNo,
+                        status: updateRes.rows[0].delivery_status,
+                        deliveryDate: updateRes.rows[0].delivery_date || '-',
+                        destination: updateRes.rows[0].destination || '-'
+                    });
+                }
+
+                // Also sync order_trackings
+                await db.query(`
+                    UPDATE order_trackings
+                    SET 
+                        delivery_status = COALESCE($1, delivery_status),
+                        destination = COALESCE($2, destination),
+                        updated_at = NOW()
+                    WHERE UPPER(TRIM(tracking_no)) = $3
+                `, [finalStatus, destination, trackingNo]).catch(() => {});
+            } else {
+                notFoundCount++;
+            }
+        }
+
+        return res.json({
+            success: true,
+            msg: `India Post Tracking file imported successfully: ${updatedCount} parcels updated (${deliveredCount} Delivered, ${dispatchedCount} Dispatched, ${inTransitCount} In-Transit).`,
+            totalProcessed,
+            updatedCount,
+            notFoundCount,
+            deliveredCount,
+            samples: updatedSamples
+        });
+
+    } catch (err) {
+        console.error('Tracking Excel Upload Error:', err);
+        return res.status(500).json({ success: false, msg: err.message || 'Error processing Excel tracking file' });
+    }
 });
 
 module.exports = router;
