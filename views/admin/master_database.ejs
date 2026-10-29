@@ -109,6 +109,12 @@
                                         <i class="fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortNameIcon"></i>
                                     </div>
                                 </th>
+                                <th class="p-4 cursor-pointer hover:text-emerald-600 transition-colors select-none group" id="colPincode" title="Click to sort by Pincode">
+                                    <div class="flex items-center gap-1">
+                                        <span>Pincode</span>
+                                        <i class="fa-solid fa-sort ml-1 text-slate-300 group-hover:text-emerald-500 transition-colors text-[10px]" id="sortPincodeIcon"></i>
+                                    </div>
+                                </th>
                                 <th class="p-4 cursor-pointer hover:text-emerald-600 transition-colors select-none group" id="colOrderDate" title="Click to sort by Order Date">
                                     <div class="flex items-center gap-1">
                                         <span>Order Date</span>
@@ -124,7 +130,7 @@
                         <tbody class="divide-y divide-slate-50 font-medium text-slate-700" id="masterTableBody">
                             <% if(entries.length === 0) { %>
                                 <tr id="no-records-row">
-                                    <td colspan="10" class="py-12 text-center text-slate-400 font-normal">
+                                    <td colspan="11" class="py-12 text-center text-slate-400 font-normal">
                                         <i class="fa-solid fa-database text-2xl block mb-2 text-slate-200"></i>
                                         Database is empty! No records found in main_database.
                                     </td>
@@ -143,6 +149,15 @@
                                     </td>
                                     <td class="p-4 font-bold font-mono text-emerald-700 member-id-cell"><%= item.memberId %></td>
                                     <td class="p-4 uppercase text-slate-800 font-semibold name-cell"><%= item.name %></td>
+                                    <td class="p-4 font-mono font-bold text-slate-700 pincode-cell">
+                                        <% if (item.pincode && item.pincode !== '-' && item.pincode !== '') { %>
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[11px] font-mono font-bold border border-emerald-200">
+                                                <i class="fa-solid fa-location-dot text-emerald-600 text-[10px]"></i> <%= item.pincode %>
+                                            </span>
+                                        <% } else { %>
+                                            <span class="text-slate-400 font-normal">-</span>
+                                        <% } %>
+                                    </td>
                                     <td class="p-4 text-slate-500 date-cell" data-raw-date="<%= item.orderDate %>"><%= item.orderDate %></td>
                                     <td class="p-4 font-mono text-slate-600 pv-cell"><%= item.pv %> PV</td>
                                     <td class="p-4 font-bold font-mono text-slate-900 amount-cell">₹<%= item.amount %></td>
@@ -163,6 +178,7 @@
                                                 data-orderno="<%= item.orderNo %>"
                                                 data-memberid="<%= item.memberId %>"
                                                 data-name="<%= item.name %>"
+                                                data-pincode="<%= item.pincode && item.pincode !== '-' ? item.pincode : '' %>"
                                                 data-orderdate="<%= item.orderDate %>"
                                                 data-pv="<%= item.pv %>"
                                                 data-amount="<%= item.amount %>"
@@ -240,9 +256,15 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Full Name</label>
-                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold uppercase text-slate-900 focus:outline-none focus:border-emerald-500">
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-2">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Full Name</label>
+                        <input type="text" id="editName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold uppercase text-slate-900 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Receiver Pincode</label>
+                        <input type="text" id="editPincode" maxlength="6" placeholder="e.g. 380001" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-3 gap-3">
@@ -311,6 +333,7 @@
                 orderNo: (row.querySelector('.order-no-cell')?.innerText || '').trim().toUpperCase(),
                 memberId: (row.querySelector('.member-id-cell')?.innerText || '').trim().toUpperCase(),
                 name: (row.querySelector('.name-cell')?.innerText || '').trim().toUpperCase(),
+                pincode: (row.querySelector('.pincode-cell')?.innerText || '').replace(/[^0-9]/g, '').trim(),
                 orderDateRaw: dateStr,
                 orderDateObj: parseCustomDate(dateStr),
                 pv: parseFloat(row.querySelector('.pv-cell')?.innerText) || 0,
@@ -337,6 +360,7 @@
                 return item.orderNo.includes(currentSearch) ||
                        item.name.includes(currentSearch) ||
                        item.memberId.includes(currentSearch) ||
+                       item.pincode.includes(currentSearch) ||
                        item.tracking.includes(currentSearch);
             });
 
@@ -349,6 +373,8 @@
                     res = a.memberId.localeCompare(b.memberId);
                 } else if (currentSort.column === 'name') {
                     res = a.name.localeCompare(b.name);
+                } else if (currentSort.column === 'pincode') {
+                    res = a.pincode.localeCompare(b.pincode);
                 } else if (currentSort.column === 'orderDate') {
                     res = a.orderDateObj - b.orderDateObj;
                 }
@@ -492,6 +518,7 @@
                 srNo: 'sortSrIcon',
                 memberId: 'sortMemberIcon',
                 name: 'sortNameIcon',
+                pincode: 'sortPincodeIcon',
                 orderDate: 'sortDateIcon'
             };
 
@@ -523,6 +550,7 @@
         document.getElementById('colSrNo')?.addEventListener('click', () => handleSortClick('srNo'));
         document.getElementById('colMemberId')?.addEventListener('click', () => handleSortClick('memberId'));
         document.getElementById('colName')?.addEventListener('click', () => handleSortClick('name'));
+        document.getElementById('colPincode')?.addEventListener('click', () => handleSortClick('pincode'));
         document.getElementById('colOrderDate')?.addEventListener('click', () => handleSortClick('orderDate'));
 
         // 🔘 Page Size Selector Click
@@ -715,6 +743,7 @@
                 document.getElementById('editOrderNo').value = editBtn.getAttribute('data-orderno') || '';
                 document.getElementById('editMemberId').value = editBtn.getAttribute('data-memberid');
                 document.getElementById('editName').value = editBtn.getAttribute('data-name');
+                document.getElementById('editPincode').value = editBtn.getAttribute('data-pincode') || '';
                 document.getElementById('editOrderDate').value = editBtn.getAttribute('data-orderdate');
                 document.getElementById('editPv').value = editBtn.getAttribute('data-pv');
                 document.getElementById('editAmount').value = editBtn.getAttribute('data-amount');
@@ -745,6 +774,7 @@
                 orderNo: document.getElementById('editOrderNo').value,
                 memberId: document.getElementById('editMemberId').value,
                 name: document.getElementById('editName').value,
+                pincode: document.getElementById('editPincode').value.trim(),
                 orderDate: document.getElementById('editOrderDate').value,
                 pv: document.getElementById('editPv').value,
                 amount: document.getElementById('editAmount').value,

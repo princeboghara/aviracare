@@ -1,256 +1,525 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth overflow-x-hidden">
+<html lang="en" class="scroll-smooth">
 <head>
     <%- include('../partials/head_meta') %>
-    <title>Admin Dashboard - Avira Control Center</title>
+    <title>Executive Control Hub - AviraCare Systems</title>
+    <style>
+        :root {
+            --brand-primary: #2563eb;
+            --brand-navy: #0f172a;
+            --brand-slate: #1e293b;
+        }
+
+        /* 🏢 Subtle Corporate Grid Mesh */
+        .bg-corporate-canvas {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.04) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.03) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* 🪟 Executive Card Styling */
+        .corp-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.25rem;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+        }
+        .corp-card:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
+        }
+
+        /* 🌟 Interactive Action Card Link */
+        .hub-link-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0.875rem;
+            border-radius: 0.875rem;
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            color: #334155;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            transition: all 0.18s ease;
+        }
+        .hub-link-item:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #1d4ed8;
+            transform: translateX(3px);
+        }
+
+        /* Metric KPI Card */
+        .kpi-tile {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            transition: all 0.2s ease;
+        }
+        .kpi-tile:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.08);
+        }
+    </style>
 </head>
-<body class="bg-mesh-corporate min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative w-full overflow-x-hidden">
+<body class="bg-corporate-canvas min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800">
 
-    <!-- Ambient Subtle Glows -->
-    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div class="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-indigo-500/5 blur-[120px]"></div>
-        <div class="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-blue-500/5 blur-[120px]"></div>
-    </div>
-
-    <!-- 🧭 Executive Header -->
-    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3.5 flex justify-between items-center shadow-xs border-b border-slate-200/80 w-full">
-        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-xs border border-slate-200 flex-shrink-0 p-1">
+    <!-- 🧭 Executive Top Header Navigation -->
+    <header class="bg-white/95 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 flex justify-between items-center shadow-xs border-b border-slate-200 w-full">
+        <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-xs border border-slate-200 flex-shrink-0 p-1">
                 <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-[8px]">
             </div>
             <div>
-                <span class="text-base sm:text-lg font-black tracking-tight text-slate-900 block leading-tight">Avira <span class="text-indigo-600 font-extrabold">Control Hub</span></span>
-                <span class="text-[9px] font-bold text-slate-400 tracking-wider uppercase block">Executive Administration Portal</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-base sm:text-lg font-black tracking-tight text-slate-900 leading-tight">AVIRA <span class="text-blue-600 font-extrabold">CARE</span></span>
+                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+                        Enterprise Hub
+                    </span>
+                </div>
+                <span class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase block">Executive Administration & Logistics Suite</span>
             </div>
         </div>
-        
-        <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0 ml-2">
-            <div class="hidden sm:flex flex-col text-right">
-                <p class="text-xs font-black text-slate-900">Administrator</p>
-                <span class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest flex items-center justify-end gap-1">
-                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span> Active Session
-                </span>
+
+        <!-- Right Side Telemetry & User Status -->
+        <div class="flex items-center gap-3 sm:gap-5 flex-shrink-0">
+            <!-- Live IST Clock -->
+            <div class="hidden md:flex flex-col text-right">
+                <span id="liveClock" class="text-xs font-mono font-bold text-slate-700 leading-none">--:--:--</span>
+                <span id="liveDate" class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">IST Date</span>
             </div>
-            <a href="/admin/logout" class="btn-corporate-3d text-[11px] font-bold uppercase tracking-wider px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl flex items-center gap-1.5 shadow-xs">
-                <i class="fa-solid fa-power-off text-rose-400 text-xs"></i> Exit Panel
-            </a>
+
+            <!-- Server Status Chip -->
+            <div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>SYSTEM ONLINE</span>
+            </div>
+
+            <!-- Profile & Logout -->
+            <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+                <div class="text-right hidden sm:block">
+                    <p class="text-xs font-bold text-slate-800 leading-tight">Super Admin</p>
+                    <span class="text-[9px] font-semibold text-emerald-600 uppercase tracking-widest block">30d Persistent</span>
+                </div>
+                <a href="/admin/logout" title="Sign Out of Session" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-bold transition-all">
+                    <i class="fa-solid fa-power-off text-xs"></i>
+                    <span class="hidden sm:inline">Logout</span>
+                </a>
+            </div>
         </div>
     </header>
 
-    <main class="flex-grow flex flex-col items-center justify-center w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-10 relative z-10 box-border space-y-6 sm:space-y-8">
-        
-        <!-- 🌟 Welcome Hero Banner (Corporate Slate/Indigo Gradient) -->
-        <div class="w-full bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-slate-800/80 relative overflow-hidden">
-            <div class="absolute -right-16 -top-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+    <!-- 🌐 Main Executive Content Area -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+
+        <!-- 🌟 Corporate Command Banner -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 sm:p-8 text-white shadow-xl border border-slate-800">
+            <!-- Background Radial Glow -->
+            <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div class="space-y-2 max-w-2xl">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[10px] font-extrabold uppercase tracking-wider text-indigo-200">
-                        <i class="fa-solid fa-shield-check text-indigo-300"></i> Secure Admin Workspace
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[10px] font-extrabold uppercase tracking-widest text-blue-200">
+                        <i class="fa-solid fa-shield-halved text-blue-400"></i> Corporate Control Center &bull; Live Telemetry
                     </div>
-                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">
-                        Welcome Back, Chief Administrator
+                    <h1 id="greetingMessage" class="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                        Welcome Back, Administrator
                     </h1>
                     <p class="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
-                        Manage parcel dispatches, live tracking synchronization, product inventory, and member requests with 3D precision.
+                        Continuous dispatch logistics, India Post automated syncing, customer records, and real-time background bots at your fingertips.
                     </p>
                 </div>
 
-                <div class="flex flex-row md:flex-col items-end gap-2.5 flex-shrink-0 w-full md:w-auto justify-between md:justify-center border-t md:border-t-0 border-white/10 pt-4 md:pt-0">
-                    <a href="/admin/manual-entry" class="btn-indigo-3d text-xs font-black px-5 py-2.5 rounded-xl uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-keyboard"></i> Open Manual Entry
+                <!-- Primary Action Quick Buttons -->
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 flex-shrink-0">
+                    <a href="/admin/manual-entry" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase tracking-wider shadow-md hover:shadow-lg transition-all">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>New Consignment</span>
                     </a>
-                    <a href="/admin/orders-master" class="btn-white-3d text-xs font-bold px-4 py-2 rounded-xl uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-boxes-stacked text-indigo-600"></i> Orders Master
+                    <a href="/admin/orders-master" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-white/20 transition-all">
+                        <i class="fa-solid fa-receipt text-blue-300"></i>
+                        <span>Orders Master</span>
+                    </a>
+                    <a href="/admin/log-monitor" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600/60 hover:bg-indigo-600 text-indigo-100 text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-indigo-400/30 transition-all">
+                        <i class="fa-solid fa-terminal text-cyan-300"></i>
+                        <span>Log Monitor</span>
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- 🧩 Interactive 3D Module Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
+        <!-- 📊 Real-Time Operations Telemetry KPIs -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
             
-            <!-- 1. Dispatch & Consignment Hub -->
-            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+            <!-- KPI 1: Total Orders Master -->
+            <a href="/admin/orders-master" class="kpi-tile group">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Orders Master</span>
+                    <div class="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs group-hover:bg-blue-600 group-hover:text-white transition-all">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                        <%= (typeof stats !== 'undefined' && stats.totalOrders) ? stats.totalOrders.toLocaleString() : '0' %>
+                    </span>
+                    <span class="text-[10px] font-bold text-blue-600">Total</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1 font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-database text-[8px]"></i> Synchronized from Avira Global
+                </p>
+            </a>
+
+            <!-- KPI 2: Pending Dispatches -->
+            <a href="/admin/manual-entry" class="kpi-tile group">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Pending Dispatches</span>
+                    <div class="h-8 w-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs group-hover:bg-amber-600 group-hover:text-white transition-all">
+                        <i class="fa-solid fa-truck-ramp-box"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                        <%= (typeof stats !== 'undefined' && stats.pendingDispatches) ? stats.pendingDispatches.toLocaleString() : '0' %>
+                    </span>
+                    <span class="text-[10px] font-bold text-amber-600">Pending</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1 font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-barcode text-[8px]"></i> Ready for Dispatch Entry
+                </p>
+            </a>
+
+            <!-- KPI 3: Registered Customers -->
+            <a href="/admin/customers" class="kpi-tile group">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Customer Directory</span>
+                    <div class="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                        <%= (typeof stats !== 'undefined' && stats.totalCustomers) ? stats.totalCustomers.toLocaleString() : '0' %>
+                    </span>
+                    <span class="text-[10px] font-bold text-emerald-600">Members</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1 font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-address-book text-[8px]"></i> Active Network Members
+                </p>
+            </a>
+
+            <!-- KPI 4: Bot & Automation Engines -->
+            <a href="/admin/settings" class="kpi-tile group">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Sync Bot Engines</span>
+                    <div class="h-8 w-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xs group-hover:bg-purple-600 group-hover:text-white transition-all">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight flex items-center gap-1.5">
+                        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span> ACTIVE
+                    </span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1 font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-clock text-[8px]"></i> Auto sync configured & running
+                </p>
+            </a>
+
+        </div>
+
+        <!-- 🏢 Executive Modular Grid (Corporate Layout) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- MODULE 1: Logistics & Parcel Dispatch -->
+            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-blue-100 shadow-2xs">
+                        <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-blue-100">
                             <i class="fa-solid fa-truck-fast"></i>
                         </div>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h2 class="text-base font-black text-slate-900">1. Dispatch & Logistics</h2>
-                                <span class="badge-3d bg-blue-50 text-blue-700 border-blue-200 text-[8px]">CORE</span>
+                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">1. Dispatch & Logistics</h2>
+                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">CORE</span>
                             </div>
-                            <p class="text-slate-400 text-[11px] font-semibold">Consignments & Parcel Labelling</p>
+                            <p class="text-slate-400 text-[11px] font-semibold">Consignment Creation & Live Shipping</p>
                         </div>
                     </div>
                     <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
-                        Create unique consignment batches, barcode scanner integration, auto-calculate weights, and manage manual entries.
+                        Barcode scanner entry, automatic parcel weight calculation, consignment generation, and live dispatch tracking.
                     </p>
                 </div>
-                <div class="pt-3 border-t border-slate-100 space-y-1.5">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <a href="/admin/manual-entry" class="p-2 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
-                            <i class="fa-solid fa-keyboard text-blue-500"></i> Manual Entry
-                        </a>
-                        <a href="/admin/orders-master" class="p-2 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
-                            <i class="fa-solid fa-file-invoice text-blue-500"></i> Orders Master
-                        </a>
-                        <a href="/admin/customers" class="p-2 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
-                            <i class="fa-solid fa-users text-purple-500"></i> Customers
-                        </a>
-                        <a href="/admin/master-database" class="p-2 rounded-xl bg-slate-50 hover:bg-teal-50 text-slate-700 hover:text-teal-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center gap-1.5">
-                            <i class="fa-solid fa-database text-teal-500"></i> Master DB
-                        </a>
-                        <a href="/admin/live-tracking" class="p-2 col-span-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/80 text-blue-800 font-extrabold text-[11px] transition-all border border-blue-200 flex items-center justify-between">
-                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-satellite-dish text-blue-600"></i> India Post Live Tracking</span>
-                            <span class="text-[8px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-black tracking-wider">LIVE SYNC</span>
-                        </a>
-                    </div>
+                
+                <div class="pt-3 border-t border-slate-100 space-y-2">
+                    <a href="/admin/manual-entry" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-keyboard text-blue-600 text-xs"></i>
+                            <span>Manual Entry Hub</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    </a>
+                    <a href="/admin/orders-master" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-blue-600 text-xs"></i>
+                            <span>Orders Master Table</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    </a>
+                    <a href="/admin/live-tracking" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-satellite-dish text-blue-600 text-xs"></i>
+                            <span>India Post Live Tracking</span>
+                        </span>
+                        <span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">TELEMETRY</span>
+                    </a>
+                    <a href="/admin/master-database" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-database text-teal-600 text-xs"></i>
+                            <span>Master Database Records</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    </a>
                 </div>
             </div>
 
-            <!-- 2. Product Catalog & Inventory -->
-            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+            <!-- MODULE 2: Member & Customer Directory -->
+            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-purple-100 shadow-2xs">
+                        <div class="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-emerald-100">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">2. Members & Customers</h2>
+                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">DIRECTORY</span>
+                            </div>
+                            <p class="text-slate-400 text-[11px] font-semibold">Customer Accounts & Profile History</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                        Search customer addresses, review lifetime orders, manage member IDs, and inspect contact records.
+                    </p>
+                </div>
+                
+                <div class="pt-3 border-t border-slate-100 space-y-2">
+                    <a href="/admin/customers" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-address-book text-emerald-600 text-xs"></i>
+                            <span>Customer Directory</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    </a>
+                    <a href="/admin/queries" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-headset text-emerald-600 text-xs"></i>
+                            <span>Support Helpdesk & Tickets</span>
+                        </span>
+                        <% if (typeof stats !== 'undefined' && stats.openQueries > 0) { %>
+                        <span class="text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded"><%= stats.openQueries %> OPEN</span>
+                        <% } else { %>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                        <% } %>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MODULE 3: Inventory & Product Catalog -->
+            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3.5 mb-4">
+                        <div class="w-11 h-11 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-purple-100">
                             <i class="fa-solid fa-boxes-stacked"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-black text-slate-900">2. Product Catalog</h2>
-                            <p class="text-slate-400 text-[11px] font-semibold">Inventory & Product Assets</p>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">3. Inventory & Catalog</h2>
+                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">INVENTORY</span>
+                            </div>
+                            <p class="text-slate-400 text-[11px] font-semibold">Product Listing, Pricing & Assets</p>
                         </div>
                     </div>
                     <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
-                        Publish new items, upload product gallery images, configure Point Values (PV), and monitor inventory.
+                        Configure Point Values (PV), item pricing, upload product photographs, and maintain catalog synchronization.
                     </p>
                 </div>
-                <div class="pt-3 border-t border-slate-100 space-y-1.5">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <a href="/admin/add-product" class="p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-plus-circle text-purple-600"></i> Add Product
-                        </a>
-                        <a href="/admin/view-products" class="p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-list-check text-purple-600"></i> View Catalog
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. Content & PDF Manager -->
-            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-rose-100 shadow-2xs">
-                            <i class="fa-solid fa-file-pdf"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-base font-black text-slate-900">3. Content Manager</h2>
-                            <p class="text-slate-400 text-[11px] font-semibold">PDF Flyers & Catalogues</p>
-                        </div>
-                    </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
-                        Upload, update, and manage downloadable Business Plan PDFs and Product Catalog files for members.
-                    </p>
-                </div>
+                
                 <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
-                    <a href="/admin/content-manager" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-700 hover:text-rose-700 font-bold text-xs transition-all border border-slate-100">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-folder-open text-rose-500"></i> Manage PDF Documents</span>
-                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    <a href="/admin/view-products" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-purple-600 text-xs"></i>
+                            <span>View Product Catalog</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    </a>
+                    <a href="/admin/add-product" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-plus-circle text-purple-600 text-xs"></i>
+                            <span>Add New Product Item</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    </a>
+                    <a href="/admin/content-manager" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-file-pdf text-purple-600 text-xs"></i>
+                            <span>PDF Business Plan & Catalog</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
                     </a>
                 </div>
             </div>
 
-            <!-- 4. Query & Support Manager -->
-            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+            <!-- MODULE 4: Telemetry & Log Monitoring -->
+            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-orange-100 shadow-2xs">
-                            <i class="fa-solid fa-headset"></i>
+                        <div class="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-indigo-100">
+                            <i class="fa-solid fa-terminal"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-black text-slate-900">4. Support Helpdesk</h2>
-                            <p class="text-slate-400 text-[11px] font-semibold">Customer Tickets & Inquiries</p>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">4. Live Log Monitor</h2>
+                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">REALTIME</span>
+                            </div>
+                            <p class="text-slate-400 text-[11px] font-semibold">Unified System & Bot Diagnostics</p>
                         </div>
                     </div>
                     <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
-                        Review customer support tickets, address change requests, and member inquiries in real-time.
+                        Monitor 3 diagnostic streams: Software Main Logs, WhatsApp CRM Tracking Bot, and AviraGlobal Sync Bot events.
                     </p>
                 </div>
+                
                 <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
-                    <a href="/admin/queries" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-700 font-bold text-xs transition-all border border-slate-100">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-ticket text-orange-500"></i> View Support Inquiries</span>
-                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    <a href="/admin/log-monitor" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-satellite-dish text-indigo-600 text-xs"></i>
+                            <span>Unified Log Monitor (3 Submenus)</span>
+                        </span>
+                        <span class="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">LIVE</span>
                     </a>
                 </div>
             </div>
 
-            <!-- 5. Courier Box Dimensions & Presets -->
-            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+            <!-- MODULE 5: Bot Automation & System Settings -->
+            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-slate-200 shadow-2xs">
-                            <i class="fa-solid fa-sliders"></i>
+                        <div class="w-11 h-11 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-slate-200">
+                            <i class="fa-solid fa-gear"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-black text-slate-900">5. Box Presets & Config</h2>
-                            <p class="text-slate-400 text-[11px] font-semibold">Courier Dimension Presets</p>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">5. System Settings & Bots</h2>
+                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">SETTINGS</span>
+                            </div>
+                            <p class="text-slate-400 text-[11px] font-semibold">Bot Intervals & Courier Box Presets</p>
                         </div>
                     </div>
                     <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
-                        Configure courier box dimension shortcuts (Length, Breadth, Height) for fast manual shipping entries.
+                        Configure AviraGlobal background sync timer, start/stop sync bot engine, and adjust default courier box dimensions.
                     </p>
                 </div>
+                
                 <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
-                    <a href="/admin/settings" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all border border-slate-100">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-boxes-packing text-slate-600"></i> Configure Box Dimensions</span>
-                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    <a href="/admin/settings" class="hub-link-item">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-slate-700 text-xs"></i>
+                            <span>Configure Bot & Courier Presets</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
                     </a>
                 </div>
             </div>
 
-            <!-- 6. Bill Converter & Combos -->
-            <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+            <!-- MODULE 6: Security & Database Engine -->
+            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-amber-100 shadow-2xs">
-                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <div class="w-11 h-11 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-teal-100">
+                            <i class="fa-solid fa-shield-check"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-black text-slate-900">6. Billing & Combos</h2>
-                            <p class="text-slate-400 text-[11px] font-semibold">Tax Invoices & Special Packs</p>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">6. Engine Health</h2>
+                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">SECURITY</span>
+                            </div>
+                            <p class="text-slate-400 text-[11px] font-semibold">PostgreSQL & Session Integrity</p>
                         </div>
                     </div>
                     <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
-                        Convert bulk PDF bills into parsed invoice structures and manage combo pack offerings.
+                        Enterprise 30-day token protection enabled. Auto-reconnection safeguards are actively monitoring queries.
                     </p>
                 </div>
-                <div class="pt-3 border-t border-slate-100 space-y-1.5">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Quick Links:</span>
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <a href="/admin/bill-uploader" class="p-2.5 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-file-invoice-dollar text-amber-600"></i> Bill Converter
-                        </a>
-                        <a href="/admin/manage-combos" class="p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 font-bold text-[11px] transition-all border border-slate-100 flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-layer-group text-purple-600"></i> Manage Combos
-                        </a>
+                
+                <div class="pt-3 border-t border-slate-100 space-y-2">
+                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex items-center justify-between font-semibold text-slate-600">
+                        <span class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500"></span> Database Pool
+                        </span>
+                        <span class="font-mono text-emerald-600 font-bold">HEALTHY</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex items-center justify-between font-semibold text-slate-600">
+                        <span class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-blue-500"></span> Session Retention
+                        </span>
+                        <span class="font-mono text-blue-600 font-bold">30 DAYS</span>
                     </div>
                 </div>
             </div>
 
         </div>
+
     </main>
-    
-    <footer class="bg-white/80 backdrop-blur-sm border-t border-slate-200/80 py-4 text-center text-[10px] sm:text-[11px] font-bold text-slate-400 shadow-2xs w-full overflow-hidden">
-        &copy; 2026 Avira Control Center. Encrypted TLS 1.3 Administrator System.
+
+    <!-- 📋 Executive Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs font-medium text-slate-400 mt-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
+            <span>&copy; 2026 AviraCare Systems. All rights reserved. Enterprise Administration Hub.</span>
+            <span class="font-mono text-slate-400">Node <%= process.version %> &bull; TLS 1.3 &bull; PostgreSQL Active</span>
+        </div>
     </footer>
 
+    <!-- Interactive Clock & Greeting Script -->
+    <script>
+        (function() {
+            function updateClock() {
+                const now = new Date();
+                const clockEl = document.getElementById('liveClock');
+                const dateEl = document.getElementById('liveDate');
+                if (clockEl) {
+                    clockEl.textContent = now.toLocaleTimeString('en-IN', { hour12: false });
+                }
+                if (dateEl) {
+                    dateEl.textContent = now.toLocaleDateString('en-IN', { 
+                        weekday: 'short', 
+                        day: 'numeric', 
+                        month: 'short', 
+                        year: 'numeric' 
+                    });
+                }
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // Dynamic Greeting
+            const greetingEl = document.getElementById('greetingMessage');
+            if (greetingEl) {
+                const hour = new Date().getHours();
+                let timeGreeting = 'Good evening';
+                if (hour < 12) timeGreeting = 'Good morning';
+                else if (hour < 17) timeGreeting = 'Good afternoon';
+                greetingEl.textContent = `${timeGreeting}, Executive Administrator`;
+            }
+        })();
+    </script>
 </body>
 </html>

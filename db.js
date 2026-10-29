@@ -38,6 +38,8 @@ async function initIndexes() {
         `CREATE INDEX IF NOT EXISTS idx_main_db_name_upper ON main_database ((UPPER(name)));`,
         `CREATE INDEX IF NOT EXISTS idx_main_db_tracking ON main_database ((UPPER(tracking)));`,
         `CREATE INDEX IF NOT EXISTS idx_main_db_sr_no ON main_database (sr_no DESC);`,
+        `ALTER TABLE main_database ADD COLUMN IF NOT EXISTS pincode VARCHAR(20);`,
+        `CREATE INDEX IF NOT EXISTS idx_main_db_pincode ON main_database (pincode);`,
         `CREATE INDEX IF NOT EXISTS idx_pending_entries_tracking_upper ON pending_entries ((UPPER(tracking)));`,
         `CREATE INDEX IF NOT EXISTS idx_orders_master_member_id ON orders_master ((UPPER(member_id)));`,
         `CREATE INDEX IF NOT EXISTS idx_orders_master_name ON orders_master (name);`,

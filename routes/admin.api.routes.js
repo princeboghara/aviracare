@@ -10,6 +10,7 @@ const { upload, uploadPdf, memoryUpload } = require('../config/multer');
 const { getModel, scanParcelLabel, extractBillInvoice } = require('../config/ai');
 const { uploadFile, deleteCloudinaryFile } = require('../config/cloudinary');
 const orderSyncBot = require('../config/order_sync');
+const logger = require('../config/logger');
 
 // Protect all admin APIs with checkAdmin
 router.use(checkAdmin);
@@ -873,13 +874,14 @@ router.post('/save-manual', async (req, res) => {
             // 2. Direct Sync to main_database & orders_master (no pending_entries or confirm_member required)
             if (order_no) {
                 await db.query(`
-                    INSERT INTO main_database (order_no, member_id, name, order_date, pv, amount, tracking, consignment_id, delivery_status, destination)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'Pending', $9)
+                    INSERT INTO main_database (order_no, member_id, name, order_date, pv, amount, tracking, consignment_id, delivery_status, destination, pincode)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'Pending', $9, $10)
                     ON CONFLICT (order_no) DO UPDATE
                     SET tracking = EXCLUDED.tracking,
                         consignment_id = COALESCE(EXCLUDED.consignment_id, main_database.consignment_id),
-                        destination = COALESCE(NULLIF(EXCLUDED.destination, ''), main_database.destination);
-                `, [order_no, member_id, name, order_date, pv, amount, tracking, consignmentId, city]);
+                        destination = COALESCE(NULLIF(EXCLUDED.destination, ''), main_database.destination),
+                        pincode = COALESCE(NULLIF(EXCLUDED.pincode, ''), main_database.pincode);
+                `, [order_no, member_id, name, order_date, pv, amount, tracking, consignmentId, city, pincode]);
 
                 await db.query(`
                     UPDATE orders_master 
@@ -899,18 +901,18 @@ router.post('/save-manual', async (req, res) => {
             } else if (member_id) {
                 const existingMain = await db.query('SELECT sr_no FROM main_database WHERE UPPER(member_id) = $1 ORDER BY sr_no DESC LIMIT 1', [member_id]);
                 if (existingMain.rows.length > 0) {
-                    await db.query('UPDATE main_database SET tracking = $1, consignment_id = $2, destination = COALESCE(NULLIF($3, \'\'), destination) WHERE sr_no = $4', [tracking, consignmentId, city, existingMain.rows[0].sr_no]);
+                    await db.query('UPDATE main_database SET tracking = $1, consignment_id = $2, destination = COALESCE(NULLIF($3, \'\'), destination), pincode = COALESCE(NULLIF($4, \'\'), pincode) WHERE sr_no = $5', [tracking, consignmentId, city, pincode, existingMain.rows[0].sr_no]);
                 } else {
                     await db.query(`
-                        INSERT INTO main_database (member_id, name, order_date, pv, amount, tracking, consignment_id, delivery_status, destination)
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pending', $8)
-                    `, [member_id, name, order_date, pv, amount, tracking, consignmentId, city]);
+                        INSERT INTO main_database (member_id, name, order_date, pv, amount, tracking, consignment_id, delivery_status, destination, pincode)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pending', $8, $9)
+                    `, [member_id, name, order_date, pv, amount, tracking, consignmentId, city, pincode]);
                 }
             } else {
                 await db.query(`
-                    INSERT INTO main_database (order_no, member_id, name, order_date, pv, amount, tracking, consignment_id, delivery_status, destination)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'Pending', $9)
-                `, [order_no || null, member_id, name, order_date, pv, amount, tracking, consignmentId, city]);
+                    INSERT INTO main_database (order_no, member_id, name, order_date, pv, amount, tracking, consignment_id, delivery_status, destination, pincode)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'Pending', $9, $10)
+                `, [order_no || null, member_id, name, order_date, pv, amount, tracking, consignmentId, city, pincode]);
             }
 
             // 3. Return all parcels for this consignment
@@ -926,12 +928,13 @@ router.post('/save-manual', async (req, res) => {
             // Standalone save directly to main_database & orders_master
             if (order_no) {
                 await db.query(`
-                    INSERT INTO main_database (order_no, member_id, name, order_date, pv, amount, tracking, delivery_status, destination)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pending', $8)
+                    INSERT INTO main_database (order_no, member_id, name, order_date, pv, amount, tracking, delivery_status, destination, pincode)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pending', $8, $9)
                     ON CONFLICT (order_no) DO UPDATE
                     SET tracking = EXCLUDED.tracking,
-                        destination = COALESCE(NULLIF(EXCLUDED.destination, ''), main_database.destination);
-                `, [order_no, member_id, name, order_date, pv, amount, tracking, city]);
+                        destination = COALESCE(NULLIF(EXCLUDED.destination, ''), main_database.destination),
+                        pincode = COALESCE(NULLIF(EXCLUDED.pincode, ''), main_database.pincode);
+                `, [order_no, member_id, name, order_date, pv, amount, tracking, city, pincode]);
 
                 await db.query(`
                     UPDATE orders_master 
@@ -950,9 +953,9 @@ router.post('/save-manual', async (req, res) => {
                 }
             } else {
                 await db.query(`
-                    INSERT INTO main_database (order_no, member_id, name, order_date, pv, amount, tracking, delivery_status, destination)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pending', $8)
-                `, [order_no || null, member_id, name, order_date, pv, amount, tracking, city]);
+                    INSERT INTO main_database (order_no, member_id, name, order_date, pv, amount, tracking, delivery_status, destination, pincode)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pending', $8, $9)
+                `, [order_no || null, member_id, name, order_date, pv, amount, tracking, city, pincode]);
             }
 
             return res.json({ success: true, parcel: { tracking, name, member_id, order_no }, msg: "Saved directly to master database" });
@@ -1260,15 +1263,17 @@ router.post('/approve-entry-by-tracking', async (req, res) => {
         
         let name = '';
         let pendingId = explicitPendingId;
+        let pincode = '';
 
         if (pendingResult.rows.length > 0) {
             name = pendingResult.rows[0].name || '';
             pendingId = pendingResult.rows[0].id;
+            pincode = pendingResult.rows[0].pincode || '';
         }
 
         const insertQuery = `
-            INSERT INTO main_database (member_id, name, order_date, pv, amount, tracking)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO main_database (member_id, name, order_date, pv, amount, tracking, pincode)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
         `;
         const insertValues = [
             memberId ? memberId.toUpperCase().trim() : '', 
@@ -1276,7 +1281,8 @@ router.post('/approve-entry-by-tracking', async (req, res) => {
             orderDate || '', 
             pv || '0', 
             amount || '0', 
-            cleanTracking
+            cleanTracking,
+            pincode
         ];
         
         await db.query(insertQuery, insertValues);
@@ -1326,16 +1332,18 @@ router.post('/approve-multiple-entries', async (req, res) => {
 
             let name = item.name || '';
             let targetPendingId = pendingId;
+            let pincode = item.pincode || '';
 
             if (pendingRes.rows.length > 0) {
                 name = pendingRes.rows[0].name || name;
                 targetPendingId = pendingRes.rows[0].id;
+                pincode = pendingRes.rows[0].pincode || pincode;
             }
 
             // Insert into main_database
             const insertQuery = `
-                INSERT INTO main_database (member_id, name, order_date, pv, amount, tracking)
-                VALUES ($1, $2, $3, $4, $5, $6)
+                INSERT INTO main_database (member_id, name, order_date, pv, amount, tracking, pincode)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
             `;
             await client.query(insertQuery, [
                 memberId,
@@ -1343,7 +1351,8 @@ router.post('/approve-multiple-entries', async (req, res) => {
                 orderDate,
                 pv,
                 amount,
-                tracking
+                tracking,
+                pincode
             ]);
 
             // Remove only the specific pending entry
@@ -1489,14 +1498,15 @@ router.post('/bulk-shoppee-master', async (req, res) => {
 router.post('/update-master/:srNo', async (req, res) => {
     try {
         const srNo = parseInt(req.params.srNo);
-        const { memberId, name, orderDate, pv, amount, tracking, orderNo } = req.body;
+        const { memberId, name, orderDate, pv, amount, tracking, orderNo, pincode } = req.body;
         const cleanTracking = tracking ? tracking.toUpperCase().trim() : '';
 
         const updateRes = await db.query(
             `UPDATE main_database 
              SET member_id = $1, name = $2, order_date = $3, pv = $4, amount = $5, tracking = $6,
-                 order_no = COALESCE(NULLIF($7, ''), order_no)
-             WHERE sr_no = $8
+                 order_no = COALESCE(NULLIF($7, ''), order_no),
+                 pincode = COALESCE(NULLIF($8, ''), pincode)
+             WHERE sr_no = $9
              RETURNING *`,
             [
                 memberId ? memberId.toUpperCase().trim() : '', 
@@ -1506,6 +1516,7 @@ router.post('/update-master/:srNo', async (req, res) => {
                 amount ? amount.toString().trim() : '0', 
                 cleanTracking,
                 orderNo ? orderNo.toUpperCase().trim() : '',
+                pincode ? pincode.toString().trim() : '',
                 srNo
             ]
         );
@@ -2892,13 +2903,119 @@ router.get('/order-sync-status', async (req, res) => {
     }
 });
 
-// ⏸️ Toggle 5-min Auto-Sync (Pause / Resume)
-router.post('/toggle-auto-sync', (req, res) => {
+// ⏸️ Toggle Auto-Sync (Pause / Resume)
+router.post('/toggle-auto-sync', async (req, res) => {
     try {
-        const result = orderSyncBot.toggleAutoSync();
+        const result = await orderSyncBot.toggleAutoSync();
         res.json({ success: true, ...result });
     } catch (err) {
         res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
+// 🎛️ Explicitly Set Bot State (Start / Stop)
+router.post('/set-bot-state', async (req, res) => {
+    try {
+        const { enabled } = req.body;
+        const result = await orderSyncBot.setBotState(enabled);
+        res.json({ success: true, ...result });
+    } catch (err) {
+        res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
+// ⏱️ Update Auto-Sync Interval (in minutes)
+router.post('/set-sync-interval', async (req, res) => {
+    try {
+        const { minutes } = req.body;
+        const result = await orderSyncBot.setIntervalMinutes(minutes);
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ success: false, msg: err.message });
+    }
+});
+
+// 📊 Get Real-Time Sync Bot Status
+router.get('/bot-status', async (req, res) => {
+    try {
+        const status = await orderSyncBot.getStatus();
+        res.json({ success: true, status });
+    } catch (err) {
+        res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
+// ⚡ Trigger Safe Background Sync Now (On-Demand)
+router.post('/trigger-sync-now', async (req, res) => {
+    try {
+        if (orderSyncBot.isSyncing) {
+            return res.json({ success: false, msg: 'Sync is already currently running. Please wait for it to complete.' });
+        }
+        // Run sync asynchronously so request returns quickly
+        orderSyncBot.syncNewOrders().catch(e => console.error('On-demand sync error:', e));
+        res.json({ success: true, msg: 'Sync initiated successfully. Checking brand-new orders...' });
+    } catch (err) {
+        res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
+// =============================================================
+// 📜 UNIFIED LOG MONITOR APIS (System, WhatsApp CRM, AviraGlobal)
+// =============================================================
+
+// 📥 1. Fetch filtered logs with stats
+router.get('/logs', async (req, res) => {
+    try {
+        const category = (req.query.category || 'system').toLowerCase();
+        const level = req.query.level || 'ALL';
+        const search = req.query.search || '';
+        const limit = parseInt(req.query.limit, 10) || 100;
+
+        const logs = logger.getLogs(category, { level, search, limit });
+        const stats = logger.getStats();
+
+        res.json({ success: true, category, logs, stats });
+    } catch (err) {
+        res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
+// 🗑️ 2. Clear logs for a category
+router.post('/logs/clear', async (req, res) => {
+    try {
+        const category = (req.body?.category || 'system').toLowerCase();
+        await logger.clearLogs(category);
+        res.json({ success: true, message: `Logs cleared for ${category}` });
+    } catch (err) {
+        res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
+// 💾 3. Export / Download logs
+router.get('/logs/export', async (req, res) => {
+    try {
+        const category = (req.query.category || 'system').toLowerCase();
+        const format = (req.query.format || 'txt').toLowerCase();
+        const logs = logger.getLogs(category, { limit: 500 });
+
+        if (format === 'json') {
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Disposition', `attachment; filename="aviracare_${category}_logs_${Date.now()}.json"`);
+            return res.send(JSON.stringify(logs, null, 2));
+        }
+
+        // Default: Plain Text formatted terminal log
+        const textLines = logs.map(l => {
+            const time = new Date(l.timestamp).toLocaleString();
+            const metaStr = Object.keys(l.meta || {}).length > 0 ? ` | Meta: ${JSON.stringify(l.meta)}` : '';
+            return `[${time}] [${l.level}] [${l.category.toUpperCase()}] ${l.message}${metaStr}`;
+        });
+
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="aviracare_${category}_logs_${Date.now()}.txt"`);
+        return res.send(textLines.join('\n'));
+    } catch (err) {
+        res.status(500).send('Error exporting logs: ' + err.message);
     }
 });
 
