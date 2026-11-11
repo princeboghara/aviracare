@@ -55,7 +55,9 @@ async function initIndexes() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );`,
         `CREATE INDEX IF NOT EXISTS idx_order_trackings_tracking ON order_trackings (tracking_no);`,
-        `CREATE INDEX IF NOT EXISTS idx_order_trackings_member ON order_trackings (member_id);`
+        `CREATE INDEX IF NOT EXISTS idx_order_trackings_member ON order_trackings (member_id);`,
+        `CREATE INDEX IF NOT EXISTS idx_consignment_parcels_order_no ON consignment_parcels (order_no);`,
+        `CREATE INDEX IF NOT EXISTS idx_consignment_parcels_state ON consignment_parcels ((UPPER(state)));`
     ];
 
     try {

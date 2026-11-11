@@ -51,8 +51,15 @@ router.get('/', (req, res) => {
 });
 
 // 📊 Admin Dashboard Hub
-router.get('/home', checkAdmin, (req, res) => {
-    res.render('admin/home');
+router.get('/home', checkAdmin, async (req, res) => {
+    try {
+        const { getDashboardAnalytics } = require('../config/analytics');
+        const analytics = await getDashboardAnalytics();
+        res.render('admin/home', { analytics });
+    } catch (err) {
+        console.error("Dashboard Render Error:", err);
+        res.render('admin/home', { analytics: null });
+    }
 });
 
 // 🏷️ Admin Tracking & Label Generation
@@ -105,6 +112,34 @@ router.get('/orders-master', checkAdmin, async (req, res) => {
     try {
         const orderSyncBot = require('../config/order_sync');
         const ordersRes = await db.query(`
+            WITH latest_cp AS (
+                SELECT DISTINCT ON (order_no)
+                    order_no, tracking, consignment_id
+                FROM consignment_parcels
+                WHERE order_no IS NOT NULL AND order_no != ''
+                ORDER BY order_no, id DESC
+            ),
+            latest_cp_by_trk AS (
+                SELECT DISTINCT ON (tracking)
+                    tracking, order_no, consignment_id
+                FROM consignment_parcels
+                WHERE tracking IS NOT NULL AND tracking != ''
+                ORDER BY tracking, id DESC
+            ),
+            latest_mb AS (
+                SELECT DISTINCT ON (order_no)
+                    order_no, tracking, consignment_id
+                FROM main_database
+                WHERE order_no IS NOT NULL AND order_no != ''
+                ORDER BY order_no, sr_no DESC
+            ),
+            latest_mb_by_trk AS (
+                SELECT DISTINCT ON (tracking)
+                    tracking, order_no, consignment_id
+                FROM main_database
+                WHERE tracking IS NOT NULL AND tracking != ''
+                ORDER BY tracking, sr_no DESC
+            )
             SELECT 
                 om.*,
                 COALESCE(
@@ -113,23 +148,24 @@ router.get('/orders-master', checkAdmin, async (req, res) => {
                     NULLIF(cp.tracking, ''),
                     NULLIF(mb.tracking, ''),
                     ''
-                ) as tracking_no
+                ) as tracking_no,
+                COALESCE(c.consignment_no, '') as consignment_no,
+                COALESCE(c.title, '') as consignment_title,
+                COALESCE(c.dispatch_date, '') as dispatch_date,
+                c.id as consignment_id
             FROM orders_master om
             LEFT JOIN order_trackings ot ON (ot.order_no = om.order_no AND ot.tracking_no IS NOT NULL AND ot.tracking_no != '')
-            LEFT JOIN LATERAL (
-                SELECT tracking 
-                FROM consignment_parcels 
-                WHERE order_no = om.order_no
-                  AND tracking IS NOT NULL AND TRIM(tracking) != ''
-                ORDER BY id DESC LIMIT 1
-            ) cp ON true
-            LEFT JOIN LATERAL (
-                SELECT tracking 
-                FROM main_database 
-                WHERE order_no = om.order_no
-                  AND tracking IS NOT NULL AND TRIM(tracking) != ''
-                ORDER BY sr_no DESC LIMIT 1
-            ) mb ON true
+            LEFT JOIN latest_cp cp ON (cp.order_no = om.order_no AND om.order_no != '')
+            LEFT JOIN latest_cp_by_trk cp_trk ON (
+                (cp_trk.tracking = om.tracking_no AND om.tracking_no != '' AND om.tracking_no != 'SHOP PICKUP')
+                OR (om.tracking_no LIKE 'WITH%' AND cp_trk.tracking = (regexp_match(om.tracking_no, '\\(([A-Z0-9]+)\\)'))[1])
+            )
+            LEFT JOIN latest_mb mb ON (mb.order_no = om.order_no AND om.order_no != '')
+            LEFT JOIN latest_mb_by_trk mb_trk ON (
+                (mb_trk.tracking = om.tracking_no AND om.tracking_no != '' AND om.tracking_no != 'SHOP PICKUP')
+                OR (om.tracking_no LIKE 'WITH%' AND mb_trk.tracking = (regexp_match(om.tracking_no, '\\(([A-Z0-9]+)\\)'))[1])
+            )
+            LEFT JOIN consignments c ON c.id = COALESCE(cp.consignment_id, cp_trk.consignment_id, mb.consignment_id, mb_trk.consignment_id)
             ORDER BY 
                 CASE 
                     WHEN om.order_no ~ '^ORD-[0-9]+$' THEN CAST(SUBSTRING(om.order_no FROM 5) AS INTEGER)

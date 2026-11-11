@@ -205,7 +205,7 @@
                 </div>
 
                 <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[850px]">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap min-w-[980px]">
                         <thead>
                             <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-extrabold uppercase text-[10px] select-none">
                                 <th class="py-3 px-3 text-center w-10">
@@ -227,6 +227,12 @@
                                     <div class="flex items-center gap-1">
                                         <span>Tracking Number</span>
                                         <i class="fa-solid fa-sort text-[10px] text-slate-300" id="sortIcon-tracking_no"></i>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('dispatch_date')" title="Click to sort by Dispatch Date">
+                                    <div class="flex items-center gap-1">
+                                        <span>Dispatch & Consignment</span>
+                                        <i class="fa-solid fa-sort text-[10px] text-slate-300" id="sortIcon-dispatch_date"></i>
                                     </div>
                                 </th>
                                 <th class="py-3 px-4 cursor-pointer hover:text-blue-600 transition-colors" onclick="sortOrdersBy('order_date')" title="Click to sort by Order Date">
@@ -487,6 +493,7 @@
     <script>
         // 📦 Master Orders State & Pagination Config
         let pageSize = 50; // 10, 25, 50, 100, or 'ALL'
+        let isShowAll = false;
         let currentPage = 1;
         let currentSortColumn = 'order_no';
         let currentSortDir = 'desc';
@@ -505,6 +512,7 @@
         // 🔢 Change Page Size (10, 25, 50, 100, ALL)
         function setOrdersPageSize(size) {
             pageSize = size;
+            isShowAll = (size === 'ALL');
             currentPage = 1;
 
             ['10', '25', '50', '100', 'ALL'].forEach(s => {
@@ -538,7 +546,7 @@
                 currentSortDir = 'asc';
             }
 
-            ['seq', 'order_no', 'tracking_no', 'order_date', 'member_id', 'name', 'pv', 'amount'].forEach(c => {
+            ['seq', 'order_no', 'tracking_no', 'dispatch_date', 'order_date', 'member_id', 'name', 'pv', 'amount'].forEach(c => {
                 const icon = document.getElementById(`sortIcon-${c}`);
                 if (icon) {
                     if (c === col) {
@@ -564,10 +572,13 @@
                 const mId = (item.member_id || '').toLowerCase();
                 const mName = (item.name || '').toLowerCase();
                 const trk = (item.tracking_no || '').toLowerCase();
+                const cNo = (item.consignment_no || '').toLowerCase();
+                const cTitle = (item.consignment_title || '').toLowerCase();
+                const dDate = (item.dispatch_date || '').toLowerCase();
                 const oDate = (item.order_date || '').toLowerCase();
                 const amt = (item.amount || '').toString();
                 const pv = (item.pv || '').toString();
-                return oNo.includes(query) || mId.includes(query) || mName.includes(query) || trk.includes(query) || oDate.includes(query) || amt.includes(query) || pv.includes(query);
+                return oNo.includes(query) || mId.includes(query) || mName.includes(query) || trk.includes(query) || cNo.includes(query) || cTitle.includes(query) || dDate.includes(query) || oDate.includes(query) || amt.includes(query) || pv.includes(query);
             });
 
             filteredOrders.sort((a, b) => {
@@ -586,6 +597,9 @@
                 } else if (currentSortColumn === 'pv') {
                     valA = parseFloat(a.pv || 0);
                     valB = parseFloat(b.pv || 0);
+                } else if (currentSortColumn === 'dispatch_date') {
+                    valA = a.dispatch_date ? (new Date(a.dispatch_date).getTime() || 0) : 0;
+                    valB = b.dispatch_date ? (new Date(b.dispatch_date).getTime() || 0) : 0;
                 } else if (currentSortColumn === 'order_date') {
                     valA = new Date(a.order_date || 0).getTime() || 0;
                     valB = new Date(b.order_date || 0).getTime() || 0;
@@ -618,9 +632,9 @@
             let startIdx = 0;
             let endIdx = total;
             let totalPages = 1;
-            const isAll = (pageSize === 'ALL');
+            isShowAll = (pageSize === 'ALL');
 
-            if (isAll) {
+            if (isShowAll) {
                 pageItems = filteredOrders;
                 startIdx = 0;
                 endIdx = total;
@@ -662,7 +676,7 @@
             if (pageItems.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="10" class="py-12 text-center text-slate-400 font-medium">
+                        <td colspan="11" class="py-12 text-center text-slate-400 font-medium">
                             No orders found. Click "Sync New Orders" or "Wipe & Sync All" above to pull live orders!
                         </td>
                     </tr>
@@ -691,6 +705,50 @@
                     trackingBadge = `<span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-mono font-bold text-[11px] inline-flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-[10px] text-blue-600"></i> ${trkClean}</span>`;
                 }
 
+                // 📦 Consignment & Dispatch Date Badge
+                const cNo = (item.consignment_no || '').trim();
+                const dDate = (item.dispatch_date || '').trim();
+                const cTitle = (item.consignment_title || '').trim();
+                const isShop = trkClean.toUpperCase().includes('SHOP');
+                let dispatchBadge = '';
+
+                if (cNo && dDate) {
+                    dispatchBadge = `
+                        <div class="flex flex-col gap-1 items-start">
+                            <span class="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono font-bold text-[11px] inline-flex items-center gap-1.5 shadow-2xs" title="${cTitle || cNo}">
+                                <i class="fa-solid fa-boxes-packing text-[10px] text-indigo-600"></i> ${cNo}
+                            </span>
+                            <span class="text-slate-600 text-[11px] font-semibold inline-flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar-check text-[10px] text-emerald-600"></i> ${dDate}
+                            </span>
+                        </div>
+                    `;
+                } else if (cNo) {
+                    dispatchBadge = `
+                        <span class="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono font-bold text-[11px] inline-flex items-center gap-1.5 shadow-2xs" title="${cTitle || cNo}">
+                            <i class="fa-solid fa-boxes-packing text-[10px] text-indigo-600"></i> ${cNo}
+                        </span>
+                    `;
+                } else if (dDate) {
+                    dispatchBadge = `
+                        <span class="text-slate-600 text-[11px] font-semibold inline-flex items-center gap-1.5">
+                            <i class="fa-regular fa-calendar-check text-[10px] text-emerald-600"></i> ${dDate}
+                        </span>
+                    `;
+                } else if (isShop) {
+                    dispatchBadge = `
+                        <span class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[10px] inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-shop text-[10px] text-emerald-600"></i> Shop Pickup
+                        </span>
+                    `;
+                } else {
+                    dispatchBadge = `
+                        <span class="text-slate-400 text-[11px] font-medium italic inline-flex items-center gap-1.5">
+                            <span class="h-1.5 w-1.5 rounded-full bg-slate-300"></span> Not Dispatched
+                        </span>
+                    `;
+                }
+
                 return `
                     <tr class="hover:bg-slate-50 transition-colors" id="order-row-${item.id}">
                         <td class="py-2.5 px-3 text-center">
@@ -699,6 +757,7 @@
                         <td class="py-2.5 px-3 text-slate-400 font-mono text-[11px] text-center">${seq}</td>
                         <td class="py-2.5 px-4 font-mono">${orderBadge}</td>
                         <td class="py-2.5 px-4">${trackingBadge}</td>
+                        <td class="py-2.5 px-4">${dispatchBadge}</td>
                         <td class="py-2.5 px-4 font-semibold text-slate-800 row-date">${item.order_date || '-'}</td>
                         <td class="py-2.5 px-4 font-mono font-bold text-blue-700 row-memberid">${item.member_id || '-'}</td>
                         <td class="py-2.5 px-4 uppercase font-extrabold text-slate-900 row-name">${item.name || '-'}</td>
@@ -790,14 +849,16 @@
             }
         });
         document.getElementById('btnNextPage').addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
+            const numericSize = parseInt(pageSize, 10) || 50;
+            const totalPages = isShowAll ? 1 : Math.max(1, Math.ceil(filteredOrders.length / numericSize));
             if (currentPage < totalPages && !isShowAll) {
                 currentPage++;
                 renderPaginatedTable();
             }
         });
         document.getElementById('btnLastPage').addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
+            const numericSize = parseInt(pageSize, 10) || 50;
+            const totalPages = isShowAll ? 1 : Math.max(1, Math.ceil(filteredOrders.length / numericSize));
             if (currentPage < totalPages && !isShowAll) {
                 currentPage = totalPages;
                 renderPaginatedTable();
@@ -1496,7 +1557,7 @@
                     list = data.all;
                 } else {
                     const localList = [];
-                    ordersMasterData.forEach(o => {
+                    allOrders.forEach(o => {
                         const trk = (o.tracking_no || '').trim().toUpperCase();
                         if (trk && trk !== 'SHOP PICKUP' && trk !== 'PENDING' && trk !== '-') {
                             localList.push(trk);

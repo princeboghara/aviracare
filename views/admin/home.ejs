@@ -3,6 +3,8 @@
 <head>
     <%- include('../partials/head_meta') %>
     <title>Admin Dashboard - Avira Control Center</title>
+    <!-- Chart.js Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-mesh-corporate min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative w-full overflow-x-hidden">
 
@@ -66,6 +68,193 @@
                 </div>
             </div>
         </div>
+
+        <!-- 📊 Executive Dispatch & Logistics Intelligence Section -->
+        <section class="w-full space-y-5" id="dispatchAnalyticsSection">
+            
+            <!-- Section Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-lg font-black shadow-2xs">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Real-Time Dispatch & State Analytics</h2>
+                            <span class="badge-3d bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] font-black tracking-wider uppercase inline-flex items-center gap-1">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium">Daily dispatch volume trends, yesterday vs today comparison, and destination state distribution.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                    <button type="button" id="btnRefreshAnalytics" onclick="refreshAnalytics()" class="btn-corporate-3d text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                        <i class="fa-solid fa-arrows-rotate text-[11px]" id="refreshAnalyticsIcon"></i>
+                        <span>Refresh Metrics</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4 Executive KPI Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5 w-full">
+                <!-- Card 1: Today's Dispatched Orders -->
+                <div class="card-corporate-3d p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Today's Dispatches</span>
+                        <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-sm shadow-2xs">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpiTodayCount" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.today) ? analytics.today.count : 0 %></span>
+                            <span class="text-xs font-extrabold text-indigo-600">orders</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                            <i class="fa-regular fa-calendar-check text-emerald-500"></i>
+                            <span id="kpiTodayDate"><%= (analytics && analytics.today && analytics.today.dateStr) ? analytics.today.dateStr : 'Today' %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Yesterday's Dispatched Orders -->
+                <div class="card-corporate-3d p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Yesterday's Dispatches</span>
+                        <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-sm shadow-2xs">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpiYesterdayCount" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.yesterday) ? analytics.yesterday.count : 0 %></span>
+                            <span class="text-xs font-extrabold text-blue-600">orders</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                            <i class="fa-regular fa-calendar text-slate-400"></i>
+                            <span id="kpiYesterdayDate"><%= (analytics && analytics.yesterday && analytics.yesterday.dateStr) ? analytics.yesterday.dateStr : 'Yesterday' %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: States Covered -->
+                <div class="card-corporate-3d p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">States Covered</span>
+                        <div class="w-9 h-9 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-sm shadow-2xs">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpiStatesCount" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.totals) ? analytics.totals.totalStates : 0 %></span>
+                            <span class="text-xs font-extrabold text-purple-600">Indian States</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                            <i class="fa-solid fa-route text-purple-500"></i>
+                            <span>Pan-India Logistics</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Total Dispatched Orders -->
+                <div class="card-corporate-3d p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Dispatches</span>
+                        <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-2xs">
+                            <i class="fa-solid fa-boxes-packing"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpiTotalDispatched" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.totals) ? analytics.totals.totalDispatched : 0 %></span>
+                            <span class="text-xs font-extrabold text-emerald-600">parcels</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                            <i class="fa-solid fa-layer-group text-emerald-500"></i>
+                            <span>Across <strong id="kpiTotalConsignments"><%= (analytics && analytics.totals) ? analytics.totals.totalConsignments : 0 %></strong> Consignments</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Interactive Charts (Grid: 1 col on mobile, 2 cols on lg) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 w-full">
+                
+                <!-- Chart 1: Daily Dispatch Timeline -->
+                <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 flex-wrap gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-xs font-black shadow-2xs">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-900">Daily Dispatch Trend</h3>
+                                    <span class="text-[10px] text-slate-400 font-semibold">Orders Dispatched Day by Day</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
+                                <i class="fa-regular fa-calendar-check text-[10px]"></i> Chronological Timeline
+                            </span>
+                        </div>
+
+                        <!-- Canvas container with responsive height -->
+                        <div class="relative w-full h-64 sm:h-72">
+                            <canvas id="dailyDispatchChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center gap-1.5">
+                            <span class="h-2 w-2 rounded-full bg-indigo-600 inline-block"></span> Standard Consignment
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500 inline-block"></span> Today's Batch
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Chart 2: State-wise Distribution -->
+                <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 flex-wrap gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center text-xs font-black shadow-2xs">
+                                    <i class="fa-solid fa-map-location-dot"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-900">State-Wise Parcel Distribution</h3>
+                                    <span class="text-[10px] text-slate-400 font-semibold">Which States Orders Were Dispatched To</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
+                                <i class="fa-solid fa-location-dot text-[10px]"></i> Destination Breakdown
+                            </span>
+                        </div>
+
+                        <!-- Canvas container with responsive height -->
+                        <div class="relative w-full h-64 sm:h-72">
+                            <canvas id="stateDistChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100">
+                        <div class="flex items-center justify-between text-[11px] text-slate-600 font-bold mb-2">
+                            <span>Top Delivery Destinations:</span>
+                            <span class="text-purple-600 text-[10px] uppercase tracking-wider font-extrabold">Parcels by State</span>
+                        </div>
+                        <div id="topStatesList" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <!-- Populated dynamically via renderTopStatesList() -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
 
         <!-- 🧩 Interactive 3D Module Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
@@ -251,6 +440,293 @@
     <footer class="bg-white/80 backdrop-blur-sm border-t border-slate-200/80 py-4 text-center text-[10px] sm:text-[11px] font-bold text-slate-400 shadow-2xs w-full overflow-hidden">
         &copy; 2026 Avira Control Center. Encrypted TLS 1.3 Administrator System.
     </footer>
+
+    <!-- 📊 Analytics Data Carrier -->
+    <script id="rawAnalyticsData" type="application/json"><%- JSON.stringify(analytics || {}) %></script>
+
+    <script>
+        // 📊 Chart Instances
+        let dailyDispatchChart = null;
+        let stateDistChart = null;
+        let currentAnalytics = {};
+
+        try {
+            const dataElem = document.getElementById('rawAnalyticsData');
+            currentAnalytics = dataElem ? JSON.parse(dataElem.textContent || '{}') : {};
+        } catch (e) {
+            console.error('Error parsing analytics JSON:', e);
+            currentAnalytics = {};
+        }
+
+        // Initialize on DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDashboardAnalytics(currentAnalytics);
+        });
+
+        // 🎨 Render / Re-render all Analytics Components
+        function renderDashboardAnalytics(data) {
+            if (!data) return;
+
+            // 1. Update KPI Values
+            updateKPICards(data);
+
+            // 2. Render Top States Badges
+            renderTopStatesList(data.stateDistribution || []);
+
+            // 3. Render Daily Dispatch Chart
+            renderDailyDispatchChart(data.dailyTrend || [], data.today ? data.today.dateStr : '');
+
+            // 4. Render State Distribution Chart
+            renderStateDistChart(data.stateDistribution || []);
+        }
+
+        // 🔢 Update KPI Cards in Real-Time
+        function updateKPICards(data) {
+            if (data.today) {
+                const el = document.getElementById('kpiTodayCount');
+                if (el) el.innerText = data.today.count || 0;
+                const dt = document.getElementById('kpiTodayDate');
+                if (dt && data.today.dateStr) dt.innerText = data.today.dateStr;
+            }
+            if (data.yesterday) {
+                const el = document.getElementById('kpiYesterdayCount');
+                if (el) el.innerText = data.yesterday.count || 0;
+                const dt = document.getElementById('kpiYesterdayDate');
+                if (dt && data.yesterday.dateStr) dt.innerText = data.yesterday.dateStr;
+            }
+            if (data.totals) {
+                const sEl = document.getElementById('kpiStatesCount');
+                if (sEl) sEl.innerText = data.totals.totalStates || 0;
+                const dEl = document.getElementById('kpiTotalDispatched');
+                if (dEl) dEl.innerText = data.totals.totalDispatched || 0;
+                const cEl = document.getElementById('kpiTotalConsignments');
+                if (cEl) cEl.innerText = data.totals.totalConsignments || 0;
+            }
+        }
+
+        // 🗺️ Render Top States Ranking Pills
+        function renderTopStatesList(states) {
+            const container = document.getElementById('topStatesList');
+            if (!container) return;
+
+            if (!states || states.length === 0) {
+                container.innerHTML = `<span class="col-span-full text-slate-400 text-xs italic">No destination state data available yet.</span>`;
+                return;
+            }
+
+            const topList = states.slice(0, 6);
+            container.innerHTML = topList.map((st, i) => {
+                return `
+                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
+                        <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 mb-1">
+                            <span class="truncate" title="${st.state}">#${i + 1} ${st.state}</span>
+                            <span class="font-mono text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">${st.count}</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full" style="width: ${Math.min(100, Math.max(8, st.percentage))}%"></div>
+                        </div>
+                        <span class="text-[9px] text-slate-400 font-semibold text-right mt-0.5">${st.percentage}%</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 📈 Daily Dispatch Bar/Line Chart with Chart.js
+        function renderDailyDispatchChart(trendData, todayDateStr) {
+            const canvas = document.getElementById('dailyDispatchChart');
+            if (!canvas) return;
+
+            const labels = (trendData || []).map(d => d.date);
+            const counts = (trendData || []).map(d => d.count);
+            const consignments = (trendData || []).map(d => (d.consignments || []).join(', '));
+
+            // Background colors: highlight today's bar
+            const bgColors = labels.map(lbl => {
+                if (todayDateStr && lbl.toLowerCase() === todayDateStr.toLowerCase()) {
+                    return 'rgba(16, 185, 129, 0.85)'; // Emerald for Today
+                }
+                return 'rgba(79, 70, 229, 0.85)'; // Indigo for other dates
+            });
+
+            const borderColors = labels.map(lbl => {
+                if (todayDateStr && lbl.toLowerCase() === todayDateStr.toLowerCase()) {
+                    return '#059669';
+                }
+                return '#4338ca';
+            });
+
+            if (dailyDispatchChart) {
+                dailyDispatchChart.destroy();
+            }
+
+            const ctx = canvas.getContext('2d');
+            dailyDispatchChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.length ? labels : ['No Dispatches Yet'],
+                    datasets: [{
+                        label: 'Orders Dispatched',
+                        data: counts.length ? counts : [0],
+                        backgroundColor: bgColors.length ? bgColors : ['rgba(79, 70, 229, 0.8)'],
+                        borderColor: borderColors.length ? borderColors : ['#4338ca'],
+                        borderWidth: 1.5,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        maxBarThickness: 42
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#ffffff',
+                            bodyColor: '#e2e8f0',
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    const cnt = context.parsed.y;
+                                    const cStr = consignments[idx] ? ` (Consignment: ${consignments[idx]})` : '';
+                                    return ` ${cnt} Orders Dispatched${cStr}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                font: { family: 'Plus Jakarta Sans', weight: '600', size: 10 },
+                                color: '#64748b'
+                            },
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { family: 'Plus Jakarta Sans', weight: '700', size: 10 },
+                                color: '#475569'
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 🗺️ State Distribution Horizontal Bar Chart with Chart.js
+        function renderStateDistChart(stateData) {
+            const canvas = document.getElementById('stateDistChart');
+            if (!canvas) return;
+
+            const topStates = (stateData || []).slice(0, 8);
+            const labels = topStates.map(s => s.state);
+            const counts = topStates.map(s => s.count);
+            const pcts = topStates.map(s => s.percentage);
+
+            const palette = [
+                'rgba(124, 58, 237, 0.85)',
+                'rgba(99, 102, 241, 0.85)',
+                'rgba(59, 130, 246, 0.85)',
+                'rgba(14, 165, 233, 0.85)',
+                'rgba(20, 184, 166, 0.85)',
+                'rgba(16, 185, 129, 0.85)',
+                'rgba(245, 158, 11, 0.85)',
+                'rgba(244, 63, 94, 0.85)'
+            ];
+
+            if (stateDistChart) {
+                stateDistChart.destroy();
+            }
+
+            const ctx = canvas.getContext('2d');
+            stateDistChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.length ? labels : ['No State Data'],
+                    datasets: [{
+                        label: 'Parcels Dispatched',
+                        data: counts.length ? counts : [0],
+                        backgroundColor: palette.slice(0, labels.length),
+                        borderWidth: 0,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        maxBarThickness: 24
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#ffffff',
+                            bodyColor: '#e2e8f0',
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    const cnt = context.parsed.x;
+                                    const pct = pcts[idx] ? ` (${pcts[idx]}%)` : '';
+                                    return ` ${cnt} Dispatched Parcels${pct}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                font: { family: 'Plus Jakarta Sans', weight: '600', size: 10 },
+                                color: '#64748b'
+                            },
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                font: { family: 'Plus Jakarta Sans', weight: '700', size: 10 },
+                                color: '#334155'
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 🔄 Live Refresh Metrics Function
+        async function refreshAnalytics() {
+            const icon = document.getElementById('refreshAnalyticsIcon');
+            if (icon) icon.classList.add('fa-spin');
+
+            try {
+                const res = await fetch('/admin/api/dashboard-analytics');
+                const data = await res.json();
+                if (data && data.success) {
+                    currentAnalytics = data;
+                    renderDashboardAnalytics(data);
+                }
+            } catch (err) {
+                console.error('Error refreshing analytics metrics:', err);
+            } finally {
+                if (icon) {
+                    setTimeout(() => icon.classList.remove('fa-spin'), 400);
+                }
+            }
+        }
+    </script>
 
 </body>
 </html>
