@@ -2,82 +2,49 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <%- include('../partials/head_meta') %>
-    <title>Admin Portal - AviraCare</title>
+    <title>Executive Admin Authentication &bull; AviraCare</title>
     <style>
         :root {
-            --emerald-deep: #064e3b;
-            --emerald-primary: #059669;
-            --emerald-vibrant: #10b981;
-            --emerald-soft: #ecfdf5;
-            --emerald-glow: rgba(5, 150, 105, 0.12);
+            --corp-blue: #2563eb;
+            --corp-dark: #0f172a;
+            --corp-slate: #1e293b;
         }
 
-        /* 🌿 Ambient Subtle Emerald Mesh Background */
-        .bg-luxury-mesh {
-            background-color: #f8fafc;
+        /* 🏢 Deep Slate Corporate Background with Mesh Radial Accents */
+        .bg-corporate-login {
+            background-color: #0b1120;
             background-image: 
-                radial-gradient(at 0% 0%, rgba(5, 150, 105, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(6, 78, 59, 0.04) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(20, 184, 166, 0.05) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.6) 0px, transparent 70%);
             background-attachment: fixed;
         }
 
-        /* 🪟 Clean Luxury Glass Card */
-        .luxury-card {
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+        /* 🪟 Executive Glass Login Card */
+        .glass-login-card {
+            background: rgba(255, 255, 255, 0.98);
             border: 1px solid rgba(226, 232, 240, 0.9);
             box-shadow: 
-                0 25px 50px -12px rgba(6, 78, 59, 0.08),
-                0 0 0 1px rgba(5, 150, 105, 0.04),
-                0 2px 4px rgba(0, 0, 0, 0.02);
+                0 25px 50px -12px rgba(15, 23, 42, 0.35),
+                0 0 0 1px rgba(37, 99, 235, 0.05),
+                0 4px 6px -2px rgba(15, 23, 42, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* ✍️ Clean Modern Form Controls */
-        .modern-input {
+        /* ✍️ Corporate Form Input */
+        .corp-input {
             background-color: #f8fafc;
             border: 1.5px solid #e2e8f0;
             color: #0f172a;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .modern-input:focus {
+        .corp-input:focus {
             background-color: #ffffff;
-            border-color: var(--emerald-primary);
-            box-shadow: 0 0 0 4px var(--emerald-glow);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
             outline: none;
-        }
-
-        /* 🌟 Deep Emerald Primary Button */
-        .btn-emerald-luxury {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            color: #ffffff;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-            box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .btn-emerald-luxury:hover {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            box-shadow: 0 14px 30px -5px rgba(5, 150, 105, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            transform: translateY(-1.5px);
-        }
-        .btn-emerald-luxury:active {
-            transform: translateY(0);
-        }
-
-        /* 💫 Subtle Ambient Floating Orbs */
-        .ambient-orb {
-            filter: blur(80px);
-            opacity: 0.6;
-            animation: orbFloat 14s infinite alternate ease-in-out;
-            will-change: transform;
-        }
-        @keyframes orbFloat {
-            0% { transform: translate(0px, 0px) scale(1); }
-            100% { transform: translate(30px, 20px) scale(1.08); }
         }
 
         /* 🚨 Shake Animation on Error */
@@ -91,108 +58,115 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
-        /* 🕸️ Subtle Pattern Grid */
-        .dot-grid {
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 24px 24px;
-            opacity: 0.4;
+        /* Ambient subtle orb floating */
+        .ambient-glow {
+            filter: blur(100px);
+            opacity: 0.45;
+            animation: floatGlow 12s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+        @keyframes floatGlow {
+            0% { transform: translate(0px, 0px) scale(1); }
+            100% { transform: translate(30px, 20px) scale(1.1); }
         }
     </style>
 </head>
-<body class="bg-luxury-mesh min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative selection:bg-emerald-500 selection:text-white">
+<body class="bg-corporate-login min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 relative selection:bg-blue-600 selection:text-white">
 
-    <!-- 🌿 Ambient Background Floating Glows -->
+    <!-- Ambient Glowing Orbs -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div class="absolute inset-0 dot-grid"></div>
-        <div class="absolute -top-24 -left-24 w-96 h-96 bg-emerald-300 rounded-full ambient-orb"></div>
-        <div class="absolute top-1/2 -right-32 w-96 h-96 bg-teal-200 rounded-full ambient-orb" style="animation-delay: -5s;"></div>
-        <div class="absolute -bottom-24 left-1/3 w-80 h-80 bg-emerald-200 rounded-full ambient-orb" style="animation-delay: -9s;"></div>
+        <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600 rounded-full ambient-glow"></div>
+        <div class="absolute top-1/2 -right-32 w-96 h-96 bg-indigo-600 rounded-full ambient-glow" style="animation-delay: -6s;"></div>
     </div>
 
-    <!-- 🌐 Header Brand Bar -->
+    <!-- 🌐 Header Bar -->
     <header class="relative z-10 w-full px-6 py-5 flex items-center justify-between max-w-6xl mx-auto">
         <a href="/" class="flex items-center space-x-3 group">
-            <div class="h-9 w-9 rounded-xl overflow-hidden bg-white shadow-sm border border-slate-200 flex items-center justify-center p-0.5 group-hover:border-emerald-400 transition-colors">
+            <div class="h-9 w-9 rounded-xl overflow-hidden bg-white shadow-sm border border-slate-700/60 flex items-center justify-center p-0.5 group-hover:border-blue-400 transition-colors">
                 <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-lg">
             </div>
             <div>
-                <span class="font-extrabold text-base tracking-tight text-slate-900">Avira<span class="text-emerald-600">Care</span></span>
-                <span class="text-[11px] font-semibold text-slate-400 block -mt-1 tracking-wider uppercase">Lifecare Systems</span>
+                <span class="font-extrabold text-base tracking-tight text-white">Avira<span class="text-blue-500">Care</span></span>
+                <span class="text-[10px] font-semibold text-slate-400 block -mt-1 tracking-wider uppercase">Executive Portal</span>
             </div>
         </a>
 
-        <a href="/" class="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-600 transition-colors bg-white/70 hover:bg-white px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-sm backdrop-blur-sm">
+        <a href="/" class="inline-flex items-center space-x-2 text-xs font-bold text-slate-300 hover:text-white transition-colors bg-white/10 hover:bg-white/20 px-3.5 py-1.5 rounded-full border border-white/15 backdrop-blur-md">
             <i class="fa-solid fa-arrow-left text-[10px]"></i>
-            <span>Member Portal</span>
+            <span>Member Website</span>
         </a>
     </header>
 
     <!-- 🛡️ Main Center Login Box -->
     <main class="relative z-10 flex-grow flex items-center justify-center px-4 py-8 w-full">
-        <div id="loginCard" class="luxury-card w-full max-w-[420px] p-8 sm:p-10 rounded-3xl relative">
+        <div id="loginCard" class="glass-login-card w-full max-w-[430px] p-8 sm:p-10 rounded-3xl relative">
             
             <!-- Logo & Badge Header -->
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/60 shadow-sm mb-4">
-                    <i class="fa-solid fa-shield-halved text-2xl text-emerald-600"></i>
+                <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-sm mb-4">
+                    <img src="/images/logo.jpg" alt="Avira Logo" class="h-12 w-12 object-cover rounded-xl shadow-xs">
                 </div>
                 
-                <h1 class="text-2xl font-black tracking-tight text-slate-900 mb-1.5">
-                    Admin Portal
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-black uppercase tracking-wider mb-2">
+                    <i class="fa-solid fa-shield-halved text-blue-600"></i> Secure Operations Suite
+                </div>
+
+                <h1 class="text-2xl font-black tracking-tight text-slate-900 mb-1">
+                    Administrator Sign In
                 </h1>
                 <p class="text-xs font-medium text-slate-500 max-w-xs mx-auto">
-                    Sign in with your administrator credentials to manage AviraCare operations.
+                    Authenticate to access real-time dispatch logistics, orders master, and automation bots.
                 </p>
             </div>
 
             <!-- Dynamic Error Alert Box -->
-            <div id="errorAlert" class="<% if (typeof error !== 'undefined' && error) { %>flex<% } else { %>hidden<% } %> items-center space-x-2.5 p-3.5 mb-6 rounded-2xl bg-rose-50 border border-rose-200/80 text-rose-700 text-xs font-semibold shadow-sm">
+            <div id="errorAlert" class="<% if (typeof error !== 'undefined' && error) { %>flex<% } else { %>hidden<% } %> items-center space-x-2.5 p-3.5 mb-6 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold shadow-sm">
                 <i class="fa-solid fa-circle-exclamation text-rose-500 text-sm flex-shrink-0"></i>
-                <span id="errorMessage"><%= (typeof error !== 'undefined' && error) ? error : 'Invalid Credentials! Please check username & password.' %></span>
+                <span id="errorMessage"><%= (typeof error !== 'undefined' && error) ? error : 'Invalid Credentials! Please verify username and password.' %></span>
             </div>
 
-            <!-- 🔑 Modern Clean Login Form -->
-            <form id="adminLoginForm" action="/admin/login" method="POST" class="space-y-5">
+            <!-- 🔑 Corporate Login Form -->
+            <form id="adminLoginForm" action="/admin/login" method="POST" class="space-y-4">
                 
                 <!-- Username Field -->
                 <div class="space-y-1.5 text-left">
-                    <label for="usernameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    <label for="usernameInput" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
                         Admin Username
                     </label>
                     <div class="relative flex items-center">
-                        <i class="fa-solid fa-user absolute left-4 text-slate-400 text-xs pointer-events-none transition-colors"></i>
+                        <i class="fa-solid fa-user absolute left-4 text-slate-400 text-xs pointer-events-none"></i>
                         <input type="text" 
                                id="usernameInput" 
                                name="username" 
-                               placeholder="Enter your username" 
+                               placeholder="Enter admin username" 
                                required 
                                autofocus
-                               class="modern-input w-full pl-11 pr-4 py-3.5 rounded-2xl text-xs font-semibold placeholder:text-slate-400">
+                               class="corp-input w-full pl-11 pr-4 py-3 rounded-xl text-xs font-semibold placeholder:text-slate-400">
                     </div>
                 </div>
 
                 <!-- Password Field -->
                 <div class="space-y-1.5 text-left">
                     <div class="flex items-center justify-between">
-                        <label for="passwordInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                            Password
+                        <label for="passwordInput" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                            Secret Key / Password
                         </label>
-                        <button type="button" id="quickAutofillBtn" class="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors">
+                        <button type="button" id="quickAutofillBtn" class="text-[11px] font-bold text-blue-600 hover:text-blue-700 hover:underline transition-colors">
                             Fill Credentials
                         </button>
                     </div>
                     <div class="relative flex items-center">
-                        <i class="fa-solid fa-lock absolute left-4 text-slate-400 text-xs pointer-events-none transition-colors"></i>
+                        <i class="fa-solid fa-lock absolute left-4 text-slate-400 text-xs pointer-events-none"></i>
                         <input type="password" 
                                id="passwordInput" 
                                name="password" 
-                               placeholder="Enter your password" 
+                               placeholder="Enter secret password" 
                                required 
-                               class="modern-input w-full pl-11 pr-11 py-3.5 rounded-2xl text-xs font-semibold placeholder:text-slate-400">
+                               class="corp-input w-full pl-11 pr-11 py-3 rounded-xl text-xs font-semibold placeholder:text-slate-400">
                         <button type="button" 
                                 id="togglePasswordBtn" 
                                 title="Toggle password visibility" 
-                                class="absolute right-3.5 text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-lg">
+                                class="absolute right-3 text-slate-400 hover:text-slate-700 transition-colors p-1.5 rounded-lg">
                             <i class="fa-solid fa-eye-slash text-xs" id="eyeIcon"></i>
                         </button>
                     </div>
@@ -201,19 +175,19 @@
                 <!-- Remember & Security Info -->
                 <div class="flex items-center justify-between pt-1 text-xs text-slate-500">
                     <label class="inline-flex items-center space-x-2 cursor-pointer select-none">
-                        <input type="checkbox" id="rememberMe" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4">
-                        <span class="font-medium text-slate-600">Keep me signed in</span>
+                        <input type="checkbox" id="rememberMe" name="rememberMe" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4">
+                        <span class="font-bold text-slate-700 text-[11px]">Stay Signed In (30 Days)</span>
                     </label>
-                    <span class="inline-flex items-center space-x-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-0.5 rounded-full">
-                        <i class="fa-solid fa-shield-check text-[10px]"></i>
-                        <span>256-Bit SSL</span>
+                    <span class="inline-flex items-center space-x-1 text-[10px] font-extrabold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">
+                        <i class="fa-solid fa-lock text-[9px]"></i>
+                        <span>HMAC SIGNED</span>
                     </span>
                 </div>
 
                 <!-- Submit Button -->
                 <button type="submit" 
                         id="submitBtn" 
-                        class="btn-emerald-luxury w-full py-4 rounded-2xl text-xs uppercase cursor-pointer flex items-center justify-center space-x-2 mt-2">
+                        class="w-full py-3.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-500 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/25 mt-3">
                     <span id="btnLabel">Sign In to Dashboard</span>
                     <i class="fa-solid fa-arrow-right text-xs" id="btnArrow"></i>
                     <i class="fa-solid fa-circle-notch fa-spin text-xs hidden" id="btnSpinner"></i>
@@ -221,19 +195,19 @@
             </form>
 
             <!-- Bottom Back Link -->
-            <div class="mt-8 pt-5 border-t border-slate-100 text-center">
-                <a href="/" class="text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors inline-flex items-center space-x-1.5">
+            <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+                <a href="/" class="text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors inline-flex items-center space-x-1.5">
                     <i class="fa-solid fa-house text-[11px]"></i>
-                    <span>Return to Public Home</span>
+                    <span>Return to Member Homepage</span>
                 </a>
             </div>
 
         </div>
     </main>
 
-    <!-- 📋 Clean Corporate Footer -->
-    <footer class="relative z-10 w-full py-5 text-center text-xs font-medium text-slate-400">
-        &copy; 2026 AviraCare Lifecare Systems. All rights reserved. Secure Administrator Access.
+    <!-- 📋 Corporate Footer -->
+    <footer class="relative z-10 w-full py-4 text-center text-[11px] font-semibold text-slate-400">
+        &copy; 2026 AviraCare Systems. Encrypted TLS 1.3 Administrator Gateway.
     </footer>
 
     <!-- Interactive Script -->
@@ -259,7 +233,7 @@
             togglePasswordBtn.addEventListener('click', () => {
                 if (passwordInput.type === 'password') {
                     passwordInput.type = 'text';
-                    eyeIcon.className = 'fa-solid fa-eye text-emerald-600';
+                    eyeIcon.className = 'fa-solid fa-eye text-blue-600';
                 } else {
                     passwordInput.type = 'password';
                     eyeIcon.className = 'fa-solid fa-eye-slash text-slate-400';
@@ -284,8 +258,8 @@
 
                 // Loading state
                 submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-90', 'cursor-not-allowed');
-                btnLabel.textContent = 'Verifying...';
+                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+                btnLabel.textContent = 'Authenticating...';
                 btnArrow.classList.add('hidden');
                 btnSpinner.classList.remove('hidden');
                 errorAlert.classList.add('hidden');
@@ -298,29 +272,32 @@
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         },
-                        body: JSON.stringify({ username, password })
+                        body: JSON.stringify({ 
+                            username, 
+                            password,
+                            rememberMe: document.getElementById('rememberMe').checked
+                        })
                     });
 
                     const data = await res.json().catch(() => null);
 
                     if (res.ok && data && data.success) {
-                        btnLabel.textContent = 'Success! Redirecting...';
+                        btnLabel.textContent = 'Authorized! Loading Hub...';
                         btnSpinner.className = 'fa-solid fa-check text-xs';
                         setTimeout(() => {
                             window.location.href = data.redirectUrl || '/admin/home';
-                        }, 400);
+                        }, 350);
                     } else {
-                        showError(data ? data.message : 'Invalid Credentials! Please try again.');
+                        showError(data ? data.message : 'Invalid Credentials! Access Denied.');
                     }
                 } catch (err) {
-                    // Fallback to standard form submission
                     loginForm.submit();
                 }
             });
 
             function showError(msg) {
                 submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-90', 'cursor-not-allowed');
+                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
                 btnLabel.textContent = 'Sign In to Dashboard';
                 btnArrow.classList.remove('hidden');
                 btnSpinner.classList.add('hidden');

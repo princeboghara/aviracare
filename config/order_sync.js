@@ -9,6 +9,7 @@
 
 const db = require('../db');
 const pool = db.pool || db;
+const logger = require('./logger');
 
 class AviraOrderSyncBot {
     constructor() {
@@ -414,6 +415,14 @@ class AviraOrderSyncBot {
                 error: null
             };
 
+            logger.aviraglobal(
+                'SUCCESS', 
+                totalNewAdded > 0 
+                    ? `Incremental Check: Successfully imported ${totalNewAdded} new orders. Total in DB: ${totalInDb}.` 
+                    : `Incremental Check: Catalog is 100% up to date. (${totalInDb} orders in DB).`,
+                { newOrdersAdded: totalNewAdded, totalOrdersInDb: totalInDb, mode: 'new' }
+            );
+
             if (onProgress) {
                 onProgress({
                     step: 'done',
@@ -432,6 +441,7 @@ class AviraOrderSyncBot {
 
         } catch (err) {
             console.error('❌ [Sync New Orders Error]:', err.message);
+            logger.aviraglobal('ERROR', `Incremental Sync Failed: ${err.message}`, { error: err.message, mode: 'new' });
             this.lastSyncStatus = {
                 lastRun: new Date(),
                 success: false,
@@ -553,6 +563,12 @@ class AviraOrderSyncBot {
                 error: null
             };
 
+            logger.aviraglobal(
+                'SUCCESS', 
+                `Wipe & Sync All Complete: Successfully imported all ${totalNewAdded} orders in 1 shot. Total in DB: ${totalInDb}.`,
+                { totalOrdersInDb: totalInDb, totalNewAdded, mode: 'wipe_all' }
+            );
+
             if (onProgress) {
                 onProgress({
                     step: 'done',
@@ -569,6 +585,7 @@ class AviraOrderSyncBot {
 
         } catch (err) {
             console.error('❌ [Wipe & Sync All Error]:', err.message);
+            logger.aviraglobal('ERROR', `Wipe & Sync All Failed: ${err.message}`, { error: err.message, mode: 'wipe_all' });
             this.lastSyncStatus = {
                 lastRun: new Date(),
                 success: false,
@@ -588,33 +605,128 @@ class AviraOrderSyncBot {
     }
 
     /**
+     * 💾 Loads persisted bot configuration from database on boot
+     */
+    async loadSettingsFromDb() {
+        try {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS bot_settings (
+                    key VARCHAR(50) PRIMARY KEY,
+                    value TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+            const res = await pool.query("SELECT key, value FROM bot_settings WHERE key IN ('sync_interval_minutes', 'is_auto_sync_enabled')");
+            res.rows.forEach(r => {
+                if (r.key === 'sync_interval_minutes') {
+                    const parsed = parseInt(r.value, 10);
+                    if (!isNaN(parsed) && parsed >= 1 && parsed <= 1440) {
+                        this.syncIntervalMinutes = parsed;
+                    }
+                }
+                if (r.key === 'is_auto_sync_enabled') {
+                    this.isAutoSyncEnabled = (r.value === 'true' || r.value === '1');
+                }
+            });
+        } catch (e) {
+            console.warn('⚠️ Could not load bot_settings from DB:', e.message);
+        }
+    }
+
+    /**
+     * 🔄 Restarts the interval timer with current syncIntervalMinutes
+     */
+    restartIntervalTimer() {
+        if (this.intervalHandle) {
+            clearInterval(this.intervalHandle);
+            this.intervalHandle = null;
+        }
+
+        const intervalMs = Math.max(1, this.syncIntervalMinutes) * 60 * 1000;
+        this.intervalHandle = setInterval(() => {
+            if (!this.isAutoSyncEnabled) {
+                console.log(`⏸️ [Avira Sync Bot] ${this.syncIntervalMinutes}m timer fired but auto-sync is PAUSED. Skipping.`);
+                return;
+            }
+            this.syncNewOrders().catch(e => console.warn('Background sync notice:', e.message));
+        }, intervalMs);
+    }
+
+    /**
+     * ⏱️ Customizes the sync interval in minutes and restarts the background timer
+     */
+    async setIntervalMinutes(minutes) {
+        const parsed = parseInt(minutes, 10);
+        if (isNaN(parsed) || parsed < 1 || parsed > 1440) {
+            throw new Error('Sync interval must be between 1 and 1440 minutes.');
+        }
+        this.syncIntervalMinutes = parsed;
+        this.restartIntervalTimer();
+
+        try {
+            await pool.query(`
+                INSERT INTO bot_settings (key, value, updated_at) 
+                VALUES ('sync_interval_minutes', $1, NOW())
+                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+            `, [parsed.toString()]);
+        } catch (e) {
+            console.warn('Could not persist interval to DB:', e.message);
+        }
+
+        logger.aviraglobal('INFO', `Timer interval updated to every ${this.syncIntervalMinutes} minutes.`, { intervalMinutes: this.syncIntervalMinutes });
+
+        return { 
+            success: true, 
+            syncIntervalMinutes: this.syncIntervalMinutes, 
+            isAutoSyncEnabled: this.isAutoSyncEnabled,
+            message: `Sync interval successfully updated to every ${this.syncIntervalMinutes} minutes.` 
+        };
+    }
+
+    /**
+     * 🎛️ Explicitly sets the bot start/stop (active/paused) state
+     */
+    async setBotState(enabled) {
+        this.isAutoSyncEnabled = Boolean(enabled);
+        console.log(`🎛️ [Avira Sync Bot] Auto-sync state set to: ${this.isAutoSyncEnabled ? `ACTIVE (${this.syncIntervalMinutes}m)` : 'PAUSED'}`);
+        
+        try {
+            await pool.query(`
+                INSERT INTO bot_settings (key, value, updated_at) 
+                VALUES ('is_auto_sync_enabled', $1, NOW())
+                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+            `, [this.isAutoSyncEnabled.toString()]);
+        } catch (e) {}
+
+        logger.aviraglobal('INFO', `Bot daemon state changed to: ${this.isAutoSyncEnabled ? `ACTIVE (${this.syncIntervalMinutes}m)` : 'PAUSED'}.`, { isAutoSyncEnabled: this.isAutoSyncEnabled, intervalMinutes: this.syncIntervalMinutes });
+
+        return { 
+            success: true,
+            isAutoSyncEnabled: this.isAutoSyncEnabled, 
+            syncIntervalMinutes: this.syncIntervalMinutes,
+            message: this.isAutoSyncEnabled ? `Auto-sync is now Active (every ${this.syncIntervalMinutes} mins)` : 'Auto-sync has been Paused'
+        };
+    }
+
+    /**
      * ⏸️ Pauses background auto-sync
      */
-    pauseAutoSync() {
-        this.isAutoSyncEnabled = false;
-        console.log('⏸️ [Avira Sync Bot] Auto-sync has been PAUSED.');
-        return { isAutoSyncEnabled: false, message: 'Auto-sync paused.' };
+    async pauseAutoSync() {
+        return this.setBotState(false);
     }
 
     /**
      * ▶️ Resumes background auto-sync
      */
-    resumeAutoSync() {
-        this.isAutoSyncEnabled = true;
-        console.log('▶️ [Avira Sync Bot] Auto-sync has been RESUMED.');
-        return { isAutoSyncEnabled: true, message: 'Auto-sync active.' };
+    async resumeAutoSync() {
+        return this.setBotState(true);
     }
 
     /**
      * 🔄 Toggles background auto-sync on/off
      */
-    toggleAutoSync() {
-        this.isAutoSyncEnabled = !this.isAutoSyncEnabled;
-        console.log(`🔄 [Avira Sync Bot] Auto-sync toggled to: ${this.isAutoSyncEnabled ? 'ACTIVE (5m)' : 'PAUSED'}`);
-        return { 
-            isAutoSyncEnabled: this.isAutoSyncEnabled, 
-            message: this.isAutoSyncEnabled ? 'Auto-sync is now Active (every 5 mins)' : 'Auto-sync has been Paused'
-        };
+    async toggleAutoSync() {
+        return this.setBotState(!this.isAutoSyncEnabled);
     }
 
     /**
@@ -626,20 +738,25 @@ class AviraOrderSyncBot {
             ...this.lastSyncStatus,
             isAutoSyncEnabled: this.isAutoSyncEnabled,
             totalOrdersInDb: parseInt(totalInDb.rows[0].count, 10),
-            syncIntervalMinutes: this.syncIntervalMinutes
+            syncIntervalMinutes: this.syncIntervalMinutes,
+            baseUrl: this.baseUrl,
+            email: this.email,
+            isSyncing: this.isSyncing
         };
     }
 
     /**
      * ⏱️ Starts the automated background timer bot (syncs new orders quietly)
      */
-    startBackgroundBot() {
+    async startBackgroundBot() {
+        await this.loadSettingsFromDb();
+
         if (this.intervalHandle) {
             clearInterval(this.intervalHandle);
         }
 
         const intervalMs = Math.max(1, this.syncIntervalMinutes) * 60 * 1000;
-        console.log(`🚀 [Avira Sync Bot] Initialized. Auto-checking every ${this.syncIntervalMinutes} minutes.`);
+        console.log(`🚀 [Avira Sync Bot] Initialized. Auto-checking every ${this.syncIntervalMinutes} minutes (Active: ${this.isAutoSyncEnabled}).`);
 
         // Initial background check after 10 seconds of server boot
         setTimeout(() => {
@@ -650,7 +767,7 @@ class AviraOrderSyncBot {
         // Recurring interval
         this.intervalHandle = setInterval(() => {
             if (!this.isAutoSyncEnabled) {
-                console.log('⏸️ [Avira Sync Bot] 5-minute timer fired but auto-sync is PAUSED. Skipping.');
+                console.log(`⏸️ [Avira Sync Bot] ${this.syncIntervalMinutes}-minute timer fired but auto-sync is PAUSED. Skipping.`);
                 return;
             }
             this.syncNewOrders().catch(e => console.warn('Background sync notice:', e.message));

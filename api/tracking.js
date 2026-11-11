@@ -1,6 +1,8 @@
 const db = require('../db');
+const logger = require('../config/logger');
 
 module.exports = async (req, res) => {
+    const startTime = Date.now();
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -10,11 +12,23 @@ module.exports = async (req, res) => {
         return res.status(200).end();
     }
 
+    let cleanRaw = '';
     try {
-        const rawId = req.query.id || req.query.track || req.query.trackingid || req.body?.track || req.body?.trackingid || req.body?.id || '';
-        const cleanRaw = String(rawId).replace(/[\s\-_]/g, '').trim().toUpperCase();
+        let rawId = req.query.id || req.query.track || req.query.trackingid || req.body?.track || req.body?.trackingid || req.body?.id || '';
+        if (!rawId && req.params?.id) {
+            rawId = req.params.id;
+        }
+        if (!rawId) {
+            const pathParts = (req.path || '').split('/').filter(Boolean);
+            const lastPart = pathParts[pathParts.length - 1];
+            if (lastPart && lastPart.toLowerCase() !== 'tracking') {
+                rawId = lastPart;
+            }
+        }
+        cleanRaw = String(rawId).replace(/[\s\-_]/g, '').trim().toUpperCase();
 
         if (!cleanRaw) {
+            logger.whatsapp('WARN', 'WhatsApp CRM Tracking API: Empty query received', { ip: req.ip, endpoint: req.originalUrl });
             return res.status(400).json({ error: 'Please provide a valid Member ID or Tracking Number' });
         }
 
@@ -41,6 +55,8 @@ module.exports = async (req, res) => {
         const result = await db.query(querySql, [withAv, withoutAv]);
 
         if (!result.rows || result.rows.length === 0) {
+            const timeTaken = Date.now() - startTime;
+            logger.whatsapp('WARN', `Tracking lookup: No records found for [${cleanRaw}]`, { query: cleanRaw, ip: req.ip, durationMs: timeTaken });
             return res.status(404).json({ error: 'No tracking data found for this member' });
         }
 
@@ -91,6 +107,17 @@ module.exports = async (req, res) => {
 
             readyMsg = `Hello ${memberName},\n\nWe found ${uniqueOrders.length} parcels for your account: 📦\n\n🆔 Member ID: ${first.member_id}\n\n${parcelDetailsText}\n\nYou can track your parcels using the India Post tracking portal:\n${indiapostUrl}\n\nIf you need any assistance, Please feel free to contact us.\nThank you,\n\n*AviraCare Team*`;
         }
+
+        const timeTaken = Date.now() - startTime;
+        logger.whatsapp('SUCCESS', `Tracking lookup: Matched ${first.member_id} (${memberName}) • ${uniqueOrders.length} parcel(s) • Tracking: [${allTrackingsStr}]`, {
+            query: cleanRaw,
+            member_id: first.member_id,
+            name: memberName,
+            parcelsCount: uniqueOrders.length,
+            tracking: allTrackingsStr,
+            ip: req.ip,
+            durationMs: timeTaken
+        });
 
         return res.json({
             success: true,

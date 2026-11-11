@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const db = require('../db');
+const logger = require('../config/logger');
 
 // 📄 1. Document Stream / View Endpoint (In-Browser Preview)
 router.get('/api/documents/view/:id', async (req, res) => {
@@ -396,11 +397,21 @@ router.get('/member/downloads', async (req, res) => {
 // =============================================================
 // Compatible with: /v1/api/data/tracking/:id, /api/tracking/:id, /api/tracking
 router.all(['/v1/api/data/tracking/:id', '/api/tracking/:id', '/api/tracking', '/v1/api/data/tracking'], async (req, res) => {
+    const startTime = Date.now();
+    let cleanRaw = '';
     try {
-        const rawId = req.params.id || req.query.id || req.body?.track || req.body?.trackingid || req.body?.member_id || req.body?.id || '';
-        const cleanRaw = String(rawId).replace(/[\s\-_]/g, '').trim().toUpperCase();
+        let rawId = req.params?.id || req.query?.id || req.query?.track || req.body?.track || req.body?.trackingid || req.body?.member_id || req.body?.id || '';
+        if (!rawId) {
+            const pathParts = req.path.split('/').filter(Boolean);
+            const lastPart = pathParts[pathParts.length - 1];
+            if (lastPart && lastPart.toLowerCase() !== 'tracking') {
+                rawId = lastPart;
+            }
+        }
+        cleanRaw = String(rawId).replace(/[\s\-_]/g, '').trim().toUpperCase();
 
         if (!cleanRaw) {
+            logger.whatsapp('WARN', 'Empty query received in WhatsApp tracking endpoint', { ip: req.ip, endpoint: req.originalUrl });
             return res.status(400).json({ error: 'Please provide a valid Member ID or Tracking Number' });
         }
 
@@ -427,6 +438,8 @@ router.all(['/v1/api/data/tracking/:id', '/api/tracking/:id', '/api/tracking', '
         const result = await db.query(querySql, [withAv, withoutAv]);
 
         if (!result.rows || result.rows.length === 0) {
+            const timeTaken = Date.now() - startTime;
+            logger.whatsapp('WARN', `Tracking lookup: No records found for [${cleanRaw}]`, { query: cleanRaw, ip: req.ip, durationMs: timeTaken });
             return res.status(404).json({ error: 'No tracking data found for this member' });
         }
 
@@ -476,6 +489,17 @@ router.all(['/v1/api/data/tracking/:id', '/api/tracking/:id', '/api/tracking', '
             readyMsg = `Hello ${memberName},\n\nWe found ${uniqueOrders.length} parcels for your account: 📦\n\n🆔 Member ID: ${first.member_id}\n\n${parcelDetailsText}\n\nYou can track your parcels using the India Post tracking portal:\n${indiapostUrl}\n\nIf you need any assistance, Please feel free to contact us.\nThank you,\n\n*AviraCare Team*`;
         }
 
+        const timeTaken = Date.now() - startTime;
+        logger.whatsapp('SUCCESS', `Tracking lookup: Matched ${first.member_id} (${memberName}) • ${uniqueOrders.length} parcel(s) • Tracking: [${allTrackingsStr}]`, {
+            query: cleanRaw,
+            member_id: first.member_id,
+            name: memberName,
+            parcelsCount: uniqueOrders.length,
+            tracking: allTrackingsStr,
+            ip: req.ip,
+            durationMs: timeTaken
+        });
+
         return res.json({
             success: true,
             count: uniqueOrders.length,
@@ -507,6 +531,8 @@ router.all(['/v1/api/data/tracking/:id', '/api/tracking/:id', '/api/tracking', '
             }
         });
     } catch (err) {
+        const timeTaken = Date.now() - startTime;
+        logger.whatsapp('ERROR', `WhatsApp API Error for [${cleanRaw}]: ${err.message}`, { query: cleanRaw, error: err.message, ip: req.ip, durationMs: timeTaken });
         console.error('WhatsApp Bot Tracking API Error:', err);
         return res.status(500).json({ error: 'Server error while fetching tracking: ' + err.message });
     }

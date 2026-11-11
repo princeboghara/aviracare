@@ -3,12 +3,27 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const db = require('../db');
-const { checkAdmin } = require('../middleware/auth');
+const {
+    checkAdmin,
+    generateAdminToken,
+    verifyAdminToken,
+    parseCookies,
+    COOKIE_NAME,
+    DEFAULT_MAX_AGE_MS
+} = require('../middleware/auth');
 
 // 🔐 Admin Login Page
 router.get('/login', (req, res) => {
     if (req.session && req.session.isAdmin) {
         return res.redirect('/admin/home');
+    }
+    // Check persistent cookie
+    const cookies = parseCookies(req);
+    const verified = verifyAdminToken(cookies[COOKIE_NAME]);
+    if (verified) {
+        req.session.isAdmin = true;
+        req.session.adminUser = verified.username;
+        return req.session.save(() => res.redirect('/admin/home'));
     }
     const error = req.query.error || null;
     res.render('admin/login', { error });
@@ -19,18 +34,32 @@ router.post('/login', (req, res) => {
     const { username, password } = req.body;
     const adminUser = process.env.ADMIN_USERNAME || process.env.ADMIN_USER || 'admin';
     const adminPass = process.env.ADMIN_PASSWORD || process.env.ADMIN_PASS || 'Avira@123';
-    
-    const isAjax = req.xhr || 
-                   req.headers['x-requested-with'] === 'XMLHttpRequest' ||
-                   (req.headers.accept && req.headers.accept.includes('application/json')) ||
-                   (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
-    
+
+    const isAjax = req.xhr ||
+        req.headers['x-requested-with'] === 'XMLHttpRequest' ||
+        (req.headers.accept && req.headers.accept.includes('application/json')) ||
+        (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
+
     if (username === adminUser && password === adminPass) {
         req.session.isAdmin = true;
-        if (isAjax) {
-            return res.json({ success: true, redirectUrl: '/admin/home' });
-        }
-        res.redirect('/admin/home');
+        req.session.adminUser = adminUser;
+
+        // 🛡️ Set persistent 30-day authentication cookie to eliminate auto-logout
+        const token = generateAdminToken(adminUser, DEFAULT_MAX_AGE_MS);
+        res.cookie(COOKIE_NAME, token, {
+            maxAge: DEFAULT_MAX_AGE_MS,
+            httpOnly: true,
+            sameSite: 'lax',
+            path: '/'
+        });
+
+        req.session.save((err) => {
+            if (err) console.error('Session save warning on login:', err);
+            if (isAjax) {
+                return res.json({ success: true, redirectUrl: '/admin/home' });
+            }
+            res.redirect('/admin/home');
+        });
     } else {
         if (isAjax) {
             return res.status(401).json({ success: false, message: 'Invalid Admin Credentials! Access Denied.' });
@@ -41,8 +70,15 @@ router.post('/login', (req, res) => {
 
 // 🚪 Admin Logout Handler
 router.get('/logout', (req, res) => {
-    req.session.isAdmin = false;
-    res.redirect('/admin/login');
+    res.clearCookie(COOKIE_NAME, { path: '/' });
+    res.clearCookie('connect.sid', { path: '/' });
+    if (req.session) {
+        req.session.destroy(() => {
+            res.redirect('/admin/login');
+        });
+    } else {
+        res.redirect('/admin/login');
+    }
 });
 
 // ⚡ Root Admin Redirect
@@ -55,10 +91,16 @@ router.get('/home', checkAdmin, async (req, res) => {
     try {
         const { getDashboardAnalytics } = require('../config/analytics');
         const analytics = await getDashboardAnalytics();
-        res.render('admin/home', { analytics });
+        const stats = {
+            totalOrders: analytics?.totals?.totalOrders || 0,
+            pendingDispatches: Math.max(0, (analytics?.totals?.totalOrders || 0) - (analytics?.totals?.totalDispatched || 0)),
+            totalCustomers: analytics?.totals?.totalOrders || 0,
+            totalDispatched: analytics?.totals?.totalDispatched || 0
+        };
+        res.render('admin/home', { analytics, stats });
     } catch (err) {
         console.error("Dashboard Render Error:", err);
-        res.render('admin/home', { analytics: null });
+        res.render('admin/home', { analytics: null, stats: { totalOrders: 0, pendingDispatches: 0, totalCustomers: 0, totalDispatched: 0 } });
     }
 });
 
@@ -184,7 +226,7 @@ router.get('/orders-master', checkAdmin, async (req, res) => {
 router.get('/manual-entry', checkAdmin, async (req, res) => {
     try {
         const consignmentId = req.query.consignmentId ? parseInt(req.query.consignmentId, 10) : null;
-        
+
         // Fetch all consignments with parcel count
         const consignmentsRes = await db.query(`
             SELECT c.*, 
@@ -207,7 +249,7 @@ router.get('/manual-entry', checkAdmin, async (req, res) => {
             }
         }
 
-        res.render('admin/manual_entry', { 
+        res.render('admin/manual_entry', {
             consignments: consignmentsRes.rows,
             activeConsignment,
             activeParcels,
@@ -215,7 +257,7 @@ router.get('/manual-entry', checkAdmin, async (req, res) => {
         });
     } catch (err) {
         console.error("Fetch Manual Entry Error:", err);
-        res.render('admin/manual_entry', { 
+        res.render('admin/manual_entry', {
             consignments: [],
             activeConsignment: null,
             activeParcels: [],
@@ -244,7 +286,7 @@ router.get('/confirm-member', checkAdmin, (req, res) => {
 router.get('/queries', checkAdmin, async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM query_tickets ORDER BY id DESC');
-        
+
         const formattedTickets = result.rows.map(ticket => {
             let formattedCreatedAt = '';
             let formattedRepliedAt = '';
@@ -306,6 +348,7 @@ router.get('/master-database', checkAdmin, async (req, res) => {
             pv: row.pv,
             amount: row.amount,
             tracking: row.tracking || '',
+            pincode: row.pincode || '-',
             deliveryStatus: row.delivery_status || 'Pending'
         }));
         res.render('admin/master_database', { entries: formattedRows });
@@ -340,7 +383,7 @@ router.get('/content-manager', checkAdmin, async (req, res) => {
                         fileSizeStr = (bytes / 1024).toFixed(1) + ' KB';
                     }
                 }
-            } catch (e) {}
+            } catch (e) { }
 
             return {
                 ...row,
@@ -363,9 +406,9 @@ router.get('/content-manager', checkAdmin, async (req, res) => {
         res.render('admin/content_manager', { pdfs: formattedPdfs, stats });
     } catch (error) {
         console.error("Fetch Content PDFs Error:", error);
-        res.render('admin/content_manager', { 
-            pdfs: [], 
-            stats: { total: 0, plans: 0, catalogs: 0, others: 0 } 
+        res.render('admin/content_manager', {
+            pdfs: [],
+            stats: { total: 0, plans: 0, catalogs: 0, others: 0 }
         });
     }
 });
@@ -386,14 +429,34 @@ router.get('/view-products', checkAdmin, async (req, res) => {
     }
 });
 
-// ⚙️ Admin Settings & Box Presets View
+// ⚙️ Admin Settings & Bot Configuration View
 router.get('/settings', checkAdmin, async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM box_presets ORDER BY id DESC');
-        res.render('admin/settings', { presets: result.rows });
+        const orderSyncBot = require('../config/order_sync');
+        const result = await db.query('SELECT * FROM box_presets ORDER BY id DESC').catch(() => ({ rows: [] }));
+        const syncStatus = await orderSyncBot.getStatus();
+        const dbInfo = db.getDbInfo ? db.getDbInfo() : null;
+        res.render('admin/settings', {
+            presets: result.rows,
+            syncStatus,
+            dbInfo
+        });
     } catch (err) {
         console.error("Admin Settings Error:", err);
-        res.render('admin/settings', { presets: [] });
+        res.render('admin/settings', { presets: [], syncStatus: null, dbInfo: null });
+    }
+});
+
+// 📜 Admin Unified Log Monitor View (Software Main Logs, WhatsApp CRM Bot, AviraGlobal Bot)
+router.get('/log-monitor', checkAdmin, async (req, res) => {
+    try {
+        const logger = require('../config/logger');
+        const tab = (req.query.tab || 'system').toLowerCase();
+        const stats = logger.getStats();
+        res.render('admin/log_monitor', { activeTab: tab, stats });
+    } catch (err) {
+        console.error("Log Monitor Route Error:", err);
+        res.render('admin/log_monitor', { activeTab: 'system', stats: {} });
     }
 });
 

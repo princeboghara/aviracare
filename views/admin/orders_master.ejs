@@ -506,6 +506,20 @@
             rawOrdersData = [];
         }
 
+        // Function: Sort Orders so Latest Date & Order No are always on TOP
+        function sortOrdersLatestFirst(list) {
+            return (list || []).sort((a, b) => {
+                const matchA = a.order_no ? a.order_no.match(/ORD-(\d+)/i) : null;
+                const matchB = b.order_no ? b.order_no.match(/ORD-(\d+)/i) : null;
+                const numA = matchA ? parseInt(matchA[1], 10) : 0;
+                const numB = matchB ? parseInt(matchB[1], 10) : 0;
+                if (numA !== numB) {
+                    return numB - numA;
+                }
+                return (b.id || 0) - (a.id || 0);
+            });
+        }
+
         let allOrders = [...rawOrdersData];
         let filteredOrders = [...allOrders];
 
@@ -632,9 +646,10 @@
             let startIdx = 0;
             let endIdx = total;
             let totalPages = 1;
-            isShowAll = (pageSize === 'ALL');
+            const isAll = (pageSize === 'ALL');
+            const isShowAll = isAll;
 
-            if (isShowAll) {
+            if (isAll) {
                 pageItems = filteredOrders;
                 startIdx = 0;
                 endIdx = total;
@@ -660,13 +675,13 @@
             document.getElementById('totalPagesNum').innerText = totalPages;
 
             // Update Button Disabled States
-            document.getElementById('btnFirstPage').disabled = (currentPage === 1 || isShowAll);
-            document.getElementById('btnPrevPage').disabled = (currentPage === 1 || isShowAll);
-            document.getElementById('btnNextPage').disabled = (currentPage >= totalPages || total === 0 || isShowAll);
-            document.getElementById('btnLastPage').disabled = (currentPage >= totalPages || total === 0 || isShowAll);
+            document.getElementById('btnFirstPage').disabled = (currentPage === 1 || isAll);
+            document.getElementById('btnPrevPage').disabled = (currentPage === 1 || isAll);
+            document.getElementById('btnNextPage').disabled = (currentPage >= totalPages || total === 0 || isAll);
+            document.getElementById('btnLastPage').disabled = (currentPage >= totalPages || total === 0 || isAll);
 
             // Render Page Number Pills
-            if (isShowAll) {
+            if (isAll) {
                 document.getElementById('pagePillsContainer').innerHTML = `<span class="px-2 py-1 text-slate-500 font-bold text-xs bg-slate-100 rounded-lg">All Records Visible</span>`;
             } else {
                 renderPaginationPills(totalPages);
@@ -837,29 +852,33 @@
 
         // Pagination Navigation Event Listeners
         document.getElementById('btnFirstPage').addEventListener('click', () => {
-            if (currentPage > 1 && !isShowAll) {
+            const isAll = (pageSize === 'ALL');
+            if (currentPage > 1 && !isAll) {
                 currentPage = 1;
                 renderPaginatedTable();
             }
         });
         document.getElementById('btnPrevPage').addEventListener('click', () => {
-            if (currentPage > 1 && !isShowAll) {
+            const isAll = (pageSize === 'ALL');
+            if (currentPage > 1 && !isAll) {
                 currentPage--;
                 renderPaginatedTable();
             }
         });
         document.getElementById('btnNextPage').addEventListener('click', () => {
+            const isAll = (pageSize === 'ALL');
             const numericSize = parseInt(pageSize, 10) || 50;
-            const totalPages = isShowAll ? 1 : Math.max(1, Math.ceil(filteredOrders.length / numericSize));
-            if (currentPage < totalPages && !isShowAll) {
+            const totalPages = isAll ? 1 : Math.max(1, Math.ceil(filteredOrders.length / numericSize));
+            if (currentPage < totalPages && !isAll) {
                 currentPage++;
                 renderPaginatedTable();
             }
         });
         document.getElementById('btnLastPage').addEventListener('click', () => {
+            const isAll = (pageSize === 'ALL');
             const numericSize = parseInt(pageSize, 10) || 50;
-            const totalPages = isShowAll ? 1 : Math.max(1, Math.ceil(filteredOrders.length / numericSize));
-            if (currentPage < totalPages && !isShowAll) {
+            const totalPages = isAll ? 1 : Math.max(1, Math.ceil(filteredOrders.length / numericSize));
+            if (currentPage < totalPages && !isAll) {
                 currentPage = totalPages;
                 renderPaginatedTable();
             }

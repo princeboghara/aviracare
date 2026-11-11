@@ -2,14 +2,43 @@
 <html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('../partials/head_meta') %>
-    <title>System Settings - Avira Control</title>
+    <title>System Settings - Avira Control Center</title>
     <style>
-        .slide-down-anim {
-            animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
         }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .ref-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .ref-card:hover {
+            border-color: #cbd5e1;
+        }
+
+        .ref-input {
+            width: 100%;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
+            padding-top: 0.625rem;
+            padding-bottom: 0.625rem;
+            padding-left: 0.875rem;
+            padding-right: 0.875rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #0f172a;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
+        }
+        .ref-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
     </style>
 </head>
@@ -17,127 +46,335 @@
 
     <%- include('../partials/admin_navbar') %>
 
-    <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between box-border">
+    <div class="w-full lg:pl-64 min-h-screen flex flex-col justify-between box-border min-w-0">
         
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3.5 flex justify-between items-center sticky top-0 z-40 shadow-sm w-full">
+        <!-- 🧭 Top Navigation Header -->
+        <header class="bg-white border-b border-slate-200 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 w-full">
             <div class="flex items-center gap-2 min-w-0">
-                <i class="fa-solid fa-gears text-emerald-500"></i>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Control Panel / System Settings</span>
+                <i class="fa-solid fa-gear text-blue-600 flex-shrink-0"></i>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Control Panel / Settings</span>
+            </div>
+            <div class="flex items-center gap-2.5 sm:gap-3 flex-shrink-0 ml-2">
+                <a href="/admin/log-monitor" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">
+                    <i class="fa-solid fa-terminal text-blue-600 text-xs"></i> <span>Open Log Monitor</span>
+                </a>
             </div>
         </header>
 
-        <main class="flex-grow w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-6 space-y-6">
+        <main class="flex-grow w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-6 space-y-6 box-border max-w-5xl mx-auto">
             
-            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-md space-y-2">
-                <label class="text-xs font-black text-slate-500 uppercase tracking-wider block">
-                    <i class="fa-solid fa-sliders text-emerald-500 mr-1"></i> Select Setting Option
-                </label>
-                <div class="relative">
-                    <select id="mainSettingSelect" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 cursor-pointer appearance-none">
-                        <option value="" disabled selected>-- Choose Setting Category --</option>
-                        <option value="box_dimensions">Box Dimensions (L x B x H Shortcuts)</option>
-                    </select>
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-xs">
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
+            <!-- Page Header -->
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                        <i class="fa-solid fa-sliders text-blue-600"></i> Control Panel Settings
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1 font-medium">
+                        Configure the background AviraGlobal auto-sync bot and manage packaging dimension shortcuts.
+                    </p>
                 </div>
             </div>
 
-            <div id="boxDimensionsSection" class="hidden space-y-6 slide-down-anim">
-                
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-md space-y-4">
-                    <h2 class="text-sm font-black text-slate-900 uppercase flex items-center gap-2">
-                        <i class="fa-solid fa-plus-circle text-emerald-500"></i> Add New Box Dimension Shortcut
-                    </h2>
-                    <form id="addPresetForm" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                        <div class="sm:col-span-2">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Box Name (e.g. Courier Box A)</label>
-                            <input type="text" id="pName" required placeholder="ENTER BOX NAME" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500 uppercase">
+            <!-- ======================================================== -->
+            <!-- 🤖 1. AVIRA GLOBAL AUTO-SYNC BOT (CLEAN & MINIMAL)       -->
+            <!-- ======================================================== -->
+            <% const isEnabled = syncStatus ? syncStatus.isAutoSyncEnabled : true; %>
+            <% const currentInterval = syncStatus ? (syncStatus.syncIntervalMinutes || 5) : 5; %>
+
+            <div class="ref-card p-6 bg-white border border-slate-200 shadow-xs space-y-5">
+                <!-- Top Status Header -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold border border-blue-200 flex-shrink-0">
+                            <i class="fa-solid fa-robot"></i>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Length (cm)</label>
-                            <input type="number" id="pLength" required placeholder="0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h2 class="text-sm font-black text-slate-900">AviraGlobal Auto-Sync Bot</h2>
+                                <span id="botStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full <%= isEnabled ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' : 'bg-amber-50 border border-amber-200 text-amber-700' %> text-[11px] font-bold">
+                                    <span id="botStatusDot" class="h-1.5 w-1.5 rounded-full <%= isEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500' %>"></span>
+                                    <span id="botStatusText"><%= isEnabled ? ('Running (Every ' + currentInterval + 'm)') : 'Paused' %></span>
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Scans https://aviraglobal.in for brand new orders automatically.</p>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Breadth (cm)</label>
-                            <input type="number" id="pBreadth" required placeholder="0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <!-- Toggle Start / Stop Button -->
+                    <button type="button" id="btnToggleBot" 
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl <%= isEnabled ? 'bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800' : 'bg-emerald-600 hover:bg-emerald-700 text-white' %> text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-2xs">
+                        <i id="btnToggleIcon" class="fa-solid <%= isEnabled ? 'fa-pause text-amber-600' : 'fa-play' %> text-xs"></i>
+                        <span id="btnToggleLabel"><%= isEnabled ? 'Pause Bot' : 'Start Bot' %></span>
+                    </button>
+                </div>
+
+                <!-- Timer Frequency Selection -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label class="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                            Sync Interval Frequency:
+                        </label>
+                        <a href="/admin/log-monitor?tab=aviraglobal" class="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                            <span>View Bot Execution Logs</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </a>
+                    </div>
+
+                    <!-- Preset Pills -->
+                    <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                        <button type="button" onclick="selectInterval(2)" class="interval-btn px-2 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center <%= currentInterval === 2 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' %>">
+                            2 Mins
+                        </button>
+                        <button type="button" onclick="selectInterval(5)" class="interval-btn px-2 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center <%= currentInterval === 5 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' %>">
+                            5 Mins
+                        </button>
+                        <button type="button" onclick="selectInterval(10)" class="interval-btn px-2 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center <%= currentInterval === 10 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' %>">
+                            10 Mins
+                        </button>
+                        <button type="button" onclick="selectInterval(15)" class="interval-btn px-2 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center <%= currentInterval === 15 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' %>">
+                            15 Mins
+                        </button>
+                        <button type="button" onclick="selectInterval(30)" class="interval-btn px-2 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center <%= currentInterval === 30 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' %>">
+                            30 Mins
+                        </button>
+                        <button type="button" onclick="selectInterval(60)" class="interval-btn px-2 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center <%= currentInterval === 60 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' %>">
+                            60 Mins
+                        </button>
+                    </div>
+
+                    <!-- Custom Input Form -->
+                    <form id="intervalForm" class="flex items-center gap-2 pt-1">
+                        <div class="relative w-44">
+                            <input type="number" id="customIntervalInput" min="1" max="1440" required value="<%= currentInterval %>" 
+                                   class="ref-input pr-12 text-xs font-mono font-bold text-slate-900 py-1.5">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 pointer-events-none">MINS</span>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Height (cm)</label>
-                            <input type="number" id="pHeight" required placeholder="0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-emerald-500">
-                        </div>
-                        <div class="sm:col-span-4 flex justify-end pt-2">
-                            <button type="submit" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-[10px] px-6 py-2.5 rounded-xl uppercase tracking-widest shadow-md transition-all cursor-pointer">
-                                Save Preset to Database
-                            </button>
-                        </div>
+                        <button type="submit" id="btnSaveInterval" 
+                                class="inline-flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-950 text-white font-black text-xs px-4 py-2 rounded-xl uppercase tracking-wider transition-all cursor-pointer">
+                            <i class="fa-solid fa-check text-xs"></i> <span>Save</span>
+                        </button>
                     </form>
                 </div>
+            </div>
 
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-md overflow-hidden">
-                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 font-bold text-xs text-slate-900 uppercase flex items-center justify-between">
-                        <span>Stored Box Dimensions</span>
-                        <span class="text-[10px] text-emerald-600 font-mono font-bold"><%= presets.length %> Active Presets</span>
+            <!-- ======================================================== -->
+            <!-- 📦 2. BOX DIMENSION PRESETS (CLEAN & COMPACT)            -->
+            <!-- ======================================================== -->
+            <div class="ref-card p-6 bg-white border border-slate-200 shadow-xs space-y-4">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked text-blue-600"></i> Box Dimension Shortcuts
+                        </h2>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Predefined package dimensions for fast parcel entry.</p>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead>
-                                <tr class="bg-slate-100/50 border-b border-slate-100 text-slate-400 font-bold uppercase">
-                                    <th class="p-4">Box Name</th>
-                                    <th class="p-4">L x B x H</th>
-                                    <th class="p-4 text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                <% if(presets.length === 0) { %>
-                                    <tr><td colspan="3" class="p-8 text-center text-slate-400">No presets found in database. Add your first box dimension above.</td></tr>
-                                <% } else { %>
-                                    <% presets.forEach(p => { %>
-                                        <tr class="hover:bg-slate-50/50">
-                                            <td class="p-4 font-bold text-slate-900 uppercase"><%= p.name %></td>
-                                            <td class="p-4 font-mono text-emerald-600 font-bold"><%= p.length %> x <%= p.breadth %> x <%= p.height %> cm</td>
-                                            <td class="p-4 text-center">
-                                                <button onclick="deletePreset('<%= p.id %>')" class="text-rose-500 hover:text-rose-700 font-bold cursor-pointer uppercase text-[10px]">
-                                                    <i class="fa-solid fa-trash-can"></i> Remove
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <% }) %>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
+                    <span class="text-[11px] font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                        <%= presets ? presets.length : 0 %> Shortcuts
+                    </span>
                 </div>
 
+                <!-- Add Preset Form -->
+                <form id="addPresetForm" class="grid grid-cols-1 sm:grid-cols-5 gap-2.5 items-end bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div class="sm:col-span-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Box Label</label>
+                        <input type="text" id="pName" required placeholder="e.g. Small Box" class="ref-input text-xs font-bold uppercase py-1.5">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Length (cm)</label>
+                        <input type="number" step="0.1" id="pLength" required placeholder="0" class="ref-input text-xs font-mono font-bold py-1.5">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Breadth (cm)</label>
+                        <input type="number" step="0.1" id="pBreadth" required placeholder="0" class="ref-input text-xs font-mono font-bold py-1.5">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Height (cm)</label>
+                        <input type="number" step="0.1" id="pHeight" required placeholder="0" class="ref-input text-xs font-mono font-bold py-1.5">
+                    </div>
+                    <div class="sm:col-span-5 flex justify-end pt-1">
+                        <button type="submit" id="btnAddPresetBtn" class="bg-slate-900 hover:bg-slate-950 text-white font-black text-xs px-4 py-2 rounded-xl uppercase tracking-wider transition-all cursor-pointer">
+                            <i class="fa-solid fa-plus text-xs mr-1"></i> Add Dimension
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Presets Table -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-extrabold uppercase text-[10px]">
+                                <th class="py-2.5 px-3">Box Label</th>
+                                <th class="py-2.5 px-3">Dimensions</th>
+                                <th class="py-2.5 px-3 text-center w-20">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <% if(!presets || presets.length === 0) { %>
+                                <tr>
+                                    <td colspan="3" class="py-6 text-center text-slate-400 text-xs">
+                                        No box dimensions saved yet.
+                                    </td>
+                                </tr>
+                            <% } else { %>
+                                <% presets.forEach(p => { %>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="py-2.5 px-3 font-bold text-slate-800 uppercase"><%= p.name %></td>
+                                        <td class="py-2.5 px-3 font-mono text-blue-700 font-bold"><%= p.length %> × <%= p.breadth %> × <%= p.height %> cm</td>
+                                        <td class="py-2.5 px-3 text-center">
+                                            <button onclick="deletePreset('<%= p.id %>')" class="text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-xs">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </main>
 
-        <footer class="bg-white border-t border-slate-100 py-3 text-center text-xs font-medium text-slate-400 mt-6 w-full">
-            &copy; 2026 Avira LifeCare. Control Panel.
+        <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs font-semibold text-slate-400 mt-6 w-full">
+            &copy; 2026 Avira LifeCare. System Settings.
         </footer>
+    </div>
 
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toastBox" class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-lg border bg-slate-900 text-white text-xs font-bold">
+            <i id="toastIcon" class="fa-solid fa-check text-emerald-400 text-xs"></i>
+            <span id="toastMessage">Saved</span>
+        </div>
     </div>
 
     <script>
-        document.getElementById('mainSettingSelect').addEventListener('change', function() {
-            const boxSection = document.getElementById('boxDimensionsSection');
-            if (this.value === 'box_dimensions') {
-                boxSection.classList.remove('hidden');
-            } else {
-                boxSection.classList.add('hidden');
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toastNotification');
+            const toastBox = document.getElementById('toastBox');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMsg = document.getElementById('toastMessage');
+
+            if (!toast) return;
+            toastMsg.innerText = message;
+            toastBox.className = isError 
+                ? 'flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-lg border border-rose-800 bg-rose-950 text-white text-xs font-bold'
+                : 'flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-lg border border-slate-800 bg-slate-900 text-white text-xs font-bold';
+            toastIcon.className = isError ? 'fa-solid fa-triangle-exclamation text-rose-400 text-xs' : 'fa-solid fa-check text-emerald-400 text-xs';
+
+            toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 2500);
+        }
+
+        let isRunning = <%= isEnabled ? 'true' : 'false' %>;
+        let currentMins = <%= currentInterval %>;
+
+        function updateUI(running, mins) {
+            isRunning = Boolean(running);
+            if (mins) currentMins = parseInt(mins, 10);
+
+            const badge = document.getElementById('botStatusBadge');
+            const dot = document.getElementById('botStatusDot');
+            const text = document.getElementById('botStatusText');
+            const toggleBtn = document.getElementById('btnToggleBot');
+            const toggleIcon = document.getElementById('btnToggleIcon');
+            const toggleLabel = document.getElementById('btnToggleLabel');
+
+            if (badge && dot && text) {
+                if (isRunning) {
+                    badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold';
+                    dot.className = 'h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse';
+                    text.innerText = `Running (Every ${currentMins}m)`;
+                } else {
+                    badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold';
+                    dot.className = 'h-1.5 w-1.5 rounded-full bg-amber-500';
+                    text.innerText = 'Paused';
+                }
+            }
+
+            if (toggleBtn && toggleIcon && toggleLabel) {
+                if (isRunning) {
+                    toggleBtn.className = 'inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-2xs';
+                    toggleIcon.className = 'fa-solid fa-pause text-amber-600 text-xs';
+                    toggleLabel.innerText = 'Pause Bot';
+                } else {
+                    toggleBtn.className = 'inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-2xs';
+                    toggleIcon.className = 'fa-solid fa-play text-xs';
+                    toggleLabel.innerText = 'Start Bot';
+                }
+            }
+
+            document.querySelectorAll('.interval-btn').forEach(btn => {
+                const match = btn.innerText.match(/(\d+)\s*Mins/i);
+                if (match && parseInt(match[1], 10) === currentMins) {
+                    btn.className = 'interval-btn px-2 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center bg-blue-600 text-white border-blue-600';
+                } else {
+                    btn.className = 'interval-btn px-2 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200';
+                }
+            });
+
+            const inp = document.getElementById('customIntervalInput');
+            if (inp) inp.value = currentMins;
+        }
+
+        document.getElementById('btnToggleBot')?.addEventListener('click', async function() {
+            this.disabled = true;
+            try {
+                const res = await fetch('/admin/api/toggle-auto-sync', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    updateUI(data.isAutoSyncEnabled, data.syncIntervalMinutes);
+                    showToast(data.message);
+                }
+            } catch (e) {
+                showToast('Server error toggling bot', true);
+            } finally {
+                this.disabled = false;
             }
         });
 
-        document.getElementById('addPresetForm').addEventListener('submit', async function(e) {
+        function selectInterval(mins) {
+            saveInterval(mins);
+        }
+
+        async function saveInterval(mins) {
+            const btn = document.getElementById('btnSaveInterval');
+            if (btn) btn.disabled = true;
+            try {
+                const res = await fetch('/admin/api/set-sync-interval', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ minutes: parseInt(mins, 10) })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    updateUI(data.isAutoSyncEnabled, data.syncIntervalMinutes);
+                    showToast(`Interval set to ${data.syncIntervalMinutes}m`);
+                }
+            } catch (e) {
+                showToast('Failed to save interval', true);
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        document.getElementById('intervalForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveInterval(document.getElementById('customIntervalInput').value);
+        });
+
+        document.getElementById('addPresetForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             const payload = {
-                name: document.getElementById('pName').value,
+                name: document.getElementById('pName').value.trim(),
                 length: document.getElementById('pLength').value,
                 breadth: document.getElementById('pBreadth').value,
                 height: document.getElementById('pHeight').value
             };
-
             try {
                 const res = await fetch('/admin/api/add-box-preset', {
                     method: 'POST',
@@ -145,24 +382,26 @@
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                if(data.success) { 
-                    location.reload(); 
-                } else {
-                    alert(data.msg);
+                if (data.success) {
+                    showToast('Shortcut added!');
+                    setTimeout(() => location.reload(), 400);
                 }
-            } catch(err) {
-                console.error(err);
+            } catch (e) {
+                showToast('Error adding shortcut', true);
             }
         });
 
         async function deletePreset(id) {
-            if(confirm("Are you sure you want to remove this box dimension preset?")) {
+            if (confirm("Remove this box dimension shortcut?")) {
                 try {
                     const res = await fetch(`/admin/api/delete-box-preset/${id}`, { method: 'DELETE' });
                     const data = await res.json();
-                    if(data.success) { location.reload(); }
-                } catch(err) {
-                    console.error(err);
+                    if (data.success) {
+                        showToast('Removed!');
+                        setTimeout(() => location.reload(), 400);
+                    }
+                } catch (e) {
+                    showToast('Error deleting', true);
                 }
             }
         }
