@@ -1,10 +1,11 @@
 <style>
     /* =========================================================================
-       🏢 PRYXON/AVIRA CORPORATE MINIMAL SIDEBAR (Exact Reference UI)
+       🏢 PRYXON/AVIRA LIGHT PURPLE + WHITE GRADIENT SIDEBAR
        ========================================================================= */
     .corporate-sidebar {
-        background: #ffffff;
-        border-right: 1px solid #e2e8f0;
+        background: linear-gradient(180deg, #ede9fe 0%, #f6f3ff 22%, #ffffff 65%, #f5effe 100%);
+        border-right: 1px solid #e9d5ff;
+        box-shadow: 2px 0 16px -4px rgba(124, 58, 237, 0.06);
         transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -35,15 +36,22 @@
         transition: all 0.18s ease;
     }
     .ref-nav-item:hover {
-        background: #f8fafc;
-        color: #0f172a;
+        background: rgba(255, 255, 255, 0.95);
+        color: #6b21a8;
+        border: 1px solid #f3e8ff;
+        box-shadow: 0 2px 6px -1px rgba(124, 58, 237, 0.05);
     }
     .ref-nav-item.active-nav,
     .ref-nav-item.nav-active {
-        background: #eff6ff !important;
-        color: #2563eb !important;
-        border: 1px solid #bfdbfe !important;
+        background: linear-gradient(135deg, #ede9fe 0%, #fae8ff 100%) !important;
+        color: #6b21a8 !important;
+        border: 1px solid #d8b4fe !important;
         font-weight: 700 !important;
+        box-shadow: 0 2px 8px -2px rgba(124, 58, 237, 0.12) !important;
+    }
+    .ref-nav-item.active-nav i,
+    .ref-nav-item.nav-active i {
+        color: #7c3aed !important;
     }
 
     /* Sub-menu styling */
@@ -73,29 +81,29 @@
         transition: all 0.15s ease;
     }
     .ref-sub-link:hover {
-        color: #0f172a;
-        background: #f1f5f9;
+        color: #6b21a8;
+        background: rgba(255, 255, 255, 0.85);
     }
     .ref-sub-link.active-sub {
-        background: #eff6ff !important;
-        color: #2563eb !important;
-        border: 1px solid #bfdbfe !important;
+        background: #f5f3ff !important;
+        color: #7c3aed !important;
+        border: 1px solid #ddd6fe !important;
         font-weight: 700 !important;
     }
 
     .sidebar-scroll::-webkit-scrollbar { width: 3px; }
-    .sidebar-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius: 9999px; }
 </style>
 
 <!-- 📱 Mobile Top Navbar -->
-<div class="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex justify-between items-center sticky top-0 z-50 w-full shadow-2xs">
+<div class="lg:hidden bg-gradient-to-r from-purple-50 via-white to-purple-50/60 border-b border-purple-100 px-4 py-3 flex justify-between items-center sticky top-0 z-50 w-full shadow-2xs">
     <div class="flex items-center gap-2.5">
-        <div class="h-8 w-8 rounded-lg overflow-hidden border border-slate-200 p-0.5 flex items-center justify-center flex-shrink-0">
+        <div class="h-8 w-8 rounded-lg overflow-hidden border border-purple-200 p-0.5 flex items-center justify-center flex-shrink-0 bg-white shadow-2xs">
             <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-[6px]">
         </div>
-        <span class="text-xs font-black tracking-wider text-slate-900 uppercase">Avira <span class="text-blue-600 font-extrabold">Care</span></span>
+        <span class="text-xs font-black tracking-wider text-slate-900 uppercase">Avira <span class="text-purple-600 font-extrabold">Care</span></span>
     </div>
-    <button type="button" onclick="toggleMobileSidebar()" class="text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 p-2 rounded-xl focus:outline-none transition-all cursor-pointer">
+    <button type="button" onclick="toggleMobileSidebar()" class="text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 p-2 rounded-xl focus:outline-none transition-all cursor-pointer">
         <i class="fa-solid fa-bars text-sm"></i>
     </button>
 </div>
@@ -106,13 +114,13 @@
     <div class="overflow-y-auto flex-grow p-4 space-y-4 sidebar-scroll">
         
         <!-- 🏷️ Brand Header (Pryxon Tech / Avira Care style) -->
-        <div class="flex items-center justify-between pb-4 pt-1 border-b border-slate-100">
+        <div class="flex items-center justify-between pb-4 pt-1 border-b border-purple-100/90">
             <a href="/admin/home" class="flex items-center gap-2.5">
-                <div class="h-8 w-8 rounded-xl bg-blue-50 border border-blue-200 p-1 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                <div class="h-8 w-8 rounded-xl bg-white border border-purple-200 p-1 flex items-center justify-center flex-shrink-0 shadow-2xs">
                     <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-[6px]">
                 </div>
                 <div class="leading-none">
-                    <span class="text-xs font-black tracking-wider text-slate-900 uppercase">AVIRA <span class="text-blue-600 font-extrabold">CARE</span></span>
+                    <span class="text-xs font-black tracking-wider text-slate-900 uppercase">AVIRA <span class="text-purple-600 font-extrabold">CARE</span></span>
                 </div>
             </a>
             <div class="flex items-center gap-1.5">
@@ -122,7 +130,7 @@
                 </span>
                 <% } %>
                 <!-- Desktop Sidebar Collapse Toggle Button -->
-                <button type="button" onclick="toggleSidebar()" class="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer" title="Collapse Sidebar">
+                <button type="button" onclick="toggleSidebar()" class="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg text-purple-400 hover:text-purple-700 hover:bg-white border border-purple-200 transition-all cursor-pointer shadow-2xs" title="Collapse Sidebar">
                     <i class="fa-solid fa-angles-left text-[11px]"></i>
                 </button>
             </div>
@@ -184,12 +192,12 @@
     </div>
 
     <!-- 🟢 Bottom Status: System Online v1.0.0 -->
-    <div class="p-4 border-t border-slate-100 flex items-center justify-between">
+    <div class="p-4 border-t border-purple-100/90 flex items-center justify-between bg-white/50 backdrop-blur-xs">
         <div class="flex items-center gap-2">
             <span class="h-2 w-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
             <div class="leading-none">
                 <p class="text-xs font-bold text-slate-700">System Online</p>
-                <span class="text-[10px] text-slate-400 font-mono mt-0.5 block">v1.0.0</span>
+                <span class="text-[10px] text-purple-400 font-mono mt-0.5 block">v1.0.0</span>
             </div>
         </div>
         <a href="/admin/logout" title="Exit Panel" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-all text-xs">
@@ -201,7 +209,7 @@
 <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-slate-950/30 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-300"></div>
 
 <!-- ⚡ Quick Expand Toggle Floating Button (Desktop when sidebar is collapsed) -->
-<button id="sidebarExpandBtn" type="button" onclick="toggleSidebar()" class="hidden fixed bottom-6 left-6 z-50 bg-slate-900 hover:bg-blue-600 text-white w-10 h-10 rounded-xl shadow-xl transition-all duration-200 items-center justify-center cursor-pointer border border-slate-700/50 hover:scale-105" title="Expand Sidebar">
+<button id="sidebarExpandBtn" type="button" onclick="toggleSidebar()" class="hidden fixed bottom-6 left-6 z-50 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white w-10 h-10 rounded-xl shadow-xl transition-all duration-200 items-center justify-center cursor-pointer border border-purple-300/40 hover:scale-105" title="Expand Sidebar">
     <i class="fa-solid fa-bars text-sm"></i>
 </button>
 
