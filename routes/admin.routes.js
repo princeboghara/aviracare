@@ -436,14 +436,36 @@ router.get('/settings', checkAdmin, async (req, res) => {
         const result = await db.query('SELECT * FROM box_presets ORDER BY id DESC').catch(() => ({ rows: [] }));
         const syncStatus = await orderSyncBot.getStatus();
         const dbInfo = db.getDbInfo ? db.getDbInfo() : null;
+
+        // System & Server Runtime Diagnostics
+        const mem = process.memoryUsage();
+        const uptimeSec = Math.floor(process.uptime());
+        const days = Math.floor(uptimeSec / 86400);
+        const hours = Math.floor((uptimeSec % 86400) / 3600);
+        const mins = Math.floor((uptimeSec % 3600) / 60);
+        const uptimeFormatted = `${days > 0 ? days + 'd ' : ''}${hours}h ${mins}m`;
+
+        const serverStats = {
+            nodeVersion: process.version,
+            platform: process.platform,
+            arch: process.arch,
+            uptimeSeconds: uptimeSec,
+            uptimeFormatted,
+            memoryRssMb: Math.round(mem.rss / (1024 * 1024)),
+            heapUsedMb: Math.round(mem.heapUsed / (1024 * 1024)),
+            pid: process.pid,
+            environment: process.env.NODE_ENV || 'production'
+        };
+
         res.render('admin/settings', {
             presets: result.rows,
             syncStatus,
-            dbInfo
+            dbInfo,
+            serverStats
         });
     } catch (err) {
         console.error("Admin Settings Error:", err);
-        res.render('admin/settings', { presets: [], syncStatus: null, dbInfo: null });
+        res.render('admin/settings', { presets: [], syncStatus: null, dbInfo: null, serverStats: null });
     }
 });
 

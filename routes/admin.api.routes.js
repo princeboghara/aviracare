@@ -1942,6 +1942,77 @@ router.post('/add-box-preset', async (req, res) => {
     }
 });
 
+// ⚙️ 27. Delete Box Preset (Express 5 compatible path array)
+router.all(['/delete-box-preset/:id', '/delete-box-preset', '/box-presets/delete/:id', '/box-presets/delete'], async (req, res) => {
+    try {
+        const id = req.params.id || req.body?.id || req.query?.id;
+        if (!id) {
+            return res.status(400).json({ success: false, msg: "Preset ID is required." });
+        }
+        const numericId = parseInt(id, 10);
+        if (isNaN(numericId)) {
+            return res.status(400).json({ success: false, msg: "Invalid Preset ID format." });
+        }
+
+        const result = await db.query('DELETE FROM box_presets WHERE id = $1 RETURNING id, name', [numericId]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ success: false, msg: "Box dimension preset not found or already deleted." });
+        }
+
+        res.json({ 
+            success: true, 
+            msg: `Box preset "${result.rows[0]?.name || numericId}" successfully deleted.`,
+            deletedId: numericId 
+        });
+    } catch (err) {
+        console.error("Delete Box Preset Error:", err);
+        res.status(500).json({ success: false, msg: err.message });
+    }
+});
+
+// 🔄 28. Application Server Restart API
+router.post('/restart-server', async (req, res) => {
+    try {
+        const adminUser = req.session?.user?.name || req.session?.user?.username || 'Admin';
+        console.log(`🔄 [System] Application Server Restart initiated by [${adminUser}] at ${new Date().toISOString()}`);
+
+        // Safely pause background bots
+        try {
+            const orderSyncBot = require('../config/order_sync');
+            if (orderSyncBot && typeof orderSyncBot.stopBackgroundBot === 'function') {
+                orderSyncBot.stopBackgroundBot();
+            }
+        } catch (e) {
+            console.warn('Bot stop notice during restart:', e.message);
+        }
+
+        // Return immediate response to the client
+        res.json({
+            success: true,
+            msg: "Server restart sequence initiated. Re-initializing services...",
+            timestamp: new Date().toISOString()
+        });
+
+        // Trigger safe process restart after client gets response
+        setTimeout(() => {
+            if (process.env.VERCEL) {
+                console.log('🔄 [System] Vercel serverless environment: re-indexing and refreshing pool...');
+                try {
+                    const db = require('../db');
+                    db.initIndexes();
+                } catch(e) {}
+            } else {
+                console.log('🔄 [System] Process exiting with code 0 for supervisor auto-restart...');
+                process.exit(0);
+            }
+        }, 1000);
+
+    } catch (err) {
+        console.error("Server Restart API Error:", err);
+        res.status(500).json({ success: false, msg: "Failed to restart server: " + err.message });
+    }
+});
+
 // 💬 28. Reply to Support Query Ticket
 router.post('/queries/reply', async (req, res) => {
     try {
