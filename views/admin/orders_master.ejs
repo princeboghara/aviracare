@@ -51,6 +51,9 @@
         <!-- 🧭 Top Navigation Header -->
         <header class="bg-white border-b border-slate-200 px-4 sm:px-8 py-3.5 flex justify-between items-center sticky top-0 z-40 w-full">
             <div class="flex items-center gap-2 min-w-0">
+                <button type="button" onclick="toggleSidebar()" class="p-1.5 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 transition-all flex items-center justify-center cursor-pointer mr-1" title="Toggle Sidebar">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
                 <i class="fa-solid fa-file-invoice text-blue-600 flex-shrink-0"></i>
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Orders / Order Master Repository</span>
             </div>
@@ -65,89 +68,43 @@
 
         <main class="flex-grow w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-6 space-y-4 sm:space-y-6 box-border">
 
-            <!-- 🤖 Avira Admin Live Sync Control Console (Modern Corporate Executive Look) -->
-            <div class="ref-card p-5 sm:p-6 border border-slate-200/90 shadow-xs relative overflow-hidden bg-white">
+            <!-- 🤖 Avira Admin Live Sync Minimal Console -->
+            <div class="ref-card px-4 sm:px-6 py-3.5 border border-slate-200/90 shadow-xs bg-white rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3">
                 
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-100">
-                    <div class="flex items-center gap-3.5">
-                        <div class="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center text-lg font-bold shadow-2xs flex-shrink-0">
-                            <i class="fa-solid fa-robot"></i>
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center text-sm font-bold shadow-2xs flex-shrink-0">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h1 class="text-sm sm:text-base font-black text-slate-900 tracking-tight">Avira Live Order Sync</h1>
+                            <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">Incremental Safe Pull</span>
                         </div>
-                        <div>
-                            <div class="flex items-center gap-3 flex-wrap">
-                                <h1 class="text-base sm:text-lg font-black tracking-tight text-slate-900">Avira Live Order Sync Engine</h1>
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span id="autoSyncBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'bg-amber-50 border border-amber-200 text-amber-700' : 'bg-emerald-50 border border-emerald-200 text-emerald-700' %> text-[11px] font-bold">
-                                        <span id="autoSyncDot" class="h-2 w-2 rounded-full <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse' %>"></span>
-                                        <span id="autoSyncBadgeText"><%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'Auto-Sync Paused' : 'Auto-Sync Active (5m)' %></span>
-                                    </span>
-                                    <button type="button" id="btnToggleAutoSync" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-[11px] font-bold transition-all cursor-pointer shadow-2xs">
-                                        <i id="toggleSyncIcon" class="fa-solid <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'fa-play text-emerald-600' : 'fa-pause text-amber-600' %> text-[10px]"></i>
-                                        <span id="toggleSyncText"><%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'Resume Auto-Sync' : 'Pause Auto-Sync' %></span>
-                                    </button>
-                                </div>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-0.5 font-medium">Direct synchronization with <span class="font-mono text-blue-600 font-semibold">https://aviraglobal.in</span> without third-party developer requirements.</p>
-                        </div>
+                        <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Direct sync with <span class="font-mono text-blue-600 font-semibold">https://aviraglobal.in</span> • Existing records safely preserved</p>
                     </div>
                 </div>
 
-                <!-- 2 Big Box Corporate Action Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 pt-5">
+                <!-- Minimal Action Bar: Minimal Auto-Sync Pill + Sync New Orders -->
+                <div class="flex items-center gap-2.5 flex-wrap flex-shrink-0">
                     
-                    <!-- Option 1: Sync New Orders (Corporate Emerald Accent) -->
-                    <div class="bg-gradient-to-br from-white to-slate-50/70 border border-slate-200 hover:border-emerald-500/50 hover:shadow-md p-5 rounded-2xl flex flex-col justify-between transition-all group relative overflow-hidden">
-                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xs font-black shadow-2xs">
-                                        <i class="fa-solid fa-bolt text-emerald-600"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-sm font-black text-slate-900 group-hover:text-emerald-700 transition-colors">Sync New Orders</h3>
-                                        <span class="text-[10px] text-slate-400 font-medium">Incremental Safe Pull</span>
-                                    </div>
-                                </div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                                    Fast Incremental
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 leading-relaxed mb-4">
-                                Scans newest pages only. Existing saved records are <strong class="text-slate-900 font-bold">retained safely</strong> and only brand-new orders are seamlessly inserted.
-                            </p>
-                        </div>
-                        <button type="button" id="btnSyncNew" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs py-2.5 px-4 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer uppercase tracking-wider">
-                            <i class="fa-solid fa-bolt text-xs"></i> <span>Sync New Orders</span>
+                    <!-- ⚡ Minimal Auto-Sync Toggle Pill -->
+                    <div class="inline-flex items-center gap-2 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs transition-all">
+                        <span id="autoSyncBadge" class="inline-flex items-center gap-1.5 text-[11px] font-bold <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'text-amber-700' : 'text-emerald-700' %>">
+                            <span id="autoSyncDot" class="h-2 w-2 rounded-full <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse' %>"></span>
+                            <span id="autoSyncBadgeText"><%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'Auto-Sync Paused' : 'Auto-Sync Active (5m)' %></span>
+                        </span>
+                        <div class="h-3.5 w-px bg-slate-200"></div>
+                        <button type="button" id="btnToggleAutoSync" class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 hover:text-blue-600 transition-colors cursor-pointer" title="Toggle Auto-Sync">
+                            <i id="toggleSyncIcon" class="fa-solid <%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'fa-play text-emerald-600' : 'fa-pause text-amber-600' %> text-[9px]"></i>
+                            <span id="toggleSyncText"><%= (syncStatus && syncStatus.isAutoSyncEnabled === false) ? 'Resume' : 'Pause' %></span>
                         </button>
                     </div>
 
-                    <!-- Option 2: Wipe & Sync All (Corporate Amber/Rose Accent) -->
-                    <div class="bg-gradient-to-br from-white to-slate-50/70 border border-slate-200 hover:border-rose-400/50 hover:shadow-md p-5 rounded-2xl flex flex-col justify-between transition-all group relative overflow-hidden">
-                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-rose-500"></div>
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center text-xs font-black shadow-2xs">
-                                        <i class="fa-solid fa-broom text-amber-600"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-sm font-black text-slate-900 group-hover:text-rose-700 transition-colors">Wipe & Sync All</h3>
-                                        <span class="text-[10px] text-slate-400 font-medium">Full Fresh Reset</span>
-                                    </div>
-                                </div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
-                                    Full Reset
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 leading-relaxed mb-4">
-                                <strong class="text-rose-600 font-bold">Wipes all current records</strong> from Orders Master and pulls a 100% fresh catalog of all orders directly from Avira Website.
-                            </p>
-                        </div>
-                        <button type="button" id="btnWipeAll" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white font-black text-xs py-2.5 px-4 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer uppercase tracking-wider">
-                            <i class="fa-solid fa-broom text-xs"></i> <span>Wipe & Sync All</span>
-                        </button>
-                    </div>
+                    <!-- 🚀 Sync New Orders Action Button -->
+                    <button type="button" id="btnSyncNew" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs py-2 px-4 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer uppercase tracking-wider">
+                        <i class="fa-solid fa-bolt text-xs"></i>
+                        <span>Sync New Orders</span>
+                    </button>
 
                 </div>
 
@@ -195,11 +152,6 @@
                         <!-- Bulk Delete Button (Appears on row selection) -->
                         <button id="btnBulkDelete" type="button" class="hidden bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-3.5 py-1.5 rounded-xl transition-all shadow cursor-pointer uppercase tracking-wider items-center gap-1.5">
                             <i class="fa-solid fa-trash"></i> Delete Selected (<span id="selectedCount">0</span>)
-                        </button>
-
-                        <!-- Wipe All Button -->
-                        <button id="btnDirectWipe" type="button" class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200 font-bold text-xs px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs">
-                            <i class="fa-solid fa-broom text-rose-500"></i> Wipe All Orders
                         </button>
                     </div>
                 </div>
@@ -1524,17 +1476,17 @@
                         const text = document.getElementById('toggleSyncText');
 
                         if (isEnabled) {
-                            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold';
+                            badge.className = 'inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700';
                             dot.className = 'h-2 w-2 rounded-full bg-emerald-500 animate-pulse';
                             badgeText.innerText = 'Auto-Sync Active (5m)';
-                            icon.className = 'fa-solid fa-pause text-amber-600 text-[10px]';
-                            text.innerText = 'Pause Auto-Sync';
+                            icon.className = 'fa-solid fa-pause text-amber-600 text-[9px]';
+                            text.innerText = 'Pause';
                         } else {
-                            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold';
+                            badge.className = 'inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-700';
                             dot.className = 'h-2 w-2 rounded-full bg-amber-500';
                             badgeText.innerText = 'Auto-Sync Paused';
-                            icon.className = 'fa-solid fa-play text-emerald-600 text-[10px]';
-                            text.innerText = 'Resume Auto-Sync';
+                            icon.className = 'fa-solid fa-play text-emerald-600 text-[9px]';
+                            text.innerText = 'Resume';
                         }
                     } else {
                         alert(data.msg || 'Unable to toggle auto-sync.');

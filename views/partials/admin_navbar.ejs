@@ -8,6 +8,20 @@
         transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    /* ⚡ Desktop sidebar collapse styling */
+    body.sidebar-collapsed #adminSidebar {
+        transform: translateX(-100%) !important;
+    }
+    body.sidebar-collapsed div[class*="lg:pl-64"] {
+        padding-left: 0 !important;
+    }
+    body.sidebar-collapsed #sidebarExpandBtn {
+        display: flex !important;
+    }
+    div[class*="lg:pl-64"] {
+        transition: padding-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     /* Nav Item Link */
     .ref-nav-item {
         display: flex;
@@ -101,11 +115,17 @@
                     <span class="text-xs font-black tracking-wider text-slate-900 uppercase">AVIRA <span class="text-blue-600 font-extrabold">CARE</span></span>
                 </div>
             </a>
-            <% if (typeof dbInfo !== 'undefined' && dbInfo) { %>
-            <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
-            </span>
-            <% } %>
+            <div class="flex items-center gap-1.5">
+                <% if (typeof dbInfo !== 'undefined' && dbInfo) { %>
+                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
+                </span>
+                <% } %>
+                <!-- Desktop Sidebar Collapse Toggle Button -->
+                <button type="button" onclick="toggleSidebar()" class="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer" title="Collapse Sidebar">
+                    <i class="fa-solid fa-angles-left text-[11px]"></i>
+                </button>
+            </div>
         </div>
 
         <!-- 🧭 Nav Links -->
@@ -180,7 +200,32 @@
 
 <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-slate-950/30 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-300"></div>
 
+<!-- ⚡ Quick Expand Toggle Floating Button (Desktop when sidebar is collapsed) -->
+<button id="sidebarExpandBtn" type="button" onclick="toggleSidebar()" class="hidden fixed bottom-6 left-6 z-50 bg-slate-900 hover:bg-blue-600 text-white w-10 h-10 rounded-xl shadow-xl transition-all duration-200 items-center justify-center cursor-pointer border border-slate-700/50 hover:scale-105" title="Expand Sidebar">
+    <i class="fa-solid fa-bars text-sm"></i>
+</button>
+
 <script>
+    // 🖥️/📱 Unified Sidebar Toggle
+    function toggleSidebar() {
+        if (window.innerWidth < 1024) {
+            toggleMobileSidebar();
+        } else {
+            document.body.classList.toggle('sidebar-collapsed');
+            const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+            try {
+                localStorage.setItem('admin_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+            } catch (e) {}
+        }
+    }
+
+    // Auto-restore desktop collapsed state as early as possible
+    try {
+        if (localStorage.getItem('admin_sidebar_collapsed') === 'true' && window.innerWidth >= 1024) {
+            document.body.classList.add('sidebar-collapsed');
+        }
+    } catch (e) {}
+
     function toggleRefAccordion(btn) {
         const item = btn.closest('.ref-accordion-item');
         if (item) {
