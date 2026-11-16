@@ -3124,7 +3124,8 @@ router.get('/orders-list', async (req, res) => {
 router.get('/dashboard-analytics', async (req, res) => {
     try {
         const { getDashboardAnalytics } = require('../config/analytics');
-        const data = await getDashboardAnalytics();
+        const forceRefresh = req.query.refresh === 'true' || req.query.force === 'true';
+        const data = await getDashboardAnalytics(forceRefresh);
         res.json(data);
     } catch (err) {
         res.status(500).json({ success: false, msg: err.message });

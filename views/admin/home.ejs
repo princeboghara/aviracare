@@ -3,300 +3,287 @@
 <head>
     <%- include('../partials/head_meta') %>
     <title>Executive Control Hub - AviraCare Systems</title>
-    <!-- Chart.js Engine -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Engine (Lightweight Performance Build) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <style>
-        :root {
-            --brand-primary: #2563eb;
-            --brand-navy: #0f172a;
-            --brand-slate: #1e293b;
+        /* ⚡ Zero-Lag Hardware Accelerated Styling */
+        body {
+            background-color: #f8fafc !important;
+            background-attachment: scroll !important; /* Eradicate scroll lag on all devices */
         }
 
-        /* 🏢 Subtle Corporate Grid Mesh */
-        .bg-corporate-canvas {
-            background-color: #f8fafc;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.04) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.03) 0px, transparent 50%);
-            background-attachment: fixed;
-        }
-
-        /* 🪟 Executive Card Styling */
         .corp-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 1.25rem;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+            border-radius: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease;
+            will-change: transform;
         }
-        .corp-card:hover {
-            border-color: #cbd5e1;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
+        @media (hover: hover) and (pointer: fine) {
+            .corp-card:hover {
+                transform: translateY(-2px);
+                border-color: #cbd5e1;
+                box-shadow: 0 8px 20px -3px rgba(15, 23, 42, 0.06);
+            }
         }
 
-        /* 🌟 Interactive Action Card Link */
+        /* Interactive Action Link */
         .hub-link-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 0.875rem;
-            border-radius: 0.875rem;
+            padding: 0.65rem 0.8rem;
+            border-radius: 0.75rem;
             background: #f8fafc;
             border: 1px solid #f1f5f9;
             color: #334155;
             font-size: 0.8125rem;
             font-weight: 600;
-            transition: all 0.18s ease;
+            transition: all 0.15s ease;
         }
-        .hub-link-item:hover {
-            background: #eff6ff;
-            border-color: #bfdbfe;
-            color: #1d4ed8;
-            transform: translateX(3px);
+        @media (hover: hover) and (pointer: fine) {
+            .hub-link-item:hover {
+                background: #eff6ff;
+                border-color: #bfdbfe;
+                color: #1d4ed8;
+                transform: translateX(2px);
+            }
         }
 
-        /* Metric KPI Card */
-        .kpi-tile {
+        /* High-Impact Responsive KPI Card */
+        .kpi-card-fast {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 1rem;
-            padding: 1.25rem;
-            transition: all 0.2s ease;
+            padding: 1rem;
+            transition: all 0.18s ease;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
         }
-        .kpi-tile:hover {
-            border-color: #93c5fd;
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.08);
+        @media (min-width: 640px) {
+            .kpi-card-fast {
+                padding: 1.25rem;
+            }
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .kpi-card-fast:hover {
+                border-color: #93c5fd;
+                box-shadow: 0 8px 16px -2px rgba(37, 99, 235, 0.06);
+            }
         }
     </style>
 </head>
-<body class="bg-corporate-canvas min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800">
+<body class="min-h-screen flex flex-col justify-between font-sans antialiased text-slate-800 bg-slate-50 overflow-x-hidden">
 
-    <!-- 🧭 Executive Top Header Navigation -->
-    <header class="bg-white/95 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 flex justify-between items-center shadow-xs border-b border-slate-200 w-full">
-        <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-xs border border-slate-200 flex-shrink-0 p-1">
-                <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-[8px]">
+    <!-- 🧭 Executive Sticky Header Navigation -->
+    <header class="bg-white/95 backdrop-blur-md sticky top-0 z-40 px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex justify-between items-center shadow-2xs border-b border-slate-200 w-full">
+        <!-- Logo & Brand Title -->
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-xs border border-slate-200 flex-shrink-0 p-1">
+                <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-[7px]">
             </div>
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="text-base sm:text-lg font-black tracking-tight text-slate-900 leading-tight">AVIRA <span class="text-blue-600 font-extrabold">CARE</span></span>
-                    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
-                        Enterprise Hub
+            <div class="min-w-0">
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <span class="text-sm sm:text-base lg:text-lg font-black tracking-tight text-slate-900 leading-tight">AVIRA <span class="text-blue-600">CARE</span></span>
+                    <span class="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+                        Admin Hub
                     </span>
                 </div>
-                <span class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase block">Executive Administration & Logistics Suite</span>
+                <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 tracking-wider uppercase truncate block">Control Center</span>
             </div>
         </div>
 
-        <!-- Right Side Telemetry & User Status -->
-        <div class="flex items-center gap-3 sm:gap-5 flex-shrink-0">
-            <!-- Live IST Clock -->
+        <!-- Telemetry, Clock & Session Actions -->
+        <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            <!-- Live Clock (Tablet & Desktop) -->
             <div class="hidden md:flex flex-col text-right">
                 <span id="liveClock" class="text-xs font-mono font-bold text-slate-700 leading-none">--:--:--</span>
                 <span id="liveDate" class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">IST Date</span>
             </div>
 
-            <!-- Server Status Chip -->
-            <div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold">
-                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>SYSTEM ONLINE</span>
+            <!-- Online Pulse Pill -->
+            <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>LIVE</span>
             </div>
 
-            <!-- Profile & Logout -->
-            <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs font-bold text-slate-800 leading-tight">Super Admin</p>
-                    <span class="text-[9px] font-semibold text-emerald-600 uppercase tracking-widest block">30d Persistent</span>
-                </div>
-                <a href="/admin/logout" title="Sign Out of Session" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-bold transition-all">
-                    <i class="fa-solid fa-power-off text-xs"></i>
-                    <span class="hidden sm:inline">Logout</span>
-                </a>
-            </div>
+            <!-- Logout Button -->
+            <a href="/admin/logout" title="Sign Out of Session" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-bold transition-all">
+                <i class="fa-solid fa-power-off text-[11px]"></i>
+                <span class="hidden sm:inline">Logout</span>
+            </a>
         </div>
     </header>
 
-    <!-- 🌐 Main Executive Content Area -->
-    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+    <!-- 🌐 Main Executive Dashboard Body -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6">
 
-        <!-- 🌟 Corporate Command Banner -->
-        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 sm:p-8 text-white shadow-xl border border-slate-800">
-            <!-- Background Radial Glow -->
-            <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                <div class="space-y-2 max-w-2xl">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[10px] font-extrabold uppercase tracking-widest text-blue-200">
-                        <i class="fa-solid fa-shield-halved text-blue-400"></i> Corporate Control Center &bull; Live Telemetry
+        <!-- 🌟 Corporate Command Hero Banner -->
+        <div class="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-4 sm:p-6 lg:p-7 text-white shadow-md border border-slate-800 relative overflow-hidden">
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
+                <!-- Welcome Title & Subtitle -->
+                <div class="space-y-1.5 sm:space-y-2 max-w-2xl">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/15 text-[10px] font-black uppercase tracking-wider text-blue-200">
+                        <i class="fa-solid fa-shield-halved text-blue-400 text-[9px]"></i> Corporate Executive Suite
                     </div>
-                    <h1 id="greetingMessage" class="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                    <h1 id="greetingMessage" class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white leading-tight">
                         Welcome Back, Administrator
                     </h1>
                     <p class="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
-                        Continuous dispatch logistics, India Post automated syncing, customer records, and real-time background bots at your fingertips.
+                        Parcel dispatches, live tracking synchronization, customer master database, and automation engines.
                     </p>
                 </div>
 
-                <!-- Primary Action Quick Buttons -->
-                <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 flex-shrink-0">
-                    <a href="/admin/manual-entry" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase tracking-wider shadow-md hover:shadow-lg transition-all">
-                        <i class="fa-solid fa-plus-circle"></i>
-                        <span>New Consignment</span>
+                <!-- Primary Action Quick Buttons (Touch-friendly & Responsive) -->
+                <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 flex-shrink-0">
+                    <a href="/admin/manual-entry" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider shadow-sm transition-all text-center">
+                        <i class="fa-solid fa-plus-circle text-xs"></i>
+                        <span>Dispatch</span>
                     </a>
-                    <a href="/admin/orders-master" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-white/20 transition-all">
-                        <i class="fa-solid fa-receipt text-blue-300"></i>
-                        <span>Orders Master</span>
+                    <a href="/admin/orders-master" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider border border-white/20 transition-all text-center">
+                        <i class="fa-solid fa-receipt text-blue-300 text-xs"></i>
+                        <span>Orders</span>
                     </a>
-                    <a href="/admin/log-monitor" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600/60 hover:bg-indigo-600 text-indigo-100 text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-indigo-400/30 transition-all">
-                        <i class="fa-solid fa-terminal text-cyan-300"></i>
-                        <span>Log Monitor</span>
+                    <a href="/admin/live-tracking" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider border border-white/20 transition-all text-center">
+                        <i class="fa-solid fa-satellite-dish text-emerald-400 text-xs"></i>
+                        <span>Tracking</span>
+                    </a>
+                    <a href="/admin/log-monitor" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider border border-white/20 transition-all text-center">
+                        <i class="fa-solid fa-terminal text-cyan-300 text-xs"></i>
+                        <span>Logs</span>
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- 📊 Executive Dispatch & Logistics Intelligence Section -->
-        <section class="w-full space-y-5" id="dispatchAnalyticsSection">
+        <!-- 📊 4 Real-Time Executive KPI Telemetry Tiles -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 w-full">
             
-            <!-- Section Header -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-lg font-black shadow-2xs">
+            <!-- KPI 1: Today's Dispatched Orders -->
+            <div class="kpi-card-fast flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-2 sm:mb-3">
+                    <span class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-wider">Today's Dispatch</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-xs sm:text-sm">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-baseline gap-1.5 sm:gap-2">
+                        <span id="kpiTodayCount" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.today) ? analytics.today.count : 0 %></span>
+                        <span class="text-[11px] sm:text-xs font-bold text-indigo-600">orders</span>
+                    </div>
+                    <div class="mt-1.5 sm:mt-2 flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-slate-500 truncate">
+                        <i class="fa-regular fa-calendar-check text-emerald-500"></i>
+                        <span id="kpiTodayDate" class="truncate"><%= (analytics && analytics.today && analytics.today.dateStr) ? analytics.today.dateStr : 'Today' %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI 2: Yesterday's Dispatched Orders -->
+            <div class="kpi-card-fast flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-2 sm:mb-3">
+                    <span class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-wider">Yesterday</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-xs sm:text-sm">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-baseline gap-1.5 sm:gap-2">
+                        <span id="kpiYesterdayCount" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.yesterday) ? analytics.yesterday.count : 0 %></span>
+                        <span class="text-[11px] sm:text-xs font-bold text-blue-600">orders</span>
+                    </div>
+                    <div class="mt-1.5 sm:mt-2 flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-slate-500 truncate">
+                        <i class="fa-regular fa-calendar text-slate-400"></i>
+                        <span id="kpiYesterdayDate" class="truncate"><%= (analytics && analytics.yesterday && analytics.yesterday.dateStr) ? analytics.yesterday.dateStr : 'Yesterday' %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI 3: Total Dispatched Parcels -->
+            <div class="kpi-card-fast flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-2 sm:mb-3">
+                    <span class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-wider">Total Dispatched</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-xs sm:text-sm">
+                        <i class="fa-solid fa-boxes-packing"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-baseline gap-1.5 sm:gap-2">
+                        <span id="kpiTotalDispatched" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.totals) ? analytics.totals.totalDispatched : 0 %></span>
+                        <span class="text-[11px] sm:text-xs font-bold text-emerald-600">parcels</span>
+                    </div>
+                    <div class="mt-1.5 sm:mt-2 flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-slate-500 truncate">
+                        <i class="fa-solid fa-layer-group text-emerald-500"></i>
+                        <span><strong id="kpiTotalConsignments"><%= (analytics && analytics.totals) ? analytics.totals.totalConsignments : 0 %></strong> Batches</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI 4: States Covered (Pan-India) -->
+            <div class="kpi-card-fast flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-2 sm:mb-3">
+                    <span class="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-wider">States Covered</span>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-xs sm:text-sm">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-baseline gap-1.5 sm:gap-2">
+                        <span id="kpiStatesCount" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.totals) ? analytics.totals.totalStates : 0 %></span>
+                        <span class="text-[11px] sm:text-xs font-bold text-purple-600">States</span>
+                    </div>
+                    <div class="mt-1.5 sm:mt-2 flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-slate-500 truncate">
+                        <i class="fa-solid fa-route text-purple-500"></i>
+                        <span>Pan-India Logistics</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 📈 Interactive Graphics & Analytical Intelligence Section -->
+        <section class="space-y-4" id="dispatchAnalyticsSection">
+            <!-- Analytics Header & Refresh Trigger -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-1">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-xs font-black">
                         <i class="fa-solid fa-chart-line"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Real-Time Dispatch & State Analytics</h2>
-                            <span class="badge-3d bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] font-black tracking-wider uppercase inline-flex items-center gap-1">
-                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-500 font-medium">Daily dispatch volume trends, yesterday vs today comparison, and destination state distribution.</p>
+                        <h2 class="text-sm sm:text-base font-black text-slate-900 tracking-tight">Dispatch Trends & Geographic Distribution</h2>
+                        <p class="text-[10px] sm:text-[11px] text-slate-400 font-medium">Daily dispatch volume timeline & state breakdown</p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 self-end sm:self-auto">
-                    <button type="button" id="btnRefreshAnalytics" onclick="refreshAnalytics()" class="btn-corporate-3d text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs cursor-pointer">
-                        <i class="fa-solid fa-arrows-rotate text-[11px]" id="refreshAnalyticsIcon"></i>
-                        <span>Refresh Metrics</span>
-                    </button>
-                </div>
+                <button type="button" id="btnRefreshAnalytics" onclick="refreshAnalytics(true)" class="self-end sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 shadow-2xs transition-all cursor-pointer">
+                    <i class="fa-solid fa-arrows-rotate text-[11px]" id="refreshAnalyticsIcon"></i>
+                    <span>Refresh Data</span>
+                </button>
             </div>
 
-            <!-- 4 Executive KPI Cards -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5 w-full">
-                <!-- Card 1: Today's Dispatched Orders -->
-                <div class="card-corporate-3d p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden group">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Today's Dispatches</span>
-                        <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-sm shadow-2xs">
-                            <i class="fa-solid fa-truck-fast"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-baseline gap-2">
-                            <span id="kpiTodayCount" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.today) ? analytics.today.count : 0 %></span>
-                            <span class="text-xs font-extrabold text-indigo-600">orders</span>
-                        </div>
-                        <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
-                            <i class="fa-regular fa-calendar-check text-emerald-500"></i>
-                            <span id="kpiTodayDate"><%= (analytics && analytics.today && analytics.today.dateStr) ? analytics.today.dateStr : 'Today' %></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 2: Yesterday's Dispatched Orders -->
-                <div class="card-corporate-3d p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden group">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Yesterday's Dispatches</span>
-                        <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-sm shadow-2xs">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-baseline gap-2">
-                            <span id="kpiYesterdayCount" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.yesterday) ? analytics.yesterday.count : 0 %></span>
-                            <span class="text-xs font-extrabold text-blue-600">orders</span>
-                        </div>
-                        <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
-                            <i class="fa-regular fa-calendar text-slate-400"></i>
-                            <span id="kpiYesterdayDate"><%= (analytics && analytics.yesterday && analytics.yesterday.dateStr) ? analytics.yesterday.dateStr : 'Yesterday' %></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 3: States Covered -->
-                <div class="card-corporate-3d p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden group">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">States Covered</span>
-                        <div class="w-9 h-9 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-sm shadow-2xs">
-                            <i class="fa-solid fa-map-location-dot"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-baseline gap-2">
-                            <span id="kpiStatesCount" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.totals) ? analytics.totals.totalStates : 0 %></span>
-                            <span class="text-xs font-extrabold text-purple-600">Indian States</span>
-                        </div>
-                        <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
-                            <i class="fa-solid fa-route text-purple-500"></i>
-                            <span>Pan-India Logistics</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 4: Total Dispatched Orders -->
-                <div class="card-corporate-3d p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden group">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Dispatches</span>
-                        <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-2xs">
-                            <i class="fa-solid fa-boxes-packing"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-baseline gap-2">
-                            <span id="kpiTotalDispatched" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= (analytics && analytics.totals) ? analytics.totals.totalDispatched : 0 %></span>
-                            <span class="text-xs font-extrabold text-emerald-600">parcels</span>
-                        </div>
-                        <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
-                            <i class="fa-solid fa-layer-group text-emerald-500"></i>
-                            <span>Across <strong id="kpiTotalConsignments"><%= (analytics && analytics.totals) ? analytics.totals.totalConsignments : 0 %></strong> Consignments</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Two Interactive Charts (Grid: 1 col on mobile, 2 cols on lg) -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 w-full">
+            <!-- Two Interactive Charts (Responsive 1-Col Mobile, 2-Col Desktop) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6 w-full">
                 
                 <!-- Chart 1: Daily Dispatch Timeline -->
-                <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+                <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 flex-wrap gap-2">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-xs font-black shadow-2xs">
-                                    <i class="fa-solid fa-chart-column"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-sm font-black text-slate-900">Daily Dispatch Trend</h3>
-                                    <span class="text-[10px] text-slate-400 font-semibold">Orders Dispatched Day by Day</span>
-                                </div>
+                        <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <span class="h-2 w-2 rounded-full bg-indigo-600"></span>
+                                <h3 class="text-xs sm:text-sm font-black text-slate-900">Daily Dispatch Volume</h3>
                             </div>
-                            <span class="text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
-                                <i class="fa-regular fa-calendar-check text-[10px]"></i> Chronological Timeline
+                            <span class="text-[9px] sm:text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md">
+                                Day-by-Day
                             </span>
                         </div>
 
-                        <!-- Canvas container with responsive height -->
-                        <div class="relative w-full h-64 sm:h-72">
+                        <!-- Canvas Container -->
+                        <div class="relative w-full h-56 sm:h-64 lg:h-72">
                             <canvas id="dailyDispatchChart"></canvas>
                         </div>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                    <div class="pt-2.5 mt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500 font-medium">
                         <span class="flex items-center gap-1.5">
                             <span class="h-2 w-2 rounded-full bg-indigo-600 inline-block"></span> Standard Consignment
                         </span>
@@ -307,148 +294,63 @@
                 </div>
 
                 <!-- Chart 2: State-wise Distribution -->
-                <div class="card-corporate-3d p-5 sm:p-6 flex flex-col justify-between">
+                <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 flex-wrap gap-2">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center text-xs font-black shadow-2xs">
-                                    <i class="fa-solid fa-map-location-dot"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-sm font-black text-slate-900">State-Wise Parcel Distribution</h3>
-                                    <span class="text-[10px] text-slate-400 font-semibold">Which States Orders Were Dispatched To</span>
-                                </div>
+                        <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <span class="h-2 w-2 rounded-full bg-purple-600"></span>
+                                <h3 class="text-xs sm:text-sm font-black text-slate-900">State Destination Breakdown</h3>
                             </div>
-                            <span class="text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
-                                <i class="fa-solid fa-location-dot text-[10px]"></i> Destination Breakdown
+                            <span class="text-[9px] sm:text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-md">
+                                Top Destinations
                             </span>
                         </div>
 
-                        <!-- Canvas container with responsive height -->
-                        <div class="relative w-full h-64 sm:h-72">
+                        <!-- Canvas Container -->
+                        <div class="relative w-full h-56 sm:h-64 lg:h-72">
                             <canvas id="stateDistChart"></canvas>
                         </div>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100">
-                        <div class="flex items-center justify-between text-[11px] text-slate-600 font-bold mb-2">
-                            <span>Top Delivery Destinations:</span>
-                            <span class="text-purple-600 text-[10px] uppercase tracking-wider font-extrabold">Parcels by State</span>
+                    <!-- Top States Mini Badges -->
+                    <div class="pt-2.5 mt-2 border-t border-slate-100">
+                        <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 mb-1.5">
+                            <span>Top Delivery States:</span>
+                            <span class="text-purple-600 uppercase">Parcels by State</span>
                         </div>
-                        <div id="topStatesList" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div id="topStatesList" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
                             <!-- Populated dynamically via renderTopStatesList() -->
                         </div>
                     </div>
                 </div>
 
             </div>
-
         </section>
 
-        <!-- 📊 Real-Time Operations Telemetry KPIs -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
-            
-            <!-- KPI 1: Total Orders Master -->
-            <a href="/admin/orders-master" class="kpi-tile group">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Orders Master</span>
-                    <div class="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs group-hover:bg-blue-600 group-hover:text-white transition-all">
-                        <i class="fa-solid fa-receipt"></i>
-                    </div>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                        <%= (typeof stats !== 'undefined' && stats.totalOrders) ? stats.totalOrders.toLocaleString() : '0' %>
-                    </span>
-                    <span class="text-[10px] font-bold text-blue-600">Total</span>
-                </div>
-                <p class="text-[10px] text-slate-400 mt-1 font-medium flex items-center gap-1">
-                    <i class="fa-solid fa-database text-[8px]"></i> Synchronized from Avira Global
-                </p>
-            </a>
-
-            <!-- KPI 2: Pending Dispatches -->
-            <a href="/admin/manual-entry" class="kpi-tile group">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Pending Dispatches</span>
-                    <div class="h-8 w-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs group-hover:bg-amber-600 group-hover:text-white transition-all">
-                        <i class="fa-solid fa-truck-ramp-box"></i>
-                    </div>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                        <%= (typeof stats !== 'undefined' && stats.pendingDispatches) ? stats.pendingDispatches.toLocaleString() : '0' %>
-                    </span>
-                    <span class="text-[10px] font-bold text-amber-600">Pending</span>
-                </div>
-                <p class="text-[10px] text-slate-400 mt-1 font-medium flex items-center gap-1">
-                    <i class="fa-solid fa-barcode text-[8px]"></i> Ready for Dispatch Entry
-                </p>
-            </a>
-
-            <!-- KPI 3: Registered Customers -->
-            <a href="/admin/customers" class="kpi-tile group">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Customer Directory</span>
-                    <div class="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                        <%= (typeof stats !== 'undefined' && stats.totalCustomers) ? stats.totalCustomers.toLocaleString() : '0' %>
-                    </span>
-                    <span class="text-[10px] font-bold text-emerald-600">Members</span>
-                </div>
-                <p class="text-[10px] text-slate-400 mt-1 font-medium flex items-center gap-1">
-                    <i class="fa-solid fa-address-book text-[8px]"></i> Active Network Members
-                </p>
-            </a>
-
-            <!-- KPI 4: Bot & Automation Engines -->
-            <a href="/admin/settings" class="kpi-tile group">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Sync Bot Engines</span>
-                    <div class="h-8 w-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xs group-hover:bg-purple-600 group-hover:text-white transition-all">
-                        <i class="fa-solid fa-robot"></i>
-                    </div>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight flex items-center gap-1.5">
-                        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span> ACTIVE
-                    </span>
-                </div>
-                <p class="text-[10px] text-slate-400 mt-1 font-medium flex items-center gap-1">
-                    <i class="fa-solid fa-clock text-[8px]"></i> Auto sync configured & running
-                </p>
-            </a>
-
-        </div>
-
-        <!-- 🏢 Executive Modular Grid (Corporate Layout) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 🏢 Executive Modular Operational Grid (1 col mobile, 2 col md, 3 col xl) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
 
             <!-- MODULE 1: Logistics & Parcel Dispatch -->
-            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
+            <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-blue-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-base font-bold flex-shrink-0 border border-blue-100">
                             <i class="fa-solid fa-truck-fast"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">1. Dispatch & Logistics</h2>
+                            <div class="flex items-center gap-1.5">
+                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">1. Dispatch & Logistics</h2>
                                 <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">CORE</span>
                             </div>
-                            <p class="text-slate-400 text-[11px] font-semibold">Consignment Creation & Live Shipping</p>
+                            <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">Consignments & Shipping</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
-                        Barcode scanner entry, automatic parcel weight calculation, consignment generation, and live dispatch tracking.
+                    <p class="text-slate-500 text-xs mb-3.5 leading-relaxed font-medium">
+                        Barcode scanner entry, automated parcel weights, consignment batches, and live dispatch tracking.
                     </p>
                 </div>
                 
-                <div class="pt-3 border-t border-slate-100 space-y-2">
+                <div class="pt-3 border-t border-slate-100 space-y-1.5">
                     <a href="/admin/manual-entry" class="hub-link-item">
                         <span class="flex items-center gap-2">
                             <i class="fa-solid fa-keyboard text-blue-600 text-xs"></i>
@@ -468,7 +370,7 @@
                             <i class="fa-solid fa-satellite-dish text-blue-600 text-xs"></i>
                             <span>India Post Live Tracking</span>
                         </span>
-                        <span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">TELEMETRY</span>
+                        <span class="text-[8px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">SYNC</span>
                     </a>
                     <a href="/admin/master-database" class="hub-link-item">
                         <span class="flex items-center gap-2">
@@ -481,26 +383,26 @@
             </div>
 
             <!-- MODULE 2: Member & Customer Directory -->
-            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
+            <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-emerald-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-base font-bold flex-shrink-0 border border-emerald-100">
                             <i class="fa-solid fa-users"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">2. Members & Customers</h2>
+                            <div class="flex items-center gap-1.5">
+                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">2. Members & Customers</h2>
                                 <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">DIRECTORY</span>
                             </div>
-                            <p class="text-slate-400 text-[11px] font-semibold">Customer Accounts & Profile History</p>
+                            <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">Customer Accounts & History</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                    <p class="text-slate-500 text-xs mb-3.5 leading-relaxed font-medium">
                         Search customer addresses, review lifetime orders, manage member IDs, and inspect contact records.
                     </p>
                 </div>
                 
-                <div class="pt-3 border-t border-slate-100 space-y-2">
+                <div class="pt-3 border-t border-slate-100 space-y-1.5">
                     <a href="/admin/customers" class="hub-link-item">
                         <span class="flex items-center gap-2">
                             <i class="fa-solid fa-address-book text-emerald-600 text-xs"></i>
@@ -514,7 +416,7 @@
                             <span>Support Helpdesk & Tickets</span>
                         </span>
                         <% if (typeof stats !== 'undefined' && stats.openQueries > 0) { %>
-                        <span class="text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded"><%= stats.openQueries %> OPEN</span>
+                        <span class="text-[8px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded"><%= stats.openQueries %> OPEN</span>
                         <% } else { %>
                         <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
                         <% } %>
@@ -523,26 +425,26 @@
             </div>
 
             <!-- MODULE 3: Inventory & Product Catalog -->
-            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
+            <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-11 h-11 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-purple-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-base font-bold flex-shrink-0 border border-purple-100">
                             <i class="fa-solid fa-boxes-stacked"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">3. Inventory & Catalog</h2>
+                            <div class="flex items-center gap-1.5">
+                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">3. Inventory & Catalog</h2>
                                 <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">INVENTORY</span>
                             </div>
-                            <p class="text-slate-400 text-[11px] font-semibold">Product Listing, Pricing & Assets</p>
+                            <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">Pricing, Points & Assets</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                    <p class="text-slate-500 text-xs mb-3.5 leading-relaxed font-medium">
                         Configure Point Values (PV), item pricing, upload product photographs, and maintain catalog synchronization.
                     </p>
                 </div>
                 
-                <div class="pt-3 border-t border-slate-100 space-y-2">
+                <div class="pt-3 border-t border-slate-100 space-y-1.5">
                     <a href="/admin/view-products" class="hub-link-item">
                         <span class="flex items-center gap-2">
                             <i class="fa-solid fa-list-check text-purple-600 text-xs"></i>
@@ -560,7 +462,7 @@
                     <a href="/admin/content-manager" class="hub-link-item">
                         <span class="flex items-center gap-2">
                             <i class="fa-solid fa-file-pdf text-purple-600 text-xs"></i>
-                            <span>PDF Business Plan & Catalog</span>
+                            <span>PDF Business Plan & Flyers</span>
                         </span>
                         <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
                     </a>
@@ -568,57 +470,57 @@
             </div>
 
             <!-- MODULE 4: Telemetry & Log Monitoring -->
-            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
+            <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-indigo-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-base font-bold flex-shrink-0 border border-indigo-100">
                             <i class="fa-solid fa-terminal"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">4. Live Log Monitor</h2>
+                            <div class="flex items-center gap-1.5">
+                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">4. Live Log Monitor</h2>
                                 <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">REALTIME</span>
                             </div>
-                            <p class="text-slate-400 text-[11px] font-semibold">Unified System & Bot Diagnostics</p>
+                            <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">System & Bot Diagnostics</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                    <p class="text-slate-500 text-xs mb-3.5 leading-relaxed font-medium">
                         Monitor 3 diagnostic streams: Software Main Logs, WhatsApp CRM Tracking Bot, and AviraGlobal Sync Bot events.
                     </p>
                 </div>
                 
-                <div class="pt-3 border-t border-slate-100 space-y-2">
+                <div class="pt-3 border-t border-slate-100 space-y-1.5">
                     <a href="/admin/log-monitor" class="hub-link-item">
                         <span class="flex items-center gap-2">
                             <i class="fa-solid fa-satellite-dish text-indigo-600 text-xs"></i>
-                            <span>Unified Log Monitor (3 Submenus)</span>
+                            <span>Unified Log Monitor</span>
                         </span>
-                        <span class="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">LIVE</span>
+                        <span class="text-[8px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">LIVE</span>
                     </a>
                 </div>
             </div>
 
             <!-- MODULE 5: Bot Automation & System Settings -->
-            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
+            <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-11 h-11 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-slate-200">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center text-base font-bold flex-shrink-0 border border-slate-200">
                             <i class="fa-solid fa-gear"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">5. System Settings & Bots</h2>
+                            <div class="flex items-center gap-1.5">
+                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">5. Settings & Bots</h2>
                                 <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">SETTINGS</span>
                             </div>
-                            <p class="text-slate-400 text-[11px] font-semibold">Bot Intervals & Courier Box Presets</p>
+                            <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">Sync Timers & Box Presets</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                    <p class="text-slate-500 text-xs mb-3.5 leading-relaxed font-medium">
                         Configure AviraGlobal background sync timer, start/stop sync bot engine, and adjust default courier box dimensions.
                     </p>
                 </div>
                 
-                <div class="pt-3 border-t border-slate-100 space-y-2">
+                <div class="pt-3 border-t border-slate-100 space-y-1.5">
                     <a href="/admin/settings" class="hub-link-item">
                         <span class="flex items-center gap-2">
                             <i class="fa-solid fa-sliders text-slate-700 text-xs"></i>
@@ -630,37 +532,37 @@
             </div>
 
             <!-- MODULE 6: Security & Database Engine -->
-            <div class="corp-card p-5 sm:p-6 flex flex-col justify-between">
+            <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3.5 mb-4">
-                        <div class="w-11 h-11 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-teal-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-base font-bold flex-shrink-0 border border-teal-100">
                             <i class="fa-solid fa-shield-check"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wide">6. Engine Health</h2>
+                            <div class="flex items-center gap-1.5">
+                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">6. Engine Health</h2>
                                 <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">SECURITY</span>
                             </div>
-                            <p class="text-slate-400 text-[11px] font-semibold">PostgreSQL & Session Integrity</p>
+                            <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">PostgreSQL & Session Integrity</p>
                         </div>
                     </div>
-                    <p class="text-slate-500 text-xs mb-4 leading-relaxed font-medium">
+                    <p class="text-slate-500 text-xs mb-3.5 leading-relaxed font-medium">
                         Enterprise 30-day token protection enabled. Auto-reconnection safeguards are actively monitoring queries.
                     </p>
                 </div>
                 
-                <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex items-center justify-between font-semibold text-slate-600">
+                <div class="pt-3 border-t border-slate-100 space-y-1.5">
+                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex items-center justify-between font-semibold text-slate-600">
                         <span class="flex items-center gap-2">
-                            <span class="h-2 w-2 rounded-full bg-emerald-500"></span> Database Pool
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Database Pool
                         </span>
-                        <span class="font-mono text-emerald-600 font-bold">HEALTHY</span>
+                        <span class="font-mono text-emerald-600 font-bold text-[10px]">HEALTHY</span>
                     </div>
-                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex items-center justify-between font-semibold text-slate-600">
+                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex items-center justify-between font-semibold text-slate-600">
                         <span class="flex items-center gap-2">
-                            <span class="h-2 w-2 rounded-full bg-blue-500"></span> Session Retention
+                            <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span> Session Security
                         </span>
-                        <span class="font-mono text-blue-600 font-bold">30 DAYS</span>
+                        <span class="font-mono text-blue-600 font-bold text-[10px]">30 DAYS</span>
                     </div>
                 </div>
             </div>
@@ -670,18 +572,18 @@
     </main>
 
     <!-- 📋 Executive Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs font-medium text-slate-400 mt-8">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
+    <footer class="bg-white border-t border-slate-200 py-3.5 px-4 sm:px-6 text-center text-xs font-medium text-slate-400 mt-6 sm:mt-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]">
             <span>&copy; 2026 AviraCare Systems. All rights reserved. Enterprise Administration Hub.</span>
             <span class="font-mono text-slate-400">Node <%= process.version %> &bull; TLS 1.3 &bull; PostgreSQL Active</span>
         </div>
     </footer>
 
-    <!-- 📊 Analytics Data Carrier -->
+    <!-- 📊 Analytics JSON Data Carrier -->
     <script id="rawAnalyticsData" type="application/json"><%- JSON.stringify(analytics || {}) %></script>
 
     <script>
-        // 📊 Chart Instances
+        // 📊 Fast Chart Instances
         let dailyDispatchChart = null;
         let stateDistChart = null;
         let currentAnalytics = {};
@@ -694,9 +596,11 @@
             currentAnalytics = {};
         }
 
-        // Initialize on DOM ready
+        // Initialize immediately with next animation frame for zero lag
         document.addEventListener('DOMContentLoaded', () => {
-            renderDashboardAnalytics(currentAnalytics);
+            requestAnimationFrame(() => {
+                renderDashboardAnalytics(currentAnalytics);
+            });
         });
 
         // 🎨 Render / Re-render all Analytics Components
@@ -753,21 +657,20 @@
             const topList = states.slice(0, 6);
             container.innerHTML = topList.map((st, i) => {
                 return `
-                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
-                        <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 mb-1">
-                            <span class="truncate" title="${st.state}">#${i + 1} ${st.state}</span>
-                            <span class="font-mono text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">${st.count}</span>
+                    <div class="p-1.5 sm:p-2 rounded-lg bg-slate-50 border border-slate-100 flex flex-col justify-between">
+                        <div class="flex items-center justify-between text-[9px] sm:text-[10px] font-bold text-slate-700 mb-0.5">
+                            <span class="truncate mr-1" title="${st.state}">#${i + 1} ${st.state}</span>
+                            <span class="font-mono text-purple-700 bg-purple-50 px-1 rounded border border-purple-200 flex-shrink-0">${st.count}</span>
                         </div>
-                        <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                        <div class="w-full bg-slate-200 h-1 sm:h-1.5 rounded-full overflow-hidden mt-0.5">
                             <div class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full" style="width: ${Math.min(100, Math.max(8, st.percentage))}%"></div>
                         </div>
-                        <span class="text-[9px] text-slate-400 font-semibold text-right mt-0.5">${st.percentage}%</span>
                     </div>
                 `;
             }).join('');
         }
 
-        // 📈 Daily Dispatch Bar/Line Chart with Chart.js
+        // 📈 Fast Daily Dispatch Bar Chart
         function renderDailyDispatchChart(trendData, todayDateStr) {
             const canvas = document.getElementById('dailyDispatchChart');
             if (!canvas) return;
@@ -776,23 +679,16 @@
             const counts = (trendData || []).map(d => d.count);
             const consignments = (trendData || []).map(d => (d.consignments || []).join(', '));
 
-            // Background colors: highlight today's bar
             const bgColors = labels.map(lbl => {
                 if (todayDateStr && lbl.toLowerCase() === todayDateStr.toLowerCase()) {
-                    return 'rgba(16, 185, 129, 0.85)'; // Emerald for Today
+                    return 'rgba(16, 185, 129, 0.9)'; // Emerald for Today
                 }
-                return 'rgba(79, 70, 229, 0.85)'; // Indigo for other dates
-            });
-
-            const borderColors = labels.map(lbl => {
-                if (todayDateStr && lbl.toLowerCase() === todayDateStr.toLowerCase()) {
-                    return '#059669';
-                }
-                return '#4338ca';
+                return 'rgba(79, 70, 229, 0.9)'; // Indigo
             });
 
             if (dailyDispatchChart) {
                 dailyDispatchChart.destroy();
+                dailyDispatchChart = null;
             }
 
             const ctx = canvas.getContext('2d');
@@ -803,31 +699,30 @@
                     datasets: [{
                         label: 'Orders Dispatched',
                         data: counts.length ? counts : [0],
-                        backgroundColor: bgColors.length ? bgColors : ['rgba(79, 70, 229, 0.8)'],
-                        borderColor: borderColors.length ? borderColors : ['#4338ca'],
-                        borderWidth: 1.5,
-                        borderRadius: 8,
+                        backgroundColor: bgColors.length ? bgColors : ['rgba(79, 70, 229, 0.85)'],
+                        borderRadius: 6,
                         borderSkipped: false,
-                        maxBarThickness: 42
+                        maxBarThickness: 36
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: { duration: 300, easing: 'easeOutQuart' },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
                             backgroundColor: '#0f172a',
                             titleColor: '#ffffff',
                             bodyColor: '#e2e8f0',
-                            padding: 10,
-                            cornerRadius: 8,
+                            padding: 8,
+                            cornerRadius: 6,
                             callbacks: {
                                 label: function(context) {
                                     const idx = context.dataIndex;
                                     const cnt = context.parsed.y;
-                                    const cStr = consignments[idx] ? ` (Consignment: ${consignments[idx]})` : '';
-                                    return ` ${cnt} Orders Dispatched${cStr}`;
+                                    const cStr = consignments[idx] ? ` (Batch: ${consignments[idx]})` : '';
+                                    return ` ${cnt} Orders${cStr}`;
                                 }
                             }
                         }
@@ -840,14 +735,14 @@
                                 font: { family: 'Plus Jakarta Sans', weight: '600', size: 10 },
                                 color: '#64748b'
                             },
-                            grid: {
-                                color: '#f1f5f9'
-                            }
+                            grid: { color: '#f1f5f9' }
                         },
                         x: {
                             ticks: {
                                 font: { family: 'Plus Jakarta Sans', weight: '700', size: 10 },
-                                color: '#475569'
+                                color: '#475569',
+                                maxRotation: 45,
+                                minRotation: 0
                             },
                             grid: { display: false }
                         }
@@ -856,7 +751,7 @@
             });
         }
 
-        // 🗺️ State Distribution Horizontal Bar Chart with Chart.js
+        // 🗺️ Fast State Distribution Horizontal Bar Chart
         function renderStateDistChart(stateData) {
             const canvas = document.getElementById('stateDistChart');
             if (!canvas) return;
@@ -867,18 +762,19 @@
             const pcts = topStates.map(s => s.percentage);
 
             const palette = [
-                'rgba(124, 58, 237, 0.85)',
-                'rgba(99, 102, 241, 0.85)',
-                'rgba(59, 130, 246, 0.85)',
-                'rgba(14, 165, 233, 0.85)',
-                'rgba(20, 184, 166, 0.85)',
-                'rgba(16, 185, 129, 0.85)',
-                'rgba(245, 158, 11, 0.85)',
-                'rgba(244, 63, 94, 0.85)'
+                'rgba(124, 58, 237, 0.88)',
+                'rgba(99, 102, 241, 0.88)',
+                'rgba(59, 130, 246, 0.88)',
+                'rgba(14, 165, 233, 0.88)',
+                'rgba(20, 184, 166, 0.88)',
+                'rgba(16, 185, 129, 0.88)',
+                'rgba(245, 158, 11, 0.88)',
+                'rgba(244, 63, 94, 0.88)'
             ];
 
             if (stateDistChart) {
                 stateDistChart.destroy();
+                stateDistChart = null;
             }
 
             const ctx = canvas.getContext('2d');
@@ -890,30 +786,30 @@
                         label: 'Parcels Dispatched',
                         data: counts.length ? counts : [0],
                         backgroundColor: palette.slice(0, labels.length),
-                        borderWidth: 0,
-                        borderRadius: 6,
+                        borderRadius: 5,
                         borderSkipped: false,
-                        maxBarThickness: 24
+                        maxBarThickness: 20
                     }]
                 },
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: { duration: 300, easing: 'easeOutQuart' },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
                             backgroundColor: '#0f172a',
                             titleColor: '#ffffff',
                             bodyColor: '#e2e8f0',
-                            padding: 10,
-                            cornerRadius: 8,
+                            padding: 8,
+                            cornerRadius: 6,
                             callbacks: {
                                 label: function(context) {
                                     const idx = context.dataIndex;
                                     const cnt = context.parsed.x;
                                     const pct = pcts[idx] ? ` (${pcts[idx]}%)` : '';
-                                    return ` ${cnt} Dispatched Parcels${pct}`;
+                                    return ` ${cnt} Parcels${pct}`;
                                 }
                             }
                         }
@@ -926,13 +822,11 @@
                                 font: { family: 'Plus Jakarta Sans', weight: '600', size: 10 },
                                 color: '#64748b'
                             },
-                            grid: {
-                                color: '#f1f5f9'
-                            }
+                            grid: { color: '#f1f5f9' }
                         },
                         y: {
                             ticks: {
-                                font: { family: 'Plus Jakarta Sans', weight: '700', size: 10 },
+                                font: { family: 'Plus Jakarta Sans', weight: '700', size: 9 },
                                 color: '#334155'
                             },
                             grid: { display: false }
@@ -942,13 +836,13 @@
             });
         }
 
-        // 🔄 Live Refresh Metrics Function
-        async function refreshAnalytics() {
+        // 🔄 Fast Refresh Trigger
+        async function refreshAnalytics(force = true) {
             const icon = document.getElementById('refreshAnalyticsIcon');
             if (icon) icon.classList.add('fa-spin');
 
             try {
-                const res = await fetch('/admin/api/dashboard-analytics');
+                const res = await fetch(`/admin/api/dashboard-analytics?refresh=${force ? 'true' : 'false'}`);
                 const data = await res.json();
                 if (data && data.success) {
                     currentAnalytics = data;
@@ -958,14 +852,12 @@
                 console.error('Error refreshing analytics metrics:', err);
             } finally {
                 if (icon) {
-                    setTimeout(() => icon.classList.remove('fa-spin'), 400);
+                    setTimeout(() => icon.classList.remove('fa-spin'), 300);
                 }
             }
         }
-    </script>
 
-    <!-- Interactive Clock & Greeting Script -->
-    <script>
+        // ⏱️ Lightweight Clock & Dynamic Greeting
         (function() {
             function updateClock() {
                 const now = new Date();
@@ -978,8 +870,7 @@
                     dateEl.textContent = now.toLocaleDateString('en-IN', { 
                         weekday: 'short', 
                         day: 'numeric', 
-                        month: 'short', 
-                        year: 'numeric' 
+                        month: 'short' 
                     });
                 }
             }
@@ -993,7 +884,7 @@
                 let timeGreeting = 'Good evening';
                 if (hour < 12) timeGreeting = 'Good morning';
                 else if (hour < 17) timeGreeting = 'Good afternoon';
-                greetingEl.textContent = `${timeGreeting}, Executive Administrator`;
+                greetingEl.textContent = `${timeGreeting}, Administrator`;
             }
         })();
     </script>

@@ -2,46 +2,57 @@ const db = require('../db');
 
 /**
  * 📊 Avira Care Executive Dashboard Analytics Service
- * Computes daily dispatch stats (today, yesterday, daily trends),
- * destination state distribution, and consignment summaries.
+ * Ultra-fast cached analytics engine.
+ * Computes daily dispatch stats, state distribution, and consignment summaries.
  */
-async function getDashboardAnalytics() {
+
+let cachedAnalytics = null;
+let cacheTimestamp = 0;
+const CACHE_TTL_MS = 45 * 1000; // 45 seconds memory cache for lightning-fast loads
+
+async function getDashboardAnalytics(forceRefresh = false) {
+    const nowMs = Date.now();
+    if (!forceRefresh && cachedAnalytics && (nowMs - cacheTimestamp < CACHE_TTL_MS)) {
+        return cachedAnalytics;
+    }
+
     try {
-        // 1. Fetch Consignments & Parcel Counts grouped by dispatch date
-        const consignmentsRes = await db.query(`
-            SELECT 
-                c.id,
-                c.consignment_no,
-                c.title,
-                c.dispatch_date,
-                c.created_at,
-                COUNT(cp.id) as parcels_count
-            FROM consignments c
-            LEFT JOIN consignment_parcels cp ON cp.consignment_id = c.id
-            GROUP BY c.id, c.consignment_no, c.title, c.dispatch_date, c.created_at
-            ORDER BY c.created_at DESC
-        `);
-
-        // 2. Fetch State-Wise Distribution of Dispatched Parcels
-        const statesRes = await db.query(`
-            SELECT 
-                UPPER(TRIM(COALESCE(cp.state, pin.state))) as state_name,
-                COUNT(*) as count
-            FROM consignment_parcels cp
-            LEFT JOIN pincodes pin ON pin.pincode = cp.pincode
-            WHERE COALESCE(cp.state, pin.state) IS NOT NULL AND TRIM(COALESCE(cp.state, pin.state)) != ''
-            GROUP BY UPPER(TRIM(COALESCE(cp.state, pin.state)))
-            ORDER BY count DESC
-        `);
-
-        // 3. Fetch Overall Platform Totals
-        const totalsRes = await db.query(`
-            SELECT 
-                (SELECT COUNT(*) FROM consignment_parcels) as total_dispatched,
-                (SELECT COUNT(*) FROM consignments) as total_consignments,
-                (SELECT COUNT(*) FROM orders_master) as total_orders,
-                (SELECT COUNT(*) FROM orders_master WHERE UPPER(tracking_no) LIKE '%SHOP%') as total_shop_pickup
-        `);
+        // Parallel queries to eliminate round-trip network lag
+        const [consignmentsRes, statesRes, totalsRes] = await Promise.all([
+            db.query(`
+                SELECT 
+                    c.id,
+                    c.consignment_no,
+                    c.title,
+                    c.dispatch_date,
+                    c.created_at,
+                    COUNT(cp.id) as parcels_count
+                FROM consignments c
+                LEFT JOIN consignment_parcels cp ON cp.consignment_id = c.id
+                GROUP BY c.id, c.consignment_no, c.title, c.dispatch_date, c.created_at
+                ORDER BY c.created_at DESC
+                LIMIT 15
+            `),
+            db.query(`
+                SELECT 
+                    UPPER(TRIM(COALESCE(cp.state, pin.state))) as state_name,
+                    COUNT(*) as count
+                FROM consignment_parcels cp
+                LEFT JOIN pincodes pin ON pin.pincode = cp.pincode
+                WHERE COALESCE(cp.state, pin.state) IS NOT NULL AND TRIM(COALESCE(cp.state, pin.state)) != ''
+                GROUP BY UPPER(TRIM(COALESCE(cp.state, pin.state)))
+                ORDER BY count DESC
+                LIMIT 15
+            `),
+            db.query(`
+                SELECT 
+                    (SELECT COUNT(*) FROM consignment_parcels) as total_dispatched,
+                    (SELECT COUNT(*) FROM consignments) as total_consignments,
+                    (SELECT COUNT(*) FROM orders_master) as total_orders,
+                    (SELECT COUNT(*) FROM orders_master WHERE UPPER(tracking_no) LIKE '%SHOP%') as total_shop_pickup,
+                    (SELECT COUNT(*) FROM customers) as total_customers
+            `)
+        ]);
 
         // Reference dates for Today and Yesterday in 'DD Mon YYYY' format
         const now = new Date();
@@ -93,6 +104,7 @@ async function getDashboardAnalytics() {
         const totalConsignments = parseInt(totalsRes.rows[0].total_consignments || '0', 10);
         const totalOrders = parseInt(totalsRes.rows[0].total_orders || '0', 10);
         const totalShopPickup = parseInt(totalsRes.rows[0].total_shop_pickup || '0', 10);
+        const totalCustomers = parseInt(totalsRes.rows[0].total_customers || '0', 10);
 
         const stateDistribution = statesRes.rows.map(r => {
             const cnt = parseInt(r.count, 10);
@@ -112,7 +124,7 @@ async function getDashboardAnalytics() {
             parcels_count: parseInt(c.parcels_count || '0', 10)
         }));
 
-        return {
+        const result = {
             success: true,
             today: {
                 dateStr: todayStr,
@@ -127,20 +139,26 @@ async function getDashboardAnalytics() {
                 totalConsignments,
                 totalOrders,
                 totalShopPickup,
+                totalCustomers,
                 totalStates: stateDistribution.length
             },
             dailyTrend,
             stateDistribution,
             recentConsignments
         };
+
+        cachedAnalytics = result;
+        cacheTimestamp = nowMs;
+        return result;
     } catch (err) {
         console.error("Dashboard Analytics Error:", err);
+        if (cachedAnalytics) return cachedAnalytics;
         return {
             success: false,
             error: err.message,
             today: { dateStr: '', count: 0 },
             yesterday: { dateStr: '', count: 0 },
-            totals: { totalDispatched: 0, totalConsignments: 0, totalOrders: 0, totalShopPickup: 0, totalStates: 0 },
+            totals: { totalDispatched: 0, totalConsignments: 0, totalOrders: 0, totalShopPickup: 0, totalCustomers: 0, totalStates: 0 },
             dailyTrend: [],
             stateDistribution: [],
             recentConsignments: []
@@ -148,7 +166,12 @@ async function getDashboardAnalytics() {
     }
 }
 
-module.exports = {
-    getDashboardAnalytics
-};
+function invalidateAnalyticsCache() {
+    cachedAnalytics = null;
+    cacheTimestamp = 0;
+}
 
+module.exports = {
+    getDashboardAnalytics,
+    invalidateAnalyticsCache
+};
