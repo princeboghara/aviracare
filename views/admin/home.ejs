@@ -80,56 +80,46 @@
     %>
 
     <!-- 🧭 Executive Sticky Header Navigation -->
-    <header class="bg-white/95 backdrop-blur-md sticky top-0 z-40 px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex justify-between items-center shadow-2xs border-b border-slate-200 w-full">
-        <!-- Logo & Brand Title -->
-        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-xs border border-slate-200 flex-shrink-0 p-1">
-                <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-[7px]">
-            </div>
-            <div class="min-w-0">
-                <div class="flex items-center gap-1.5 sm:gap-2">
-                    <span class="text-sm sm:text-base lg:text-lg font-black tracking-tight text-slate-900 leading-tight">AVIRA <span class="text-blue-600">CARE</span></span>
-                    <span class="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
-                        Admin Hub
-                    </span>
+    <header class="bg-white sticky top-0 z-40 px-3.5 sm:px-6 lg:px-8 xl:px-10 py-2.5 sm:py-3 shadow-2xs border-b border-slate-200 w-full">
+        <div class="w-full max-w-[1850px] 2xl:max-w-[1920px] mx-auto flex justify-between items-center">
+            <!-- Logo & Brand Title -->
+            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-xs border border-slate-200 flex-shrink-0 p-1">
+                    <img src="/images/logo.jpg" alt="Avira Logo" class="h-full w-full object-cover rounded-[7px]">
                 </div>
-                <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 tracking-wider uppercase truncate block">Control Center</span>
-            </div>
-        </div>
-
-        <!-- Telemetry, Clock & Session Actions -->
-        <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-            <!-- Live Clock (Tablet & Desktop) -->
-            <div class="hidden md:flex flex-col text-right">
-                <span id="liveClock" class="text-xs font-mono font-bold text-slate-700 leading-none">--:--:--</span>
-                <span id="liveDate" class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">IST Date</span>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 sm:gap-2">
+                        <span class="text-sm sm:text-base lg:text-lg font-black tracking-tight text-slate-900 leading-tight">AVIRA <span class="text-blue-600">CARE</span></span>
+                    </div>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 tracking-wider uppercase truncate block">Control Center</span>
+                </div>
             </div>
 
-            <!-- Online Pulse Pill -->
-            <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold">
-                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>LIVE</span>
-            </div>
+            <!-- Telemetry, Clock & Session Actions -->
+            <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                <!-- Live Clock (Tablet & Desktop) -->
+                <div class="hidden md:flex flex-col text-right">
+                    <span id="liveClock" class="text-xs font-mono font-bold text-slate-700 leading-none">--:--:--</span>
+                    <span id="liveDate" class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">IST Date</span>
+                </div>
 
-            <!-- Logout Button -->
-            <a href="/admin/logout" title="Sign Out of Session" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-bold transition-all">
-                <i class="fa-solid fa-power-off text-[11px]"></i>
-                <span class="hidden sm:inline">Logout</span>
-            </a>
+                <!-- Logout Button -->
+                <a href="/admin/logout" title="Sign Out of Session" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-bold transition-all">
+                    <i class="fa-solid fa-power-off text-[11px]"></i>
+                    <span class="hidden sm:inline">Logout</span>
+                </a>
+            </div>
         </div>
     </header>
 
     <!-- 🌐 Main Executive Dashboard Body -->
-    <main class="flex-grow w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6">
+    <main class="flex-grow w-full max-w-[1850px] 2xl:max-w-[1920px] mx-auto px-3.5 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
         <!-- 🌟 Corporate Command Hero Banner -->
         <div class="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-4 sm:p-6 lg:p-7 text-white shadow-md border border-slate-800 relative overflow-hidden">
             <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
                 <!-- Welcome Title & Subtitle -->
-                <div class="space-y-1.5 sm:space-y-2 max-w-2xl">
-                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/15 text-[10px] font-black uppercase tracking-wider text-blue-200">
-                        <i class="fa-solid fa-shield-halved text-blue-400 text-[9px]"></i> Corporate Executive Suite
-                    </div>
+                <div class="space-y-1 sm:space-y-1.5 max-w-2xl">
                     <h1 id="greetingMessage" class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white leading-tight">
                         Welcome Back, Administrator
                     </h1>
@@ -254,19 +244,13 @@
                         <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-purple-600 text-white flex items-center justify-center text-xs font-black shadow-xs">
                             <i class="fa-solid fa-chart-line"></i>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-sm sm:text-base font-black text-slate-900 tracking-tight">Dispatch Trends & Geographic Distribution</h2>
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                Live Telemetry
-                            </span>
-                        </div>
+                        <h2 class="text-sm sm:text-base font-black text-slate-900 tracking-tight">Dispatch Trends & Geographic Distribution</h2>
                     </div>
                     <p class="text-[11px] text-slate-400 font-medium sm:pl-10">Daily dispatch volume timeline, velocity dynamics & pan-India state breakdown</p>
                 </div>
 
-                <div class="flex items-center gap-2 self-end sm:self-auto">
-                    <span id="analyticsLastUpdated" class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 hidden sm:inline-block">
+                <div class="flex items-center gap-3 self-end sm:self-auto">
+                    <span id="analyticsLastUpdated" class="text-[10px] font-medium text-slate-400 hidden sm:inline-block">
                         Synced with cloud
                     </span>
                     <button type="button" id="btnRefreshAnalytics" onclick="refreshAnalytics(true)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 shadow-2xs transition-all cursor-pointer">
@@ -323,8 +307,8 @@
                 </div>
             </div>
 
-            <!-- Two Interactive Multi-View Analytics Cards (Responsive 1-Col Mobile, 2-Col Desktop) -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6 w-full">
+            <!-- Three Interactive Multi-View Analytics Cards (Responsive 1-Col Mobile, 2-Col Tablet, 3-Col Desktop) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 w-full">
                 
                 <!-- Chart 1: Daily Dispatch Timeline & Velocity Dynamics -->
                 <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
@@ -335,23 +319,23 @@
                                 <span class="h-2.5 w-2.5 rounded-full bg-indigo-600 ring-4 ring-indigo-50"></span>
                                 <div>
                                     <h3 class="text-xs sm:text-sm font-black text-slate-900 leading-none">Daily Dispatch Velocity</h3>
-                                    <span class="text-[10px] text-slate-400 font-medium">Timeline of orders processed & shipped</span>
+                                    <span class="text-[10px] text-slate-400 font-medium">Timeline of orders shipped</span>
                                 </div>
                             </div>
 
                             <!-- Interactive Mode Switcher Pill -->
                             <div class="inline-flex items-center p-0.5 rounded-lg bg-slate-100 border border-slate-200 text-[10px] font-bold">
                                 <button type="button" id="btnTrendWave" onclick="switchTrendView('wave')" class="px-2.5 py-1 rounded-md transition-all font-black bg-white text-indigo-600 shadow-2xs cursor-pointer">
-                                    <i class="fa-solid fa-chart-area mr-1 text-[9px]"></i> Wave
+                                    Wave
                                 </button>
                                 <button type="button" id="btnTrendBar" onclick="switchTrendView('bar')" class="px-2.5 py-1 rounded-md transition-all text-slate-500 hover:text-slate-800 cursor-pointer">
-                                    <i class="fa-solid fa-chart-column mr-1 text-[9px]"></i> Bars
+                                    Bars
                                 </button>
                             </div>
                         </div>
 
                         <!-- Canvas Container -->
-                        <div class="relative w-full h-56 sm:h-64 lg:h-72">
+                        <div class="relative w-full h-56 sm:h-64">
                             <canvas id="dailyDispatchChart"></canvas>
                         </div>
                     </div>
@@ -360,14 +344,14 @@
                     <div class="pt-3 mt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] text-slate-500 font-medium">
                         <div class="flex items-center gap-3">
                             <span class="flex items-center gap-1.5 font-bold text-slate-700">
-                                <span class="h-2 w-2 rounded-full bg-indigo-600 inline-block"></span> Past Consignments
+                                <span class="h-2 w-2 rounded-full bg-indigo-600 inline-block"></span> Past Batches
                             </span>
                             <span class="flex items-center gap-1.5 font-bold text-emerald-700">
-                                <span class="h-2 w-2 rounded-full bg-emerald-500 inline-block"></span> Today's Batch
+                                <span class="h-2 w-2 rounded-full bg-emerald-500 inline-block"></span> Today
                             </span>
                         </div>
-                        <div id="trendHighlightBadge" class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-2 py-0.5 rounded-md">
-                            Calculating batches...
+                        <div id="trendHighlightBadge" class="text-[10px] font-semibold text-slate-500">
+                            Calculating...
                         </div>
                     </div>
                 </div>
@@ -380,29 +364,29 @@
                             <div class="flex items-center gap-2">
                                 <span class="h-2.5 w-2.5 rounded-full bg-purple-600 ring-4 ring-purple-50"></span>
                                 <div>
-                                    <h3 class="text-xs sm:text-sm font-black text-slate-900 leading-none">State Destination Breakdown</h3>
-                                    <span class="text-[10px] text-slate-400 font-medium">Regional parcel volume & delivery share</span>
+                                    <h3 class="text-xs sm:text-sm font-black text-slate-900 leading-none">State Destinations</h3>
+                                    <span class="text-[10px] text-slate-400 font-medium">Regional parcel breakdown</span>
                                 </div>
                             </div>
 
                             <!-- Interactive Mode Switcher Pill -->
                             <div class="inline-flex items-center p-0.5 rounded-lg bg-slate-100 border border-slate-200 text-[10px] font-bold">
                                 <button type="button" id="btnGeoLeaderboard" onclick="switchGeoView('leaderboard')" class="px-2.5 py-1 rounded-md transition-all font-black bg-white text-purple-600 shadow-2xs cursor-pointer">
-                                    <i class="fa-solid fa-list-ol mr-1 text-[9px]"></i> Leaderboard
+                                    List
                                 </button>
                                 <button type="button" id="btnGeoDonut" onclick="switchGeoView('donut')" class="px-2.5 py-1 rounded-md transition-all text-slate-500 hover:text-slate-800 cursor-pointer">
-                                    <i class="fa-solid fa-chart-pie mr-1 text-[9px]"></i> Donut Split
+                                    Donut
                                 </button>
                             </div>
                         </div>
 
                         <!-- View 1: Leaderboard View (Rankings + Gradient Progress Bars) -->
-                        <div id="geoLeaderboardView" class="space-y-2 h-56 sm:h-64 lg:h-72 overflow-y-auto pr-1">
+                        <div id="geoLeaderboardView" class="space-y-2 h-56 sm:h-64 overflow-y-auto pr-1">
                             <!-- Populated dynamically via renderStateLeaderboard() -->
                         </div>
 
                         <!-- View 2: Donut Radial View (Toggled via JS) -->
-                        <div id="geoDonutView" class="hidden relative w-full h-56 sm:h-64 lg:h-72 flex items-center justify-center">
+                        <div id="geoDonutView" class="hidden relative w-full h-56 sm:h-64 flex items-center justify-center">
                             <canvas id="stateDonutChart"></canvas>
                             <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-4">
                                 <span id="donutCenterTotal" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">0</span>
@@ -413,12 +397,88 @@
 
                     <!-- Mini Telemetry Strip under State Card -->
                     <div class="pt-3 mt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500 font-medium">
-                        <span class="flex items-center gap-1.5">
+                        <span class="flex items-center gap-1.5 truncate">
                             <i class="fa-solid fa-truck-ramp-box text-purple-600"></i>
-                            <span id="geoTopShareText">Top States dominate parcel volume</span>
+                            <span id="geoTopShareText" class="truncate">Top states volume</span>
                         </span>
-                        <span class="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200/80 px-2 py-0.5 rounded-md">
-                            Pan-India Reach
+                        <span class="text-[10px] font-semibold text-purple-700 flex-shrink-0">
+                            Pan-India
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Chart 3: Order Fulfillment Pipeline (NEW Dedicated Circular Doughnut Chart) -->
+                <div class="corp-card p-4 sm:p-5 flex flex-col justify-between">
+                    <div>
+                        <!-- Header -->
+                        <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-50"></span>
+                                <div>
+                                    <h3 class="text-xs sm:text-sm font-black text-slate-900 leading-none">Order Fulfillment Status</h3>
+                                    <span class="text-[10px] text-slate-400 font-medium">Channel share & pending queue</span>
+                                </div>
+                            </div>
+                            <a href="/admin/orders-master" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
+                                Orders <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                            </a>
+                        </div>
+
+                        <!-- Circular Donut Canvas Container -->
+                        <div class="relative w-full h-40 sm:h-44 flex items-center justify-center">
+                            <canvas id="fulfillmentDonutChart"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-1">
+                                <span id="fulfillmentCenterTotal" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">0</span>
+                                <span class="text-[8px] font-extrabold uppercase tracking-wider text-slate-400 mt-0.5">Total Pipeline</span>
+                            </div>
+                        </div>
+
+                        <!-- 3 Breakdown Metric Rows -->
+                        <div class="space-y-1.5 mt-2 pt-2 border-t border-slate-100">
+                            <!-- Dispatched via Post -->
+                            <div class="flex items-center justify-between text-[11px]">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                                    <span class="font-semibold text-slate-700 truncate">India Post Dispatched</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 flex-shrink-0">
+                                    <span id="fulfillmentDispatchedCount" class="font-black text-slate-900">0</span>
+                                    <span id="fulfillmentDispatchedPct" class="text-[10px] text-slate-400 font-mono">(0%)</span>
+                                </div>
+                            </div>
+                            <!-- Store / Counter Pickups -->
+                            <div class="flex items-center justify-between text-[11px]">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
+                                    <span class="font-semibold text-slate-700 truncate">Counter / Shop Pickup</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 flex-shrink-0">
+                                    <span id="fulfillmentPickupCount" class="font-black text-slate-900">0</span>
+                                    <span id="fulfillmentPickupPct" class="text-[10px] text-slate-400 font-mono">(0%)</span>
+                                </div>
+                            </div>
+                            <!-- Processing / In Queue -->
+                            <div class="flex items-center justify-between text-[11px]">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></span>
+                                    <span class="font-semibold text-slate-700 truncate">Processing in Queue</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 flex-shrink-0">
+                                    <span id="fulfillmentPendingCount" class="font-black text-slate-900">0</span>
+                                    <span id="fulfillmentPendingPct" class="text-[10px] text-slate-400 font-mono">(0%)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mini Telemetry Strip under Fulfillment Card -->
+                    <div class="pt-2.5 mt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center gap-1.5 truncate">
+                            <i class="fa-solid fa-gauge-high text-emerald-600"></i>
+                            <span id="fulfillmentVelocityText" class="truncate">Calculating...</span>
+                        </span>
+                        <span class="text-[10px] font-semibold text-emerald-700 flex-shrink-0">
+                            Active
                         </span>
                     </div>
                 </div>
@@ -437,10 +497,7 @@
                             <i class="fa-solid fa-truck-fast"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-1.5">
-                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">1. Dispatch & Logistics</h2>
-                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">CORE</span>
-                            </div>
+                            <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">1. Dispatch & Logistics</h2>
                             <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">Consignments & Shipping</p>
                         </div>
                     </div>
@@ -469,7 +526,7 @@
                             <i class="fa-solid fa-satellite-dish text-blue-600 text-xs"></i>
                             <span>India Post Live Tracking</span>
                         </span>
-                        <span class="text-[8px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">SYNC</span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
                     </a>
                     <a href="/admin/master-database" class="hub-link-item">
                         <span class="flex items-center gap-2">
@@ -489,10 +546,7 @@
                             <i class="fa-solid fa-users"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-1.5">
-                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">2. Members & Customers</h2>
-                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">DIRECTORY</span>
-                            </div>
+                            <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">2. Members & Customers</h2>
                             <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">Customer Accounts & History</p>
                         </div>
                     </div>
@@ -515,7 +569,7 @@
                             <span>Support Helpdesk & Tickets</span>
                         </span>
                         <% if (typeof stats !== 'undefined' && stats.openQueries > 0) { %>
-                        <span class="text-[8px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded"><%= stats.openQueries %> OPEN</span>
+                        <span class="text-[9px] font-bold text-rose-600"><%= stats.openQueries %> OPEN</span>
                         <% } else { %>
                         <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
                         <% } %>
@@ -531,10 +585,7 @@
                             <i class="fa-solid fa-boxes-stacked"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-1.5">
-                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">3. Inventory & Catalog</h2>
-                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">INVENTORY</span>
-                            </div>
+                            <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">3. Inventory & Catalog</h2>
                             <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">Pricing, Points & Assets</p>
                         </div>
                     </div>
@@ -576,10 +627,7 @@
                             <i class="fa-solid fa-terminal"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-1.5">
-                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">4. Live Log Monitor</h2>
-                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">REALTIME</span>
-                            </div>
+                            <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">4. Live Log Monitor</h2>
                             <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">System & Bot Diagnostics</p>
                         </div>
                     </div>
@@ -594,7 +642,7 @@
                             <i class="fa-solid fa-satellite-dish text-indigo-600 text-xs"></i>
                             <span>Unified Log Monitor</span>
                         </span>
-                        <span class="text-[8px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">LIVE</span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
                     </a>
                 </div>
             </div>
@@ -607,10 +655,7 @@
                             <i class="fa-solid fa-gear"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-1.5">
-                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">5. Settings & Bots</h2>
-                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">SETTINGS</span>
-                            </div>
+                            <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">5. Settings & Bots</h2>
                             <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">Sync Timers & Box Presets</p>
                         </div>
                     </div>
@@ -638,10 +683,7 @@
                             <i class="fa-solid fa-shield-check"></i>
                         </div>
                         <div>
-                            <div class="flex items-center gap-1.5">
-                                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">6. Engine Health</h2>
-                                <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">SECURITY</span>
-                            </div>
+                            <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">6. Engine Health</h2>
                             <p class="text-slate-400 text-[10px] sm:text-[11px] font-semibold">PostgreSQL & Session Integrity</p>
                         </div>
                     </div>
@@ -667,12 +709,30 @@
             </div>
 
         </div>
+                
+                <div class="pt-3 border-t border-slate-100 space-y-1.5">
+                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex items-center justify-between font-semibold text-slate-600">
+                        <span class="flex items-center gap-2">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Database Pool
+                        </span>
+                        <span class="font-mono text-emerald-600 font-bold text-[10px]">HEALTHY</span>
+                    </div>
+                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex items-center justify-between font-semibold text-slate-600">
+                        <span class="flex items-center gap-2">
+                            <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span> Session Security
+                        </span>
+                        <span class="font-mono text-blue-600 font-bold text-[10px]">30 DAYS</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
 
     </main>
 
     <!-- 📋 Executive Footer -->
-    <footer class="bg-white border-t border-slate-200 py-3.5 px-4 sm:px-6 text-center text-xs font-medium text-slate-400 mt-6 sm:mt-8">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]">
+    <footer class="bg-white border-t border-slate-200 py-3.5 px-3.5 sm:px-6 lg:px-8 xl:px-10 text-center text-xs font-medium text-slate-400 mt-6 sm:mt-8 w-full">
+        <div class="max-w-[1850px] 2xl:max-w-[1920px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]">
             <span>&copy; 2026 AviraCare Systems. All rights reserved. Enterprise Administration Hub.</span>
             <span class="font-mono text-slate-400">Node <%= process.version %> &bull; TLS 1.3 &bull; PostgreSQL Active</span>
         </div>
@@ -759,7 +819,7 @@
             // 1. Update KPI Values
             updateKPICards(data);
 
-            // 2. Update Telemetry Micro-Cards & Badges
+            // 2. Update Telemetry Micro-Cards
             updateTelemetryInsights(data);
 
             // 3. Render Daily Dispatch Chart (Wave or Bars)
@@ -775,6 +835,9 @@
                 const total = (data.totals && data.totals.totalDispatched) ? data.totals.totalDispatched : 0;
                 renderStateDonutChart(data.stateDistribution || [], total);
             }
+
+            // 5. Render Fulfillment & Pipeline Donut Chart (Circular Chart)
+            renderFulfillmentDonutChart(data.totals || {});
         }
 
         // 🔢 Update KPI Cards in Real-Time
@@ -1032,7 +1095,7 @@
             }
         }
 
-        // 🗺️ Render State Destination Leaderboard (Unique Medal Rankings + Gradient Progress Meters)
+        // 🗺️ Render State Destination Leaderboard (Minimal Clean Typography + Progress Meters)
         function renderStateLeaderboard(states) {
             const container = document.getElementById('geoLeaderboardView');
             if (!container) return;
@@ -1048,35 +1111,25 @@
             }
 
             container.innerHTML = states.map((st, i) => {
-                // Rank Badges
-                let rankBadge = `<span class="w-5 h-5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black flex items-center justify-center flex-shrink-0">#${i + 1}</span>`;
-                if (i === 0) {
-                    rankBadge = `<span class="w-5 h-5 rounded-md bg-amber-500 text-white shadow-2xs text-[10px] font-black flex items-center justify-center flex-shrink-0" title="Top Region">🥇</span>`;
-                } else if (i === 1) {
-                    rankBadge = `<span class="w-5 h-5 rounded-md bg-slate-400 text-white shadow-2xs text-[10px] font-black flex items-center justify-center flex-shrink-0">🥈</span>`;
-                } else if (i === 2) {
-                    rankBadge = `<span class="w-5 h-5 rounded-md bg-amber-700 text-white shadow-2xs text-[10px] font-black flex items-center justify-center flex-shrink-0">🥉</span>`;
-                }
-
                 const widthPct = Math.min(100, Math.max(5, st.percentage || 0));
 
                 return `
                     <div class="p-2 sm:p-2.5 rounded-xl bg-slate-50/70 hover:bg-slate-100/90 border border-slate-200/60 transition-all flex flex-col justify-between gap-1.5 group">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2 min-w-0">
-                                ${rankBadge}
+                                <span class="text-xs font-bold text-slate-400 w-4 flex-shrink-0">${i + 1}.</span>
                                 <span class="text-xs font-black text-slate-800 tracking-tight truncate group-hover:text-purple-700 transition-colors" title="${st.state}">
                                     ${st.state}
                                 </span>
                             </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 <span class="text-xs font-black text-slate-900">${st.count} <span class="text-[9px] font-semibold text-slate-400">parcels</span></span>
-                                <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-700 border border-purple-200/80 font-mono">
+                                <span class="text-[11px] font-bold text-purple-700 font-mono">
                                     ${st.percentage}%
                                 </span>
                             </div>
                         </div>
-                        <div class="w-full bg-slate-200/80 h-1.5 sm:h-2 rounded-full overflow-hidden">
+                        <div class="w-full bg-slate-200/80 h-1.5 rounded-full overflow-hidden">
                             <div class="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-500" style="width: ${widthPct}%"></div>
                         </div>
                     </div>
@@ -1163,6 +1216,91 @@
                                     const val = context.parsed;
                                     const pct = totalDispatched > 0 ? ((val / totalDispatched) * 100).toFixed(1) : 0;
                                     return ` ${val} Parcels (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 🍩 Render Order Fulfillment Pipeline Circular Doughnut Chart (NEW)
+        let fulfillmentDonutChart = null;
+
+        function renderFulfillmentDonutChart(totals) {
+            const canvas = document.getElementById('fulfillmentDonutChart');
+            if (!canvas) return;
+
+            const totalOrders = parseInt(totals.totalOrders || 0, 10);
+            const totalDispatched = parseInt(totals.totalDispatched || 0, 10);
+            const totalPickup = parseInt(totals.totalShopPickup || 0, 10);
+            const pendingOrders = Math.max(0, totalOrders - totalDispatched - totalPickup);
+
+            // Update center total
+            const centerTotalEl = document.getElementById('fulfillmentCenterTotal');
+            if (centerTotalEl) {
+                centerTotalEl.innerText = totalOrders;
+            }
+
+            // Update counts & percentages
+            const dispEl = document.getElementById('fulfillmentDispatchedCount');
+            const dispPctEl = document.getElementById('fulfillmentDispatchedPct');
+            if (dispEl) dispEl.innerText = totalDispatched;
+            if (dispPctEl) dispPctEl.innerText = totalOrders > 0 ? `(${((totalDispatched / totalOrders) * 100).toFixed(1)}%)` : '(0%)';
+
+            const pickEl = document.getElementById('fulfillmentPickupCount');
+            const pickPctEl = document.getElementById('fulfillmentPickupPct');
+            if (pickEl) pickEl.innerText = totalPickup;
+            if (pickPctEl) pickPctEl.innerText = totalOrders > 0 ? `(${((totalPickup / totalOrders) * 100).toFixed(1)}%)` : '(0%)';
+
+            const pendEl = document.getElementById('fulfillmentPendingCount');
+            const pendPctEl = document.getElementById('fulfillmentPendingPct');
+            if (pendEl) pendEl.innerText = pendingOrders;
+            if (pendPctEl) pendPctEl.innerText = totalOrders > 0 ? `(${((pendingOrders / totalOrders) * 100).toFixed(1)}%)` : '(0%)';
+
+            // Velocity text
+            const velEl = document.getElementById('fulfillmentVelocityText');
+            if (velEl) {
+                const fulfilledRate = totalOrders > 0 ? (((totalDispatched + totalPickup) / totalOrders) * 100).toFixed(1) : 0;
+                velEl.innerText = `${fulfilledRate}% Orders Fulfilled`;
+            }
+
+            if (fulfillmentDonutChart) {
+                fulfillmentDonutChart.destroy();
+                fulfillmentDonutChart = null;
+            }
+
+            const ctx = canvas.getContext('2d');
+            fulfillmentDonutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['India Post Dispatched', 'Counter / Shop Pickup', 'In Processing Queue'],
+                    datasets: [{
+                        data: [totalDispatched, totalPickup, pendingOrders],
+                        backgroundColor: ['#10b981', '#3b82f6', '#6366f1'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    animation: { duration: 320, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#ffffff',
+                            bodyColor: '#e2e8f0',
+                            padding: 8,
+                            cornerRadius: 6,
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.parsed;
+                                    const pct = totalOrders > 0 ? ((val / totalOrders) * 100).toFixed(1) : 0;
+                                    return ` ${context.label}: ${val} (${pct}%)`;
                                 }
                             }
                         }
